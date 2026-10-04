@@ -10,6 +10,7 @@ The first loop is:
 Start with [the product specification](docs/PRODUCT_SPEC.md), then read
 [the delivery plan](docs/DELIVERY_PLAN.md) and [architecture](docs/ARCHITECTURE.md).
 
-Current state: design and walking skeleton in progress; not deployed or
+Current state: the design and interactive walking skeleton are source-complete.
+Identity, persistence, teacher authoring, and live AI remain planned slices;
+this is not yet the persistent MVP acceptance journey. Nothing is deployed or
 classroom-verified.
-
