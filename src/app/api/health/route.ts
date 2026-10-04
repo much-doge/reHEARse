@@ -1,8 +1,7 @@
 export function GET() {
   return Response.json({
     status: "ok",
-    service: "listening-foundation-lab",
+    service: "rehearse",
     contractVersion: "health.v1",
   });
 }
-

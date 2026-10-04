@@ -6,12 +6,17 @@ RUN corepack enable
 WORKDIR /app
 
 FROM base AS deps
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 
 FROM deps AS build
 COPY . .
 RUN pnpm build
+
+FROM deps AS migrator
+COPY migrations ./migrations
+COPY scripts ./scripts
+CMD ["node", "scripts/migrate.mjs"]
 
 FROM node:24-alpine AS runner
 ENV NODE_ENV=production

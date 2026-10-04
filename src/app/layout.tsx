@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Listening Foundation Lab",
+  title: "reHEARse",
   description: "Listen, notice, relisten — without a score.",
 };
 

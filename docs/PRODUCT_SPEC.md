@@ -1,4 +1,4 @@
-# Listening Foundation Lab — product specification
+# reHEARse — product specification
 
 ## Aim
 
@@ -102,4 +102,3 @@ sign in, open that activity, submit notes and a reconstruction, receive paired
 English/Indonesian diagnostic guidance with no numeric assessment, relisten,
 submit again, and reopen both immutable attempts. A teacher can create and
 publish another activity with an uploaded audio file.
-

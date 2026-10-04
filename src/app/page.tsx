@@ -4,11 +4,14 @@ export default function HomePage() {
   return (
     <main className="landing-shell">
       <nav className="topbar landing-nav" aria-label="Primary navigation">
-        <Link href="/" className="brand-mark" aria-label="Listening Foundation Lab home">
+        <Link href="/" className="brand-mark" aria-label="reHEARse home">
           <span className="brand-pulse" />
-          <span>Listening Foundation Lab</span>
+          <span>reHEARse</span>
         </Link>
-        <span className="prototype-chip">Design prototype</span>
+        <div className="landing-account">
+          <Link href="/login" className="text-button">Sign in</Link>
+          <span className="prototype-chip">Design prototype</span>
+        </div>
       </nav>
 
       <section className="hero">
@@ -20,10 +23,10 @@ export default function HomePage() {
             for a more purposeful next listen—not a score.
           </p>
           <div className="hero-actions">
-            <Link href="/dashboard" className="button button-primary">
+            <Link href="/activities/campus-radio" className="button button-primary">
               Open learner prototype <span aria-hidden="true">→</span>
             </Link>
-            <a href="#loop" className="button button-quiet">See the learning loop</a>
+            <Link href="/register" className="button button-quiet">Create learner account</Link>
           </div>
         </div>
 
@@ -58,4 +61,3 @@ export default function HomePage() {
     </main>
   );
 }
-

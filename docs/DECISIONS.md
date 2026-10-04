@@ -75,3 +75,12 @@ Use Node 24 LTS in production containers, Next.js 16 App Router, React 19,
 TypeScript, PostgreSQL 18, pnpm, and multi-stage Docker builds. The host may use
 another supported Node LTS for local checks.
 
+## D-011 — Product name
+
+Status: accepted
+
+The product is named **reHEARse**. The emphasis on “HEAR” connects deliberate
+practice with repeated listening without framing the experience as a test. Use
+the stylized name in learner-facing copy and `rehearse` for machine identifiers
+such as package and Compose project names. Existing `LFL-*` work IDs remain
+unchanged so their Git and ledger lineage stays stable.

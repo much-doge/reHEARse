@@ -1,0 +1,263 @@
+import { getPool } from "@/adapters/db/client";
+import { TeacherTemplateFeedbackProvider } from "@/adapters/feedback/template-provider";
+import { parseListeningFeedback, type ListeningFeedback } from "@/domain/feedback";
+
+export type DashboardActivity = {
+  slug: string;
+  title: string;
+  partLabel: string;
+  attempts: number;
+  lastAttemptAt: string | null;
+};
+
+export type StoredAttempt = {
+  id: string;
+  attemptNumber: number;
+  pseudonym: string;
+  notes: string;
+  reconstruction: string;
+  createdAt: string;
+  feedback: ListeningFeedback | null;
+  feedbackStatus: "completed" | "failed" | null;
+};
+
+export type LearnerActivity = {
+  id: string;
+  versionId: string;
+  slug: string;
+  title: string;
+  partLabel: string;
+  promptEn: string;
+  promptId: string;
+  audioUrl: string | null;
+  pseudonym: string | null;
+  attempts: StoredAttempt[];
+};
+
+export async function listLearnerActivities(learnerId: string): Promise<DashboardActivity[]> {
+  const result = await getPool().query(
+    `SELECT a.slug, av.title, av.part_label,
+            count(la.id)::int AS attempts,
+            max(la.created_at) AS last_attempt_at
+     FROM activity a
+     JOIN activity_version av
+       ON av.activity_id = a.id AND av.version_number = a.current_version
+     LEFT JOIN listening_attempt la
+       ON la.activity_id = a.id AND la.learner_id = $1
+     WHERE a.state = 'published'
+     GROUP BY a.id, a.slug, av.title, av.part_label
+     ORDER BY a.created_at DESC`,
+    [learnerId],
+  );
+  return result.rows.map((row) => ({
+    slug: row.slug,
+    title: row.title,
+    partLabel: row.part_label,
+    attempts: row.attempts,
+    lastAttemptAt: row.last_attempt_at?.toISOString() ?? null,
+  }));
+}
+
+export async function getLearnerActivity(slug: string, learnerId: string): Promise<LearnerActivity | null> {
+  const activityResult = await getPool().query(
+    `SELECT a.id, a.slug, av.id AS version_id, av.title, av.part_label,
+            av.prompt_en, av.prompt_id, av.media_storage_key,
+            ai.pseudonym
+     FROM activity a
+     JOIN activity_version av
+       ON av.activity_id = a.id AND av.version_number = a.current_version
+     LEFT JOIN activity_identity ai
+       ON ai.activity_id = a.id AND ai.learner_id = $2
+     WHERE a.slug = $1 AND a.state = 'published'`,
+    [slug, learnerId],
+  );
+  const activity = activityResult.rows[0];
+  if (!activity) return null;
+
+  const attemptsResult = await getPool().query(
+    `SELECT la.id, la.attempt_number, la.notes, la.reconstruction, la.created_at,
+            ai.pseudonym, lf.status AS feedback_status, lf.result_json
+     FROM listening_attempt la
+     JOIN activity_identity ai
+       ON ai.activity_id = la.activity_id AND ai.learner_id = la.learner_id
+     LEFT JOIN listening_feedback lf ON lf.attempt_id = la.id
+     WHERE la.activity_id = $1 AND la.learner_id = $2
+     ORDER BY la.attempt_number DESC`,
+    [activity.id, learnerId],
+  );
+
+  return {
+    id: activity.id,
+    versionId: activity.version_id,
+    slug: activity.slug,
+    title: activity.title,
+    partLabel: activity.part_label,
+    promptEn: activity.prompt_en,
+    promptId: activity.prompt_id,
+    audioUrl: activity.media_storage_key,
+    pseudonym: activity.pseudonym,
+    attempts: attemptsResult.rows.map((row) => ({
+      id: row.id,
+      attemptNumber: row.attempt_number,
+      pseudonym: row.pseudonym,
+      notes: row.notes,
+      reconstruction: row.reconstruction,
+      createdAt: row.created_at.toISOString(),
+      feedback: row.result_json ? parseListeningFeedback(row.result_json) : null,
+      feedbackStatus: row.feedback_status,
+    })),
+  };
+}
+
+export async function submitLearnerAttempt(input: {
+  slug: string;
+  learnerId: string;
+  pseudonym: string;
+  notes: string;
+  reconstruction: string;
+}): Promise<StoredAttempt | null> {
+  const client = await getPool().connect();
+  let attempt: {
+    id: string;
+    number: number;
+    createdAt: Date;
+    pseudonym: string;
+    activityVersionId: string;
+    transcript: string;
+    teacherGuide: string;
+    template: unknown;
+    previousReconstruction: string | null;
+  } | null = null;
+
+  try {
+    await client.query("BEGIN");
+    const activityResult = await client.query(
+      `SELECT a.id, av.id AS version_id, av.transcript, av.teacher_guide,
+              av.feedback_template
+       FROM activity a
+       JOIN activity_version av
+         ON av.activity_id = a.id AND av.version_number = a.current_version
+       WHERE a.slug = $1 AND a.state = 'published'`,
+      [input.slug],
+    );
+    const activity = activityResult.rows[0];
+    if (!activity) {
+      await client.query("ROLLBACK");
+      return null;
+    }
+
+    await client.query("SELECT pg_advisory_xact_lock(hashtext($1))", [
+      `${activity.id}:${input.learnerId}`,
+    ]);
+    await client.query(
+      `INSERT INTO activity_identity (activity_id, learner_id, pseudonym)
+       VALUES ($1, $2, $3)
+       ON CONFLICT (activity_id, learner_id) DO NOTHING`,
+      [activity.id, input.learnerId, input.pseudonym],
+    );
+    const identityResult = await client.query(
+      `SELECT pseudonym FROM activity_identity
+       WHERE activity_id = $1 AND learner_id = $2`,
+      [activity.id, input.learnerId],
+    );
+    const previousResult = await client.query(
+      `SELECT id, attempt_number, reconstruction
+       FROM listening_attempt
+       WHERE activity_id = $1 AND learner_id = $2
+       ORDER BY attempt_number DESC LIMIT 1`,
+      [activity.id, input.learnerId],
+    );
+    const previous = previousResult.rows[0];
+    const attemptNumber = (previous?.attempt_number ?? 0) + 1;
+    const inserted = await client.query(
+      `INSERT INTO listening_attempt (
+         activity_id, activity_version_id, learner_id, attempt_number,
+         previous_attempt_id, notes, reconstruction
+       ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+       RETURNING id, created_at`,
+      [
+        activity.id,
+        activity.version_id,
+        input.learnerId,
+        attemptNumber,
+        previous?.id ?? null,
+        input.notes,
+        input.reconstruction,
+      ],
+    );
+    await client.query("COMMIT");
+    attempt = {
+      id: inserted.rows[0].id,
+      number: attemptNumber,
+      createdAt: inserted.rows[0].created_at,
+      pseudonym: identityResult.rows[0].pseudonym,
+      activityVersionId: activity.version_id,
+      transcript: activity.transcript,
+      teacherGuide: activity.teacher_guide,
+      template: activity.feedback_template,
+      previousReconstruction: previous?.reconstruction ?? null,
+    };
+  } catch (error) {
+    await client.query("ROLLBACK").catch(() => undefined);
+    throw error;
+  } finally {
+    client.release();
+  }
+
+  if (!attempt) return null;
+  const provider = new TeacherTemplateFeedbackProvider();
+  try {
+    const result = await provider.review({
+      activityVersionId: attempt.activityVersionId,
+      transcript: attempt.transcript,
+      teacherGuide: attempt.teacherGuide,
+      notes: input.notes,
+      reconstruction: input.reconstruction,
+      previousReconstruction: attempt.previousReconstruction,
+      template: attempt.template,
+    });
+    await getPool().query(
+      `INSERT INTO listening_feedback (
+         attempt_id, contract_version, status, provider, model,
+         prompt_version, result_json
+       ) VALUES ($1, $2, 'completed', $3, $4, $5, $6)`,
+      [
+        attempt.id,
+        result.feedback.contractVersion,
+        result.provider,
+        result.model,
+        result.promptVersion,
+        result.feedback,
+      ],
+    );
+    return {
+      id: attempt.id,
+      attemptNumber: attempt.number,
+      pseudonym: attempt.pseudonym,
+      notes: input.notes,
+      reconstruction: input.reconstruction,
+      createdAt: attempt.createdAt.toISOString(),
+      feedback: result.feedback,
+      feedbackStatus: "completed",
+    };
+  } catch {
+    await getPool().query(
+      `INSERT INTO listening_feedback (
+         attempt_id, contract_version, status, provider,
+         prompt_version, safe_error_code
+       ) VALUES ($1, 'listening-feedback.v1', 'failed', 'teacher_template',
+                 'teacher-template.v1', 'feedback_validation_failed')`,
+      [attempt.id],
+    );
+    return {
+      id: attempt.id,
+      attemptNumber: attempt.number,
+      pseudonym: attempt.pseudonym,
+      notes: input.notes,
+      reconstruction: input.reconstruction,
+      createdAt: attempt.createdAt.toISOString(),
+      feedback: null,
+      feedbackStatus: "failed",
+    };
+  }
+}

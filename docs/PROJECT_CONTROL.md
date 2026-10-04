@@ -12,6 +12,7 @@ system it borrows from.
 | Product and technical decisions | `docs/DECISIONS.md` |
 | Delivery order and acceptance | `docs/DELIVERY_PLAN.md` |
 | Reuse provenance | `docs/REUSE_REGISTER.md` |
+| Listening-source provenance | `docs/SOURCE_REGISTER.md` |
 | Design language and bilingual UX | `docs/DESIGN_SYSTEM.md` |
 | Work status and verification | `docs/CHANGE_LEDGER.md` |
 
@@ -31,4 +32,3 @@ a changed product rule.
 - **Classroom-verified:** the actual teacher/learner journey was observed.
 
 These states are never interchangeable.
-

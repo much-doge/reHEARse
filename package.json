@@ -1,5 +1,5 @@
 {
-  "name": "listening-foundation-lab",
+  "name": "rehearse",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -17,16 +17,19 @@
     "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm build",
     "compose:config": "docker compose config --quiet",
     "compose:up": "docker compose up --build",
-    "compose:down": "docker compose down"
+    "compose:down": "docker compose down",
+    "db:migrate": "node scripts/migrate.mjs"
   },
   "dependencies": {
     "next": "16.3.4",
+    "pg": "8.23.1",
     "react": "19.2.6",
     "react-dom": "19.2.6",
     "zod": "4.4.3"
   },
   "devDependencies": {
     "@types/node": "22.19.19",
+    "@types/pg": "8.23.1",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "eslint": "9.39.4",

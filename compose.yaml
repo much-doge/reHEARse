@@ -1,4 +1,4 @@
-name: listening-foundation-lab
+name: rehearse
 
 services:
   app:
@@ -11,20 +11,51 @@ services:
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_MODEL: ${OPENAI_MODEL:-}
       SESSION_SECRET: ${SESSION_SECRET:-local-development-secret-change-before-deploying}
+      SESSION_COOKIE_SECURE: "false"
       UPLOAD_DIR: /data/uploads
     ports:
       - "3000:3000"
     volumes:
       - listening_media:/data/uploads
     depends_on:
-      db:
-        condition: service_healthy
+      seed-demo:
+        condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:3000/api/health"]
       interval: 10s
       timeout: 3s
       retries: 5
     restart: unless-stopped
+
+  migrate:
+    build:
+      context: .
+      target: migrator
+    environment:
+      DATABASE_URL: postgresql://listening:listening@db:5432/listening
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  seed-demo:
+    build:
+      context: .
+      target: migrator
+    command: ["node", "scripts/seed-demo.mjs"]
+    environment:
+      DATABASE_URL: postgresql://listening:listening@db:5432/listening
+      ALLOW_DEMO_SEED: "true"
+      DEMO_LEARNER_EMAIL: ${DEMO_LEARNER_EMAIL:-student@rehearse.local}
+      DEMO_LEARNER_PASSWORD: ${DEMO_LEARNER_PASSWORD:-ReHEARse-Learner-2026!}
+      DEMO_TEACHER_EMAIL: ${DEMO_TEACHER_EMAIL:-teacher@rehearse.local}
+      DEMO_TEACHER_PASSWORD: ${DEMO_TEACHER_PASSWORD:-ReHEARse-Teacher-2026!}
+      DEMO_ADMIN_EMAIL: ${DEMO_ADMIN_EMAIL:-admin@rehearse.local}
+      DEMO_ADMIN_PASSWORD: ${DEMO_ADMIN_PASSWORD:-ReHEARse-Admin-2026!}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: "no"
 
   db:
     image: postgres:18-alpine
@@ -33,7 +64,7 @@ services:
       POSTGRES_USER: listening
       POSTGRES_PASSWORD: listening
     volumes:
-      - listening_db:/var/lib/postgresql/data
+      - listening_db_v18:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U listening -d listening"]
       interval: 5s
@@ -42,5 +73,5 @@ services:
     restart: unless-stopped
 
 volumes:
-  listening_db:
+  listening_db_v18:
   listening_media:
