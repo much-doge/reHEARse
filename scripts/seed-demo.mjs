@@ -40,13 +40,20 @@ const accounts = [
   },
 ];
 
+const preparedAccounts = [];
+for (const account of accounts) {
+  if (!account.email || !account.password || account.password.length < 10) {
+    throw new Error(`Missing or invalid demo credentials for ${account.role}`);
+  }
+  preparedAccounts.push({ ...account, passwordHash: await hashPassword(account.password) });
+}
+
 const pool = new pg.Pool({ connectionString: databaseUrl, max: 1 });
+const client = await pool.connect();
 try {
-  for (const account of accounts) {
-    if (!account.email || !account.password || account.password.length < 10) {
-      throw new Error(`Missing or invalid demo credentials for ${account.role}`);
-    }
-    await pool.query(
+  await client.query("BEGIN");
+  for (const account of preparedAccounts) {
+    await client.query(
       `INSERT INTO app_user (email, display_name, password_hash, role)
        VALUES ($1, $2, $3, $4)
        ON CONFLICT (lower(email)) DO UPDATE
@@ -54,10 +61,15 @@ try {
            password_hash = excluded.password_hash,
            role = excluded.role,
            updated_at = now()`,
-      [account.email.toLowerCase(), account.displayName, await hashPassword(account.password), account.role],
+      [account.email.toLowerCase(), account.displayName, account.passwordHash, account.role],
     );
   }
+  await client.query("COMMIT");
   console.log("Seeded three local demo roles without printing credentials.");
+} catch (error) {
+  await client.query("ROLLBACK").catch(() => undefined);
+  throw error;
 } finally {
+  client.release();
   await pool.end();
 }

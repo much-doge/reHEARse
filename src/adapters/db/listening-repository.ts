@@ -94,7 +94,7 @@ export async function getLearnerActivity(slug: string, learnerId: string): Promi
     partLabel: activity.part_label,
     promptEn: activity.prompt_en,
     promptId: activity.prompt_id,
-    audioUrl: activity.media_storage_key,
+    audioUrl: activity.media_storage_key ? `/api/media/${activity.slug}` : null,
     pseudonym: activity.pseudonym,
     attempts: attemptsResult.rows.map((row) => ({
       id: row.id,

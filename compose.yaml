@@ -12,6 +12,7 @@ services:
       OPENAI_MODEL: ${OPENAI_MODEL:-}
       SESSION_SECRET: ${SESSION_SECRET:-local-development-secret-change-before-deploying}
       SESSION_COOKIE_SECURE: "false"
+      MEDIA_ROOT: /app/media
       UPLOAD_DIR: /data/uploads
     ports:
       - "3000:3000"

@@ -21,6 +21,9 @@ export async function POST(request: Request) {
   }
   const user = await currentUser();
   if (!user) return NextResponse.json({ error: "authentication_required" }, { status: 401 });
+  if (user.role !== "learner") {
+    return NextResponse.json({ error: "learner_role_required" }, { status: 403 });
+  }
 
   const parsed = requestSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "invalid_attempt" }, { status: 400 });
