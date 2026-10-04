@@ -7,5 +7,5 @@ dist/
 !.env.example
 data/
 *.log
+*.tsbuildinfo
 .DS_Store
-

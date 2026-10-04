@@ -1,0 +1,46 @@
+name: listening-foundation-lab
+
+services:
+  app:
+    build:
+      context: .
+      target: runner
+    environment:
+      DATABASE_URL: postgresql://listening:listening@db:5432/listening
+      FEEDBACK_PROVIDER: ${FEEDBACK_PROVIDER:-demo}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-}
+      SESSION_SECRET: ${SESSION_SECRET:-local-development-secret-change-before-deploying}
+      UPLOAD_DIR: /data/uploads
+    ports:
+      - "3000:3000"
+    volumes:
+      - listening_media:/data/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:3000/api/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: listening
+      POSTGRES_USER: listening
+      POSTGRES_PASSWORD: listening
+    volumes:
+      - listening_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U listening -d listening"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  listening_db:
+  listening_media:
