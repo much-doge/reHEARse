@@ -36,8 +36,7 @@ that flag only for its local demo service. Teacher authoring and administration
 screens remain a planned slice, so those roles currently open a labeled preview
 of the same activity dashboard.
 
-Current state: the design and interactive walking skeleton are source-complete.
-The persistent learner loop is being verified. Its immediate feedback is a
-clearly identified teacher-authored bilingual attention guide; the live AI
-adapter and teacher authoring are the next slice. Nothing is deployed or
-classroom-verified.
+Current state: the persistent learner loop is container-verified locally. Its
+immediate feedback is a clearly identified teacher-authored bilingual attention
+guide; the live AI adapter and teacher authoring are the next slice. Nothing is
+deployed or classroom-verified.
