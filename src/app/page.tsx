@@ -10,7 +10,7 @@ export default function HomePage() {
         </Link>
         <div className="landing-account">
           <Link href="/login" className="text-button">Sign in</Link>
-          <span className="prototype-chip">Design prototype</span>
+          <span className="prototype-chip">No-score learning</span>
         </div>
       </nav>
 
@@ -23,8 +23,8 @@ export default function HomePage() {
             for a more purposeful next listen—not a score.
           </p>
           <div className="hero-actions">
-            <Link href="/activities/campus-radio" className="button button-primary">
-              Open learner prototype <span aria-hidden="true">→</span>
+            <Link href="/dashboard" className="button button-primary">
+              Open listening desk <span aria-hidden="true">→</span>
             </Link>
             <Link href="/register" className="button button-quiet">Create learner account</Link>
           </div>

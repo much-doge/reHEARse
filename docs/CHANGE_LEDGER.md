@@ -6,8 +6,9 @@
 | LFL-002 | container_verified | Local identity, guarded learner/teacher/admin demo roles, immutable individual learning loop, and provenance-tracked ConTEFL 1163 activity | ESLint; TypeScript; 11 Vitest tests; Next production build; Compose config; image build `3117a9a19f9d`; migrations 001–004; atomic guarded seed; public-media 404 and unauthenticated-media 401; authenticated full/range audio 200/206 with source SHA-256; non-learner attempt 403; database-down/recovered health 503/200; two-attempt API lineage; learner, teacher, and admin browser sign-in; learner feedback journey | `79d5cde`, `6c6c75c` |
 | LFL-003 | planned | Teacher authoring and OpenAI adapter | Not run | Pending |
 | LFL-004 | planned | Classroom hardening and pilot gate | Not run | Pending |
+| LFL-005 | in_progress | Remove the synthetic campus-radio TTS prototype while preserving migration lineage | Pending | Pending |
 
 The LFL-002 fallback is immediate, bilingual, teacher-authored guidance; live
 AI and teacher authoring remain LFL-003. Deployment: not deployed. Classroom
-verification: not run. The original LFL-001 route remains a fixed visual
-prototype and is not the persistent MVP acceptance journey.
+verification: not run. The original LFL-001 synthetic prototype is retired by
+LFL-005 and is not part of the persistent MVP acceptance journey.
