@@ -175,3 +175,13 @@ the live application; repository history and visibility are unchanged. In
 learner-facing copy, prefer response, explanation, and details in the audio over
 "evidence". Preserve stored feedback and apply legacy wording changes only at
 the presentation boundary. Future feedback prompts use the same language.
+
+## D-017 — Role-aware practice preview (LFL-009)
+
+Teacher and administrator activity views are previews. Only learner accounts
+may submit individual listening responses. The page must communicate this
+before data entry and omit save controls for previews; the server guard remains
+authoritative. Save errors explain authentication, role, validation and origin
+failures in English and Indonesian without clearing text or logging it. An
+unconfirmed save must direct the learner to check history before retrying; a
+network failure does not prove that a response was not stored.

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { attemptSaveError } from "./attempt-save-error";
 
 import type {
   LearnerActivity,
@@ -18,8 +19,10 @@ const labels: Record<ObservationKind, string> = {
 
 export function PersistentLearningWorkspace({
   activity,
+  canSubmit,
 }: {
   activity: LearnerActivity;
+  canSubmit: boolean;
 }) {
   const [notes, setNotes] = useState("");
   const [reconstruction, setReconstruction] = useState("");
@@ -39,7 +42,8 @@ export function PersistentLearningWorkspace({
   const [listenCount, setListenCount] = useState(0);
 
   async function submitAttempt() {
-    if (!pseudonym.trim() || !reconstruction.trim() || submitting) return;
+    if (!canSubmit || !pseudonym.trim() || !reconstruction.trim() || submitting)
+      return;
     setSubmitting(true);
     setError(null);
     try {
@@ -53,16 +57,18 @@ export function PersistentLearningWorkspace({
           reconstruction,
         }),
       });
-      if (!response.ok) throw new Error("attempt_not_saved");
+      if (!response.ok) {
+        const failure = await response.json().catch(() => null);
+        setError(attemptSaveError(failure?.error));
+        return;
+      }
       const payload = (await response.json()) as { attempt: StoredAttempt };
       setAttempts((current) => [payload.attempt, ...current]);
       setFeedback(payload.attempt.feedback);
       setFeedbackStatus(payload.attempt.feedbackStatus);
       setFeedbackProvider(payload.attempt.feedbackProvider);
     } catch {
-      setError(
-        "Your response could not be saved. Your text is still here; please try again. / Jawaban belum dapat disimpan. Teks tetap tersedia; coba lagi.",
-      );
+      setError(attemptSaveError(null));
     } finally {
       setSubmitting(false);
     }
@@ -109,7 +115,17 @@ export function PersistentLearningWorkspace({
           </div>
         </div>
 
-        {!activity.pseudonym && (
+        {!canSubmit && (
+          <p role="note" className="auth-error">
+            Teacher and administrator preview. Listen to the audio and review
+            the prompts here. To save responses and receive feedback, sign in
+            with a learner account. / Pratinjau guru dan administrator.
+            Dengarkan audio dan tinjau pertanyaan di sini. Untuk menyimpan
+            jawaban dan memperoleh umpan balik, masuk dengan akun peserta.
+          </p>
+        )}
+
+        {canSubmit && !activity.pseudonym && (
           <label className="pseudonym-field">
             <span>Activity name / Nama untuk aktivitas ini</span>
             <input
@@ -135,7 +151,8 @@ export function PersistentLearningWorkspace({
               value={notes}
               onChange={(event) => setNotes(event.target.value)}
               placeholder="Note key ideas in English or Indonesian. / Catat gagasan utama dalam bahasa Inggris atau Indonesia."
-              disabled={submitting}
+              disabled={submitting || !canSubmit}
+              maxLength={12_000}
             />
           </label>
           <label className="notebook-field reconstruction-field">
@@ -147,7 +164,8 @@ export function PersistentLearningWorkspace({
               value={reconstruction}
               onChange={(event) => setReconstruction(event.target.value)}
               placeholder="Explain the conversation in your own words. / Jelaskan percakapan dengan kata-katamu sendiri."
-              disabled={submitting}
+              disabled={submitting || !canSubmit}
+              maxLength={12_000}
             />
           </label>
         </div>
@@ -157,24 +175,28 @@ export function PersistentLearningWorkspace({
             {error}
           </div>
         )}
-        <div className="workspace-actions">
-          <p>
-            <span className="privacy-dot" /> Each response is saved so you can
-            compare it with earlier practice. / Setiap jawaban disimpan agar
-            dapat dibandingkan dengan latihan sebelumnya.
-          </p>
-          <button
-            className="button button-primary"
-            type="button"
-            onClick={submitAttempt}
-            disabled={!pseudonym.trim() || !reconstruction.trim() || submitting}
-          >
-            {submitting
-              ? "Saving… / Menyimpan…"
-              : "Save and get feedback / Simpan dan lihat umpan balik"}{" "}
-            <span aria-hidden="true">→</span>
-          </button>
-        </div>
+        {canSubmit && (
+          <div className="workspace-actions">
+            <p>
+              <span className="privacy-dot" /> Each response is saved so you can
+              compare it with earlier practice. / Setiap jawaban disimpan agar
+              dapat dibandingkan dengan latihan sebelumnya.
+            </p>
+            <button
+              className="button button-primary"
+              type="button"
+              onClick={submitAttempt}
+              disabled={
+                !pseudonym.trim() || !reconstruction.trim() || submitting
+              }
+            >
+              {submitting
+                ? "Saving… / Menyimpan…"
+                : "Save and get feedback / Simpan dan lihat umpan balik"}{" "}
+              <span aria-hidden="true">→</span>
+            </button>
+          </div>
+        )}
 
         {attempts.length > 0 && (
           <section className="attempt-notebook">

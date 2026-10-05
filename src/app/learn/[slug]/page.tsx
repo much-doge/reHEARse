@@ -28,10 +28,15 @@ export default async function LearnerActivityPage({
           <strong>{activity.title}</strong>
         </div>
         <span className="prototype-chip">
-          Individual practice / Latihan mandiri
+          {user.role === "learner"
+            ? "Individual practice / Latihan mandiri"
+            : "Activity preview / Pratinjau aktivitas"}
         </span>
       </header>
-      <PersistentLearningWorkspace activity={activity} />
+      <PersistentLearningWorkspace
+        activity={activity}
+        canSubmit={user.role === "learner"}
+      />
     </main>
   );
 }
