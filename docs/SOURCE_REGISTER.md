@@ -16,3 +16,11 @@ The imported copy is retained outside the public web root and is served only
 through an authenticated activity-media route. The activity version stores its
 source metadata so later transcript corrections create a new version rather
 than silently changing learner evidence.
+
+## PCT128 production delivery (LFL-006)
+
+The same source-backed audio was imported as immutable activity version 2 into
+najala-dumpster under rehearse/media/activities, with the original SHA-256 and
+source lineage retained. Version 1 remains evidence. In this explicitly public
+media deployment, authorized activity responses contain the stable archive
+origin URL; the host does not relay remote audio. See DEPLOYMENT_RECEIPT.md.
