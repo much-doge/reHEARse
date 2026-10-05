@@ -154,3 +154,24 @@ Room membership uses a random HttpOnly token stored only as a hash. Rooms expire
 after 24 hours. Answer keys and cues remain absent from student DTOs before review.
 Source clips are operator-provided; optional audio transcription is source
 preparation only, sends audio without learner data, and is teacher-advisory.
+
+## D-016 — Confidential sources and teaching language (LFL-008)
+
+Accepted at the operator's request. Source supplier names, archive/package
+identifiers, original item ranges and provenance labels are confidential.
+Preserve immutable source evidence privately; never copy source metadata into
+public presentation fields, page metadata, browser payloads or feedback copy.
+The presentation boundary supplies neutral activity labels and classroom titles
+for both current and previously created rooms, without modifying their evidence.
+
+Write instructions around the learner's next action: listen, summarize, compare,
+replay and revise. Remove slogans, repeated assessment disclaimers and internal
+provider/validation terminology. Retain paired English/Indonesian guidance and
+brief, practical explanations of game points. The underlying separation of
+learning feedback and game points is unchanged.
+
+The operator chose to keep the Git repository public and scope this cleanup to
+the live application; repository history and visibility are unchanged. In
+learner-facing copy, prefer response, explanation, and details in the audio over
+"evidence". Preserve stored feedback and apply legacy wording changes only at
+the presentation boundary. Future feedback prompts use the same language.

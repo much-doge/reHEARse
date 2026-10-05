@@ -1,9 +1,17 @@
+import { feedbackPresentation } from "./feedback-presentation";
+import {
+  publicPartLabel,
+  publicActivityTitle,
+} from "@/domain/activity-presentation";
 import { getPool } from "@/adapters/db/client";
 import { readS3MediaConfig } from "@/adapters/media/s3-config";
 import { createPublicMediaUrl } from "@/adapters/media/s3-media-store";
 import { createFeedbackProvider } from "@/adapters/feedback/provider-factory";
 import { FeedbackProviderError } from "@/application/feedback-provider";
-import { parseListeningFeedback, type ListeningFeedback } from "@/domain/feedback";
+import {
+  parseListeningFeedback,
+  type ListeningFeedback,
+} from "@/domain/feedback";
 
 export type DashboardActivity = {
   slug: string;
@@ -39,7 +47,9 @@ export type LearnerActivity = {
   attempts: StoredAttempt[];
 };
 
-export async function listLearnerActivities(learnerId: string): Promise<DashboardActivity[]> {
+export async function listLearnerActivities(
+  learnerId: string,
+): Promise<DashboardActivity[]> {
   const result = await getPool().query(
     `SELECT a.slug, av.title, av.part_label,
             count(la.id)::int AS attempts,
@@ -56,14 +66,17 @@ export async function listLearnerActivities(learnerId: string): Promise<Dashboar
   );
   return result.rows.map((row) => ({
     slug: row.slug,
-    title: row.title,
-    partLabel: row.part_label,
+    title: publicActivityTitle(row.title),
+    partLabel: publicPartLabel(row.part_label),
     attempts: row.attempts,
     lastAttemptAt: row.last_attempt_at?.toISOString() ?? null,
   }));
 }
 
-export async function getLearnerActivity(slug: string, learnerId: string): Promise<LearnerActivity | null> {
+export async function getLearnerActivity(
+  slug: string,
+  learnerId: string,
+): Promise<LearnerActivity | null> {
   const activityResult = await getPool().query(
     `SELECT a.id, a.slug, av.id AS version_id, av.title, av.part_label,
             av.prompt_en, av.prompt_id, av.media_storage_key, av.media_provider, av.media_bucket,
@@ -92,18 +105,22 @@ export async function getLearnerActivity(slug: string, learnerId: string): Promi
     [activity.id, learnerId],
   );
 
-  let audioUrl = activity.media_storage_key ? `/api/media/${activity.slug}` : null;
+  let audioUrl = activity.media_storage_key
+    ? `/api/media/${activity.slug}`
+    : null;
   if (activity.media_provider === "s3" && activity.media_storage_key) {
     const config = readS3MediaConfig();
-    if (activity.media_bucket && activity.media_bucket !== config.bucket) throw new Error("media bucket configuration mismatch");
-    if (config.deliveryMode === "public") audioUrl = createPublicMediaUrl(config, activity.media_storage_key);
+    if (activity.media_bucket && activity.media_bucket !== config.bucket)
+      throw new Error("media bucket configuration mismatch");
+    if (config.deliveryMode === "public")
+      audioUrl = createPublicMediaUrl(config, activity.media_storage_key);
   }
   return {
     id: activity.id,
     versionId: activity.version_id,
     slug: activity.slug,
-    title: activity.title,
-    partLabel: activity.part_label,
+    title: publicActivityTitle(activity.title),
+    partLabel: publicPartLabel(activity.part_label),
     promptEn: activity.prompt_en,
     promptId: activity.prompt_id,
     audioUrl,
@@ -115,7 +132,9 @@ export async function getLearnerActivity(slug: string, learnerId: string): Promi
       notes: row.notes,
       reconstruction: row.reconstruction,
       createdAt: row.created_at.toISOString(),
-      feedback: row.result_json ? parseListeningFeedback(row.result_json) : null,
+      feedback: row.result_json
+        ? feedbackPresentation(parseListeningFeedback(row.result_json))
+        : null,
       feedbackStatus: row.feedback_status,
       feedbackProvider: row.feedback_provider,
       feedbackModel: row.feedback_model,
@@ -254,20 +273,29 @@ export async function submitLearnerAttempt(input: {
       notes: input.notes,
       reconstruction: input.reconstruction,
       createdAt: attempt.createdAt.toISOString(),
-      feedback: result.feedback,
+      feedback: feedbackPresentation(result.feedback),
       feedbackStatus: "completed",
       feedbackProvider: result.provider,
       feedbackModel: result.model,
     };
   } catch (error) {
-    const configuredProvider = (process.env.FEEDBACK_PROVIDER ?? "template").trim().toLowerCase();
-    const providerName = provider && "provider" in provider && typeof provider.provider === "string"
-      ? provider.provider
-      : configuredProvider === "openai" ? "openai" : "teacher_template";
-    const safeCode = error instanceof FeedbackProviderError
-      ? error.safeCode
-      : "feedback_configuration_or_validation_failed";
-    const responseId = error instanceof FeedbackProviderError ? error.providerResponseId : null;
+    const configuredProvider = (process.env.FEEDBACK_PROVIDER ?? "template")
+      .trim()
+      .toLowerCase();
+    const providerName =
+      provider &&
+      "provider" in provider &&
+      typeof provider.provider === "string"
+        ? provider.provider
+        : configuredProvider === "openai"
+          ? "openai"
+          : "teacher_template";
+    const safeCode =
+      error instanceof FeedbackProviderError
+        ? error.safeCode
+        : "feedback_configuration_or_validation_failed";
+    const responseId =
+      error instanceof FeedbackProviderError ? error.providerResponseId : null;
     const usage = error instanceof FeedbackProviderError ? error.usage : {};
     await getPool().query(
       `INSERT INTO listening_feedback (
@@ -278,8 +306,10 @@ export async function submitLearnerAttempt(input: {
       [
         attempt.id,
         providerName,
-        providerName === "openai" ? process.env.OPENAI_MODEL ?? null : null,
-        providerName === "openai" ? "listening-review.2026-10-06.v1" : "teacher-template.v1",
+        providerName === "openai" ? (process.env.OPENAI_MODEL ?? null) : null,
+        providerName === "openai"
+          ? "listening-review.2026-10-06.v2"
+          : "teacher-template.v1",
         safeCode,
         responseId,
         usage,
@@ -295,7 +325,8 @@ export async function submitLearnerAttempt(input: {
       feedback: null,
       feedbackStatus: "failed",
       feedbackProvider: providerName,
-      feedbackModel: providerName === "openai" ? process.env.OPENAI_MODEL ?? null : null,
+      feedbackModel:
+        providerName === "openai" ? (process.env.OPENAI_MODEL ?? null) : null,
     };
   }
 }

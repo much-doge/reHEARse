@@ -7,7 +7,11 @@ import { requireUser } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
-export default async function LearnerActivityPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function LearnerActivityPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const user = await requireUser();
   const { slug } = await params;
   const activity = await getLearnerActivity(slug, user.id);
@@ -16,12 +20,18 @@ export default async function LearnerActivityPage({ params }: { params: Promise<
   return (
     <main className="workspace-shell">
       <header className="app-header workspace-header">
-        <Link href="/dashboard" className="back-link">← <span>Listening desk</span></Link>
-        <div className="activity-title-mini"><span>{activity.partLabel}</span><strong>{activity.title}</strong></div>
-        <span className="prototype-chip">Saved activity</span>
+        <Link href="/dashboard" className="back-link">
+          ← <span>Listening practice / Latihan menyimak</span>
+        </Link>
+        <div className="activity-title-mini">
+          <span>{activity.partLabel}</span>
+          <strong>{activity.title}</strong>
+        </div>
+        <span className="prototype-chip">
+          Individual practice / Latihan mandiri
+        </span>
       </header>
       <PersistentLearningWorkspace activity={activity} />
     </main>
   );
 }
-

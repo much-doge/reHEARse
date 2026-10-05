@@ -4,10 +4,12 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "reHEARse",
-  description: "Listen, notice, relisten — without a score.",
+  description: "Listening practice with notes, discussion and guided replay.",
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
       <body>{children}</body>

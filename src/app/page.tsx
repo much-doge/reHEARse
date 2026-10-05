@@ -9,54 +9,112 @@ export default function HomePage() {
           <span>reHEARse</span>
         </Link>
         <div className="landing-account">
-          <Link href="/play" className="text-button">Classroom / Kelas</Link>
-          <Link href="/login" className="text-button">Sign in</Link>
-          <span className="prototype-chip">No-score learning</span>
+          <Link href="/play" className="text-button">
+            Classroom / Kelas
+          </Link>
+          <Link href="/login" className="text-button">
+            Sign in / Masuk
+          </Link>
+          <span className="prototype-chip">
+            Listening practice / Latihan menyimak
+          </span>
         </div>
       </nav>
 
       <section className="hero">
         <div className="hero-copy">
-          <p className="eyebrow">Build listening before testing it</p>
-          <h1>Listen for meaning.<br />Notice what changed.</h1>
+          <p className="eyebrow">Listening practice / Latihan menyimak</p>
+          <h1>
+            Listen for meaning.
+            <br />
+            Build your understanding.
+          </h1>
           <p className="hero-lede">
-            A bilingual classroom space where messy notes become a starting point
-            for a more purposeful next listen—not a score.
+            Listen to a conversation, record what you understood, and replay
+            with a clear focus.
+            <br />
+            Dengarkan percakapan, catat pemahamanmu, lalu dengarkan ulang dengan
+            fokus yang jelas.
           </p>
           <div className="hero-actions">
             <Link href="/dashboard" className="button button-primary">
-              Open listening desk <span aria-hidden="true">→</span>
+              Open practice / Buka latihan <span aria-hidden="true">→</span>
             </Link>
-            <Link href="/register" className="button button-quiet">Create learner account</Link>
+            <Link href="/register" className="button button-quiet">
+              Create account / Buat akun
+            </Link>
           </div>
         </div>
 
-        <div className="signal-art" aria-label="Abstract sound and note visualization">
+        <div
+          className="signal-art"
+          aria-label="Abstract sound and note visualization"
+        >
           <div className="signal-orbit orbit-one" />
           <div className="signal-orbit orbit-two" />
           <div className="signal-card">
-            <span className="signal-label">Next-listen signal</span>
+            <span className="signal-label">
+              Listening focus / Fokus menyimak
+            </span>
             <div className="wave-bars" aria-hidden="true">
-              {[18, 38, 62, 28, 76, 46, 88, 34, 58, 22, 68, 42].map((height, index) => (
-                <i key={index} style={{ height }} />
-              ))}
+              {[18, 38, 62, 28, 76, 46, 88, 34, 58, 22, 68, 42].map(
+                (height, index) => (
+                  <i key={index} style={{ height }} />
+                ),
+              )}
             </div>
-            <p>Listen for what <em>however</em> changes in the speaker’s idea.</p>
-            <small>Dengarkan perubahan gagasan setelah kata <em>however</em>.</small>
+            <p>
+              Listen for what <em>however</em> changes in the speaker’s idea.
+            </p>
+            <small>
+              Dengarkan perubahan gagasan setelah kata <em>however</em>.
+            </small>
           </div>
         </div>
       </section>
 
       <section className="loop-section" id="loop">
         <div className="section-heading">
-          <p className="eyebrow">One small, repeatable loop</p>
-          <h2>No grades hiding in the furniture.</h2>
+          <p className="eyebrow">Practice sequence / Urutan latihan</p>
+          <h2>Listen, reflect, and listen again.</h2>
         </div>
         <ol className="loop-grid">
-          <li><span>01</span><strong>Listen</strong><p>Hear the whole situation before chasing test answers.</p></li>
-          <li><span>02</span><strong>Externalize</strong><p>Jot fragments, arrows, Indonesian, or whatever helps you think.</p></li>
-          <li><span>03</span><strong>Notice</strong><p>See what your reconstruction evidences, contradicts, or leaves uncertain.</p></li>
-          <li><span>04</span><strong>Relisten</strong><p>Return with one precise attention target and revise your understanding.</p></li>
+          <li>
+            <span>01</span>
+            <strong>Listen / Dengarkan</strong>
+            <p>
+              Identify the situation and the speakers’ purpose.
+              <br />
+              Kenali situasi dan tujuan pembicara.
+            </p>
+          </li>
+          <li>
+            <span>02</span>
+            <strong>Take notes / Catat</strong>
+            <p>
+              Record key ideas in words or a simple diagram.
+              <br />
+              Catat gagasan utama dengan kata atau diagram sederhana.
+            </p>
+          </li>
+          <li>
+            <span>03</span>
+            <strong>Reflect / Tinjau</strong>
+            <p>
+              Compare your interpretation with the feedback.
+              <br />
+              Bandingkan pemahamanmu dengan umpan balik.
+            </p>
+          </li>
+          <li>
+            <span>04</span>
+            <strong>Replay / Dengarkan ulang</strong>
+            <p>
+              Listen for a specific detail, then revise your explanation.
+              <br />
+              Dengarkan detail tertentu, lalu perbaiki penjelasanmu.
+            </p>
+          </li>
         </ol>
       </section>
     </main>

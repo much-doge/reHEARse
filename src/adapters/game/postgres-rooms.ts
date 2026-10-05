@@ -1,3 +1,4 @@
+import { classroomTitle } from "@/domain/activity-presentation";
 import { randomInt } from "node:crypto";
 import type { PoolClient } from "pg";
 import { getPool } from "@/adapters/db/client";
@@ -156,7 +157,7 @@ export const rooms: RoomPort = {
         phase,
         roundIndex: r.round_index,
         total: deck.rounds.length,
-        title: r.title,
+        title: classroomTitle,
         serverNow: Date.now(),
         deadline: r.deadline ? new Date(r.deadline).getTime() : null,
         host: who.host,
