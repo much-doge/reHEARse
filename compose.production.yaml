@@ -1,0 +1,96 @@
+name: rehearse
+x-runtime: &runtime
+  NODE_ENV: production
+  DATABASE_URL: postgresql://rehearse:${POSTGRES_PASSWORD:?required}@postgres:5432/rehearse
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?required}
+  SESSION_SECRET: ${SESSION_SECRET:?required}
+  SESSION_COOKIE_SECURE: "true"
+  PUBLIC_APP_ORIGIN: ${PUBLIC_APP_ORIGIN:?required}
+  FEEDBACK_PROVIDER: openai
+  OPENAI_API_KEY: ${OPENAI_API_KEY:?required}
+  OPENAI_MODEL: ${OPENAI_MODEL:?required}
+  OPENAI_MAX_OUTPUT_TOKENS: "6000"
+  MEDIA_STORAGE_PROVIDER: s3
+  MEDIA_DELIVERY_MODE: public
+  OBJECT_STORAGE_ENDPOINT: ${OBJECT_STORAGE_ENDPOINT:?required}
+  OBJECT_STORAGE_REGION: ${OBJECT_STORAGE_REGION:?required}
+  OBJECT_STORAGE_BUCKET: ${OBJECT_STORAGE_BUCKET:?required}
+  OBJECT_STORAGE_ACCESS_KEY_ID: ${OBJECT_STORAGE_ACCESS_KEY_ID:?required}
+  OBJECT_STORAGE_SECRET_ACCESS_KEY: ${OBJECT_STORAGE_SECRET_ACCESS_KEY:?required}
+  OBJECT_STORAGE_PREFIX: ${OBJECT_STORAGE_PREFIX:?required}
+  PUBLIC_MEDIA_BASE_URL: ${PUBLIC_MEDIA_BASE_URL:?required}
+services:
+  validate-config:
+    image: rehearse-tools:${REHEARSE_IMAGE_TAG:-lfl006}
+    build: {context: ., target: migrator}
+    command: [node, scripts/validate-production.mjs]
+    environment: *runtime
+    networks: [rehearse]
+    restart: "no"
+  app:
+    image: rehearse-app:${REHEARSE_IMAGE_TAG:-lfl006}
+    build: {context: ., target: runner}
+    command: [node, scripts/start-production.mjs]
+    environment: *runtime
+    ports: ["${APP_BIND_ADDRESS:-127.0.0.1}:${APP_PORT:-3001}:3000"]
+    networks: [rehearse]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    healthcheck:
+      test: [CMD, wget, --spider, -q, "http://127.0.0.1:3000/api/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+  postgres:
+    depends_on:
+      validate-config: {condition: service_completed_successfully}
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: rehearse
+      POSTGRES_USER: rehearse
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?required}
+    volumes: ["rehearse_postgres:/var/lib/postgresql"]
+    networks: [rehearse]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U rehearse -d rehearse"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+  migrate:
+    image: rehearse-tools:${REHEARSE_IMAGE_TAG:-lfl006}
+    build: {context: ., target: migrator}
+    environment:
+      DATABASE_URL: postgresql://rehearse:${POSTGRES_PASSWORD:?required}@postgres:5432/rehearse
+    networks: [rehearse]
+    depends_on:
+      postgres: {condition: service_healthy}
+    restart: "no"
+  bootstrap-admin:
+    profiles: [tools]
+    image: rehearse-tools:${REHEARSE_IMAGE_TAG:-lfl006}
+    command: [node, scripts/bootstrap-admin.mjs]
+    environment:
+      DATABASE_URL: postgresql://rehearse:${POSTGRES_PASSWORD:?required}@postgres:5432/rehearse
+      ALLOW_ADMIN_BOOTSTRAP: "true"
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+    networks: [rehearse]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    restart: "no"
+  import-activity:
+    profiles: [tools]
+    image: rehearse-tools:${REHEARSE_IMAGE_TAG:-lfl006}
+    entrypoint: [pnpm, activity:import, --]
+    environment: *runtime
+    volumes: ["./imports/private:/imports:ro"]
+    networks: [rehearse]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    restart: "no"
+volumes:
+  rehearse_postgres:
+networks:
+  rehearse:

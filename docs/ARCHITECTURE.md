@@ -107,3 +107,7 @@ Database failure blocks a write. Media failure does not create a published
 activity. AI failure never loses an attempt and never substitutes invented
 feedback. The demo adapter is selected explicitly by configuration and its UI
 provenance is visible; it is not a silent fallback from a failed live provider.
+
+Production public-media mode is defined by D-014. Its neutral storage configuration
+uses OBJECT_STORAGE_* and PUBLIC_MEDIA_BASE_URL; legacy B2_* aliases remain.
+Authorized media routes redirect to the public origin without proxying bytes.

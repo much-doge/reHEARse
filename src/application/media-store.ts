@@ -11,7 +11,7 @@ export type MediaObject = {
 export type RemoteMediaDelivery = {
   kind: "redirect";
   url: string;
-  expiresAt: Date;
+  expiresAt: Date | null;
 };
 
 export interface RemoteMediaStore {

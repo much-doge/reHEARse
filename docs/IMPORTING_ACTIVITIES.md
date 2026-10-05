@@ -96,3 +96,17 @@ bilingual `listening-feedback.v1` schema and the no-score invariant before it
 is stored or rendered. Failure preserves the attempt, stores only a safe error
 code and provider provenance, and does not silently substitute template
 feedback.
+
+## Public production deployment
+
+Use compose.production.yaml with --env-file .env.production. Set
+MEDIA_DELIVERY_MODE=public, OBJECT_STORAGE_PREFIX=rehearse/media and
+PUBLIC_MEDIA_BASE_URL to the anonymous canary-verified prefix URL.
+OBJECT_STORAGE_ENDPOINT, REGION, BUCKET, ACCESS_KEY_ID and SECRET_ACCESS_KEY
+replace B2-specific names; B2 aliases remain valid for private deployments.
+Only authorized public audio may be imported. Private manifests stay on the
+host under imports/private; only audio bytes and content-free metadata upload.
+Every import stores the bucket, full confined key, SHA-256, size and source
+lineage. Keys include activity ID, content version and a random identifier.
+Failed imports roll back publication; uncertain remote failures may leave an
+unpublished object, which must be reconciled by exact key before any cleanup.

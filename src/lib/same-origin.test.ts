@@ -31,3 +31,10 @@ describe("isSameOriginRequest", () => {
     }))).toBe(false);
   });
 });
+
+ it("requires the configured HTTPS origin despite forged forwarded hosts", () => {
+   const configured = "https://rehearse.najala.org";
+   expect(isSameOriginRequest(new Request("http://app:3000/api/attempts", {headers:{host:"app:3000",origin:configured}}),configured)).toBe(true);
+   expect(isSameOriginRequest(new Request("http://app:3000/api/attempts", {headers:{host:"evil.test","x-forwarded-host":"evil.test",origin:"https://evil.test"}}),configured)).toBe(false);
+   expect(isSameOriginRequest(new Request("http://app:3000/api/attempts", {headers:{host:"rehearse.najala.org",origin:"http://rehearse.najala.org"}}),configured)).toBe(false);
+ });

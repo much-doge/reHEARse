@@ -10,3 +10,6 @@ imports/private/
 *.log
 *.tsbuildinfo
 .DS_Store
+
+.secrets/
+.env.production

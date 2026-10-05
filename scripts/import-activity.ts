@@ -21,6 +21,7 @@ type Arguments = {
 type PreparedMedia = {
   provider: "local" | "s3";
   storageKey: string;
+  bucket: string | null;
   originalFilename: string;
   contentType: string;
   sizeBytes: number;
@@ -47,6 +48,7 @@ const defaultFeedback = parseListeningFeedback({
   },
 });
 
+async function main() {
 const args = parseArguments(process.argv.slice(2));
 const rawManifest = JSON.parse(await readFile(path.resolve(args.manifestPath), "utf8"));
 const activityPackage = activityPackageSchema.parse(rawManifest);
@@ -70,9 +72,7 @@ if (args.dryRun) {
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl) throw new Error("DATABASE_URL is required");
 
-const preparedMedia = args.mediaPath
-  ? await prepareMedia(activityPackage, path.resolve(args.mediaPath))
-  : null;
+let preparedMedia: PreparedMedia | null = null;
 const pool = new pg.Pool({ connectionString: databaseUrl, max: 1 });
 const client = await pool.connect();
 try {
@@ -116,16 +116,19 @@ try {
     versionNumber = 1;
   }
 
+  if (args.mediaPath) preparedMedia = await prepareMedia(activityPackage, path.resolve(args.mediaPath), activityId, versionNumber);
+
   const priorMedia = existing
     ? (await client.query(
         `SELECT media_provider, media_storage_key, original_media_name,
-                media_content_type, media_size_bytes, media_sha256
+                media_content_type, media_size_bytes, media_sha256, media_bucket
          FROM activity_version WHERE activity_id = $1 AND version_number = $2`,
         [activityId, existing.current_version],
       )).rows[0]
     : null;
   const media = preparedMedia ?? (priorMedia?.media_storage_key ? {
     provider: priorMedia.media_provider,
+    bucket: priorMedia.media_bucket,
     storageKey: priorMedia.media_storage_key,
     originalFilename: priorMedia.original_media_name,
     contentType: priorMedia.media_content_type,
@@ -141,12 +144,12 @@ try {
        media_storage_key, original_media_name, media_content_type,
        media_size_bytes, media_sha256, playback_mode, feedback_template,
        source_metadata, transcript_segments, question_set, import_manifest,
-       published_at
+       published_at, media_bucket
      ) VALUES (
        $1, $2, 'listening-activity.v2', $3, $4,
        $5, $6, $7, $8, $9,
        $10, $11, $12, $13, $14, 'self_paced', $15,
-       $16, $17, $18, $19, $20
+       $16, $17, $18, $19, $20, $21
      )`,
     [
       activityId,
@@ -169,6 +172,7 @@ try {
       JSON.stringify(activityPackage.questions),
       JSON.stringify(activityPackage),
       args.publish ? new Date() : null,
+      media?.bucket ?? null,
     ],
   );
   if (args.publish || !existing) {
@@ -189,16 +193,17 @@ try {
     questions: activityPackage.questions.length,
     transcriptSegments: activityPackage.transcript.segments.length,
   }));
-} catch (error) {
+} catch {
   await client.query("ROLLBACK").catch(() => undefined);
   if (preparedMedia) await preparedMedia.cleanup().catch(() => undefined);
-  throw error;
+  console.error(JSON.stringify({ status: "failed", code: "activity_import_failed" }));
+  process.exitCode = 1;
 } finally {
   client.release();
   await pool.end();
 }
 
-async function prepareMedia(activityPackage: ActivityPackage, mediaPath: string): Promise<PreparedMedia> {
+async function prepareMedia(activityPackage: ActivityPackage, mediaPath: string, activityId: string, versionNumber: number): Promise<PreparedMedia> {
   const media = activityPackage.media;
   if (!media) throw new Error("media metadata is required");
   const source = await stat(mediaPath);
@@ -206,10 +211,13 @@ async function prepareMedia(activityPackage: ActivityPackage, mediaPath: string)
   const sha256 = await hashFile(mediaPath);
   if (media.sha256 && media.sha256 !== sha256) throw new Error("media SHA-256 does not match the manifest");
   const safeName = media.originalFilename.replace(/[^A-Za-z0-9._-]+/g, "-").replace(/^[-.]+/, "") || "audio";
-  const storageKey = `activities/${activityPackage.slug}/${randomBytes(16).toString("hex")}-${safeName}`;
+  const relativeKey = `activities/${activityId}/v${versionNumber}/${randomBytes(16).toString("hex")}-${safeName}`;
+  let storageKey = relativeKey;
   const provider = (process.env.MEDIA_STORAGE_PROVIDER ?? "local").trim().toLowerCase();
   if (provider === "s3") {
-    const store = new S3CompatibleMediaStore(readS3MediaConfig());
+    const config = readS3MediaConfig();
+    storageKey = config.prefix ? `${config.prefix}/${relativeKey}` : relativeKey;
+    const store = new S3CompatibleMediaStore(config);
     await store.uploadFile({
       path: mediaPath,
       storageKey,
@@ -220,6 +228,7 @@ async function prepareMedia(activityPackage: ActivityPackage, mediaPath: string)
     });
     return {
       provider: "s3",
+      bucket: config.bucket,
       storageKey,
       originalFilename: media.originalFilename,
       contentType: media.contentType,
@@ -236,6 +245,7 @@ async function prepareMedia(activityPackage: ActivityPackage, mediaPath: string)
   await copyFile(mediaPath, target);
   return {
     provider: "local",
+    bucket: null,
     storageKey,
     originalFilename: media.originalFilename,
     contentType: media.contentType,
@@ -269,3 +279,6 @@ function parseArguments(values: string[]): Arguments {
     dryRun: values.includes("--dry-run"),
   };
 }
+
+}
+main().catch(() => { console.error(JSON.stringify({status: "failed", code: "activity_import_failed"})); process.exitCode = 1; });

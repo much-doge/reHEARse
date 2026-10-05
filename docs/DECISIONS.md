@@ -107,3 +107,23 @@ guide, media metadata, and source provenance—plus typed questions, optional
 timed transcript segments, and JSON extension maps. Importing an existing slug
 creates a new immutable activity version; it never edits an earlier version or
 attempt. Publication remains an explicit import-time choice.
+
+## D-014 — Isolated production and optional public media
+
+Status: accepted for LFL-006. Supersedes D-012 only for explicitly public media.
+
+Public, authorized audio may use the existing najala-dumpster bucket under
+rehearse/media only. Private signed delivery remains available. Public URLs
+are stable and audio bypasses the application host. Never publish private
+transcripts, learner evidence, credentials, logs or backups to that bucket.
+Imports generate activity-ID/version/random object keys, require non-overwrite
+uploads, and store bucket, hash, size and source lineage. Publication commits
+only after upload succeeds.
+
+Production has a separate rehearse Compose project, PostgreSQL volume/network,
+explicit secrets and a protected one-time administrator bootstrap. Demo seeding
+is excluded. The operator explicitly authorized binding 192.168.8.63:3001
+for an external Cloudflare instance; this supersedes the requested loopback
+binding for this deployment only. Cloudflare routing stays operator-owned.
+The operator authorized copying only the existing LLM key from Writing Analysis
+Studio; no other credentials or workload changes are authorized.
