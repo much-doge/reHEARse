@@ -12,8 +12,8 @@ Tooling image digest: sha256:2c75361190c8e49ff7f13346740de84d0b1ebd56eb51898eff3
 - Container-verified: yes, production image builds and Compose validation.
 - Deployed: yes, PCT128 LAN origin http://192.168.8.63:3001, health HTTP 200.
 - Provider-verified: yes, B2 and live gpt-5-nano synthetic canaries passed.
-- Public HTTPS: pending operator Cloudflare route for rehearse.najala.org.
-- Browser journey over public HTTPS: pending that route.
+- Public HTTPS: verified at https://rehearse.najala.org with certificate validation.
+- Browser UI observation: blocked by verifier local DNS negative result; public HTTP journey passed.
 - Classroom-verified: no pilot occurred.
 
 ## Isolation and data
@@ -80,3 +80,20 @@ docker compose --env-file .env.production -f compose.production.yaml -p rehearse
 Preserve rehearse_rehearse_postgres. No down -v, global prune or unrelated
 container/network/volume operations. Restore only the prior reHEARse image and
 configuration if required; retain additive migration history.
+
+## Operator Cloudflare cutover verification
+
+The operator configured the route. Public DNS A records were confirmed using
+Cloudflare and Google DNS. The verifier local resolver/browser retained a
+negative result, so local HTTPS checks used a verified Cloudflare address via
+curl --resolve with full certificate validation, not a TLS bypass.
+
+- Public /api/health: 200, health.v1, service rehearse; TLS verification result 0.
+- Unknown path: 404. Unauthenticated media: 401. Unmatched Host header: 403.
+- Actual public HTTPS administrator login: 303, secure/HttpOnly/SameSite cookie,
+  dashboard 200, without injecting proxy headers.
+- Actual public HTTPS synthetic learner page: 200. Rendered audio source is
+  archive.najala.org directly. Audio seeking: 206, audio/mpeg, bytes 0–31/1554968.
+- Cross-origin attempt POST: 403. Synthetic verification session revoked.
+- Browser UI/network observation remains unverified because of local DNS;
+  no classroom pilot occurred. No Cloudflare settings were changed by the agent.
