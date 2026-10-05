@@ -1,4 +1,6 @@
 allowBuilds:
+  # Required by the checked-in TypeScript operator scripts.
+  esbuild: true
   # The optional native resolver build is not required for this app. Keep the
   # JavaScript fallback instead of running an unreviewed install script.
   unrs-resolver: false

@@ -15,9 +15,22 @@ export type FeedbackResult = {
   provider: string;
   model: string | null;
   promptVersion: string;
+  providerResponseId?: string | null;
+  usage?: Record<string, number>;
 };
 
 export interface FeedbackProvider {
   review(request: FeedbackRequest): Promise<FeedbackResult>;
 }
 
+export class FeedbackProviderError extends Error {
+  constructor(
+    message: string,
+    readonly safeCode: string,
+    readonly providerResponseId: string | null = null,
+    readonly usage: Record<string, number> = {},
+  ) {
+    super(message);
+    this.name = "FeedbackProviderError";
+  }
+}

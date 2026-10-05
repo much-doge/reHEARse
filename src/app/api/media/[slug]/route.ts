@@ -4,6 +4,8 @@ import path from "node:path";
 import { NextResponse } from "next/server";
 
 import { getPool } from "@/adapters/db/client";
+import { readS3MediaConfig } from "@/adapters/media/s3-config";
+import { S3CompatibleMediaStore } from "@/adapters/media/s3-media-store";
 import { resolvePrivateMediaPath } from "@/lib/media-path";
 import { currentUser } from "@/lib/session";
 
@@ -18,7 +20,7 @@ export async function GET(
 
   const { slug } = await params;
   const result = await getPool().query(
-    `SELECT av.media_storage_key
+    `SELECT av.media_storage_key, av.media_provider, av.media_content_type
      FROM activity a
      JOIN activity_version av
        ON av.activity_id = a.id AND av.version_number = a.current_version
@@ -28,7 +30,25 @@ export async function GET(
   const storageKey = result.rows[0]?.media_storage_key;
   if (!storageKey) return NextResponse.json({ error: "media_not_found" }, { status: 404 });
 
-  const mediaRoot = process.env.MEDIA_ROOT ?? path.join(process.cwd(), "media");
+  const provider = result.rows[0].media_provider as "bundled" | "local" | "s3";
+  if (provider === "s3") {
+    try {
+      const delivery = await new S3CompatibleMediaStore(readS3MediaConfig()).createDownloadUrl(storageKey);
+      return NextResponse.redirect(delivery.url, {
+        status: 307,
+        headers: {
+          "Cache-Control": "private, no-store",
+          "Referrer-Policy": "no-referrer",
+        },
+      });
+    } catch {
+      return NextResponse.json({ error: "media_unavailable" }, { status: 503 });
+    }
+  }
+
+  const mediaRoot = provider === "local"
+    ? process.env.UPLOAD_DIR ?? path.join(process.cwd(), "uploads")
+    : process.env.MEDIA_ROOT ?? path.join(process.cwd(), "media");
   const mediaPath = resolvePrivateMediaPath(mediaRoot, storageKey);
   if (!mediaPath) return NextResponse.json({ error: "media_not_found" }, { status: 404 });
 
@@ -53,7 +73,7 @@ export async function GET(
         "Cache-Control": "private, max-age=300",
         "Content-Length": String(body.byteLength),
         ...(range ? { "Content-Range": `bytes ${start}-${end}/${data.byteLength}` } : {}),
-        "Content-Type": "audio/mpeg",
+        "Content-Type": result.rows[0].media_content_type ?? "audio/mpeg",
         "X-Content-Type-Options": "nosniff",
       },
     });

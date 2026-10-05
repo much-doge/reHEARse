@@ -16,6 +16,7 @@ RUN pnpm build
 FROM deps AS migrator
 COPY migrations ./migrations
 COPY scripts ./scripts
+COPY src ./src
 CMD ["node", "scripts/migrate.mjs"]
 
 FROM node:24-alpine AS runner

@@ -18,6 +18,14 @@ Adopted patterns:
 - learner-facing evidence language without implementation jargon or false
   certainty;
 - explicit distinction between source-complete, deployed, and live-verified.
+- S3-compatible object-storage boundaries with generated keys, checksums,
+  bounded uploads, private credentials, and safe provider failure;
+- Responses API discipline: strict JSON Schema output, `store: false`, bounded
+  request/output sizes, validated results, and content-free errors.
+
+Implementation note: the TypeScript adapters are native reHEARse code. They
+adapt the reviewed Python implementation rather than importing its runtime or
+copying its multi-service topology.
 
 Not copied:
 
@@ -44,4 +52,3 @@ Adopted patterns:
 
 Adaptation: the human approval boundary becomes teacher-owned source/publish
 authority plus server validation; AI feedback remains advisory.
-

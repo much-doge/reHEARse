@@ -1,0 +1,59 @@
+{
+  "contractVersion": "listening-activity-package.v1",
+  "slug": "three-papers-import-example",
+  "title": "Three papers, one thread",
+  "partLabel": "Part B foundation · Conversation",
+  "prompt": {
+    "en": "What problem is the student facing, and how does the other speaker change his approach?",
+    "id": "Masalah apa yang dihadapi mahasiswa itu, dan bagaimana pembicara lain mengubah pendekatannya?"
+  },
+  "transcript": {
+    "text": "Insert the authorized transcript here.",
+    "language": "en",
+    "segments": [
+      {
+        "id": "opening",
+        "startMs": 0,
+        "endMs": 5000,
+        "speaker": "Speaker 1",
+        "text": "Insert a timed or untimed segment here."
+      }
+    ]
+  },
+  "teacherGuide": "Describe the central situation, the constraint, and the change in approach. Do not evaluate language production.",
+  "questions": [
+    {
+      "id": "q31",
+      "number": 31,
+      "kind": "multiple_choice",
+      "prompt": {
+        "en": "What broad problem is the student facing?"
+      },
+      "options": [
+        {
+          "id": "a",
+          "text": {
+            "en": "He has several related assignments."
+          }
+        }
+      ],
+      "transcriptSegmentIds": ["opening"],
+      "tags": ["main-idea"],
+      "extensions": {
+        "sourceQuestionType": "paper-option-set"
+      }
+    }
+  ],
+  "media": {
+    "originalFilename": "31_34_Dialog.mp3",
+    "contentType": "audio/mpeg"
+  },
+  "source": {
+    "packageCode": "1163",
+    "paper": "1996-12 North America",
+    "questionRange": "31-34"
+  },
+  "extensions": {
+    "curriculum": "TOEFL Listening Part B foundation"
+  }
+}

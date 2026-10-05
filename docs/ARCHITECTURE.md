@@ -13,10 +13,16 @@ flowchart LR
   Feedback --> Demo["Deterministic demo adapter"]
   Feedback --> OpenAI["OpenAI Responses adapter"]
   Media --> Disk["Private Docker volume"]
+  Media --> B2["Private Backblaze B2 bucket"]
 ```
 
 The first release is a modular monolith. A single Node process keeps deployment
 and classroom setup small while domain boundaries keep later rhizomes possible.
+
+Remote media is authorized by the application but delivered directly by object
+storage through a short-lived signed URL. This keeps credentials and activity
+authorization server-side without routing classroom playback through the
+application host's uplink.
 
 ## Source layout
 
@@ -26,7 +32,7 @@ src/domain/              framework-free entities, schemas, and invariants
 src/application/         use cases and port definitions
 src/adapters/db/         PostgreSQL persistence
 src/adapters/feedback/   demo and OpenAI provider adapters
-src/adapters/media/      private local-volume media adapter
+src/adapters/media/      local and S3-compatible private media adapters
 src/components/          UI only
 scripts/                 migration and safe seed commands
 migrations/              append-only SQL
@@ -34,6 +40,14 @@ migrations/              append-only SQL
 
 Dependency direction is inward: adapters depend on application/domain
 contracts; domain code never imports an adapter or framework.
+
+## Activity-package boundary
+
+`listening-activity-package.v1` is the operator/teacher import boundary. Its
+required fields remain stable while question kinds, source metadata, timed
+segments, and extension maps can vary by source. Importing is additive: a new
+package version creates a new `activity_version`; existing attempts remain
+pinned to their original version.
 
 ## Stored invariants
 
@@ -93,4 +107,3 @@ Database failure blocks a write. Media failure does not create a published
 activity. AI failure never loses an attempt and never substitutes invented
 feedback. The demo adapter is selected explicitly by configuration and its UI
 provenance is visible; it is not a silent fallback from a failed live provider.
-

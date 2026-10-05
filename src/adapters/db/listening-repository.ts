@@ -1,5 +1,6 @@
 import { getPool } from "@/adapters/db/client";
-import { TeacherTemplateFeedbackProvider } from "@/adapters/feedback/template-provider";
+import { createFeedbackProvider } from "@/adapters/feedback/provider-factory";
+import { FeedbackProviderError } from "@/application/feedback-provider";
 import { parseListeningFeedback, type ListeningFeedback } from "@/domain/feedback";
 
 export type DashboardActivity = {
@@ -19,6 +20,8 @@ export type StoredAttempt = {
   createdAt: string;
   feedback: ListeningFeedback | null;
   feedbackStatus: "completed" | "failed" | null;
+  feedbackProvider: string | null;
+  feedbackModel: string | null;
 };
 
 export type LearnerActivity = {
@@ -76,7 +79,8 @@ export async function getLearnerActivity(slug: string, learnerId: string): Promi
 
   const attemptsResult = await getPool().query(
     `SELECT la.id, la.attempt_number, la.notes, la.reconstruction, la.created_at,
-            ai.pseudonym, lf.status AS feedback_status, lf.result_json
+            ai.pseudonym, lf.status AS feedback_status, lf.result_json,
+            lf.provider AS feedback_provider, lf.model AS feedback_model
      FROM listening_attempt la
      JOIN activity_identity ai
        ON ai.activity_id = la.activity_id AND ai.learner_id = la.learner_id
@@ -105,6 +109,8 @@ export async function getLearnerActivity(slug: string, learnerId: string): Promi
       createdAt: row.created_at.toISOString(),
       feedback: row.result_json ? parseListeningFeedback(row.result_json) : null,
       feedbackStatus: row.feedback_status,
+      feedbackProvider: row.feedback_provider,
+      feedbackModel: row.feedback_model,
     })),
   };
 }
@@ -205,8 +211,9 @@ export async function submitLearnerAttempt(input: {
   }
 
   if (!attempt) return null;
-  const provider = new TeacherTemplateFeedbackProvider();
+  let provider;
   try {
+    provider = createFeedbackProvider();
     const result = await provider.review({
       activityVersionId: attempt.activityVersionId,
       transcript: attempt.transcript,
@@ -219,8 +226,8 @@ export async function submitLearnerAttempt(input: {
     await getPool().query(
       `INSERT INTO listening_feedback (
          attempt_id, contract_version, status, provider, model,
-         prompt_version, result_json
-       ) VALUES ($1, $2, 'completed', $3, $4, $5, $6)`,
+         prompt_version, result_json, provider_response_id, usage_json
+       ) VALUES ($1, $2, 'completed', $3, $4, $5, $6, $7, $8)`,
       [
         attempt.id,
         result.feedback.contractVersion,
@@ -228,6 +235,8 @@ export async function submitLearnerAttempt(input: {
         result.model,
         result.promptVersion,
         result.feedback,
+        result.providerResponseId ?? null,
+        result.usage ?? {},
       ],
     );
     return {
@@ -239,15 +248,34 @@ export async function submitLearnerAttempt(input: {
       createdAt: attempt.createdAt.toISOString(),
       feedback: result.feedback,
       feedbackStatus: "completed",
+      feedbackProvider: result.provider,
+      feedbackModel: result.model,
     };
-  } catch {
+  } catch (error) {
+    const configuredProvider = (process.env.FEEDBACK_PROVIDER ?? "template").trim().toLowerCase();
+    const providerName = provider && "provider" in provider && typeof provider.provider === "string"
+      ? provider.provider
+      : configuredProvider === "openai" ? "openai" : "teacher_template";
+    const safeCode = error instanceof FeedbackProviderError
+      ? error.safeCode
+      : "feedback_configuration_or_validation_failed";
+    const responseId = error instanceof FeedbackProviderError ? error.providerResponseId : null;
+    const usage = error instanceof FeedbackProviderError ? error.usage : {};
     await getPool().query(
       `INSERT INTO listening_feedback (
          attempt_id, contract_version, status, provider,
-         prompt_version, safe_error_code
-       ) VALUES ($1, 'listening-feedback.v1', 'failed', 'teacher_template',
-                 'teacher-template.v1', 'feedback_validation_failed')`,
-      [attempt.id],
+         model, prompt_version, safe_error_code, provider_response_id, usage_json
+       ) VALUES ($1, 'listening-feedback.v1', 'failed', $2,
+                 $3, $4, $5, $6, $7)`,
+      [
+        attempt.id,
+        providerName,
+        providerName === "openai" ? process.env.OPENAI_MODEL ?? null : null,
+        providerName === "openai" ? "listening-review.2026-10-06.v1" : "teacher-template.v1",
+        safeCode,
+        responseId,
+        usage,
+      ],
     );
     return {
       id: attempt.id,
@@ -258,6 +286,8 @@ export async function submitLearnerAttempt(input: {
       createdAt: attempt.createdAt.toISOString(),
       feedback: null,
       feedbackStatus: "failed",
+      feedbackProvider: providerName,
+      feedbackModel: providerName === "openai" ? process.env.OPENAI_MODEL ?? null : null,
     };
   }
 }

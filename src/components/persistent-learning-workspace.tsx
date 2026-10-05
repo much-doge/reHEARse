@@ -19,6 +19,8 @@ export function PersistentLearningWorkspace({ activity }: { activity: LearnerAct
   const [pseudonym, setPseudonym] = useState(activity.pseudonym ?? "");
   const [attempts, setAttempts] = useState(activity.attempts);
   const [feedback, setFeedback] = useState<ListeningFeedback | null>(activity.attempts[0]?.feedback ?? null);
+  const [feedbackStatus, setFeedbackStatus] = useState<StoredAttempt["feedbackStatus"]>(activity.attempts[0]?.feedbackStatus ?? null);
+  const [feedbackProvider, setFeedbackProvider] = useState(activity.attempts[0]?.feedbackProvider ?? null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [listenCount, setListenCount] = useState(0);
@@ -37,6 +39,8 @@ export function PersistentLearningWorkspace({ activity }: { activity: LearnerAct
       const payload = await response.json() as { attempt: StoredAttempt };
       setAttempts((current) => [payload.attempt, ...current]);
       setFeedback(payload.attempt.feedback);
+      setFeedbackStatus(payload.attempt.feedbackStatus);
+      setFeedbackProvider(payload.attempt.feedbackProvider);
     } catch {
       setError("Your attempt could not be saved. Your writing is still here—please try again.");
     } finally {
@@ -46,6 +50,8 @@ export function PersistentLearningWorkspace({ activity }: { activity: LearnerAct
 
   function startRevision() {
     setFeedback(null);
+    setFeedbackStatus(null);
+    setFeedbackProvider(null);
     setNotes("");
     setReconstruction("");
   }
@@ -107,7 +113,22 @@ export function PersistentLearningWorkspace({ activity }: { activity: LearnerAct
 
       <aside className="feedback-panel">
         {feedback ? (
-          <FeedbackView feedback={feedback} attemptNumber={attempts[0]?.attemptNumber ?? 1} onRevise={startRevision} />
+          <FeedbackView
+            feedback={feedback}
+            attemptNumber={attempts[0]?.attemptNumber ?? 1}
+            provider={feedbackProvider}
+            onRevise={startRevision}
+          />
+        ) : feedbackStatus === "failed" ? (
+          <div className="feedback-empty">
+            <div className="empty-signal"><span /><span /><span /></div>
+            <p className="eyebrow">Attempt preserved</p>
+            <h2>Feedback is temporarily unavailable.</h2>
+            <p>Your notes and reconstruction are safe. No substitute feedback or score has been invented.</p>
+            <p className="translation">Catatan dan rekonstruksimu aman. Sistem tidak membuat umpan balik atau skor pengganti.</p>
+            <div className="no-score-note"><strong>Provider failure.</strong><span>Try a new attempt after the configured reviewer is available.</span></div>
+            <button className="button relisten-button" type="button" onClick={startRevision}>Start a new attempt <span aria-hidden="true">↻</span></button>
+          </div>
         ) : (
           <div className="feedback-empty">
             <div className="empty-signal"><span /><span /><span /></div>
@@ -122,7 +143,12 @@ export function PersistentLearningWorkspace({ activity }: { activity: LearnerAct
   );
 }
 
-function FeedbackView({ feedback, attemptNumber, onRevise }: { feedback: ListeningFeedback; attemptNumber: number; onRevise: () => void }) {
+function FeedbackView({ feedback, attemptNumber, provider, onRevise }: {
+  feedback: ListeningFeedback;
+  attemptNumber: number;
+  provider: string | null;
+  onRevise: () => void;
+}) {
   return (
     <div className="feedback-content">
       <div className="feedback-kicker"><span className="signal-icon">↗</span><span><small>Attempt {attemptNumber}</small><strong>Listening signal</strong></span></div>
@@ -137,8 +163,11 @@ function FeedbackView({ feedback, attemptNumber, onRevise }: { feedback: Listeni
       </div>
       <div className="next-target"><span>Focus for your next listen</span><strong>{feedback.nextListeningTarget.en}</strong><p>{feedback.nextListeningTarget.id}</p></div>
       <button className="button relisten-button" type="button" onClick={onRevise}>Start a new attempt <span aria-hidden="true">↻</span></button>
-      <p className="provider-note">Teacher-approved template feedback · live AI is not enabled</p>
+      <p className="provider-note">
+        {provider === "openai"
+          ? "AI-assisted feedback · bounded by the transcript and teacher guide · server validated"
+          : "Teacher-approved template feedback · live AI is not enabled"}
+      </p>
     </div>
   );
 }
-
