@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { attemptSaveError } from "./attempt-save-error";
+import { FeedbackWait } from "./feedback-wait";
 
 import type {
   LearnerActivity,
@@ -216,7 +217,9 @@ export function PersistentLearningWorkspace({
       </section>
 
       <aside className="feedback-panel">
-        {feedback ? (
+        {submitting ? (
+          <FeedbackWait />
+        ) : feedback ? (
           <FeedbackView
             feedback={feedback}
             attemptNumber={attempts[0]?.attemptNumber ?? 1}

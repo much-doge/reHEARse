@@ -308,7 +308,7 @@ export async function submitLearnerAttempt(input: {
         providerName,
         providerName === "openai" ? (process.env.OPENAI_MODEL ?? null) : null,
         providerName === "openai"
-          ? "listening-review.2026-10-06.v2"
+          ? "listening-review.2026-10-06.v3"
           : "teacher-template.v1",
         safeCode,
         responseId,

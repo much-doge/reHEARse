@@ -44,6 +44,17 @@ describe("OpenAIResponsesFeedbackProvider", () => {
         expect(body.input[0].content).toContain(
           "Do not mention source suppliers",
         );
+        expect(body.input[0].content).toContain("kamu/-mu");
+        expect(body.input[0].content).toContain(
+          "Do not spoon-feed missing meaning",
+        );
+        expect(body.input[0].content).toContain(
+          "Every field, including summary and observations",
+        );
+        expect(body.input[0].content).toContain("one or two short sentences");
+        expect(body.input[0].content).toContain(
+          "do not add an observation about missing comparison history",
+        );
         expect(body.text.format.strict).toBe(true);
         expect(body.text.format.schema.properties.observations.maxItems).toBe(
           6,
@@ -74,7 +85,7 @@ describe("OpenAIResponsesFeedbackProvider", () => {
     const result = await provider.review(request);
     expect(result.feedback.summary.id).toContain("Rekonstruksimu");
     expect(result.providerResponseId).toBe("resp_test");
-    expect(result.promptVersion).toBe("listening-review.2026-10-06.v2");
+    expect(result.promptVersion).toBe("listening-review.2026-10-06.v3");
     expect(result.usage?.total_tokens).toBe(180);
   });
 

@@ -185,3 +185,24 @@ authoritative. Save errors explain authentication, role, validation and origin
 failures in English and Indonesian without clearing text or logging it. An
 unconfirmed save must direct the learner to check history before retrying; a
 network failure does not prove that a response was not stored.
+
+## D-018 — Reflection while feedback waits (LFL-010)
+
+Pending submissions show a small optional, bilingual listening reflection:
+choose situation, speaker purpose or a detail to check, then express whether
+another listen would help. Choices stay in browser memory and do not enter
+learning history or provider requests. Animation honors reduced motion; status
+never claims a save has completed or invents provider progress. Loading takes
+precedence over prior feedback.
+
+Feedback addresses the learner directly with you/kamu, in short, warm teaching
+sentences. Avoid third-person reports and irrelevant absence-of-history remarks.
+The next listening target is one audio cue, not an essay task or revealed answer.
+Stored feedback remains immutable; narrowly matched legacy phrasing is adjusted
+only for display, while future requests use the versioned prompt.
+
+At the operator's further instruction, missing audio meaning must be elicited,
+not supplied: acknowledge only details present in the learner's current text;
+ask one open question about a speaker, moment or relationship for gaps and
+contradictions. This restriction applies to summaries and observations as well
+as replay targets. Do not introduce missing source names, solutions or answers.

@@ -36,6 +36,24 @@ describe("feedback presentation without changing stored records", () => {
     expect(JSON.stringify(shown)).not.toMatch(/evidence|bukti|reconstruction/i);
     expect(shown.nextListeningTarget).toEqual(original.nextListeningTarget);
   });
+  it("addresses the learner directly without modifying stored phrasing", () => {
+    const saved = {
+      ...original,
+      summary: {
+        en: "The learner’s notes describe a problem.",
+        id: "Catatan pembelajar menjelaskan masalah.",
+      },
+      nextListeningTarget: {
+        en: "Listen again.",
+        id: "Dengarkan bagaimana Anda memahami percakapan.",
+      },
+    };
+    const shown = feedbackPresentation(saved);
+    expect(shown.summary.en).toBe("Your notes describe a problem.");
+    expect(shown.summary.id).toBe("Catatanmu menjelaskan masalah.");
+    expect(shown.nextListeningTarget.id).not.toContain("Anda");
+    expect(saved.summary.en).toContain("learner");
+  });
   it("withholds a confidential source label in either language as a paired presentation", () => {
     const shown = feedbackPresentation({
       ...original,

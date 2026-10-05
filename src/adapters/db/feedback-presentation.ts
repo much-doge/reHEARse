@@ -21,6 +21,11 @@ function en(text: string): string {
       /there is insufficient evidence/gi,
       "your response needs more detail",
     )
+    .replace(/the learner[’']s notes/gi, "Your notes")
+    .replace(/the learner[’']s response/gi, "Your response")
+    .replace(/the learner captured/gi, "You noticed")
+    .replace(/the learner did not mention/gi, "You haven’t mentioned")
+    .replace(/the learner did not reference/gi, "You haven’t mentioned")
     .replace(/\bevidences\b/gi, "describes")
     .replace(/\bevidenced\b/gi, "described")
     .replace(/\bevidence\b/gi, "details")
@@ -41,6 +46,10 @@ function id(text: string): string {
       /Sebelum adaptor tinjauan langsung diaktifkan, reHEARse belum dapat membedakan makna yang tertangkap dari bagian yang masih belum pasti secara andal\./gi,
       "Panduan ini disiapkan untuk aktivitas ini. Gunakan untuk memeriksa penjelasanmu dengan mendengarkan audio.",
     )
+    .replace(/catatan pembelajar/gi, "Catatanmu")
+    .replace(/pembelajar menangkap/gi, "Kamu menangkap")
+    .replace(/pembelajar tidak menyebut/gi, "Kamu belum menyebut")
+    .replace(/\bAnda\b/g, "kamu")
     .replace(/\bbukti\b/gi, "detail")
     .replace(/rekonstruksimu/gi, "penjelasanmu")
     .replace(/rekonstruksi/gi, "penjelasan");
