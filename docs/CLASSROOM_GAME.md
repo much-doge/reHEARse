@@ -9,7 +9,7 @@ its URL to resume it after refresh. Browser cookies restore student membership.
    devices receive phase state, not synchronized audio. Replay if needed.
 2. **Comprehend:** invite a brief partner explanation, then one short meaning or
    uncertainty per team. Open Moderation and approve phrases for the cloud.
-   Hide a displayed phrase with ×. Frequency indicates shared wording, not truth.
+   Hide every occurrence of a displayed phrase with ×. Frequency indicates shared wording, not truth.
 3. **Quiz:** choose 20–90 seconds, then open the quiz. Timing begins on the server
    after comprehension; the first answer is immutable. A correct game answer
    earns 1000 points plus at most 200 for speed. Incorrect answers earn zero.

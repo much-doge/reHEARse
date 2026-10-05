@@ -52,8 +52,20 @@ try {
   await post({ kind: "join", pin }, student);
   assert.equal((await view()).players, 1);
   await post({ kind: "advance", pin, revision: 0 }, student, 403);
-  const parallel = await Promise.all([0,1].map(()=>fetch(base+"/api/game",{method:"POST",headers:{Origin:base,"Content-Type":"application/json",Cookie:teacher},body:JSON.stringify({kind:"advance",pin,revision:0})})));
-  assert.deepEqual(parallel.map(r=>r.status).sort(),[200,409]);
+  const parallel = await Promise.all(
+    [0, 1].map(() =>
+      fetch(base + "/api/game", {
+        method: "POST",
+        headers: {
+          Origin: base,
+          "Content-Type": "application/json",
+          Cookie: teacher,
+        },
+        body: JSON.stringify({ kind: "advance", pin, revision: 0 }),
+      }),
+    ),
+  );
+  assert.deepEqual(parallel.map((r) => r.status).sort(), [200, 409]);
   s = await view();
   assert.equal(s.phase, "listen");
   assert.ok(!("options" in s.round));
@@ -91,6 +103,30 @@ try {
     visible: true,
   });
   assert.equal((await view()).cloud[0].term, "uncertain meaning");
+  const second = (await post({ kind: "join", pin }, "")).cookie;
+  await post(
+    { kind: "cloud", pin, revision: 2, term: "uncertain meaning" },
+    second,
+  );
+  h = await view(teacher);
+  await post({
+    kind: "moderate",
+    pin,
+    revision: 2,
+    cloudId: h.pending[0].id,
+    visible: true,
+  });
+  const visible = (await view()).cloud;
+  assert.equal(visible.length, 1);
+  assert.equal(visible[0].count, 2);
+  await post({
+    kind: "moderate",
+    pin,
+    revision: 2,
+    cloudId: visible[0].id,
+    visible: false,
+  });
+  assert.equal((await view()).cloud.length, 0);
   await post({ kind: "advance", pin, revision: 2, duration: 30 });
   s = await view();
   assert.equal(s.phase, "quiz");
@@ -105,7 +141,7 @@ try {
   assert.equal(s.phase, "review");
   assert.equal(s.round.answer, 2);
   assert.ok(s.round.cue.id);
-  assert.equal(s.leaderboard.length, 1);
+  assert.equal(s.leaderboard.length, 2);
   assert.ok(s.leaderboard[0].points >= 1000 && s.leaderboard[0].points <= 1200);
   await post({ kind: "advance", pin, revision: 4 });
   s = await view();

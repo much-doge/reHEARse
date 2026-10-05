@@ -111,3 +111,14 @@ provenance is visible; it is not a silent fallback from a failed live provider.
 Production public-media mode is defined by D-014. Its neutral storage configuration
 uses OBJECT_STORAGE_* and PUBLIC_MEDIA_BASE_URL; legacy B2_* aliases remain.
 Authorized media routes redirect to the public origin without proxying bytes.
+
+## Recreational classroom boundary (LFL-007)
+
+The game domain defines versioned deck/view contracts, phase progression and
+bounded game points. RoomPort connects it to the PostgreSQL room adapter.
+Next.js handles identity, cookies, same-origin validation and transport.
+Classroom tables are separate from the individual listening evidence graph.
+Only the teacher receives audio playback URLs; student DTOs gate options and
+answer/cue reveal by phase. Two-second polling recovers current authoritative
+state after reconnect; the teacher speaker is the single audio clock.
+See D-015 and CLASSROOM_GAME.md for privacy, moderation and pilot limits.

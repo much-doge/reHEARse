@@ -23,7 +23,8 @@ export function ClassroomGame({
   const [pin, setPin] = useState(initialPin);
   const [room, setRoom] = useState<GameView | null>(null);
   const [message, setMessage] = useState("");
-  const [term, setTerm] = useState("");
+  const [draft, setDraft] = useState({ roundIndex: -1, text: "" });
+  const term = draft.roundIndex === room?.roundIndex ? draft.text : "";
   const [busy, setBusy] = useState(false);
   const [duration, setDuration] = useState(30);
   const [remaining, setRemaining] = useState(0);
@@ -147,7 +148,7 @@ export function ClassroomGame({
           <div className="game-status">
             <strong className="game-pin">{room.pin}</strong>
             <span>{room.players} teams / tim</span>
-            <span>{room.alias ?? "Teacher / Guru"}</span>
+            <span>{room.host ? "Teacher / Guru" : room.alias}</span>
             <span>
               Round {room.roundIndex + 1} / {room.total}
             </span>
@@ -208,7 +209,12 @@ export function ClassroomGame({
                       aria-label="Meaning or uncertainty / Makna atau keraguan"
                       maxLength={40}
                       value={term}
-                      onChange={(e) => setTerm(e.target.value)}
+                      onChange={(e) =>
+                        setDraft({
+                          roundIndex: room.roundIndex,
+                          text: e.target.value,
+                        })
+                      }
                       required
                       placeholder="1–40 characters"
                     />
@@ -217,7 +223,7 @@ export function ClassroomGame({
                     </button>
                   </form>
                 )}
-                {room.cloudSubmitted && (
+                {!room.host && room.cloudSubmitted && (
                   <p>Preserved for this round / Tersimpan untuk putaran ini</p>
                 )}
               </>
@@ -355,7 +361,7 @@ export function ClassroomGame({
               <button
                 disabled={busy}
                 onClick={() => {
-                  setTerm("");
+                  setDraft({ roundIndex: -1, text: "" });
                   void act("advance");
                 }}
               >

@@ -60,7 +60,9 @@ async function transaction<T>(fn: (c: PoolClient) => Promise<T>): Promise<T> {
 export const rooms: RoomPort = {
   async create(ownerId) {
     return transaction(async (c) => {
-      await c.query("SELECT id FROM app_user WHERE id=$1 FOR UPDATE",[ownerId]);
+      await c.query("SELECT id FROM app_user WHERE id=$1 FOR UPDATE", [
+        ownerId,
+      ]);
       const active = await c.query(
         "SELECT count(*)::int AS n FROM game_room WHERE owner_id=$1 AND expires_at>now() AND phase<>'finished'",
         [ownerId],
@@ -196,14 +198,22 @@ export const rooms: RoomPort = {
         if (!who.host) throw new GameError(403, "Teacher only / Khusus guru");
         if (a.kind === "moderate") {
           const x = await c.query(
-            "SELECT id FROM game_cloud WHERE id=$1 AND room_id=$2 AND round_index=$3",
+            "SELECT id,term FROM game_cloud WHERE id=$1 AND room_id=$2 AND round_index=$3",
             [a.cloudId, r.id, r.round_index],
           );
           if (!x.rowCount) throw new GameError(404, "Term unavailable");
-          await c.query(
-            "INSERT INTO game_cloud_decision(cloud_id,owner_id,visible) VALUES($1,$2,$3)",
-            [a.cloudId, actor.userId, a.visible === true],
-          );
+          if (a.visible === true) {
+            await c.query(
+              "INSERT INTO game_cloud_decision(cloud_id,owner_id,visible) VALUES($1,$2,true)",
+              [a.cloudId, actor.userId],
+            );
+          } else {
+            // The displayed cloud aggregates matching phrases: hide every occurrence.
+            await c.query(
+              "INSERT INTO game_cloud_decision(cloud_id,owner_id,visible) SELECT id,$1,false FROM game_cloud WHERE room_id=$2 AND round_index=$3 AND term=$4",
+              [actor.userId, r.id, r.round_index, x.rows[0].term],
+            );
+          }
           return;
         }
         const next =
