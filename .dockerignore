@@ -11,3 +11,5 @@ data
 
 .secrets/
 .env.production
+
+imports/private/

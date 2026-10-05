@@ -1,4 +1,6 @@
 import { getPool } from "@/adapters/db/client";
+import { readS3MediaConfig } from "@/adapters/media/s3-config";
+import { createPublicMediaUrl } from "@/adapters/media/s3-media-store";
 import { createFeedbackProvider } from "@/adapters/feedback/provider-factory";
 import { FeedbackProviderError } from "@/application/feedback-provider";
 import { parseListeningFeedback, type ListeningFeedback } from "@/domain/feedback";
@@ -64,7 +66,7 @@ export async function listLearnerActivities(learnerId: string): Promise<Dashboar
 export async function getLearnerActivity(slug: string, learnerId: string): Promise<LearnerActivity | null> {
   const activityResult = await getPool().query(
     `SELECT a.id, a.slug, av.id AS version_id, av.title, av.part_label,
-            av.prompt_en, av.prompt_id, av.media_storage_key,
+            av.prompt_en, av.prompt_id, av.media_storage_key, av.media_provider, av.media_bucket,
             ai.pseudonym
      FROM activity a
      JOIN activity_version av
@@ -90,6 +92,12 @@ export async function getLearnerActivity(slug: string, learnerId: string): Promi
     [activity.id, learnerId],
   );
 
+  let audioUrl = activity.media_storage_key ? `/api/media/${activity.slug}` : null;
+  if (activity.media_provider === "s3" && activity.media_storage_key) {
+    const config = readS3MediaConfig();
+    if (activity.media_bucket && activity.media_bucket !== config.bucket) throw new Error("media bucket configuration mismatch");
+    if (config.deliveryMode === "public") audioUrl = createPublicMediaUrl(config, activity.media_storage_key);
+  }
   return {
     id: activity.id,
     versionId: activity.version_id,
@@ -98,7 +106,7 @@ export async function getLearnerActivity(slug: string, learnerId: string): Promi
     partLabel: activity.part_label,
     promptEn: activity.prompt_en,
     promptId: activity.prompt_id,
-    audioUrl: activity.media_storage_key ? `/api/media/${activity.slug}` : null,
+    audioUrl,
     pseudonym: activity.pseudonym,
     attempts: attemptsResult.rows.map((row) => ({
       id: row.id,

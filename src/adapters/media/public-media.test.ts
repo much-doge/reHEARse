@@ -19,3 +19,18 @@ describe("confined public media", () => {
     expect(() => readS3MediaConfig({ ...env, PUBLIC_MEDIA_BASE_URL: `${env.PUBLIC_MEDIA_BASE_URL}?x=1` })).toThrow();
   });
 });
+
+ it("refuses to overwrite an existing exact object key", async () => {
+   const { mkdtemp, writeFile, rm } = await import("node:fs/promises");
+   const { tmpdir } = await import("node:os");
+   const { HeadObjectCommand } = await import("@aws-sdk/client-s3");
+   const folder = await mkdtemp(`${tmpdir()}/rehearse-test-`);
+   const file = `${folder}/a.mp3`; await writeFile(file, "synthetic");
+   const commands: unknown[] = [];
+   const client = { send: async (command: unknown) => { commands.push(command); return {}; } } as unknown as import("@aws-sdk/client-s3").S3Client;
+   try {
+     const store = new S3CompatibleMediaStore(readS3MediaConfig(env), client);
+     await expect(store.uploadFile({path:file,storageKey:key,contentType:"audio/mpeg",sizeBytes:9,sha256:"a".repeat(64),activitySlug:"test"})).rejects.toThrow("refusing to overwrite");
+     expect(commands).toHaveLength(1); expect(commands[0]).toBeInstanceOf(HeadObjectCommand);
+   } finally { await rm(folder, {recursive:true}); }
+ });

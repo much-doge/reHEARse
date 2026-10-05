@@ -20,7 +20,7 @@ export async function GET(
 
   const { slug } = await params;
   const result = await getPool().query(
-    `SELECT av.media_storage_key, av.media_provider, av.media_content_type
+    `SELECT av.media_storage_key, av.media_provider, av.media_content_type, av.media_bucket
      FROM activity a
      JOIN activity_version av
        ON av.activity_id = a.id AND av.version_number = a.current_version
@@ -33,7 +33,9 @@ export async function GET(
   const provider = result.rows[0].media_provider as "bundled" | "local" | "s3";
   if (provider === "s3") {
     try {
-      const delivery = await new S3CompatibleMediaStore(readS3MediaConfig()).createDownloadUrl(storageKey);
+      const config = readS3MediaConfig();
+      if (result.rows[0].media_bucket && result.rows[0].media_bucket !== config.bucket) throw new Error("media bucket mismatch");
+      const delivery = await new S3CompatibleMediaStore(config).createDownloadUrl(storageKey);
       return NextResponse.redirect(delivery.url, {
         status: 307,
         headers: {

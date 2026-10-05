@@ -116,7 +116,7 @@ Public, authorized audio may use the existing najala-dumpster bucket under
 rehearse/media only. Private signed delivery remains available. Public URLs
 are stable and audio bypasses the application host. Never publish private
 transcripts, learner evidence, credentials, logs or backups to that bucket.
-Imports generate activity-ID/version/random object keys, require non-overwrite
+Imports generate activity-ID/version/random object keys, refuse existing-key
 uploads, and store bucket, hash, size and source lineage. Publication commits
 only after upload succeeds.
 
@@ -127,3 +127,11 @@ for an external Cloudflare instance; this supersedes the requested loopback
 binding for this deployment only. Cloudflare routing stays operator-owned.
 The operator authorized copying only the existing LLM key from Writing Analysis
 Studio; no other credentials or workload changes are authorized.
+
+B2 live canary returned HTTP 501 for conditional PutObject (If-None-Match).
+The adapter therefore HEAD-checks only the exact newly generated key and refuses
+an existing object. Imports always generate fresh random keys per content version.
+This provider has no atomic compare-and-create guarantee: a concurrent writer
+using the same random key between HEAD and PUT could race. Dedicated key scope,
+operator-only imports and 128-bit random identifiers avoid reusing published keys.
+No bucket listing or existing object modification is needed.

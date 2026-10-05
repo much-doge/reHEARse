@@ -1,7 +1,7 @@
 import { createReadStream } from "node:fs";
 import { stat } from "node:fs/promises";
 
-import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 import type { RemoteMediaStore } from "@/application/media-store";
@@ -23,8 +23,8 @@ function createClient(config: S3MediaConfig) {
 export class S3CompatibleMediaStore implements RemoteMediaStore {
   private readonly client: S3Client;
 
-  constructor(private readonly config: S3MediaConfig) {
-    this.client = createClient(config);
+  constructor(private readonly config: S3MediaConfig, client?: S3Client) {
+    this.client = client ?? createClient(config);
   }
 
   async createDownloadUrl(storageKey: string) {
@@ -60,12 +60,22 @@ export class S3CompatibleMediaStore implements RemoteMediaStore {
     if (!source.isFile() || source.size !== input.sizeBytes) {
       throw new Error("media changed before upload");
     }
+    // Backblaze rejects S3 conditional PutObject. Probe this exact randomized key;
+    // the importer never supplies a prior version's key for a replacement upload.
+    let exists = false;
+    try {
+      await this.client.send(new HeadObjectCommand({ Bucket: this.config.bucket, Key: input.storageKey }));
+      exists = true;
+    } catch (error) {
+      const status = (error as { $metadata?: { httpStatusCode?: number } })?.$metadata?.httpStatusCode;
+      if (status !== 404) throw new Error("media key preflight failed");
+    }
+    if (exists) throw new Error("refusing to overwrite an existing media key");
     await this.client.send(
       new PutObjectCommand({
         Bucket: this.config.bucket,
         Key: input.storageKey,
         Body: createReadStream(input.path),
-        IfNoneMatch: "*",
         ContentLength: input.sizeBytes,
         ContentType: input.contentType,
         ServerSideEncryption: "AES256",
