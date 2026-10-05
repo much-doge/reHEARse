@@ -51,3 +51,12 @@ Exit: named container artifact is recoverable and ready for a supervised pilot.
 - practice mode and isolated game scoring;
 - educator-reviewed semantic-map authoring assistance.
 
+
+## Classroom recreational slice (`LFL-007`)
+
+Teacher-controlled Part A rooms: all 30 verified source clips, moderated
+comprehension cloud, bounded server-timed game bonus, hidden keys until review,
+bilingual purposeful replay cues, and next/finish. Acceptance requires local
+checks, PostgreSQL/API guard and concurrency journey, production image/migration,
+media range verification, and public host/student journey. Classroom observation
+remains a separate gate after deployment. See CLASSROOM_GAME.md and D-015.

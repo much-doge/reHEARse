@@ -1,0 +1,606 @@
+{
+  "version": "contefl-1163-part-a-game.v1",
+  "title": "Small conversations, big meanings / Percakapan singkat, makna besar",
+  "rounds": [
+    {
+      "number": 1,
+      "audioUrl": "https://example.invalid/1.mp3",
+      "prompt": "What happened during the lecture?",
+      "options": [
+        "He missed the location.",
+        "He found the pace too slow.",
+        "The explanation made no sense to him.",
+        "The lesson ran past its end."
+      ],
+      "answer": 2,
+      "cue": {
+        "en": "Track the meaning of lost in this classroom context.",
+        "id": "Perhatikan makna lost dalam konteks kelas."
+      },
+      "explanation": {
+        "en": "He could not follow the lecture.",
+        "id": "Ia tidak dapat mengikuti penjelasan dosen."
+      }
+    },
+    {
+      "number": 2,
+      "audioUrl": "https://example.invalid/2.mp3",
+      "prompt": "Which task comes before the phone call?",
+      "options": [
+        "Buying admission passes.",
+        "Speaking to Jane.",
+        "Completing the sociology assignment.",
+        "Attending the music event."
+      ],
+      "answer": 2,
+      "cue": {
+        "en": "Listen for the action following as soon as.",
+        "id": "Dengarkan tindakan setelah as soon as."
+      },
+      "explanation": {
+        "en": "The assignment is finished before he calls.",
+        "id": "Tugas diselesaikan sebelum ia menelepon."
+      }
+    },
+    {
+      "number": 3,
+      "audioUrl": "https://example.invalid/3.mp3",
+      "prompt": "Why is lending the paper a problem?",
+      "options": [
+        "Another reader has taken it.",
+        "She expects him to return it.",
+        "She is not its owner.",
+        "She needs to read it first."
+      ],
+      "answer": 2,
+      "cue": {
+        "en": "Listen for the reason following the apology.",
+        "id": "Dengarkan alasan setelah permintaan maaf."
+      },
+      "explanation": {
+        "en": "She cannot offer someone else’s newspaper.",
+        "id": "Ia tidak dapat meminjamkan koran milik orang lain."
+      }
+    },
+    {
+      "number": 4,
+      "audioUrl": "https://example.invalid/4.mp3",
+      "prompt": "How could the man help at the station?",
+      "options": [
+        "By describing the bus schedule.",
+        "By recognizing the person being met.",
+        "By calling a lifelong friend.",
+        "By collecting someone he already picked up."
+      ],
+      "answer": 1,
+      "cue": {
+        "en": "Connect having met someone before with recognizing them.",
+        "id": "Hubungkan pernah bertemu dengan mengenali seseorang."
+      },
+      "explanation": {
+        "en": "His earlier meeting may help him identify her.",
+        "id": "Pertemuan sebelumnya dapat membantunya mengenali perempuan itu."
+      }
+    },
+    {
+      "number": 5,
+      "audioUrl": "https://example.invalid/5.mp3",
+      "prompt": "What has gone wrong at the restaurant?",
+      "options": [
+        "The customer cannot explain the request.",
+        "The fish has not been cooked.",
+        "The server has brought the wrong dish.",
+        "The server wants the customer’s meal."
+      ],
+      "answer": 2,
+      "cue": {
+        "en": "Compare the dish rejected with the corrected order.",
+        "id": "Bandingkan hidangan yang ditolak dengan pesanan yang dibetulkan."
+      },
+      "explanation": {
+        "en": "The server acknowledges an order mix-up.",
+        "id": "Pelayan mengakui adanya kesalahan pesanan."
+      }
+    },
+    {
+      "number": 6,
+      "audioUrl": "https://example.invalid/6.mp3",
+      "prompt": "Why has he been absent from the student center?",
+      "options": [
+        "He enrolled in additional lessons.",
+        "He is waiting there for a friend.",
+        "An illness stopped his writing.",
+        "An assignment has occupied his time."
+      ],
+      "answer": 3,
+      "cue": {
+        "en": "Distinguish the suggested reason from his actual explanation.",
+        "id": "Bedakan alasan dugaan dengan penjelasan sebenarnya."
+      },
+      "explanation": {
+        "en": "His history assignment has kept him busy.",
+        "id": "Tugas sejarah menyita waktunya."
+      }
+    },
+    {
+      "number": 7,
+      "audioUrl": "https://example.invalid/7.mp3",
+      "prompt": "How does he respond to the offer of a lift?",
+      "options": [
+        "He offers to drive instead.",
+        "He asks to use her vehicle alone.",
+        "He proposes another route.",
+        "He offers a contribution toward fuel."
+      ],
+      "answer": 3,
+      "cue": {
+        "en": "Notice what the money is intended for.",
+        "id": "Perhatikan tujuan uang yang ditawarkan."
+      },
+      "explanation": {
+        "en": "He wants to contribute to the travel cost.",
+        "id": "Ia ingin membantu biaya perjalanan."
+      }
+    },
+    {
+      "number": 8,
+      "audioUrl": "https://example.invalid/8.mp3",
+      "prompt": "Where will she meet the others?",
+      "options": [
+        "At the pickup point at one.",
+        "At the place serving lunch.",
+        "At her home while cooking.",
+        "At the garage after everyone eats."
+      ],
+      "answer": 1,
+      "cue": {
+        "en": "Listen for the destination after her errands.",
+        "id": "Dengarkan tujuan setelah urusannya selesai."
+      },
+      "explanation": {
+        "en": "She will travel directly to the restaurant.",
+        "id": "Ia akan langsung menuju restoran."
+      }
+    },
+    {
+      "number": 9,
+      "audioUrl": "https://example.invalid/9.mp3",
+      "prompt": "What is her likely next step?",
+      "options": [
+        "Find a completely new physician.",
+        "Request a change to the treatment.",
+        "Move the appointment to another day.",
+        "Stop every treatment without asking."
+      ],
+      "answer": 1,
+      "cue": {
+        "en": "Listen for the reason she plans to return.",
+        "id": "Dengarkan alasan ia berencana kembali."
+      },
+      "explanation": {
+        "en": "The current medicine is not helping, so she wants it changed.",
+        "id": "Obat saat ini tidak membantu, sehingga ia ingin menggantinya."
+      }
+    },
+    {
+      "number": 10,
+      "audioUrl": "https://example.invalid/10.mp3",
+      "prompt": "What happens when more catalogs arrive?",
+      "options": [
+        "One will be sent to her address.",
+        "He will search his bag for a spare.",
+        "He will read all the product details aloud.",
+        "She must visit immediately to collect one."
+      ],
+      "answer": 0,
+      "cue": {
+        "en": "Connect the requested address with later delivery.",
+        "id": "Hubungkan alamat yang diminta dengan pengiriman nanti."
+      },
+      "explanation": {
+        "en": "He offers to send a catalog when stock arrives.",
+        "id": "Ia menawarkan pengiriman katalog ketika stok tersedia."
+      }
+    },
+    {
+      "number": 11,
+      "audioUrl": "https://example.invalid/11.mp3",
+      "prompt": "How does she feel about Lisa’s pottery?",
+      "options": [
+        "She hopes to purchase all of it.",
+        "She believes Lisa needs more helpers.",
+        "She has never looked at the pieces.",
+        "She thinks Lisa has surpassed her usual work."
+      ],
+      "answer": 3,
+      "cue": {
+        "en": "Listen for the evaluative meaning of outdid herself.",
+        "id": "Dengarkan makna penilaian dalam outdid herself."
+      },
+      "explanation": {
+        "en": "She is praising Lisa’s achievement.",
+        "id": "Ia memuji hasil karya Lisa."
+      }
+    },
+    {
+      "number": 12,
+      "audioUrl": "https://example.invalid/12.mp3",
+      "prompt": "What does his reply suggest about the music?",
+      "options": [
+        "He had not noticed its effect on her reading.",
+        "He believes reading never needs quiet.",
+        "He could not hear her request.",
+        "He wants her to switch off her own equipment."
+      ],
+      "answer": 0,
+      "cue": {
+        "en": "Listen to how his question responds to new information.",
+        "id": "Dengarkan bagaimana pertanyaannya menanggapi informasi baru."
+      },
+      "explanation": {
+        "en": "He seems unaware that the stereo was disturbing her.",
+        "id": "Ia tampaknya tidak menyadari bahwa stereo mengganggunya."
+      }
+    },
+    {
+      "number": 13,
+      "audioUrl": "https://example.invalid/13.mp3",
+      "prompt": "How does he react to the lab workload?",
+      "options": [
+        "He plans to avoid today’s laboratory.",
+        "He blames the woman for complaining.",
+        "He shares her concern about the tight deadline.",
+        "He believes there is plenty of time."
+      ],
+      "answer": 2,
+      "cue": {
+        "en": "Listen for the agreement before the time-pressure comment.",
+        "id": "Dengarkan persetujuan sebelum komentar tentang waktu."
+      },
+      "explanation": {
+        "en": "He agrees that completing the report will be difficult in time.",
+        "id": "Ia setuju laporan sulit diselesaikan tepat waktu."
+      }
+    },
+    {
+      "number": 14,
+      "audioUrl": "https://example.invalid/14.mp3",
+      "prompt": "What has changed about her view of the sculptures?",
+      "options": [
+        "She has stopped trying to understand art.",
+        "She dislikes them more than before.",
+        "She now enjoys what she initially disliked.",
+        "She has always shared his negative view."
+      ],
+      "answer": 2,
+      "cue": {
+        "en": "Compare at first with now.",
+        "id": "Bandingkan at first dengan now."
+      },
+      "explanation": {
+        "en": "Her initial dislike has become appreciation.",
+        "id": "Ketidaksukaan awal berubah menjadi apresiasi."
+      }
+    },
+    {
+      "number": 15,
+      "audioUrl": "https://example.invalid/15.mp3",
+      "prompt": "What possibility does he suggest for improving Italian?",
+      "options": [
+        "Choose any option immediately.",
+        "Practice only with him at home.",
+        "Explore an offering at the community college.",
+        "Teach a new course herself."
+      ],
+      "answer": 2,
+      "cue": {
+        "en": "Hear the question as a suggestion to investigate an option.",
+        "id": "Dengarkan pertanyaan sebagai saran untuk mencari pilihan."
+      },
+      "explanation": {
+        "en": "He suggests looking into a college offering.",
+        "id": "Ia menyarankan mencari program di perguruan tinggi setempat."
+      }
+    },
+    {
+      "number": 16,
+      "audioUrl": "https://example.invalid/16.mp3",
+      "prompt": "What does she say about her last haircut?",
+      "options": [
+        "She goes every few days.",
+        "It happened more than a month ago.",
+        "It was meant as a joke.",
+        "The stylist has been away all month."
+      ],
+      "answer": 1,
+      "cue": {
+        "en": "Attend to the time interval in her correction.",
+        "id": "Perhatikan rentang waktu dalam koreksinya."
+      },
+      "explanation": {
+        "en": "She disputes that her previous visit was recent.",
+        "id": "Ia menyangkal bahwa kunjungan sebelumnya baru saja terjadi."
+      }
+    },
+    {
+      "number": 17,
+      "audioUrl": "https://example.invalid/17.mp3",
+      "prompt": "What adjustment might improve the photographs?",
+      "options": [
+        "Use film suited to indoor conditions.",
+        "Replace the whole camera immediately.",
+        "Photograph only outside from now on.",
+        "Avoid including faces in photographs."
+      ],
+      "answer": 0,
+      "cue": {
+        "en": "Listen for the contrast between outdoor and indoor film.",
+        "id": "Dengarkan perbedaan film luar dan dalam ruangan."
+      },
+      "explanation": {
+        "en": "The film may have been unsuitable for the indoor setting.",
+        "id": "Film mungkin tidak cocok untuk kondisi dalam ruangan."
+      }
+    },
+    {
+      "number": 18,
+      "audioUrl": "https://example.invalid/18.mp3",
+      "prompt": "What does his response suggest about the dessert?",
+      "options": [
+        "It has not arrived yet.",
+        "He wants to invite John out.",
+        "It will be as remarkable as the sandwiches.",
+        "He prepared it for John."
+      ],
+      "answer": 2,
+      "cue": {
+        "en": "Hear wait until you see as a positive anticipation cue.",
+        "id": "Dengarkan wait until you see sebagai petunjuk antisipasi positif."
+      },
+      "explanation": {
+        "en": "He expects the dessert to impress her too.",
+        "id": "Ia memperkirakan hidangan penutup juga akan mengesankannya."
+      }
+    },
+    {
+      "number": 19,
+      "audioUrl": "https://example.invalid/19.mp3",
+      "prompt": "What arrangement did she make for the collection?",
+      "options": [
+        "Notify the library of needed items beforehand.",
+        "Apply to work in the collection.",
+        "Speak personally to the director.",
+        "Arrive before the doors opened."
+      ],
+      "answer": 0,
+      "cue": {
+        "en": "Listen for the advance-notice requirement.",
+        "id": "Dengarkan persyaratan pemberitahuan sebelumnya."
+      },
+      "explanation": {
+        "en": "She requested the materials a day before using them.",
+        "id": "Ia meminta bahan sehari sebelum menggunakannya."
+      }
+    },
+    {
+      "number": 20,
+      "audioUrl": "https://example.invalid/20.mp3",
+      "prompt": "What role will calculators have in the course?",
+      "options": [
+        "The lecturer will give one to everyone.",
+        "They will help with the statistics work.",
+        "They will be prohibited for calculations.",
+        "They will replace a prerequisite course."
+      ],
+      "answer": 1,
+      "cue": {
+        "en": "Connect come in handy with a practical use.",
+        "id": "Hubungkan come in handy dengan kegunaan praktis."
+      },
+      "explanation": {
+        "en": "Calculators should be useful for the statistical work.",
+        "id": "Kalkulator akan berguna untuk pekerjaan statistik."
+      }
+    },
+    {
+      "number": 21,
+      "audioUrl": "https://example.invalid/21.mp3",
+      "prompt": "Where does she suggest looking for George?",
+      "options": [
+        "In his bedroom after a late night.",
+        "In the laboratory where he spends much time.",
+        "Beside the work she needs to mark.",
+        "Nowhere; she offers no possible location."
+      ],
+      "answer": 1,
+      "cue": {
+        "en": "Interpret the exaggeration about sleeping there.",
+        "id": "Tafsirkan ungkapan berlebihan tentang tidur di sana."
+      },
+      "explanation": {
+        "en": "She associates George strongly with the laboratory.",
+        "id": "Ia mengaitkan George dengan laboratorium."
+      }
+    },
+    {
+      "number": 22,
+      "audioUrl": "https://example.invalid/22.mp3",
+      "prompt": "What prevented her from buying the coat?",
+      "options": [
+        "She could not find a suitable size.",
+        "She disliked how well it fitted.",
+        "She believed the price was excessive.",
+        "She was waiting for a discounted price."
+      ],
+      "answer": 0,
+      "cue": {
+        "en": "Listen for the unreal condition about size.",
+        "id": "Dengarkan kondisi yang tidak terpenuhi tentang ukuran."
+      },
+      "explanation": {
+        "en": "She would have bought it if her size had been available.",
+        "id": "Ia akan membelinya jika ukurannya tersedia."
+      }
+    },
+    {
+      "number": 23,
+      "audioUrl": "https://example.invalid/23.mp3",
+      "prompt": "What is his plan for the warmer weekend?",
+      "options": [
+        "Repair part of his own house.",
+        "Turn up the heat inside his home.",
+        "Cancel all work because time is short.",
+        "Visit his spouse’s mother instead."
+      ],
+      "answer": 0,
+      "cue": {
+        "en": "Keep the two speakers’ plans separate.",
+        "id": "Pisahkan rencana kedua pembicara."
+      },
+      "explanation": {
+        "en": "He plans to repair loose shutters at home.",
+        "id": "Ia berencana memperbaiki daun jendela yang longgar di rumah."
+      }
+    },
+    {
+      "number": 24,
+      "audioUrl": "https://example.invalid/24.mp3",
+      "prompt": "How likely is it that Jan will change her plan?",
+      "options": [
+        "Very likely if a friend suggests traveling.",
+        "Unlikely once she is determined.",
+        "Likely after meeting new classmates.",
+        "She has no interest in going overseas."
+      ],
+      "answer": 1,
+      "cue": {
+        "en": "Use lost cause and determination together.",
+        "id": "Hubungkan lost cause dengan tekadnya."
+      },
+      "explanation": {
+        "en": "The woman thinks persuading Jan will not work.",
+        "id": "Perempuan itu menganggap membujuk Jan tidak akan berhasil."
+      }
+    },
+    {
+      "number": 25,
+      "audioUrl": "https://example.invalid/25.mp3",
+      "prompt": "Why does she mention the film’s awards?",
+      "options": [
+        "To express disbelief about every award.",
+        "To say no interesting films are available.",
+        "To recommend watching an awards broadcast.",
+        "To give a reason to reconsider seeing the film."
+      ],
+      "answer": 3,
+      "cue": {
+        "en": "Hear but as a challenge to the first speaker’s lack of interest.",
+        "id": "Dengarkan but sebagai tanggapan terhadap kurangnya minat pembicara pertama."
+      },
+      "explanation": {
+        "en": "The awards are offered as a reason to give the film a chance.",
+        "id": "Penghargaan diberikan sebagai alasan untuk mencoba menonton film tersebut."
+      }
+    },
+    {
+      "number": 26,
+      "audioUrl": "https://example.invalid/26.mp3",
+      "prompt": "Why is resting difficult for him?",
+      "options": [
+        "He has been waiting too long for treatment.",
+        "He believes help is unnecessary.",
+        "He cannot tolerate any pain when walking.",
+        "He dislikes repeatedly relying on his friends."
+      ],
+      "answer": 3,
+      "cue": {
+        "en": "Listen for the emotional difficulty rather than inventing a medical reason.",
+        "id": "Dengarkan kesulitan emosional tanpa menambahkan alasan medis."
+      },
+      "explanation": {
+        "en": "Depending on friends makes him uncomfortable.",
+        "id": "Bergantung pada teman membuatnya tidak nyaman."
+      }
+    },
+    {
+      "number": 27,
+      "audioUrl": "https://example.invalid/27.mp3",
+      "prompt": "What does she remind him to retrieve?",
+      "options": [
+        "Her paper that she took earlier.",
+        "A case placed on a newspaper.",
+        "An article he intended to show her.",
+        "A completely different forgotten object."
+      ],
+      "answer": 2,
+      "cue": {
+        "en": "Connect the forgotten purpose with her reminder.",
+        "id": "Hubungkan tujuan yang terlupa dengan pengingatnya."
+      },
+      "explanation": {
+        "en": "He came for a newspaper article in his briefcase.",
+        "id": "Ia datang mengambil artikel koran dalam tas kerjanya."
+      }
+    },
+    {
+      "number": 28,
+      "audioUrl": "https://example.invalid/28.mp3",
+      "prompt": "What is her concern about the old washer?",
+      "options": [
+        "It has never worked at all.",
+        "It is impossible for a machine to last that long.",
+        "Replacement parts may be unavailable.",
+        "Every part has already been replaced."
+      ],
+      "answer": 2,
+      "cue": {
+        "en": "Listen for the practical obstacle to repairing an old model.",
+        "id": "Dengarkan hambatan praktis dalam memperbaiki model lama."
+      },
+      "explanation": {
+        "en": "Its age makes obtaining repair parts doubtful.",
+        "id": "Usianya membuat ketersediaan suku cadang diragukan."
+      }
+    },
+    {
+      "number": 29,
+      "audioUrl": "https://example.invalid/29.mp3",
+      "prompt": "Why did he need the professor’s signature?",
+      "options": [
+        "To enroll despite lacking the introductory course.",
+        "To challenge the mark on his project.",
+        "To locate a basic class for beginners.",
+        "To ask for extra project time."
+      ],
+      "answer": 0,
+      "cue": {
+        "en": "Notice no rejecting the guessed reason, then the real purpose.",
+        "id": "Perhatikan no yang menolak dugaan, lalu tujuan sebenarnya."
+      },
+      "explanation": {
+        "en": "He needs authorization to enter an advanced seminar.",
+        "id": "Ia memerlukan izin mengikuti seminar tingkat lanjut."
+      }
+    },
+    {
+      "number": 30,
+      "audioUrl": "https://example.invalid/30.mp3",
+      "prompt": "What is she doing before signing?",
+      "options": [
+        "Checking spelling in a report.",
+        "Asking a question she cannot explain.",
+        "Taking another look at the agreement.",
+        "Declining an argument with the speaker."
+      ],
+      "answer": 2,
+      "cue": {
+        "en": "Listen for the action she wants before signing.",
+        "id": "Dengarkan tindakan yang ia inginkan sebelum menandatangani."
+      },
+      "explanation": {
+        "en": "She wants to read the agreement again before committing.",
+        "id": "Ia ingin membaca perjanjian sekali lagi sebelum menyetujuinya."
+      }
+    }
+  ]
+}

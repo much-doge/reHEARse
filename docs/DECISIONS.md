@@ -135,3 +135,22 @@ This provider has no atomic compare-and-create guarantee: a concurrent writer
 using the same random key between HEAD and PUT could race. Dedicated key scope,
 operator-only imports and 128-bit random identifiers avoid reusing published keys.
 No bucket listing or existing object modification is needed.
+
+## D-015 — Teacher-led recreational classroom (LFL-007)
+
+Accepted. Extends D-009 with teacher speaker/projector playback, not synchronized
+student audio. PostgreSQL owns phase/revision and quiz deadlines. Polling recovers
+after disconnect; late joins enter the current phase without retroactive points.
+Teacher transitions serialize under a room lock and require the observed revision.
+A failed request is reconciled by reading state, not blindly repeating a transition.
+
+The loop is listen, untimed externalization, timed recreational quiz, review with
+one listening cue, replay and discuss, then next. Game points (1000 plus at most
+200 for speed) never enter individual attempts, feedback, profiles or exports.
+Teacher controls review and may finish early. Guest aliases are generated; no
+student account or name is required. Cloud submissions are immutable, moderated
+before public display, rendered as text, and never sent to an AI provider.
+Room membership uses a random HttpOnly token stored only as a hash. Rooms expire
+after 24 hours. Answer keys and cues remain absent from student DTOs before review.
+Source clips are operator-provided; optional audio transcription is source
+preparation only, sends audio without learner data, and is teacher-advisory.

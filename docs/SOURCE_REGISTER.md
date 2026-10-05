@@ -24,3 +24,22 @@ najala-dumpster under rehearse/media/activities, with the original SHA-256 and
 source lineage retained. Version 1 remains evidence. In this explicitly public
 media deployment, authorized activity responses contain the stable archive
 origin URL; the host does not relay remote audio. See DEPLOYMENT_RECEIPT.md.
+
+## ConTEFL 1163 Part A recreational deck (LFL-007)
+
+Operator-provided `package-audio/1.mp3` through `30.mp3` are authoritative.
+A temporary local faster-whisper base.en model transcribed all 30 clips; no
+source audio or learner data was uploaded to an external transcription service.
+The locally captured dialogue situations were compared with the unofficial
+December 1996 North America transcript and original option archive:
+<https://daafoor.com/assets/dropzone/uploads/solutions/5c72ff19f363f/Audio%20script.pdf>
+and <https://studylib.net/doc/8948667/96年12月北美真题>.
+These corroborations are unofficial, not ETS-certified answer material.
+
+`content/part-a-game.v1.json` contains newly authored prompts/options and
+bilingual meaning/relisten cues based on the operator's audio, not a verbatim
+copy of the original exam. Option positions therefore differ from that paper.
+No full exam transcript is redistributed. Source ASR errors (especially Jan,
+upper-level, and speaker labels) were checked against context; the authored
+questions avoid relying on uncertain proper-name spelling. The game importer
+stores per-clip source SHA-256, size and storage key with the immutable deck.

@@ -9,6 +9,7 @@ export default function HomePage() {
           <span>reHEARse</span>
         </Link>
         <div className="landing-account">
+          <Link href="/play" className="text-button">Classroom / Kelas</Link>
           <Link href="/login" className="text-button">Sign in</Link>
           <span className="prototype-chip">No-score learning</span>
         </div>

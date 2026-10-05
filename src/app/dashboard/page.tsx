@@ -27,6 +27,7 @@ export default async function DashboardPage() {
         </div>
       </header>
 
+      <p><Link href={user.role === "learner" ? "/play" : "/classroom"}>Listening classroom game / Permainan mendengar bersama →</Link></p>
       <section className="dashboard-intro">
         <div>
           <p className="eyebrow">Your listening desk</p>
