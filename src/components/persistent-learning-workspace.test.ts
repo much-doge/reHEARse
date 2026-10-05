@@ -25,6 +25,7 @@ describe("practice role boundary in the form", () => {
     );
     expect(html).toContain("Teacher and administrator preview");
     expect(html).not.toContain("Save and get feedback");
+    expect(html).not.toContain("Save your response");
     expect(html.match(/<textarea[^>]*disabled/g)).toHaveLength(2);
   });
   it("keeps editable learner fields and a save control", () => {

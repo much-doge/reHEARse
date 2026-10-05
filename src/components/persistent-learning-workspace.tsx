@@ -271,9 +271,9 @@ export function PersistentLearningWorkspace({
                 : "Review your understanding. / Tinjau pemahamanmu."}
             </h2>
             <p>
-              Save your response to receive feedback and a specific focus for
-              replay. / Simpan jawaban untuk memperoleh umpan balik dan fokus
-              dengar ulang.
+              {canSubmit
+                ? "Save your response to receive feedback and a specific focus for replay. / Simpan jawaban untuk memperoleh umpan balik dan fokus dengar ulang."
+                : "Learners receive feedback on their saved responses and a focus for the next listen. / Peserta memperoleh umpan balik atas jawaban yang disimpan dan fokus untuk menyimak kembali."}
             </p>
           </div>
         )}
