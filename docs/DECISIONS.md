@@ -260,3 +260,25 @@ Generated feedback is a direct conversation with the student. Prompt v5 bans
 reviewer narration such as `the learner notes`; conservative presentation-only
 normalization protects the current UI without rewriting immutable stored
 feedback.
+
+## D022 — bounded individual listening game (LFL-016)
+
+The operator requested the playable game following LFL-015. Bootstrap one
+source-backed conversation with four media-time spans, a recreational board,
+owned saved runs and append-only actions. Game position remains isolated from
+instructional feedback/history and is not a listening metric. Signed teachers
+and admins may try a solo game; classroom joins require the learner role.
+
+First choices and follow-up choices use authored server-only keys. A repair
+records a brief learner explanation and checks one meaning relationship through
+a separate follow-up choice. This does not certify the whole explanation: AI
+provides an optional listening nudge, never the progress gate. After one attempt,
+explicit supported review can close the task; repeated difficulty adds no debt.
+Teacher assistance closes a task with a saved reason. The first playable release
+has one finite floor; later floors, video and general import tooling remain open.
+
+Support is guaranteed rather than randomized. Replay and hints provide the
+initial perks; random cosmetics/catch-up variations await a classroom trial.
+The public teacher projection excludes help usage and mistake counts; teacher
+controls remain private. Session PINs select an owned classroom session and do
+not replace sign-in. Media checksum protects timing/content alignment.

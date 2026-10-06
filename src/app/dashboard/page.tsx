@@ -46,6 +46,22 @@ export default async function DashboardPage() {
           Classroom sessions / Sesi kelas →
         </Link>
       </p>
+      <section className="ladder-dashboard-entry">
+        <p className="eyebrow">A listening journey / Perjalanan menyimak</p>
+        <h2>Listen, take a detour, find a way forward.</h2>
+        <p>
+          Dengarkan, coba lagi di bagian yang belum jelas, lalu lanjutkan
+          perjalananmu.
+        </p>
+        <Link href="/ladder" className="ladder-primary">
+          Play the listening ladder / Main ular tangga menyimak →
+        </Link>
+        {user.role !== "learner" && (
+          <Link href="/ladder/host" className="ladder-secondary">
+            Open the live class board / Buka papan kelas langsung
+          </Link>
+        )}
+      </section>
       <section className="dashboard-intro">
         <div>
           <p className="eyebrow">Listening practice</p>

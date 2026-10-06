@@ -52,3 +52,14 @@ Adopted patterns:
 
 Adaptation: the human approval boundary becomes teacher-owned source/publish
 authority plus server validation; AI feedback remains advisory.
+
+## Kenney Board Game Icons — LFL-016
+
+Selected SVG icons: book_open, campfire, pawn, arrow_clockwise and token.
+Source: https://opengameart.org/content/board-game-icons (uploaded by Kenney),
+corroborated by https://kenney-assets.itch.io/board-game-icons.
+License: Creative Commons Zero 1.0 Universal (CC0). The downloaded pack's
+`License.txt` is retained at `public/art/kenney/License.txt`. No attribution is
+required; visible Kenney credit is included. Only five icons are shipped.
+The serpentine board, background, snakes, ladders and token drawing are original
+SVG/React artwork; they are not represented as part of the Kenney pack.
