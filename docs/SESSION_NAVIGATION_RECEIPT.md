@@ -1,6 +1,7 @@
 # Session navigation — LFL-017
 
-Status: container-verified; production pending.
+Status: deployed to PCT128 on 2026-10-06. Runtime source `52ccf61`.
+Runner image `sha256:bc37e1f55dccd690d15421f06edc3d18701aef867263640bc215bccafc117368` is healthy with zero restarts. Public HTTPS health and session-status endpoints returned 200 with verified TLS. Other container IDs/images/states remained unchanged. No migrations.
 
 Brand links open the public homepage. The homepage reflects the current
 database-backed session. Signed-in login/register requests bypass their forms.
@@ -21,5 +22,5 @@ passed. Further browser checks, including expired draft recovery and logout,
 are reserved for the user at their request. No production session was expired
 or revoked for verification.
 
-Rollback: restore the protected pre-release environment image tag (d0b9619)
+Rollback: restore `/opt/rehearse/.secrets/lfl017-env-before` (image tag d0b9619)
 and recreate only the app with production Compose --no-deps. No migrations.
