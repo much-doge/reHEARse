@@ -101,6 +101,7 @@ export class OpenAIResponsesFeedbackProvider implements FeedbackProvider {
         signal: controller.signal,
       });
     } catch (error) {
+      clearTimeout(timeout);
       const code =
         error instanceof Error && error.name === "AbortError"
           ? "provider_ambiguous_timeout"
@@ -109,12 +110,11 @@ export class OpenAIResponsesFeedbackProvider implements FeedbackProvider {
         "The feedback provider was unavailable",
         code,
       );
-    } finally {
-      clearTimeout(timeout);
     }
 
     const requestId = response.headers.get("x-request-id");
     if (!response.ok) {
+      clearTimeout(timeout);
       throw new FeedbackProviderError(
         "The feedback provider rejected the request",
         safeProviderHttpCode(response.status),
@@ -125,12 +125,16 @@ export class OpenAIResponsesFeedbackProvider implements FeedbackProvider {
     let payload: unknown;
     try {
       payload = await response.json();
-    } catch {
+    } catch (error) {
       throw new FeedbackProviderError(
-        "The feedback provider returned invalid JSON",
-        "provider_invalid_json",
+        "The feedback provider response could not be read",
+        error instanceof Error && error.name === "AbortError"
+          ? "provider_ambiguous_timeout"
+          : "provider_invalid_json",
         requestId,
       );
+    } finally {
+      clearTimeout(timeout);
     }
     const parsedResponse = parseResponseEnvelope(payload);
     if (parsedResponse.status !== "completed") {

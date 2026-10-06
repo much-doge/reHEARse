@@ -206,3 +206,20 @@ not supplied: acknowledge only details present in the learner's current text;
 ask one open question about a speaker, moment or relationship for gaps and
 contradictions. This restriction applies to summaries and observations as well
 as replay targets. Do not introduce missing source names, solutions or answers.
+
+## D-019 — Confirm saves without resubmitting (LFL-011)
+
+A save acknowledgement and feedback availability are distinct. New clients
+retain one random submission key for an unchanged response; server-side
+learner/key uniqueness, a payload digest and an advisory transaction lock
+return the same immutable attempt on retry. A changed payload under the same
+key is rejected. Keys are optional for older clients. API responses use
+`attempt-result.v2`; owned lookup by submission key or attempt ID is private
+and uncached, with learner role enforced. No submitted text enters URLs/logs.
+
+After a lost POST response, the client looks up that key before reporting
+uncertainty. Saved-but-unavailable feedback is shown honestly and can be checked
+without another submission. GET absence alone does not prove an in-flight save
+will not complete; a user retry reuses the key. A new revision gets a new key.
+The provider timeout covers response-body consumption as well as headers.
+Existing attempts and feedback stay unchanged; migration 009 is additive.

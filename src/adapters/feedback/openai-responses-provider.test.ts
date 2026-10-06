@@ -89,6 +89,32 @@ describe("OpenAIResponsesFeedbackProvider", () => {
     expect(result.usage?.total_tokens).toBe(180);
   });
 
+  it("keeps the deadline active while reading the response body", async () => {
+    const fetchImplementation = vi.fn(
+      async (_url: string | URL | Request, init?: RequestInit) => {
+        const response = new Response("{}");
+        response.json = () =>
+          new Promise((_resolve, reject) => {
+            init?.signal?.addEventListener(
+              "abort",
+              () => reject(new DOMException("Aborted", "AbortError")),
+              { once: true },
+            );
+          });
+        return response;
+      },
+    );
+    const provider = new OpenAIResponsesFeedbackProvider({
+      apiKey: "test-key",
+      model: "test-model",
+      timeoutMs: 15,
+      fetchImplementation: fetchImplementation as typeof fetch,
+    });
+    await expect(provider.review(request)).rejects.toMatchObject({
+      safeCode: "provider_ambiguous_timeout",
+    });
+  });
+
   it("rejects output that adds a forbidden assessment metric", async () => {
     const fetchImplementation = vi.fn(
       async () =>

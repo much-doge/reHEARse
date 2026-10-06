@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { feedbackPresentation } from "./feedback-presentation";
 import {
   publicPartLabel,
@@ -29,7 +30,7 @@ export type StoredAttempt = {
   reconstruction: string;
   createdAt: string;
   feedback: ListeningFeedback | null;
-  feedbackStatus: "completed" | "failed" | null;
+  feedbackStatus: "completed" | "failed" | "pending" | null;
   feedbackProvider: string | null;
   feedbackModel: string | null;
 };
@@ -135,14 +136,55 @@ export async function getLearnerActivity(
       feedback: row.result_json
         ? feedbackPresentation(parseListeningFeedback(row.result_json))
         : null,
-      feedbackStatus: row.feedback_status,
+      feedbackStatus: row.feedback_status ?? "pending",
       feedbackProvider: row.feedback_provider,
       feedbackModel: row.feedback_model,
     })),
   };
 }
 
+export class SubmissionConflict extends Error {}
+
+function savedAttempt(row: Record<string, unknown>): StoredAttempt {
+  return {
+    id: String(row.id),
+    attemptNumber: Number(row.attempt_number),
+    pseudonym: String(row.pseudonym),
+    notes: String(row.notes),
+    reconstruction: String(row.reconstruction),
+    createdAt: (row.created_at as Date).toISOString(),
+    feedback: row.result_json
+      ? feedbackPresentation(parseListeningFeedback(row.result_json))
+      : null,
+    feedbackStatus:
+      (row.feedback_status as StoredAttempt["feedbackStatus"]) ?? "pending",
+    feedbackProvider: (row.feedback_provider as string) ?? null,
+    feedbackModel: (row.feedback_model as string) ?? null,
+  };
+}
+const submissionQuery = `SELECT la.*, ai.pseudonym, lf.status AS feedback_status,
+  lf.result_json, lf.provider AS feedback_provider, lf.model AS feedback_model
+  FROM listening_attempt la
+  JOIN activity_identity ai ON ai.activity_id=la.activity_id AND ai.learner_id=la.learner_id
+  LEFT JOIN listening_feedback lf ON lf.attempt_id=la.id
+  WHERE la.learner_id=$1 AND la.submission_key=$2`;
+
+export async function findSubmittedAttempt(
+  learnerId: string,
+  key: string,
+  byId = false,
+): Promise<StoredAttempt | null> {
+  const result = await getPool().query(
+    byId
+      ? submissionQuery.replace("la.submission_key=$2", "la.id=$2")
+      : submissionQuery,
+    [learnerId, key],
+  );
+  return result.rows[0] ? savedAttempt(result.rows[0]) : null;
+}
+
 export async function submitLearnerAttempt(input: {
+  submissionKey?: string;
   slug: string;
   learnerId: string;
   pseudonym: string;
@@ -164,6 +206,31 @@ export async function submitLearnerAttempt(input: {
 
   try {
     await client.query("BEGIN");
+    const digest = createHash("sha256")
+      .update(
+        JSON.stringify([
+          input.slug,
+          input.pseudonym,
+          input.notes,
+          input.reconstruction,
+        ]),
+      )
+      .digest("hex");
+    if (input.submissionKey) {
+      await client.query("SELECT pg_advisory_xact_lock(hashtext($1))", [
+        `submission:${input.learnerId}:${input.submissionKey}`,
+      ]);
+      const existing = await client.query(submissionQuery, [
+        input.learnerId,
+        input.submissionKey,
+      ]);
+      if (existing.rows[0]) {
+        if (existing.rows[0].submission_digest !== digest)
+          throw new SubmissionConflict("submission_changed");
+        await client.query("COMMIT");
+        return savedAttempt(existing.rows[0]);
+      }
+    }
     const activityResult = await client.query(
       `SELECT a.id, av.id AS version_id, av.transcript, av.teacher_guide,
               av.feedback_template
@@ -205,8 +272,8 @@ export async function submitLearnerAttempt(input: {
     const inserted = await client.query(
       `INSERT INTO listening_attempt (
          activity_id, activity_version_id, learner_id, attempt_number,
-         previous_attempt_id, notes, reconstruction
-       ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+         previous_attempt_id, notes, reconstruction, submission_key, submission_digest
+       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
        RETURNING id, created_at`,
       [
         activity.id,
@@ -216,6 +283,8 @@ export async function submitLearnerAttempt(input: {
         previous?.id ?? null,
         input.notes,
         input.reconstruction,
+        input.submissionKey ?? null,
+        input.submissionKey ? digest : null,
       ],
     );
     await client.query("COMMIT");

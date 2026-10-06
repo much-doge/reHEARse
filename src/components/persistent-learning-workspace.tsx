@@ -1,6 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
+import {
+  saveWithConfirmation,
+  confirmAttempt,
+  AttemptSaveFailure,
+} from "./attempt-confirmation";
 import { attemptSaveError } from "./attempt-save-error";
 import { FeedbackWait } from "./feedback-wait";
 
@@ -41,41 +46,77 @@ export function PersistentLearningWorkspace({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [listenCount, setListenCount] = useState(0);
+  const submission = useRef<{ fingerprint: string; key: string } | null>(null);
+  const [checking, setChecking] = useState(false);
+  function showAttempt(attempt: StoredAttempt) {
+    setAttempts((current) => [
+      attempt,
+      ...current.filter((x) => x.id !== attempt.id),
+    ]);
+    setFeedback(attempt.feedback);
+    setFeedbackStatus(attempt.feedbackStatus);
+    setFeedbackProvider(attempt.feedbackProvider);
+  }
+  async function checkFeedback() {
+    if (checking || (!submission.current && !attempts[0])) return;
+    setChecking(true);
+    try {
+      const saved = await confirmAttempt(
+        submission.current?.key ?? attempts[0].id,
+        fetch,
+        !submission.current,
+      );
+      if (saved) {
+        showAttempt(saved);
+        setError(null);
+      } else setError(attemptSaveError("confirmation_unavailable"));
+    } catch {
+      setError(attemptSaveError("confirmation_unavailable"));
+    } finally {
+      setChecking(false);
+    }
+  }
 
   async function submitAttempt() {
-    if (!canSubmit || !pseudonym.trim() || !reconstruction.trim() || submitting)
+    if (
+      !canSubmit ||
+      !pseudonym.trim() ||
+      !reconstruction.trim() ||
+      submitting ||
+      checking
+    )
       return;
     setSubmitting(true);
     setError(null);
+    const draft = {
+      slug: activity.slug,
+      pseudonym: pseudonym.trim(),
+      notes,
+      reconstruction: reconstruction.trim(),
+    };
+    const fingerprint = JSON.stringify(draft);
+    if (submission.current?.fingerprint !== fingerprint)
+      submission.current = { fingerprint, key: crypto.randomUUID() };
     try {
-      const response = await fetch("/api/attempts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          slug: activity.slug,
-          pseudonym,
-          notes,
-          reconstruction,
-        }),
+      const saved = await saveWithConfirmation({
+        ...draft,
+        submissionKey: submission.current.key,
       });
-      if (!response.ok) {
-        const failure = await response.json().catch(() => null);
-        setError(attemptSaveError(failure?.error));
-        return;
-      }
-      const payload = (await response.json()) as { attempt: StoredAttempt };
-      setAttempts((current) => [payload.attempt, ...current]);
-      setFeedback(payload.attempt.feedback);
-      setFeedbackStatus(payload.attempt.feedbackStatus);
-      setFeedbackProvider(payload.attempt.feedbackProvider);
-    } catch {
-      setError(attemptSaveError(null));
+      showAttempt(saved);
+    } catch (failure) {
+      setError(
+        attemptSaveError(
+          failure instanceof AttemptSaveFailure ? failure.code : null,
+        ),
+      );
     } finally {
       setSubmitting(false);
     }
   }
 
   function startRevision() {
+    submission.current = null;
+    setError(null);
     setFeedback(null);
     setFeedbackStatus(null);
     setFeedbackProvider(null);
@@ -188,7 +229,10 @@ export function PersistentLearningWorkspace({
               type="button"
               onClick={submitAttempt}
               disabled={
-                !pseudonym.trim() || !reconstruction.trim() || submitting
+                !pseudonym.trim() ||
+                !reconstruction.trim() ||
+                submitting ||
+                checking
               }
             >
               {submitting
@@ -226,6 +270,26 @@ export function PersistentLearningWorkspace({
             provider={feedbackProvider}
             onRevise={startRevision}
           />
+        ) : feedbackStatus === "pending" ? (
+          <div className="feedback-empty">
+            <p className="eyebrow">Response saved / Jawaban tersimpan</p>
+            <h2>Your response is safe. / Jawabanmu sudah tersimpan.</h2>
+            <p>
+              Feedback isn’t available yet. You can replay the audio and check
+              again. / Umpan balik belum tersedia. Kamu bisa memutar audio lagi
+              lalu memeriksa kembali.
+            </p>
+            <button
+              className="button button-primary"
+              type="button"
+              onClick={checkFeedback}
+              disabled={checking}
+            >
+              {checking
+                ? "Checking… / Memeriksa…"
+                : "Check feedback / Periksa umpan balik"}
+            </button>
+          </div>
         ) : feedbackStatus === "failed" ? (
           <div className="feedback-empty">
             <div className="empty-signal">

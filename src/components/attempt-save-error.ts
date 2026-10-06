@@ -10,6 +10,11 @@ export function attemptSaveError(code: unknown): string {
       return "Open this activity at rehearse.najala.org to save your response. Your text is still here. / Buka aktivitas di rehearse.najala.org untuk menyimpan jawaban. Teks tetap tersedia.";
     case "activity_not_found":
       return "This activity is no longer available for new responses. Your text is still here. / Aktivitas ini tidak lagi tersedia untuk jawaban baru. Teks tetap tersedia.";
+    case "save_unconfirmed":
+    case "confirmation_unavailable":
+      return "We couldn’t confirm the save. Your text is still here. When the connection returns, try saving this same response again. / Penyimpanan belum dapat dipastikan. Teksmu tetap tersedia. Saat koneksi kembali, coba simpan jawaban yang sama lagi.";
+    case "submission_changed":
+      return "This submission has already been saved with different text. Your current text is still here; start a new response to save a revision. / Kiriman ini sudah tersimpan dengan teks berbeda. Teks saat ini tetap tersedia; mulai jawaban baru untuk menyimpan revisi.";
     default:
       return "Saving could not be confirmed. Your text is still here. Check your practice history in another tab before trying again. / Penyimpanan belum dapat dipastikan. Teks tetap tersedia. Periksa riwayat latihan di tab lain sebelum mencoba lagi.";
   }
