@@ -293,3 +293,14 @@ on mounted activities show bilingual reauthentication guidance with a new-tab
 link, preserving unsaved text. A network failure never implies expiry. Session
 checks reveal only an authenticated boolean, with private no-store caching.
 Existing thirty-day expiry and role/ownership guards remain unchanged.
+
+## D024 — Teacher stage and restrained ambience (LFL-018)
+
+Use a teacher-only landscape projection of the existing route, with larger
+board occupancy, compact private controls and fullscreen support. Individual
+board geometry and progression remain unchanged. Kenney CC0 particles receive
+subtle original animation; reduced motion disables it. Optional credited CC BY
+music is default off and available only before active learners or after their
+finish/session closure, with manual volume and tab-hide pause. It never plays
+on learner pages. Reward/tension changes remain proposals in
+GAMEPLAY_ENERGY_PLAN.md, not silently introduced progression rules.

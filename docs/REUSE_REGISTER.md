@@ -63,3 +63,20 @@ License: Creative Commons Zero 1.0 Universal (CC0). The downloaded pack's
 required; visible Kenney credit is included. Only five icons are shipped.
 The serpentine board, background, snakes, ladders and token drawing are original
 SVG/React artwork; they are not represented as part of the Kenney pack.
+
+## Teacher-stage particles and music — LFL-018
+
+Kenney Particle Pack: https://kenney.nl/assets/particle-pack, CC0. Downloaded
+from the creator's asset-page link. Only `PNG (Transparent)/star_01.png` is
+shipped, with original License.txt in public/art/kenney/particles. The source
+texture is static; reHEARse adds restrained CSS firefly animation.
+
+“Carefree”, Kevin MacLeod (incompetech.com), ISRC USUAN1400037:
+https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1400037.
+Creator lists Creative Commons Attribution 4.0 International:
+https://creativecommons.org/licenses/by/4.0/. Downloaded creator MP3,
+re-encoded to Ogg Vorbis; reduced playback volume and looped in application.
+Full visible title/author/source/license/adaptation credit appears beside the
+music controls, with public/audio/CREDITS.txt also shipped. No proprietary
+quiz-platform music is used. Audio is self-hosted, default off, and stopped
+throughout active learner sessions; no external media requests from the UI.

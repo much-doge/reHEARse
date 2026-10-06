@@ -1,5 +1,5 @@
 "use client";
-const coords = Array.from({ length: 13 }, (_, i) => {
+const portraitCoords = Array.from({ length: 13 }, (_, i) => {
   const r = Math.floor(i / 4),
     c = i % 4;
   return { x: 70 + (r % 2 ? 3 - c : c) * 110, y: 450 - r * 110 };
@@ -7,14 +7,22 @@ const coords = Array.from({ length: 13 }, (_, i) => {
 export function LadderBoard({
   players,
   ownAlias,
+  wide = false,
 }: {
   players: Array<{ alias: string; position: number }>;
   ownAlias?: string;
+  wide?: boolean;
 }) {
+  const coords = wide
+    ? Array.from({ length: 13 }, (_, i) => ({
+        x: 70 + (i < 7 ? i : 13 - i) * 120,
+        y: i < 7 ? 300 : 160,
+      }))
+    : portraitCoords;
   return (
-    <div className="ladder-board">
+    <div className={`ladder-board ${wide ? "ladder-board-wide" : ""}`}>
       <svg
-        viewBox="0 0 480 540"
+        viewBox={wide ? "0 0 940 380" : "0 0 480 540"}
         role="img"
         aria-label="Snakes and ladders listening journey / Perjalanan menyimak ular tangga"
       >
@@ -27,15 +35,28 @@ export function LadderBoard({
             <feDropShadow dx="0" dy="3" stdDeviation="2" floodOpacity=".12" />
           </filter>
         </defs>
-        <rect width="480" height="540" rx="30" fill="url(#forest)" />
+        <rect
+          width={wide ? 940 : 480}
+          height="540"
+          rx="30"
+          fill="url(#forest)"
+        />
         <path
-          d="M0 105 L75 33 L133 90 L196 24 L281 103 L362 22 L480 110 V170 H0Z"
+          d={
+            wide
+              ? "M0 105L75 33L133 90L196 24L281 103L362 22L480 110L580 40L660 100L770 20L940 115V115H0Z"
+              : "M0 105 L75 33 L133 90 L196 24 L281 103 L362 22 L480 110 V170 H0Z"
+          }
           fill="#a8c8ab"
           opacity=".55"
         />
-        <circle cx="412" cy="44" r="23" fill="#f2c866" />
+        <circle cx={wide ? 850 : 412} cy="44" r="23" fill="#f2c866" />
         <path
-          d="M18 505 Q85 520 142 504 T275 505 T460 505"
+          d={
+            wide
+              ? "M18 350Q150 365 280 349T540 350T920 350"
+              : "M18 505 Q85 520 142 504 T275 505 T460 505"
+          }
           stroke="#b8cfad"
           strokeWidth="18"
           fill="none"
@@ -74,7 +95,11 @@ export function LadderBoard({
           stroke="#c58d4c"
           strokeWidth="9"
           strokeLinecap="round"
-          transform="rotate(-20 232 326)"
+          transform={
+            wide
+              ? "translate(320 -65) rotate(-20 232 326)"
+              : "rotate(-20 232 326)"
+          }
         >
           <path d="M219 365V268M246 365V268" />
           <path
@@ -83,7 +108,11 @@ export function LadderBoard({
             strokeWidth="6"
           />
         </g>
-        <g fill="none" strokeLinecap="round">
+        <g
+          transform={wide ? "translate(390 -70)" : undefined}
+          fill="none"
+          strokeLinecap="round"
+        >
           <path
             d="M400 233 C445 245 443 281 408 283 S365 313 400 344"
             stroke="#fdf6df"
@@ -101,14 +130,18 @@ export function LadderBoard({
             strokeDasharray="2 13"
           />
         </g>
-        <ellipse cx="400" cy="231" rx="13" ry="17" fill="#ca705f" />
-        <circle cx="395" cy="225" r="2.5" fill="#3e4033" />
-        <circle cx="405" cy="225" r="2.5" fill="#3e4033" />
+        <g transform={wide ? "translate(390 -70)" : undefined}>
+          <ellipse cx="400" cy="231" rx="13" ry="17" fill="#ca705f" />
+          <circle cx="395" cy="225" r="2.5" fill="#3e4033" />
+          <circle cx="405" cy="225" r="2.5" fill="#3e4033" />
+        </g>
         <g
           stroke="#c58d4c"
           strokeWidth="9"
           strokeLinecap="round"
-          transform="rotate(20 112 156)"
+          transform={
+            wide ? "translate(78 -70) rotate(20 112 156)" : "rotate(20 112 156)"
+          }
         >
           <path d="M98 203V103M126 203V103" />
           <path
@@ -153,6 +186,20 @@ export function LadderBoard({
           );
         })}
       </svg>
+      {wide && (
+        <div className="ladder-fireflies" aria-hidden="true">
+          {Array.from({ length: 8 }, (_, i) => (
+            <span
+              key={i}
+              style={{
+                left: `${12 + i * 10}%`,
+                top: `${8 + (i % 3) * 8}%`,
+                animationDelay: `${-i * 1.3}s`,
+              }}
+            />
+          ))}
+        </div>
+      )}
       <div className="board-caption">
         <span>One floor. A way forward.</span>
         <small>Satu perjalanan. Selalu ada jalan lanjut.</small>

@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { HostView } from "@/domain/ladder/model";
+import { HostAmbience } from "./host-ambience";
 import { LadderBoard } from "./board";
 export function LadderHost({ initialPin }: { initialPin?: string }) {
   const [view, setView] = useState<HostView | null>(null),
@@ -10,6 +11,24 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
     [busy, setBusy] = useState(false),
     [project, setProject] = useState(false),
     [reason, setReason] = useState("");
+  const stage = useRef<HTMLElement>(null);
+  const [fullscreen, setFullscreen] = useState(false);
+  useEffect(() => {
+    const changed = () =>
+      setFullscreen(document.fullscreenElement === stage.current);
+    document.addEventListener("fullscreenchange", changed);
+    return () => document.removeEventListener("fullscreenchange", changed);
+  }, []);
+  async function toggleFullscreen() {
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else await stage.current?.requestFullscreen();
+    } catch {
+      setError(
+        "Fullscreen is unavailable here. Use projector mode or maximize your browser. / Layar penuh belum tersedia. Gunakan mode proyektor atau perbesar browser.",
+      );
+    }
+  }
   const createKey = useRef<string | null>(null);
   useEffect(() => {
     if (pin.length !== 6) return;
@@ -74,7 +93,10 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
     }
   }
   return (
-    <main className={`ladder-host-shell ${project ? "is-projecting" : ""}`}>
+    <main
+      ref={stage}
+      className={`ladder-host-shell ${project ? "is-projecting" : ""}`}
+    >
       <header className="ladder-header">
         <Link href="/" className="ladder-brand" aria-label="reHEARse home">
           reHEARse
@@ -82,11 +104,18 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
         <span className="ladder-mode">
           LIVE LISTENING BOARD / PAPAN MENYIMAK LANGSUNG
         </span>
-        <button onClick={() => setProject((x) => !x)}>
-          {project
-            ? "Teacher controls / Kontrol guru"
-            : "Project board / Tampilkan papan"}
-        </button>
+        <div className="ladder-stage-tools">
+          <button onClick={toggleFullscreen}>
+            {fullscreen
+              ? "Exit fullscreen / Keluar layar penuh"
+              : "Fullscreen / Layar penuh"}
+          </button>
+          <button onClick={() => setProject((x) => !x)}>
+            {project
+              ? "Teacher controls / Kontrol guru"
+              : "Project board / Tampilkan papan"}
+          </button>
+        </div>
       </header>
       <div className="ladder-host-heading">
         <div>
@@ -141,6 +170,7 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
       ) : (
         <div className="ladder-host-layout">
           <LadderBoard
+            wide
             players={view.players.map((x) => ({
               alias: x.alias,
               position: x.position,
@@ -216,9 +246,9 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
           {error}
         </p>
       )}
-      <p className="ladder-art-credit">
-        Icons by Kenney · Creative Commons CC0
-      </p>
+      <HostAmbience
+        quiet={!!view && !view.closed && view.players.some((p) => !p.finished)}
+      />
     </main>
   );
 }

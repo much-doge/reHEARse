@@ -1,0 +1,5 @@
+Carefree by Kevin MacLeod (incompetech.com)
+Source: https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1400037
+Licensed under Creative Commons Attribution 4.0 International
+https://creativecommons.org/licenses/by/4.0/
+Adaptation: re-encoded from creator MP3 to Ogg Vorbis, reduced playback volume and looped in the app.

@@ -1289,3 +1289,58 @@ textarea:focus-visible {
 .ladder-dashboard-entry .ladder-secondary {
   max-width: 450px;
 }
+
+/* LFL-018 — teacher stage: wide board, restrained forest ambience. */
+.ladder-host-shell { padding: 0 clamp(18px, 2.5vw, 48px) 20px; }
+.ladder-host-shell:fullscreen { overflow: auto; }
+.ladder-host-shell .ladder-header { min-height: 64px; }
+.ladder-stage-tools { display: flex; gap: 8px; flex-wrap: wrap; }
+.ladder-host-heading { max-width: none; padding: 20px 0; }
+.ladder-host-heading h1, .is-projecting .ladder-host-heading h1 { font-size: clamp(28px, 2.4vw, 44px); }
+.ladder-host-heading h1 br { display: none; }
+.ladder-host-heading h1 em { margin-left: .3em; }
+.ladder-host-heading .eyebrow { margin: 0; }
+.ladder-host-pin { padding: 10px 24px; }
+.ladder-host-pin > span { font-size: clamp(40px, 4vw, 64px); line-height: 1.2; }
+.ladder-host-layout { max-width: none; grid-template-columns: minmax(0, 1fr) minmax(280px, 340px); gap: 24px; align-items: start; }
+.ladder-board-wide svg { max-height: none; width: 100%; height: auto; }
+.ladder-host-roster { padding: 22px; max-height: 75svh; overflow-y: auto; }
+.ladder-host-roster h2 { font-size: 22px; }
+.ladder-board-wide .board-caption { font-size: 15px; bottom: 16px; }
+.ladder-board-wide .board-caption small { font-size: 11px; }
+.ladder-fireflies { position: absolute; inset: 0; pointer-events: none; }
+.ladder-fireflies span { position: absolute; width: 20px; height: 20px; background: url('/art/kenney/particles/star_01.png') center / contain; filter: sepia(1) saturate(2); animation: forest-glow 8s ease-in-out infinite; opacity: .2; }
+@keyframes forest-glow { 0%, 100% { opacity: .15; transform: translate(0,0) scale(.7); } 50% { opacity: .65; transform: translate(8px,-12px) scale(1); } }
+.ladder-ambience { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 14px; margin-top: 16px; font-size: 12px; color: #65775c; }
+.ladder-ambience button { padding: 10px 16px; border: 1px solid #ccd8be; border-radius: 18px; background: #edf2e5; color: #305f50; cursor: pointer; }
+.ladder-ambience button:disabled { opacity: .65; cursor: default; }
+.ladder-ambience label { display: flex; align-items: center; gap: 8px; }
+.ladder-ambience input { width: 110px; accent-color: #305f50; }
+.ladder-ambience details { max-width: 650px; line-height: 1.6; }
+.ladder-ambience summary { cursor: pointer; }
+.ladder-ambience a { color: inherit; }
+.is-projecting .ladder-host-layout { max-width: none; grid-template-columns: 1fr; gap: 12px; }
+.is-projecting .ladder-board-wide svg { width: 100%; height: min(72svh, 1000px); max-height: none; }
+.is-projecting .ladder-host-roster { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; padding: 10px 16px; max-height: 180px; }
+.is-projecting .ladder-host-roster h2 { font-size: 16px; margin: 0; }
+.is-projecting .ladder-host-roster > p { margin: 0; }
+.is-projecting .ladder-host-player { padding: 6px 10px; border: 0; background: #edf2e5; border-radius: 20px; font-size: 14px; }
+@media (prefers-reduced-motion: reduce) { .ladder-fireflies span { animation: none; opacity: .25; } }
+@media (max-width: 800px) {
+ .ladder-host-layout { grid-template-columns: 1fr; }
+ .ladder-host-shell .ladder-header { flex-wrap: wrap; padding: 12px 0; }
+ .ladder-host-heading { flex-direction: column; gap: 14px; }
+ .ladder-host-heading h1 br { display: block; }
+ .ladder-host-heading h1 em { margin-left: 0; }
+ .ladder-host-roster { max-height: none; }
+ .is-projecting .ladder-board-wide svg { height: auto; }
+ .ladder-board-wide .board-caption { font-size: 10px; bottom: 8px; }
+ .ladder-board-wide .board-caption small { font-size: 8px; }
+}
+@media (min-width: 801px) {
+ .is-projecting .ladder-host-heading { padding: 10px 0; }
+ .is-projecting .ladder-host-heading h1 { font-size: clamp(26px, 2vw, 36px); }
+ .is-projecting .ladder-host-heading .eyebrow { display: none; }
+ .is-projecting .ladder-board-wide svg { height: clamp(320px, calc(100svh - 290px), 1100px); }
+ .is-projecting .ladder-host-roster > p:first-of-type { display: none; }
+}
