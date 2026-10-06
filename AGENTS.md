@@ -81,6 +81,13 @@ the use case.
    a body naming the Work ID, invariant changes, security/privacy effects,
    rollback, and tests actually run.
 
+Every discrete repository change, however small, must be documented under a
+Work ID and committed before handoff. Do not leave requested edits uncommitted,
+and do not fold unrelated changes into one commit. Documentation-only,
+configuration, wording, test, and follow-up fixes are not exceptions. If a
+change cannot be committed, stop and report the exact blocker instead of
+presenting the working tree as complete.
+
 Never claim deployed or live classroom verification from local tests.
 
 
