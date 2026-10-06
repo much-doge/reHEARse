@@ -8,6 +8,8 @@ import {
   type AuthenticatedUser,
 } from "@/adapters/identity/auth-service";
 
+import { signInUrl } from "./auth-navigation";
+
 const sessionCookieName = "rehearse_session";
 
 export async function beginSession(userId: string): Promise<void> {
@@ -29,9 +31,12 @@ export async function currentUser(): Promise<AuthenticatedUser | null> {
   return token ? findUserBySession(token) : null;
 }
 
-export async function requireUser(): Promise<AuthenticatedUser> {
+export async function requireUser(
+  destination = "/dashboard",
+): Promise<AuthenticatedUser> {
   const user = await currentUser();
-  if (!user) redirect("/login");
+  if (!user)
+    redirect(signInUrl(destination, (await cookies()).has(sessionCookieName)));
   return user;
 }
 

@@ -1,13 +1,18 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { currentUser } from "@/lib/session";
+import { safeReturnTo } from "@/lib/auth-navigation";
 
 import { registerAction } from "@/app/auth-actions";
 
 export default async function RegisterPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; next?: string; reason?: string }>;
 }) {
-  const { error } = await searchParams;
+  const { error, next, reason } = await searchParams;
+  const destination = safeReturnTo(next);
+  if (await currentUser()) redirect(destination);
   const message =
     error === "exists"
       ? "That email is already registered. Please sign in. / Email sudah terdaftar. Silakan masuk."
@@ -33,7 +38,14 @@ export default async function RegisterPage({
             {message}
           </div>
         )}
+        {reason === "expired" && (
+          <p role="status">
+            Your session has ended. Sign in to continue where you left off. /
+            Sesi kamu berakhir. Masuk untuk melanjutkan aktivitasmu.
+          </p>
+        )}
         <form action={registerAction} className="auth-form">
+          <input type="hidden" name="next" value={destination} />
           <label>
             <span>Name / Nama</span>
             <input
@@ -67,7 +79,9 @@ export default async function RegisterPage({
         </form>
         <p className="auth-switch">
           Already registered? / Sudah terdaftar?{" "}
-          <Link href="/login">Sign in / Masuk</Link>
+          <Link href={`/login?${new URLSearchParams({ next: destination })}`}>
+            Sign in / Masuk
+          </Link>
         </p>
       </section>
     </main>

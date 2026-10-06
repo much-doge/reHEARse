@@ -282,3 +282,14 @@ initial perks; random cosmetics/catch-up variations await a classroom trial.
 The public teacher projection excludes help usage and mistake counts; teacher
 controls remain private. Session PINs select an owned classroom session and do
 not replace sign-in. Media checksum protects timing/content alignment.
+
+## D023 — Session-aware navigation and reauthentication (LFL-017)
+
+The brand opens the public homepage. Its account links reflect the actual
+database-backed session. Signed-in users bypass login/register pages. Protected
+page redirects preserve only allowed app paths and validated PINs; arbitrary
+external destinations and authentication loops are rejected. Expired sessions
+on mounted activities show bilingual reauthentication guidance with a new-tab
+link, preserving unsaved text. A network failure never implies expiry. Session
+checks reveal only an authenticated boolean, with private no-store caching.
+Existing thirty-day expiry and role/ownership guards remain unchanged.

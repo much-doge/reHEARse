@@ -76,7 +76,7 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
   return (
     <main className={`ladder-host-shell ${project ? "is-projecting" : ""}`}>
       <header className="ladder-header">
-        <Link href="/dashboard" className="ladder-brand">
+        <Link href="/" className="ladder-brand" aria-label="reHEARse home">
           reHEARse
         </Link>
         <span className="ladder-mode">

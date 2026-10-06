@@ -281,7 +281,7 @@ export function LadderGame({
   return (
     <main className="ladder-shell">
       <header className="ladder-header">
-        <Link href="/dashboard" className="ladder-brand">
+        <Link href="/" className="ladder-brand" aria-label="reHEARse home">
           <span className="brand-pulse" />
           reHEARse
         </Link>

@@ -12,8 +12,8 @@ export default async function LearnerActivityPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const user = await requireUser();
   const { slug } = await params;
+  const user = await requireUser(`/learn/${slug}`);
   const activity = await getLearnerActivity(slug, user.id);
   if (!activity) notFound();
 

@@ -1,13 +1,18 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { currentUser } from "@/lib/session";
+import { safeReturnTo } from "@/lib/auth-navigation";
 
 import { loginAction } from "@/app/auth-actions";
 
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; next?: string; reason?: string }>;
 }) {
-  const { error } = await searchParams;
+  const { error, next, reason } = await searchParams;
+  const destination = safeReturnTo(next);
+  if (await currentUser()) redirect(destination);
   const message =
     error === "credentials"
       ? "The email or password is incorrect. / Email atau kata sandi tidak sesuai."
@@ -33,7 +38,14 @@ export default async function LoginPage({
             {message}
           </div>
         )}
+        {reason === "expired" && (
+          <p role="status">
+            Your session has ended. Sign in to continue where you left off. /
+            Sesi kamu berakhir. Masuk untuk melanjutkan aktivitasmu.
+          </p>
+        )}
         <form action={loginAction} className="auth-form">
+          <input type="hidden" name="next" value={destination} />
           <label>
             <span>Email</span>
             <input name="email" type="email" autoComplete="email" required />
@@ -55,7 +67,11 @@ export default async function LoginPage({
         </form>
         <p className="auth-switch">
           New here? / Belum punya akun?{" "}
-          <Link href="/register">Create an account / Buat akun</Link>
+          <Link
+            href={`/register?${new URLSearchParams({ next: destination })}`}
+          >
+            Create an account / Buat akun
+          </Link>
         </p>
       </section>
     </main>

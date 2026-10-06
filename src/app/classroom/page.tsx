@@ -7,8 +7,8 @@ export default async function Classroom({
 }: {
   searchParams: Promise<{ pin?: string }>;
 }) {
-  const u = await requireUser();
-  if (!["teacher", "admin"].includes(u.role)) redirect("/play");
   const p = await searchParams;
+  const u = await requireUser(`/classroom${p.pin ? `?pin=${p.pin}` : ""}`);
+  if (!["teacher", "admin"].includes(u.role)) redirect("/play");
   return <ClassroomGame teacher initialPin={p.pin ?? ""} />;
 }

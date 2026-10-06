@@ -1,6 +1,10 @@
 import Link from "next/link";
 
-export default function HomePage() {
+import { currentUser } from "@/lib/session";
+
+export const dynamic = "force-dynamic";
+export default async function HomePage() {
+  const user = await currentUser();
   return (
     <main className="landing-shell">
       <nav className="topbar landing-nav" aria-label="Primary navigation">
@@ -9,11 +13,14 @@ export default function HomePage() {
           <span>reHEARse</span>
         </Link>
         <div className="landing-account">
-          <Link href="/play" className="text-button">
+          <Link
+            href={user && user.role !== "learner" ? "/classroom" : "/play"}
+            className="text-button"
+          >
             Classroom / Kelas
           </Link>
-          <Link href="/login" className="text-button">
-            Sign in / Masuk
+          <Link href={user ? "/dashboard" : "/login"} className="text-button">
+            {user ? "My activities / Aktivitasku" : "Sign in / Masuk"}
           </Link>
           <span className="prototype-chip">
             Listening practice / Latihan menyimak
@@ -40,8 +47,13 @@ export default function HomePage() {
             <Link href="/dashboard" className="button button-primary">
               Open practice / Buka latihan <span aria-hidden="true">→</span>
             </Link>
-            <Link href="/register" className="button button-quiet">
-              Create account / Buat akun
+            <Link
+              href={user ? "/ladder" : "/register"}
+              className="button button-quiet"
+            >
+              {user
+                ? "Play the listening ladder / Main ular tangga menyimak"
+                : "Create account / Buat akun"}
             </Link>
           </div>
         </div>

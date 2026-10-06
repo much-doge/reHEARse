@@ -7,8 +7,8 @@ export default async function LadderHostPage({
 }: {
   searchParams: Promise<{ pin?: string }>;
 }) {
-  const user = await requireUser();
-  if (user.role === "learner") redirect("/ladder");
   const { pin } = await searchParams;
+  const user = await requireUser(`/ladder/host${pin ? `?pin=${pin}` : ""}`);
+  if (user.role === "learner") redirect("/ladder");
   return <LadderHost initialPin={pin?.match(/^\d{6}$/) ? pin : undefined} />;
 }

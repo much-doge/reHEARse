@@ -88,7 +88,7 @@ export function ClassroomGame({
   return (
     <main className="game-shell">
       <header className="game-nav">
-        <Link href="/dashboard">reHEARse</Link>
+        <Link href="/" aria-label="reHEARse home">reHEARse</Link>
         <span>CLASSROOM LISTENING / MENYIMAK BERSAMA</span>
         <Link href={teacher ? "/play" : "/classroom"}>
           {teacher ? "Join a session / Gabung sesi" : "Teacher / Guru"}
