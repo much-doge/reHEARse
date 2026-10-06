@@ -223,3 +223,20 @@ without another submission. GET absence alone does not prove an in-flight save
 will not complete; a user retry reuses the key. A new revision gets a new key.
 The provider timeout covers response-body consumption as well as headers.
 Existing attempts and feedback stay unchanged; migration 009 is additive.
+
+## D-020 — Bound feedback latency and speaker reference (LFL-013)
+
+Accepted. Second person in generated feedback refers only to the learner. A
+person inside the recording must use an explicit role or third-person pronoun;
+transcript dialogue must never turn the speaker's circumstances into the
+learner's circumstances.
+
+Production feedback uses minimal reasoning, a 1,200-token generation ceiling
+and a 30-second complete-response deadline. Successful records retain only
+content-free byte counts, provider token usage and header/total latency. This
+observability does not authorize logging prompts or learning content.
+
+Attempt persistence remains before the provider call. Feedback is still
+synchronous in LFL-013; moving it to a durable worker is a separate accepted
+optimization gate after deployed measurements demonstrate the need. An
+untracked in-process background promise is not an acceptable substitute.

@@ -64,6 +64,9 @@ pinned to their original version.
 
 ## Feedback boundary
 
+The complete runtime path, exact provider payload and latency controls are
+documented in `docs/AI_FEEDBACK_PIPELINE.md`.
+
 Input contract `listening-review-input.v1` contains only the current activity
 version, teacher guide, current attempt, and optional previous reconstruction.
 Output contract `listening-feedback.v1` is validated before persistence:

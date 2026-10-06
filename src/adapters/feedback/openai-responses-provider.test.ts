@@ -46,6 +46,12 @@ describe("OpenAIResponsesFeedbackProvider", () => {
         );
         expect(body.input[0].content).toContain("kamu/-mu");
         expect(body.input[0].content).toContain(
+          "Never use second person to stand in for a person inside the audio",
+        );
+        expect(body.input[0].content).toContain(
+          "You noticed that the male speaker is juggling three papers",
+        );
+        expect(body.input[0].content).toContain(
           "Do not spoon-feed missing meaning",
         );
         expect(body.input[0].content).toContain(
@@ -56,6 +62,8 @@ describe("OpenAIResponsesFeedbackProvider", () => {
           "do not add an observation about missing comparison history",
         );
         expect(body.text.format.strict).toBe(true);
+        expect(body.reasoning).toEqual({ effort: "minimal" });
+        expect(body.max_output_tokens).toBe(1_200);
         expect(body.text.format.schema.properties.observations.maxItems).toBe(
           6,
         );
@@ -71,7 +79,13 @@ describe("OpenAIResponsesFeedbackProvider", () => {
                 ],
               },
             ],
-            usage: { input_tokens: 100, output_tokens: 80, total_tokens: 180 },
+            usage: {
+              input_tokens: 100,
+              input_tokens_details: { cached_tokens: 40 },
+              output_tokens: 80,
+              output_tokens_details: { reasoning_tokens: 30 },
+              total_tokens: 180,
+            },
           }),
           { status: 200, headers: { "content-type": "application/json" } },
         );
@@ -80,13 +94,22 @@ describe("OpenAIResponsesFeedbackProvider", () => {
     const provider = new OpenAIResponsesFeedbackProvider({
       apiKey: "test-key",
       model: "test-model",
+      maxOutputTokens: 1_200,
+      reasoningEffort: "minimal",
       fetchImplementation: fetchImplementation as typeof fetch,
     });
     const result = await provider.review(request);
     expect(result.feedback.summary.id).toContain("Rekonstruksimu");
     expect(result.providerResponseId).toBe("resp_test");
-    expect(result.promptVersion).toBe("listening-review.2026-10-06.v3");
+    expect(result.promptVersion).toBe("listening-review.2026-10-06.v4");
     expect(result.usage?.total_tokens).toBe(180);
+    expect(result.usage?.cached_input_tokens).toBe(40);
+    expect(result.usage?.reasoning_tokens).toBe(30);
+    expect(result.usage?.review_input_bytes).toBeGreaterThan(0);
+    expect(result.usage?.request_body_bytes).toBeGreaterThan(
+      result.usage?.review_input_bytes ?? 0,
+    );
+    expect(result.usage?.total_latency_ms).toBeGreaterThanOrEqual(0);
   });
 
   it("keeps the deadline active while reading the response body", async () => {

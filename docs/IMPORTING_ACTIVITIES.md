@@ -85,8 +85,9 @@ FEEDBACK_PROVIDER=openai
 OPENAI_API_KEY=replace-me
 OPENAI_MODEL=replace-with-an-approved-model
 OPENAI_API_URL=https://api.openai.com/v1/responses
-OPENAI_TIMEOUT_MS=60000
-OPENAI_MAX_OUTPUT_TOKENS=1800
+OPENAI_REASONING_EFFORT=minimal
+OPENAI_TIMEOUT_MS=30000
+OPENAI_MAX_OUTPUT_TOKENS=1200
 ```
 
 The adapter sends only the selected activity version, transcript, teacher
@@ -96,6 +97,10 @@ bilingual `listening-feedback.v1` schema and the no-score invariant before it
 is stored or rendered. Failure preserves the attempt, stores only a safe error
 code and provider provenance, and does not silently substitute template
 feedback.
+
+See `docs/AI_FEEDBACK_PIPELINE.md` for the exact request payload, synchronous
+save path, learner-versus-speaker wording contract, content-free timing fields,
+and the durable asynchronous optimization gate.
 
 ## Public production deployment
 

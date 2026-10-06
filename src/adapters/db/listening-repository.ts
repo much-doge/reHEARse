@@ -8,6 +8,7 @@ import { getPool } from "@/adapters/db/client";
 import { readS3MediaConfig } from "@/adapters/media/s3-config";
 import { createPublicMediaUrl } from "@/adapters/media/s3-media-store";
 import { createFeedbackProvider } from "@/adapters/feedback/provider-factory";
+import { OPENAI_FEEDBACK_PROMPT_VERSION } from "@/adapters/feedback/openai-responses-provider";
 import { FeedbackProviderError } from "@/application/feedback-provider";
 import {
   parseListeningFeedback,
@@ -377,7 +378,7 @@ export async function submitLearnerAttempt(input: {
         providerName,
         providerName === "openai" ? (process.env.OPENAI_MODEL ?? null) : null,
         providerName === "openai"
-          ? "listening-review.2026-10-06.v3"
+          ? OPENAI_FEEDBACK_PROMPT_VERSION
           : "teacher-template.v1",
         safeCode,
         responseId,

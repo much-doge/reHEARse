@@ -16,9 +16,18 @@ export function createFeedbackProvider(environment: NodeJS.ProcessEnv = process.
     apiKey,
     model,
     apiUrl: environment.OPENAI_API_URL?.trim() || undefined,
-    timeoutMs: parsePositiveInteger(environment.OPENAI_TIMEOUT_MS, 60_000, 300_000),
-    maxOutputTokens: parsePositiveInteger(environment.OPENAI_MAX_OUTPUT_TOKENS, 1_800, 8_000),
+    timeoutMs: parsePositiveInteger(environment.OPENAI_TIMEOUT_MS, 30_000, 300_000),
+    maxOutputTokens: parsePositiveInteger(environment.OPENAI_MAX_OUTPUT_TOKENS, 1_200, 8_000),
+    reasoningEffort: parseReasoningEffort(environment.OPENAI_REASONING_EFFORT),
   });
+}
+
+function parseReasoningEffort(value: string | undefined) {
+  if (!value?.trim()) return undefined;
+  const effort = value.trim().toLowerCase();
+  if (!["none", "minimal", "low", "medium", "high"].includes(effort))
+    throw new Error("Unsupported OPENAI_REASONING_EFFORT");
+  return effort as "none" | "minimal" | "low" | "medium" | "high";
 }
 
 function parsePositiveInteger(value: string | undefined, fallback: number, maximum: number) {
