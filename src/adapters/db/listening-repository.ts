@@ -198,11 +198,6 @@ export async function submitLearnerAttempt(input: {
     number: number;
     createdAt: Date;
     pseudonym: string;
-    activityVersionId: string;
-    transcript: string;
-    teacherGuide: string;
-    template: unknown;
-    previousReconstruction: string | null;
   } | null = null;
 
   try {
@@ -233,8 +228,7 @@ export async function submitLearnerAttempt(input: {
       }
     }
     const activityResult = await client.query(
-      `SELECT a.id, av.id AS version_id, av.transcript, av.teacher_guide,
-              av.feedback_template
+      `SELECT a.id, av.id AS version_id
        FROM activity a
        JOIN activity_version av
          ON av.activity_id = a.id AND av.version_number = a.current_version
@@ -262,7 +256,7 @@ export async function submitLearnerAttempt(input: {
       [activity.id, input.learnerId],
     );
     const previousResult = await client.query(
-      `SELECT id, attempt_number, reconstruction
+      `SELECT id, attempt_number
        FROM listening_attempt
        WHERE activity_id = $1 AND learner_id = $2
        ORDER BY attempt_number DESC LIMIT 1`,
@@ -294,11 +288,6 @@ export async function submitLearnerAttempt(input: {
       number: attemptNumber,
       createdAt: inserted.rows[0].created_at,
       pseudonym: identityResult.rows[0].pseudonym,
-      activityVersionId: activity.version_id,
-      transcript: activity.transcript,
-      teacherGuide: activity.teacher_guide,
-      template: activity.feedback_template,
-      previousReconstruction: previous?.reconstruction ?? null,
     };
   } catch (error) {
     await client.query("ROLLBACK").catch(() => undefined);
@@ -308,95 +297,129 @@ export async function submitLearnerAttempt(input: {
   }
 
   if (!attempt) return null;
-  let provider;
+  return {
+    id: attempt.id,
+    attemptNumber: attempt.number,
+    pseudonym: attempt.pseudonym,
+    notes: input.notes,
+    reconstruction: input.reconstruction,
+    createdAt: attempt.createdAt.toISOString(),
+    feedback: null,
+    feedbackStatus: "pending",
+    feedbackProvider: null,
+    feedbackModel: null,
+  };
+}
+
+export async function generateAttemptFeedback(
+  learnerId: string,
+  attemptId: string,
+): Promise<StoredAttempt | null> {
+  const client = await getPool().connect();
+  const lockKey = `feedback:${attemptId}`;
+  let locked = false;
   try {
-    provider = createFeedbackProvider();
-    const result = await provider.review({
-      activityVersionId: attempt.activityVersionId,
-      transcript: attempt.transcript,
-      teacherGuide: attempt.teacherGuide,
-      notes: input.notes,
-      reconstruction: input.reconstruction,
-      previousReconstruction: attempt.previousReconstruction,
-      template: attempt.template,
-    });
-    await getPool().query(
-      `INSERT INTO listening_feedback (
-         attempt_id, contract_version, status, provider, model,
-         prompt_version, result_json, provider_response_id, usage_json
-       ) VALUES ($1, $2, 'completed', $3, $4, $5, $6, $7, $8)`,
-      [
-        attempt.id,
-        result.feedback.contractVersion,
-        result.provider,
-        result.model,
-        result.promptVersion,
-        result.feedback,
-        result.providerResponseId ?? null,
-        result.usage ?? {},
-      ],
+    await client.query("SELECT pg_advisory_lock(hashtext($1))", [lockKey]);
+    locked = true;
+    const existing = await client.query(
+      submissionQuery.replace("la.submission_key=$2", "la.id=$2"),
+      [learnerId, attemptId],
     );
-    return {
-      id: attempt.id,
-      attemptNumber: attempt.number,
-      pseudonym: attempt.pseudonym,
-      notes: input.notes,
-      reconstruction: input.reconstruction,
-      createdAt: attempt.createdAt.toISOString(),
-      feedback: feedbackPresentation(result.feedback),
-      feedbackStatus: "completed",
-      feedbackProvider: result.provider,
-      feedbackModel: result.model,
-    };
-  } catch (error) {
-    const configuredProvider = (process.env.FEEDBACK_PROVIDER ?? "template")
-      .trim()
-      .toLowerCase();
-    const providerName =
-      provider &&
-      "provider" in provider &&
-      typeof provider.provider === "string"
-        ? provider.provider
-        : configuredProvider === "openai"
-          ? "openai"
-          : "teacher_template";
-    const safeCode =
-      error instanceof FeedbackProviderError
-        ? error.safeCode
-        : "feedback_configuration_or_validation_failed";
-    const responseId =
-      error instanceof FeedbackProviderError ? error.providerResponseId : null;
-    const usage = error instanceof FeedbackProviderError ? error.usage : {};
-    await getPool().query(
-      `INSERT INTO listening_feedback (
-         attempt_id, contract_version, status, provider,
-         model, prompt_version, safe_error_code, provider_response_id, usage_json
-       ) VALUES ($1, 'listening-feedback.v1', 'failed', $2,
-                 $3, $4, $5, $6, $7)`,
-      [
-        attempt.id,
-        providerName,
-        providerName === "openai" ? (process.env.OPENAI_MODEL ?? null) : null,
-        providerName === "openai"
-          ? OPENAI_FEEDBACK_PROMPT_VERSION
-          : "teacher-template.v1",
-        safeCode,
-        responseId,
-        usage,
-      ],
+    if (!existing.rows[0]) return null;
+    if (existing.rows[0].feedback_status)
+      return savedAttempt(existing.rows[0]);
+
+    const sourceResult = await client.query(
+      `SELECT la.id, la.notes, la.reconstruction,
+              av.id AS activity_version_id, av.transcript, av.teacher_guide,
+              av.feedback_template,
+              previous.reconstruction AS previous_reconstruction
+       FROM listening_attempt la
+       JOIN activity_version av ON av.id = la.activity_version_id
+       LEFT JOIN listening_attempt previous ON previous.id = la.previous_attempt_id
+       WHERE la.id = $1 AND la.learner_id = $2`,
+      [attemptId, learnerId],
     );
-    return {
-      id: attempt.id,
-      attemptNumber: attempt.number,
-      pseudonym: attempt.pseudonym,
-      notes: input.notes,
-      reconstruction: input.reconstruction,
-      createdAt: attempt.createdAt.toISOString(),
-      feedback: null,
-      feedbackStatus: "failed",
-      feedbackProvider: providerName,
-      feedbackModel:
-        providerName === "openai" ? (process.env.OPENAI_MODEL ?? null) : null,
-    };
+    const source = sourceResult.rows[0];
+    if (!source) return null;
+
+    let provider;
+    try {
+      provider = createFeedbackProvider();
+      const result = await provider.review({
+        activityVersionId: source.activity_version_id,
+        transcript: source.transcript,
+        teacherGuide: source.teacher_guide,
+        notes: source.notes,
+        reconstruction: source.reconstruction,
+        previousReconstruction: source.previous_reconstruction ?? null,
+        template: source.feedback_template,
+      });
+      await client.query(
+        `INSERT INTO listening_feedback (
+           attempt_id, contract_version, status, provider, model,
+           prompt_version, result_json, provider_response_id, usage_json
+         ) VALUES ($1, $2, 'completed', $3, $4, $5, $6, $7, $8)`,
+        [
+          attemptId,
+          result.feedback.contractVersion,
+          result.provider,
+          result.model,
+          result.promptVersion,
+          result.feedback,
+          result.providerResponseId ?? null,
+          result.usage ?? {},
+        ],
+      );
+    } catch (error) {
+      const configuredProvider = (process.env.FEEDBACK_PROVIDER ?? "template")
+        .trim()
+        .toLowerCase();
+      const providerName =
+        provider &&
+        "provider" in provider &&
+        typeof provider.provider === "string"
+          ? provider.provider
+          : configuredProvider === "openai"
+            ? "openai"
+            : "teacher_template";
+      const safeCode =
+        error instanceof FeedbackProviderError
+          ? error.safeCode
+          : "feedback_configuration_or_validation_failed";
+      const responseId =
+        error instanceof FeedbackProviderError ? error.providerResponseId : null;
+      const usage = error instanceof FeedbackProviderError ? error.usage : {};
+      await client.query(
+        `INSERT INTO listening_feedback (
+           attempt_id, contract_version, status, provider,
+           model, prompt_version, safe_error_code, provider_response_id, usage_json
+         ) VALUES ($1, 'listening-feedback.v1', 'failed', $2,
+                   $3, $4, $5, $6, $7)`,
+        [
+          attemptId,
+          providerName,
+          providerName === "openai" ? (process.env.OPENAI_MODEL ?? null) : null,
+          providerName === "openai"
+            ? OPENAI_FEEDBACK_PROMPT_VERSION
+            : "teacher-template.v1",
+          safeCode,
+          responseId,
+          usage,
+        ],
+      );
+    }
+
+    const completed = await client.query(
+      submissionQuery.replace("la.submission_key=$2", "la.id=$2"),
+      [learnerId, attemptId],
+    );
+    return completed.rows[0] ? savedAttempt(completed.rows[0]) : null;
+  } finally {
+    if (locked)
+      await client
+        .query("SELECT pg_advisory_unlock(hashtext($1))", [lockKey])
+        .catch(() => undefined);
+    client.release();
   }
 }

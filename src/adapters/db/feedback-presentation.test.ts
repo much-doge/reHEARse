@@ -54,6 +54,34 @@ describe("feedback presentation without changing stored records", () => {
     expect(shown.nextListeningTarget.id).not.toContain("Anda");
     expect(saved.summary.en).toContain("learner");
   });
+  it("repairs reviewer-style third-person wording at presentation time", () => {
+    const shown = feedbackPresentation({
+      ...original,
+      summary: {
+        en: "Response captures the shared theme. The learner notes three papers.",
+        id: "Jawaban ini menangkap tema bersama. Pembelajar mencatat tiga makalah.",
+      },
+      observations: [
+        {
+          kind: "unclear",
+          message: {
+            en: "It is unclear whether the learner understood the reason.",
+            id: "Belum jelas apakah pembelajar memahami alasannya.",
+          },
+        },
+      ],
+    });
+    expect(shown.summary.en).toBe(
+      "You captured the shared theme. You noted three papers.",
+    );
+    expect(shown.summary.id).toBe(
+      "Kamu menangkap tema bersama. Kamu mencatat tiga makalah.",
+    );
+    expect(shown.observations[0].message.en).toContain(
+      "whether you understood",
+    );
+    expect(shown.observations[0].message.id).toContain("apakah kamu memahami");
+  });
   it("withholds a confidential source label in either language as a paired presentation", () => {
     const shown = feedbackPresentation({
       ...original,

@@ -36,7 +36,7 @@ export async function saveWithConfirmation(
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(draft),
-      signal: AbortSignal.timeout(70_000),
+      signal: AbortSignal.timeout(10_000),
     });
     const payload = await response.json().catch(() => null);
     if (
@@ -59,4 +59,26 @@ export async function saveWithConfirmation(
     failure = "confirmation_unavailable";
   }
   throw new AttemptSaveFailure(failure);
+}
+
+export async function requestAttemptFeedback(
+  attemptId: string,
+  fetcher: typeof fetch = fetch,
+): Promise<StoredAttempt> {
+  const response = await fetcher("/api/feedback", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ attemptId }),
+    signal: AbortSignal.timeout(35_000),
+  });
+  const payload = await response.json().catch(() => null);
+  if (
+    !response.ok ||
+    payload?.contractVersion !== "attempt-result.v2" ||
+    !payload.attempt?.id
+  )
+    throw new AttemptSaveFailure(
+      typeof payload?.error === "string" ? payload.error : "feedback_unavailable",
+    );
+  return payload.attempt;
 }

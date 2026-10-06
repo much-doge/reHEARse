@@ -52,6 +52,9 @@ describe("OpenAIResponsesFeedbackProvider", () => {
           "You noticed that the male speaker is juggling three papers",
         );
         expect(body.input[0].content).toContain(
+          "Write the feedback as a direct conversation with the student",
+        );
+        expect(body.input[0].content).toContain(
           "Do not spoon-feed missing meaning",
         );
         expect(body.input[0].content).toContain(
@@ -101,7 +104,7 @@ describe("OpenAIResponsesFeedbackProvider", () => {
     const result = await provider.review(request);
     expect(result.feedback.summary.id).toContain("Rekonstruksimu");
     expect(result.providerResponseId).toBe("resp_test");
-    expect(result.promptVersion).toBe("listening-review.2026-10-06.v4");
+    expect(result.promptVersion).toBe("listening-review.2026-10-06.v5");
     expect(result.usage?.total_tokens).toBe(180);
     expect(result.usage?.cached_input_tokens).toBe(40);
     expect(result.usage?.reasoning_tokens).toBe(30);

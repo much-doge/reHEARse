@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import {
   saveWithConfirmation,
   confirmAttempt,
+  requestAttemptFeedback,
   AttemptSaveFailure,
 } from "./attempt-confirmation";
 import { attemptSaveError } from "./attempt-save-error";
@@ -44,6 +45,7 @@ export function PersistentLearningWorkspace({
     activity.attempts[0]?.feedbackProvider ?? null,
   );
   const [submitting, setSubmitting] = useState(false);
+  const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [listenCount, setListenCount] = useState(0);
   const submission = useRef<{ fingerprint: string; key: string } | null>(null);
@@ -69,11 +71,24 @@ export function PersistentLearningWorkspace({
       if (saved) {
         showAttempt(saved);
         setError(null);
+        if (saved.feedbackStatus === "pending") await generateFeedback(saved.id);
       } else setError(attemptSaveError("confirmation_unavailable"));
     } catch {
       setError(attemptSaveError("confirmation_unavailable"));
     } finally {
       setChecking(false);
+    }
+  }
+
+  async function generateFeedback(attemptId: string) {
+    setGenerating(true);
+    try {
+      showAttempt(await requestAttemptFeedback(attemptId));
+      setError(null);
+    } catch {
+      setFeedbackStatus("pending");
+    } finally {
+      setGenerating(false);
     }
   }
 
@@ -83,6 +98,7 @@ export function PersistentLearningWorkspace({
       !pseudonym.trim() ||
       !reconstruction.trim() ||
       submitting ||
+      generating ||
       checking
     )
       return;
@@ -103,6 +119,8 @@ export function PersistentLearningWorkspace({
         submissionKey: submission.current.key,
       });
       showAttempt(saved);
+      setSubmitting(false);
+      if (saved.feedbackStatus === "pending") await generateFeedback(saved.id);
     } catch (failure) {
       setError(
         attemptSaveError(
@@ -232,6 +250,7 @@ export function PersistentLearningWorkspace({
                 !pseudonym.trim() ||
                 !reconstruction.trim() ||
                 submitting ||
+                generating ||
                 checking
               }
             >
@@ -261,7 +280,7 @@ export function PersistentLearningWorkspace({
       </section>
 
       <aside className="feedback-panel">
-        {submitting ? (
+        {submitting || generating ? (
           <FeedbackWait />
         ) : feedback ? (
           <FeedbackView

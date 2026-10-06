@@ -14,6 +14,9 @@ learner browser
   -> POST /api/attempts
   -> same-origin, session and learner-role checks
   -> PostgreSQL transaction commits immutable listening_attempt
+  <- attempt-result.v2 with feedbackStatus=pending
+learner browser
+  -> POST /api/feedback with owned attempt ID
   -> FeedbackProvider port
   -> OpenAI Responses adapter
   -> POST /v1/responses
@@ -28,6 +31,7 @@ Relevant source files:
 | Responsibility | File |
 |---|---|
 | HTTP authorization and input bounds | `src/app/api/attempts/route.ts` |
+| Separate owned feedback request | `src/app/api/feedback/route.ts` |
 | Attempt transaction and feedback persistence | `src/adapters/db/listening-repository.ts` |
 | Provider-neutral input/output port | `src/application/feedback-provider.ts` |
 | Runtime provider selection | `src/adapters/feedback/provider-factory.ts` |
@@ -78,17 +82,21 @@ guide content.
    save and loads the published immutable activity version.
 4. The attempt is committed **before** contacting OpenAI. Provider failure
    therefore cannot erase the response.
-5. The repository invokes exactly one configured provider synchronously.
-6. The OpenAI adapter constructs one request. No audio transcription, retrieval,
+5. The save request returns immediately with `feedbackStatus=pending`; it does
+   not wait for OpenAI.
+6. The browser starts a separate owned `POST /api/feedback` request. A
+   PostgreSQL advisory lock serializes generation for that attempt. Reloading or
+   losing the request leaves the durable attempt pending rather than losing it.
+7. The OpenAI adapter constructs one request. No audio transcription, retrieval,
    second model call or translation call occurs.
-7. The adapter requires a completed response, extracts the structured JSON and
+8. The adapter requires a completed response, extracts the structured JSON and
    validates bilingual fields plus the no-score invariant.
-8. Success or a content-free safe failure is appended to
+9. Success or a content-free safe failure is appended to
    `listening_feedback`. Raw prompts, transcript, notes and provider output are
    not logged.
-9. The original HTTP save request returns only after provider completion,
-   failure or timeout. This synchronous coupling is the principal UX latency
-   boundary; the interactive waiting panel does not make the request faster.
+10. The feedback request returns the completed or failed attempt. A repeated
+    request returns the existing append-only record instead of generating a
+    duplicate. The existing private status lookup recovers the result.
 
 ## Wording contract
 
@@ -117,8 +125,10 @@ The equivalent Indonesian distinction is required: `Kamu mencatat bahwa
 mahasiswa dalam percakapan itu...`, not `Kamu sedang...` when the audio speaker
 is the person doing it.
 
-This rule is prompt-versioned as `listening-review.2026-10-06.v4`. Previously
-stored feedback remains immutable and is not rewritten.
+This rule is prompt-versioned as `listening-review.2026-10-06.v5`. Previously
+stored feedback remains immutable. Conservative presentation-only replacements
+repair common reviewer phrases such as `the learner notes` when old or
+nonconforming feedback is displayed; the stored record is not rewritten.
 
 ## Latency controls and evidence
 
@@ -153,19 +163,23 @@ latency only modestly. References:
 - <https://developers.openai.com/api/docs/guides/reasoning>
 - <https://developers.openai.com/api/docs/models/gpt-5-nano>
 
-## Next optimization gate
+## Two-phase asynchronous save
 
-Do not claim the request is fast from source changes alone. After deployment,
-collect several real `usage_json` samples and compare median and slow-tail total
-latency with input/output/reasoning token counts.
+LFL-014 removes model generation from the save request. The learner's work is
+committed and acknowledged first; feedback generation is a separate request.
+This makes saving fast but does not make OpenAI inference itself faster.
 
-If feedback still blocks saves unacceptably, the next architectural change is
-to remove provider generation from `POST /api/attempts`: return the committed
-attempt immediately with `feedbackStatus=pending`, run feedback in a durable
-worker, and let the existing owned status lookup retrieve completion. That
-requires durable job ownership, recovery and bounded retries; it must not be
-implemented as an untracked in-process promise that can disappear on restart.
+The durable state is the committed attempt plus the absence or presence of its
+unique feedback row. Generation is client-triggered and serialized in
+PostgreSQL; there is no untracked in-process background promise. If the browser
+closes, the attempt remains pending and a later explicit feedback request can
+resume it. This avoids introducing a queue before measured classroom need.
 
 Streaming is not currently appropriate because the strict bilingual JSON must
 be complete and validated before persistence or rendering. A durable async path
 improves perceived save latency without exposing partial, invalid feedback.
+
+After deployment, compare real `usage_json` median and slow-tail latency with
+input/output/reasoning token counts. A continuously running worker is a future
+option only if feedback must complete after every browser disconnect without a
+later learner request.

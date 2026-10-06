@@ -4,6 +4,19 @@ import type { ListeningFeedback } from "../../domain/feedback";
 // Presentation only: previously saved responses and feedback remain unchanged.
 function en(text: string): string {
   return text
+    .replace(/^response captures\b/gi, "You captured")
+    .replace(/^the learner[’']s\b/gi, "Your")
+    .replace(/\bthe learner[’']s\b/gi, "your")
+    .replace(/\bthe learner notes\b/gi, "You noted")
+    .replace(/\bthe learner mentions\b/gi, "You mention")
+    .replace(/\bthe learner understood\b/gi, "you understood")
+    .replace(/\bwhether the learner is clear\b/gi, "whether you are clear")
+    .replace(/\bif the learner is clear\b/gi, "whether you are clear")
+    .replace(/\bask (?:the learner )?to listen again\b/gi, "Listen again")
+    .replace(
+      /\bconsider checking whether you are clear about\b/gi,
+      "Listen again to check",
+    )
     .replace(
       /saved as evidence for this listen/gi,
       "saved for this listening activity",
@@ -38,6 +51,12 @@ function en(text: string): string {
 }
 function id(text: string): string {
   return text
+    .replace(/^jawaban (?:ini )?menangkap\b/gi, "Kamu menangkap")
+    .replace(/^catatan pembelajar\b/gi, "Catatanmu")
+    .replace(/\bcatatan pembelajar\b/gi, "catatanmu")
+    .replace(/\bpembelajar mencatat\b/gi, "Kamu mencatat")
+    .replace(/\bpembelajar menyebut\b/gi, "Kamu menyebut")
+    .replace(/\bapakah pembelajar memahami\b/gi, "apakah kamu memahami")
     .replace(
       /sebagai bukti untuk sesi menyimak ini/gi,
       "untuk latihan menyimak ini",

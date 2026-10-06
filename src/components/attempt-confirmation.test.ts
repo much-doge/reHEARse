@@ -1,5 +1,9 @@
 import { describe, it, expect, vi } from "vitest";
-import { saveWithConfirmation, confirmAttempt } from "./attempt-confirmation";
+import {
+  saveWithConfirmation,
+  confirmAttempt,
+  requestAttemptFeedback,
+} from "./attempt-confirmation";
 const draft = {
   slug: "practice",
   pseudonym: "Team",
@@ -55,5 +59,15 @@ describe("confirmation after an uncertain save", () => {
     expect(await confirmAttempt("known-id", fetcher, true)).toEqual(saved);
     expect(fetcher.mock.calls[0][0]).toBe("/api/attempts?attemptId=known-id");
     expect(fetcher.mock.calls[0][1].cache).toBe("no-store");
+  });
+  it("requests feedback separately after the response is safely stored", async () => {
+    const fetcher = vi.fn().mockResolvedValue(result());
+    expect(await requestAttemptFeedback("attempt-one", fetcher)).toEqual(attempt);
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    expect(fetcher.mock.calls[0][0]).toBe("/api/feedback");
+    expect(fetcher.mock.calls[0][1].method).toBe("POST");
+    expect(JSON.parse(fetcher.mock.calls[0][1].body)).toEqual({
+      attemptId: "attempt-one",
+    });
   });
 });

@@ -240,3 +240,23 @@ Attempt persistence remains before the provider call. Feedback is still
 synchronous in LFL-013; moving it to a durable worker is a separate accepted
 optimization gate after deployed measurements demonstrate the need. An
 untracked in-process background promise is not an acceptable substitute.
+
+## D-021 — Acknowledge the attempt before generating feedback (LFL-014)
+
+Accepted. `POST /api/attempts` commits and returns the immutable attempt with a
+pending feedback status without contacting OpenAI. The learner client then
+requests generation through a separate same-origin, learner-owned endpoint.
+PostgreSQL serializes generation by attempt; the unique feedback row makes
+repeated requests idempotent. A lost generation request leaves a durable
+pending attempt that can be requested again.
+
+This is deliberately two-phase and client-triggered, not an untracked server
+promise. It improves save latency without adding a broker or permanent worker.
+It does not claim to reduce the provider's own inference time. A background
+worker remains conditional on evidence that feedback must finish while the
+learner is disconnected.
+
+Generated feedback is a direct conversation with the student. Prompt v5 bans
+reviewer narration such as `the learner notes`; conservative presentation-only
+normalization protects the current UI without rewriting immutable stored
+feedback.
