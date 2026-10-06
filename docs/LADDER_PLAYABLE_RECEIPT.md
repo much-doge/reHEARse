@@ -1,6 +1,6 @@
 # Listening ladder release — LFL-016
 
-Status: container-verified locally; production deployment pending.
+Status: deployed to PCT128 on 2026-10-06. Runtime source: `d0b96194587ce1471f1cbee13700baec9a9829e3`. Classroom pilot pending.
 
 ## Playable scope
 
@@ -52,11 +52,17 @@ and reduced motion are included.
 - Guarded local PostgreSQL/API journey passed: six concurrent retries produce one event; altered request and stale revision reject with 409; ownership and role guards; bounded all-wrong repair; supported completion; owned feedback; idempotent teacher assistance; saved resume; finish and closed-session behavior.
 - Local learner browser completed all four spans and one replay explanation. Observed pauses: 26.501144, 45.051568, 71.303827 and 97.000662 seconds. This is one desktop browser observation, not a universal timing guarantee.
 - Final-image browser verified game start, canonical URL and refresh recovery. Phone breakpoint 390 px had document/scroll widths of 375/375 px, with no horizontal overflow. Teacher live board displayed joined learner alias; projector mode hid private help controls.
-- Local template feedback verified; no production learner attempt or live AI call made for this work. Classroom pilot and independent teacher review remain pending.
-- Production deployment checks pending.
+- Local template feedback verified. Production administrator solo preview saved one choice, advanced to part two and restored after refresh; one empty teacher class session was created through the normal signed-in UI. No learner practice attempt or live AI call made. Classroom pilot and independent teacher review remain pending.
+- PCT128 runner `rehearse-app:d0b9619`, image `sha256:09e0ba7d60a28d59c8171bbfcdd6f58f2f34664745a9fa341be03249d4e033a8`, is healthy with zero restarts. Tools image `sha256:dcdd780a861ba4db7fc0280a8436a8a0d573b65991fa9384489a2897078eaade`; additive migration 010 applied once.
+- LAN `192.168.8.63:3001` and public HTTPS health returned 200. Public unauthenticated game/host APIs returned 401; CC0 SVG returned 200. TLS verification returned 0. A Python urllib request was denied with 403 at the edge; normal curl and the actual browser succeeded.
+- Public signed-in browser loaded the actual game, played the source media without error, and paused the first span at 26.515112 seconds. Production save and refresh recovery passed. Teacher dashboard created a ready-to-join PIN session.
+- PostgreSQL and all 13 unrelated container IDs/images/states matched the baseline. Existing practice attempt IDs and classroom room phase/index/revision were unchanged.
+- Local final-image teacher board visibly moved the learner token after a saved choice; projector mode hid help controls. Production multi-device classroom use is not yet observed.
 
 ## Rollback
 
-Restore the protected pre-release environment image tag and recreate only the
+Restore `/opt/rehearse/.secrets/lfl016-env-before` (previous image tag `228c1ab`) and recreate only the
 production app with `--no-deps`. Retain additive migration 010 and all game
 records. Earlier app images ignore these tables. Do not erase learner events.
+
+Protected database backup: `/opt/rehearse/.secrets/lfl016-db-before.sql` (96,257 bytes). No credentials or learner content are recorded in this receipt.
