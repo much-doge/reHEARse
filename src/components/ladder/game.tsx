@@ -343,9 +343,11 @@ export function LadderGame({
           </div>
           <LadderBoard
             players={[
-              { alias: view?.alias ?? "YOU", position: view?.position ?? 0 },
+              { id: view?.runId, alias: view?.alias ?? "YOU", position: view?.position ?? 0 },
             ]}
             ownAlias={view?.alias ?? "YOU"}
+            ownId={view?.runId}
+            animate={!listening}
           />
           <div className="ladder-map-rule">
             <Image

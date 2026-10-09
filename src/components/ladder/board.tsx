@@ -1,209 +1,128 @@
 "use client";
-const portraitCoords = Array.from({ length: 13 }, (_, i) => {
-  const r = Math.floor(i / 4),
-    c = i % 4;
-  return { x: 70 + (r % 2 ? 3 - c : c) * 110, y: 450 - r * 110 };
-});
-export function LadderBoard({
-  players,
-  ownAlias,
-  wide = false,
-}: {
-  players: Array<{ alias: string; position: number }>;
+
+import { useId, useRef, useState, type CSSProperties } from "react";
+import { Avatar } from "./avatar";
+import { boardGeometry, boardGroups, type BoardPlayer } from "./board-layout";
+import "./board.css";
+
+function placeName(tile: number) {
+  return tile === 0 ? "Start / Mulai" : tile === 12 ? "Checkpoint / Titik akhir" : `Tile ${tile} / Petak ${tile}`;
+}
+
+export function LadderBoard({ players, ownAlias, ownId, wide = false, animate = true }: {
+  players: BoardPlayer[];
   ownAlias?: string;
+  ownId?: string;
   wide?: boolean;
+  animate?: boolean;
 }) {
-  const coords = wide
-    ? Array.from({ length: 13 }, (_, i) => ({
-        x: 70 + (i < 7 ? i : 13 - i) * 120,
-        y: i < 7 ? 300 : 160,
-      }))
-    : portraitCoords;
+  const { width, height, coords } = boardGeometry(wide);
+  const groups = boardGroups(players, ownId, ownAlias);
+  const [expanded, setExpanded] = useState<number | null>(null);
+  const expandedGroup = groups.find((group) => group.tile === expanded);
+  const returnFocus = useRef<HTMLButtonElement | null>(null);
+  const unique = useId().replace(/:/g, "");
+  const forestId = `${unique}-forest`, shadowId = `${unique}-shadow`, groupId = `${unique}-group`;
+  const markers = groups.flatMap((group) => group.visible.map((player, index) => ({
+    player, crowded: group.visible.length > 1, offset: group.visible.length > 1 ? (index ? 1 : -1) : 0,
+  })));
+  function closeGroup() {
+    setExpanded(null);
+    returnFocus.current?.focus();
+  }
   return (
-    <div className={`ladder-board ${wide ? "ladder-board-wide" : ""}`}>
-      <svg
-        viewBox={wide ? "0 0 940 380" : "0 0 480 540"}
-        role="img"
-        aria-label="Snakes and ladders listening journey / Perjalanan menyimak ular tangga"
-      >
-        <defs>
-          <linearGradient id="forest" x2="0" y2="1">
-            <stop stopColor="#e1efdc" />
-            <stop offset="1" stopColor="#f7f1db" />
-          </linearGradient>
-          <filter id="tile-shadow">
-            <feDropShadow dx="0" dy="3" stdDeviation="2" floodOpacity=".12" />
-          </filter>
-        </defs>
-        <rect
-          width={wide ? 940 : 480}
-          height="540"
-          rx="30"
-          fill="url(#forest)"
-        />
-        <path
-          d={
-            wide
-              ? "M0 105L75 33L133 90L196 24L281 103L362 22L480 110L580 40L660 100L770 20L940 115V115H0Z"
-              : "M0 105 L75 33 L133 90 L196 24 L281 103 L362 22 L480 110 V170 H0Z"
-          }
-          fill="#a8c8ab"
-          opacity=".55"
-        />
-        <circle cx={wide ? 850 : 412} cy="44" r="23" fill="#f2c866" />
-        <path
-          d={
-            wide
-              ? "M18 350Q150 365 280 349T540 350T920 350"
-              : "M18 505 Q85 520 142 504 T275 505 T460 505"
-          }
-          stroke="#b8cfad"
-          strokeWidth="18"
-          fill="none"
-        />
-        <path
-          d={coords.map((p, i) => `${i ? "L" : "M"}${p.x} ${p.y}`).join(" ")}
-          fill="none"
-          stroke="#fffdf1"
-          strokeWidth="24"
-          strokeLinejoin="round"
-        />
-        {coords.map((p, i) => (
-          <g key={i} filter="url(#tile-shadow)">
-            <rect
-              x={p.x - 36}
-              y={p.y - 35}
-              width="72"
-              height="70"
-              rx="18"
-              fill={i === 12 ? "#285f4b" : i % 3 === 0 ? "#fae7a3" : "#fffdf3"}
-              stroke="#dde0c5"
-            />
-            <text
-              x={p.x}
-              y={p.y + 5}
-              textAnchor="middle"
-              fill={i === 12 ? "white" : "#77907a"}
-              fontSize="17"
-              fontFamily="sans-serif"
-            >
-              {i === 0 ? "START" : i === 12 ? "FINISH" : i}
-            </text>
-          </g>
-        ))}
-        <g
-          stroke="#c58d4c"
-          strokeWidth="9"
-          strokeLinecap="round"
-          transform={
-            wide
-              ? "translate(320 -65) rotate(-20 232 326)"
-              : "rotate(-20 232 326)"
-          }
-        >
-          <path d="M219 365V268M246 365V268" />
-          <path
-            d="M219 350H246M219 330H246M219 310H246M219 290H246"
-            stroke="#e8b96c"
-            strokeWidth="6"
-          />
-        </g>
-        <g
-          transform={wide ? "translate(390 -70)" : undefined}
-          fill="none"
-          strokeLinecap="round"
-        >
-          <path
-            d="M400 233 C445 245 443 281 408 283 S365 313 400 344"
-            stroke="#fdf6df"
-            strokeWidth="22"
-          />
-          <path
-            d="M400 233 C445 245 443 281 408 283 S365 313 400 344"
-            stroke="#d17a65"
-            strokeWidth="15"
-          />
-          <path
-            d="M400 233 C445 245 443 281 408 283 S365 313 400 344"
-            stroke="#e69a80"
-            strokeWidth="4"
-            strokeDasharray="2 13"
-          />
-        </g>
-        <g transform={wide ? "translate(390 -70)" : undefined}>
-          <ellipse cx="400" cy="231" rx="13" ry="17" fill="#ca705f" />
-          <circle cx="395" cy="225" r="2.5" fill="#3e4033" />
-          <circle cx="405" cy="225" r="2.5" fill="#3e4033" />
-        </g>
-        <g
-          stroke="#c58d4c"
-          strokeWidth="9"
-          strokeLinecap="round"
-          transform={
-            wide ? "translate(78 -70) rotate(20 112 156)" : "rotate(20 112 156)"
-          }
-        >
-          <path d="M98 203V103M126 203V103" />
-          <path
-            d="M98 185H126M98 165H126M98 145H126M98 125H126"
-            stroke="#e8b96c"
-            strokeWidth="6"
-          />
-        </g>
-        {players.map((player, i) => {
-          const p = coords[Math.max(0, Math.min(12, player.position))];
-          const stacked = players
-            .slice(0, i)
-            .filter((x) => x.position === player.position).length;
-          return (
-            <g
-              key={player.alias}
-              className="ladder-token"
-              transform={`translate(${p.x + ((stacked % 3) - 1) * 16},${p.y - 12 - Math.floor(stacked / 3) * 13})`}
-            >
-              <title>
-                {player.alias}
-                {ownAlias === player.alias ? " · You / Kamu" : ""}
-              </title>
-              <circle
-                r="17"
-                fill={
-                  ["#305f50", "#356bc0", "#a85476", "#94702e", "#62589e"][i % 5]
-                }
-                stroke="white"
-                strokeWidth="4"
-              />
-              <text
-                y="5"
-                textAnchor="middle"
-                fill="white"
-                fontSize="10"
-                fontWeight="700"
-              >
-                {ownAlias === player.alias ? "YOU" : player.alias.slice(-2)}
+    <section className={`ladder-board ${wide ? "ladder-board-wide" : ""} ${animate ? "" : "ladder-board-still"}`}
+      aria-label="Listening route / Jalur menyimak">
+      <div className="ladder-board-surface">
+        <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <linearGradient id={forestId} x2="0" y2="1">
+              <stop stopColor="#dfefda" /><stop offset="1" stopColor="#faf2d5" />
+            </linearGradient>
+            <filter id={shadowId}><feDropShadow dx="0" dy="4" stdDeviation="2" floodOpacity=".1" /></filter>
+          </defs>
+          <rect width={width} height={height} rx="30" fill={`url(#${forestId})`} />
+          <path d={wide
+            ? "M0 120L75 43L143 110L216 34L311 123L392 32L520 130L640 50L730 120L850 30L1040 135V145H0Z"
+            : "M0 135L75 53L143 120L216 44L311 133L392 42L480 140V160H0Z"}
+            fill="#b1cfad" opacity=".7" />
+          <circle cx={wide ? 970 : 418} cy="42" r="22" fill="#f0c65f" />
+          <path d={wide ? "M20 430Q170 449 320 430T620 430T1020 430" : "M18 606Q85 622 142 605T275 606T460 606"}
+            stroke="#b8cfad" strokeWidth="17" fill="none" />
+          <path d={coords.map((p, i) => `${i ? "L" : "M"}${p.x} ${p.y}`).join(" ")}
+            fill="none" stroke="#fffdf1" strokeWidth="27" strokeLinejoin="round" />
+          {coords.map((p, tile) => (
+            <g key={tile} filter={`url(#${shadowId})`}>
+              <rect x={p.x - 39} y={p.y - 26} width="78" height="73" rx="19"
+                fill={tile === 12 ? "#285f4b" : tile % 3 === 0 ? "#fae7a3" : "#fffdf3"} stroke="#d9dfc1" />
+              <text x={p.x} y={p.y + 29} textAnchor="middle" fill={tile === 12 ? "white" : "#516c52"}
+                fontSize={tile === 0 || tile === 12 ? "12" : "17"} fontWeight="600" fontFamily="sans-serif">
+                {tile === 0 ? "START" : tile === 12 ? "FINISH" : tile}
               </text>
             </g>
+          ))}
+        </svg>
+        <ul className="ladder-board-markers" aria-label="Players on the route / Peserta di jalur">
+          {markers.map(({ player, crowded, offset }) => {
+            const p = coords[player.tile];
+            const own = ownId ? player.id === ownId : ownAlias === player.alias;
+            return (
+              <li key={player.key} data-position={player.tile}
+                className={`ladder-board-marker ${crowded ? "is-crowded" : ""} ${own ? "is-own" : ""}`}
+                style={{ left: `${p.x / width * 100}%`, top: `${p.y / height * 100}%`, "--marker-offset": offset } as CSSProperties}>
+                <span className="ladder-marker-name">
+                  {player.alias}
+                  {own && <small>You / Kamu</small>}
+                </span>
+                {player.avatarId
+                  ? <Avatar id={player.avatarId} size={112} animate={animate} />
+                  : <span className="ladder-marker-placeholder" aria-hidden="true">{player.alias.slice(-2)}</span>}
+                <span className="ladder-board-sr-only">{placeName(player.tile)}</span>
+              </li>
+            );
+          })}
+        </ul>
+        {groups.filter((group) => group.hidden > 0).map((group) => {
+          const p = coords[group.tile];
+          return (
+            <button type="button" key={group.tile} className="ladder-board-overflow"
+              style={{ left: `${p.x / width * 100}%`, top: `${p.y / height * 100}%` }}
+              aria-expanded={expanded === group.tile} aria-controls={groupId}
+              aria-label={`${group.members.length} players at ${placeName(group.tile)}. Show everyone / Tampilkan semua peserta`}
+              onClick={(event) => {
+                returnFocus.current = event.currentTarget;
+                setExpanded(expanded === group.tile ? null : group.tile);
+              }}>
+              +{group.hidden}<span className="ladder-board-sr-only"> more players / peserta lain</span>
+            </button>
           );
         })}
-      </svg>
-      {wide && (
-        <div className="ladder-fireflies" aria-hidden="true">
-          {Array.from({ length: 8 }, (_, i) => (
-            <span
-              key={i}
-              style={{
-                left: `${12 + i * 10}%`,
-                top: `${8 + (i % 3) * 8}%`,
-                animationDelay: `${-i * 1.3}s`,
-              }}
-            />
-          ))}
-        </div>
-      )}
-      <div className="board-caption">
-        <span>One floor. A way forward.</span>
-        <small>Satu perjalanan. Selalu ada jalan lanjut.</small>
+        {wide && <div className="ladder-fireflies" aria-hidden="true">
+          {Array.from({ length: 8 }, (_, i) => <span key={i} style={{ left: `${12 + i * 10}%`, top: `${4 + (i % 3) * 8}%`, animationDelay: `${-i * 1.3}s` }} />)}
+        </div>}
       </div>
-    </div>
+      <div className="ladder-board-caption">
+        <span>Listen. Replay. Keep going.</span><small>Dengarkan. Putar ulang. Lanjut lagi.</small>
+      </div>
+      {expandedGroup && (
+        <section className="ladder-board-group" id={groupId} aria-label={`${placeName(expandedGroup.tile)}: ${expandedGroup.members.length} players / peserta`}
+          onKeyDown={(event) => { if (event.key === "Escape") { event.preventDefault(); closeGroup(); } }}>
+          <header>
+            <div><strong>{placeName(expandedGroup.tile)}</strong><span>{expandedGroup.members.length} players here / peserta di sini</span></div>
+            <button type="button" onClick={closeGroup}>Close / Tutup</button>
+          </header>
+          <ul>
+            {expandedGroup.members.map((player) => (
+              <li key={player.key}>
+                <span className="ladder-marker-name">{player.alias}</span>
+                {player.avatarId
+                  ? <Avatar id={player.avatarId} size={88} animate={animate} />
+                  : <span className="ladder-marker-placeholder" aria-hidden="true">{player.alias.slice(-2)}</span>}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </section>
   );
 }

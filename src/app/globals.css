@@ -616,11 +616,6 @@ textarea:focus-visible {
   overflow: hidden;
   box-shadow: 0 8px 25px #3556350a;
 }
-.ladder-board svg {
-  display: block;
-  width: 100%;
-  max-height: 550px;
-}
 .board-caption {
   position: absolute;
   bottom: 11px;
@@ -1168,9 +1163,6 @@ textarea:focus-visible {
   max-width: 1400px;
   grid-template-columns: 1.1fr 0.9fr;
 }
-.is-projecting .ladder-board svg {
-  max-height: 70vh;
-}
 @keyframes ladder-wave {
   to {
     transform: scaleY(0.45);
@@ -1218,9 +1210,6 @@ textarea:focus-visible {
   }
   .ladder-map {
     position: static;
-  }
-  .ladder-board svg {
-    max-height: 340px;
   }
   .ladder-map-rule {
     display: none;
@@ -1303,7 +1292,6 @@ textarea:focus-visible {
 .ladder-host-pin { padding: 10px 24px; }
 .ladder-host-pin > span { font-size: clamp(40px, 4vw, 64px); line-height: 1.2; }
 .ladder-host-layout { max-width: none; grid-template-columns: minmax(0, 1fr) minmax(280px, 340px); gap: 24px; align-items: start; }
-.ladder-board-wide svg { max-height: none; width: 100%; height: auto; }
 .ladder-host-roster { padding: 22px; max-height: 75svh; overflow-y: auto; }
 .ladder-host-roster h2 { font-size: 22px; }
 .ladder-board-wide .board-caption { font-size: 15px; bottom: 16px; }
@@ -1320,7 +1308,6 @@ textarea:focus-visible {
 .ladder-ambience summary { cursor: pointer; }
 .ladder-ambience a { color: inherit; }
 .is-projecting .ladder-host-layout { max-width: none; grid-template-columns: 1fr; gap: 12px; }
-.is-projecting .ladder-board-wide svg { width: 100%; height: min(72svh, 1000px); max-height: none; }
 .is-projecting .ladder-host-roster { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; padding: 10px 16px; max-height: 180px; }
 .is-projecting .ladder-host-roster h2 { font-size: 16px; margin: 0; }
 .is-projecting .ladder-host-roster > p { margin: 0; }
@@ -1333,7 +1320,6 @@ textarea:focus-visible {
  .ladder-host-heading h1 br { display: block; }
  .ladder-host-heading h1 em { margin-left: 0; }
  .ladder-host-roster { max-height: none; }
- .is-projecting .ladder-board-wide svg { height: auto; }
  .ladder-board-wide .board-caption { font-size: 10px; bottom: 8px; }
  .ladder-board-wide .board-caption small { font-size: 8px; }
 }
@@ -1341,6 +1327,5 @@ textarea:focus-visible {
  .is-projecting .ladder-host-heading { padding: 10px 0; }
  .is-projecting .ladder-host-heading h1 { font-size: clamp(26px, 2vw, 36px); }
  .is-projecting .ladder-host-heading .eyebrow { display: none; }
- .is-projecting .ladder-board-wide svg { height: clamp(320px, calc(100svh - 290px), 1100px); }
  .is-projecting .ladder-host-roster > p:first-of-type { display: none; }
 }

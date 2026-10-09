@@ -172,6 +172,7 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
           <LadderBoard
             wide
             players={view.players.map((x) => ({
+              id: x.runId,
               alias: x.alias,
               position: x.position,
             }))}
