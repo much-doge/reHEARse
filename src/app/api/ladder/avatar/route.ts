@@ -13,7 +13,7 @@ export const runtime = "nodejs";
 
 const headers = { "Cache-Control": "private, no-store" };
 const schema = z
-  .object({ runId: z.uuid(), avatarId: z.string().min(1).max(40), paletteId: z.string().max(20).optional() })
+  .object({ runId: z.uuid(), avatarId: z.string().min(1).max(40), paletteId: z.string().max(20).optional(), alias: z.string().trim().min(2).max(28).optional() })
   .strict();
 
 export async function POST(req: Request) {
@@ -25,7 +25,7 @@ export async function POST(req: Request) {
     const user = await currentUser();
     if (!user) throw new LadderError("authentication_required", 401);
     const raw = await req.text();
-    if (raw.length > 256) throw new LadderError("request_too_large", 413);
+    if (raw.length > 512) throw new LadderError("request_too_large", 413);
     const parsed = schema.safeParse(JSON.parse(raw));
     if (!parsed.success || !isAvatarId(parsed.data.avatarId) || (parsed.data.paletteId !== undefined && !isAvatarPaletteId(parsed.data.paletteId)))
       throw new LadderError("invalid_request");
@@ -34,6 +34,7 @@ export async function POST(req: Request) {
       parsed.data.runId,
       parsed.data.avatarId,
       parsed.data.paletteId,
+      parsed.data.alias,
     );
     return Response.json({ view }, { headers });
   } catch (error) {

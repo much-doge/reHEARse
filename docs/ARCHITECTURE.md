@@ -142,3 +142,12 @@ recordings. Historical single-recording content readers remain registered.
 The teacher DTO exposes passage locations and route transitions, while learner
 explanations and answer material remain outside projection. No new service or
 scoring path is introduced.
+
+## Teacher release and pre-game profiles (LFL-022)
+
+`listening-ladder.v5` adds setup/waiting/playing lobby metadata. New sessions
+require an owned teacher start; new runs require personal readiness. Public
+recording URLs/questions are withheld before both gates, and writes enforce
+them. Existing sessions/runs migrate as started/ready. Each run pins its
+character and colour; profile changes are recorded before readiness and locked
+afterward. Completion returns to an ownership-checked dashboard recap.

@@ -68,15 +68,21 @@ describe("POST /api/ladder/avatar", () => {
     const response = await POST(request({ runId, avatarId: "moss" }));
     expect(response.status).toBe(200);
     expect(response.headers.get("cache-control")).toBe("private, no-store");
-    expect(setAvatar).toHaveBeenCalledWith(actor, runId, "moss", undefined);
+    expect(setAvatar).toHaveBeenCalledWith(actor, runId, "moss", undefined, undefined);
   });
 
   it("accepts named colours but rejects arbitrary filter values", async () => {
     expect((await POST(request({ runId, avatarId: "moss", paletteId: "violet" }))).status).toBe(200);
-    expect(setAvatar).toHaveBeenCalledWith(actor, runId, "moss", "violet");
+    expect(setAvatar).toHaveBeenCalledWith(actor, runId, "moss", "violet", undefined);
     setAvatar.mockClear();
     expect((await POST(request({ runId, avatarId: "moss", paletteId: "url(secret)" }))).status).toBe(400);
     expect(setAvatar).not.toHaveBeenCalled();
+  });
+
+  it("passes a bounded optional game name with the owned profile", async () => {
+    expect((await POST(request({ runId, avatarId: "moss", alias: "  Sunny Otter  " }))).status).toBe(200);
+    expect(setAvatar).toHaveBeenCalledWith(actor, runId, "moss", undefined, "Sunny Otter");
+    expect((await POST(request({ runId, avatarId: "moss", alias: "x".repeat(29) }))).status).toBe(400);
   });
 
   it("rejects unauthenticated, foreign-origin and arbitrary-path requests", async () => {
@@ -106,7 +112,7 @@ describe("POST /api/ladder/avatar", () => {
     expect(
       (
         await POST(
-          request({ runId, avatarId: "moss", padding: "x".repeat(300) }),
+          request({ runId, avatarId: "moss", padding: "x".repeat(600) }),
         )
       ).status,
     ).toBe(413);

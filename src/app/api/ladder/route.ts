@@ -49,6 +49,7 @@ const action = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("continue") }).strict(),
 ]);
 const schema = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal("ready"), runId: z.uuid() }).strict(),
   z
     .object({
       kind: z.literal("start"),
@@ -84,7 +85,9 @@ export async function POST(req: Request) {
     if (!parsed.success) throw new LadderError("invalid_request");
     const a = parsed.data;
     const view =
-      a.kind === "start"
+      a.kind === "ready"
+        ? await ladderRepository.ready(user, a.runId)
+        : a.kind === "start"
         ? await ladderRepository.start(user, a.key, a.pin, a.activityId)
         : await ladderRepository.act(
             user,

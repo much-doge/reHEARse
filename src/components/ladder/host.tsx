@@ -66,7 +66,7 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
       clearInterval(timer);
     };
   }, [pin]);
-  async function act(kind: "create" | "close" | "assist", runId?: string) {
+  async function act(kind: "create" | "close" | "assist" | "begin", runId?: string) {
     if (kind === "create") {
       if (!createKey.current) createKey.current = crypto.randomUUID();
       setCreationPending(true);
@@ -150,7 +150,7 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
         )}
       </div>
       {session?.title && <p className="ladder-session-title">{session.title}</p>}
-      {view?.passages && <nav className="ladder-passage-tabs" aria-label="Passage boards / Papan tiap rekaman">
+      {view?.lobby?.started && view?.passages && <nav className="ladder-passage-tabs" aria-label="Passage boards / Papan tiap rekaman">
         {view.passages.map((passage, index) => <button key={index} type="button" aria-pressed={passageIndex === index}
           onClick={() => setPassageIndex(index)}>
           <strong>{index + 1}. {passage.title.en}</strong><small lang="id">{passage.title.id}</small>
@@ -161,10 +161,10 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
         <section className="ladder-host-start">
           <h2>Open a listening session / Buka sesi menyimak</h2>
           <p>
-            Students sign in, enter the PIN, and play individually. Only game
+            Students join, choose their name and character, then wait for you to start. Only game
             aliases and movement appear on the projected board.
             <br />
-            Peserta masuk, memasukkan PIN, lalu bermain mandiri. Papan hanya
+            Peserta bergabung, memilih nama dan karakter, lalu menunggu kamu memulai. Papan hanya
             menampilkan nama permainan dan pergerakan.
           </p>
           <ActivityPicker value={activityId} onChange={setActivityId} disabled={busy || creationPending} />
@@ -184,6 +184,24 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
               onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
             />
           </label>
+        </section>
+      ) : view.lobby && !view.lobby.started && !view.closed ? (
+        <section className="ladder-lobby" aria-label="Class waiting room / Ruang tunggu kelas">
+          <header><div><span className="ladder-kicker">WAITING ROOM / RUANG TUNGGU</span>
+            <h2>{view.players.length} joined / sudah bergabung</h2>
+            <p>{view.lobby.readyCount} ready / siap · Names and characters appear as students join.<br />Nama dan karakter muncul saat peserta bergabung.</p></div>
+            <button className="ladder-primary" disabled={busy || view.players.length === 0} onClick={() => act("begin")}>
+              Start game / Mulai permainan →
+            </button>
+          </header>
+          <div className="ladder-lobby-grid">{view.players.map((p) => <article className="ladder-lobby-player" key={p.runId}>
+            <span className="ladder-lobby-name">{p.alias}</span>
+            <Avatar id={p.avatarId} paletteId={p.avatarPalette} size={112} />
+            <strong>{p.ready ? "Ready / Siap" : "Choosing a character / Memilih karakter"}</strong>
+          </article>)}</div>
+          {view.players.length === 0 && <p className="ladder-lobby-empty">Share the PIN above. Your class will appear here.<br />Bagikan PIN di atas. Peserta akan muncul di sini.</p>}
+          <p>You can start while others finish setting up. They can enter when ready.<br />Kamu bisa mulai saat peserta lain masih bersiap. Mereka bisa masuk setelah siap.</p>
+          <button className="ladder-secondary" disabled={busy} onClick={() => act("close")}>End session / Akhiri sesi</button>
         </section>
       ) : (
         <div className="ladder-host-layout">
@@ -219,7 +237,7 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
                   <Avatar id={p.avatarId} paletteId={p.avatarPalette} size={64} />
                   <strong>{p.alias}</strong>
                   <span>
-                    {p.finished
+                    {!p.ready ? "Setting up / Sedang bersiap" : p.finished
                       ? "Journey complete / Perjalanan selesai"
                       : view.passages ? `Recording ${(p.passageIndex ?? 0) + 1} / Rekaman ${(p.passageIndex ?? 0) + 1}` : "On the path / Dalam perjalanan"}
                   </span>
@@ -273,7 +291,7 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
         </p>
       )}
       <HostAmbience
-        quiet={!!view && !view.closed && view.players.some((p) => !p.finished)}
+        quiet={!!view && !!view.lobby?.started && !view.closed && view.players.some((p) => p.ready && !p.finished)}
       />
     </main>
   );

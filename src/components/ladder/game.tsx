@@ -1,6 +1,7 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { BilingualText } from "@/domain/feedback";
 import type { LadderAction, LadderView } from "@/domain/ladder/model";
@@ -9,6 +10,7 @@ import type { LearnerJourney } from "@/domain/ladder/journey-contract";
 import { ActivityPicker } from "./activity-picker";
 import { listeningStage, listeningSpan, formatAudioTime } from "./listening-stage";
 import "./guided-listen.css";
+import { Avatar } from "./avatar";
 import { AvatarControls } from "./avatar-controls";
 import { ladderTaskKey, reconcileLadderView } from "./view-reconciliation";
 import { AnswerEffect } from "./answer-effect";
@@ -55,6 +57,7 @@ export function LadderGame({
   initialPin?: string;
   canJoin: boolean;
 }) {
+  const router = useRouter();
   const [view, setView] = useState(initial),
     [pin, setPin] = useState(initialPin ?? ""),
     [activityId, setActivityId] = useState<string | null>("conversation-journey"),
@@ -79,7 +82,11 @@ export function LadderGame({
     latestView = useRef(initial);
   const clearAnswerEffect = useCallback(() => setAnswerEffect(null), []);
   const total = view?.items.length ?? 0;
+  const pregame = !!view?.lobby && view.lobby.phase !== "playing";
   const { index, repairing, finished } = listeningStage(view?.state ?? { choices: [], helpRequested: false }, total, view?.passage);
+  useEffect(() => {
+    if (view && !pregame && finished && !view.passage?.checkpoint) router.replace(`/dashboard?completed=${view.runId}`);
+  }, [view, pregame, finished, router]);
   const item = index >= 0 ? view?.items[index] : null;
   const journey = (view as (LadderView & { journey?: LearnerJourney }) | null)?.journey;
   const task = view && index >= 0 ? view.state.choices[index] : null;
@@ -124,6 +131,7 @@ export function LadderGame({
             !syncLock.current &&
             (body.view.revision > view.revision ||
               body.view.sessionClosed !== view.sessionClosed ||
+              body.view.lobby?.phase !== view.lobby?.phase || body.view.alias !== view.alias ||
               body.view.avatarId !== view.avatarId || body.view.avatarPalette !== view.avatarPalette)
           )
             receive(body.view);
@@ -309,7 +317,7 @@ export function LadderGame({
     setListening(false);
   }
   return (
-    <main className="ladder-shell">
+    <main className={`ladder-shell ${pregame ? "is-pregame" : ""}`}>
       {answerEffect && !listening && (
         <AnswerEffect key={answerEffect.id} effect={answerEffect} onDone={clearAnswerEffect} />
       )}
@@ -395,12 +403,6 @@ export function LadderGame({
             </a>{" "}
             · CC0
           </p>
-          {view && (
-            <details className="ladder-appearance-settings">
-              <summary>Change your character / Ganti karaktermu</summary>
-              <AvatarControls view={view} disabled={busy} animate={!listening} onView={receive} />
-            </details>
-          )}
         </aside>
         <section
           className="ladder-desk"
@@ -461,7 +463,7 @@ export function LadderGame({
               >
                 {busy
                   ? "Opening / Membuka…"
-                  : "Start listening / Mulai menyimak →"}
+                  : pin ? "Join class / Gabung kelas →" : "Set up your player / Siapkan pemainmu →"}
               </button>
             </div>
           ) : (
@@ -480,6 +482,19 @@ export function LadderGame({
                   >
                     Start a new solo journey / Mulai perjalanan mandiri
                   </button>
+                </div>
+              ) : pregame ? (
+                <div className="ladder-pregame">
+                  <span className="ladder-kicker">{view.lobby?.phase === "setup" ? "BEFORE WE BEGIN / SEBELUM MULAI" : "WAITING ROOM / RUANG TUNGGU"}</span>
+                  <h2>{view.lobby?.phase === "setup" ? "Choose your name and character." : "You’re ready. Your teacher starts the game."}
+                    <small>{view.lobby?.phase === "setup" ? "Pilih nama dan karaktermu." : "Kamu sudah siap. Tunggu gurumu memulai permainan."}</small></h2>
+                  {view.pin && <p className="ladder-lobby-pin">PIN {view.pin}</p>}
+                  {view.lobby?.phase === "setup" ? <AvatarControls view={view} disabled={busy} onView={receive} /> : <>
+                    <Avatar id={view.avatarId} paletteId={view.avatarPalette} size={112} />
+                    <div className="ladder-waiting-pulse" aria-hidden="true"><i /><i /><i /></div>
+                    <p>{view.alias}<small>Keep this page open. The game opens here automatically.<br />Biarkan halaman ini terbuka. Permainan akan terbuka otomatis di sini.</small></p>
+                    <Link href="/dashboard" className="ladder-secondary">Activities dashboard / Dasbor aktivitas</Link>
+                  </>}
                 </div>
               ) : view.passage?.checkpoint ? (
                 <div className="ladder-finish ladder-passage-checkpoint">
@@ -519,7 +534,7 @@ export function LadderGame({
                       setNotice(null);
                     }}
                   >
-                    Listen from the beginning / Mulai lagi
+                    Choose a new game / Pilih permainan baru
                   </button>
                   <Link href="/dashboard" className="ladder-secondary">
                     Back to activities / Kembali ke aktivitas

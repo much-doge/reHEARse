@@ -5,6 +5,8 @@ import { useState } from "react";
 import type { LadderView } from "@/domain/ladder/model";
 import { PALETTES, isAvatarPaletteId } from "@/domain/ladder/appearance";
 import { isAvatarId } from "@/domain/ladder/avatars";
+import { anonymousAlias } from "@/domain/ladder/anonymous-alias";
+import { validGameAlias } from "@/domain/ladder/lobby";
 import { AvatarPicker } from "./avatar-picker";
 
 export function AvatarControls({
@@ -18,23 +20,31 @@ export function AvatarControls({
   animate?: boolean;
   onView: (next: LadderView) => void;
 }) {
+  const [name, setName] = useState(view.alias);
   const [saving, setSaving] = useState<string | null>(null);
   const [message, setMessage] = useState<"saved" | "failed" | null>(null);
 
-  async function choose(avatarId: string, paletteId = view.avatarPalette) {
-    if (!isAvatarId(avatarId) || !isAvatarPaletteId(paletteId) || saving || (avatarId === view.avatarId && paletteId === view.avatarPalette)) return;
+  async function choose(avatarId: string, paletteId = view.avatarPalette, confirm = false) {
+    if (!isAvatarId(avatarId) || !isAvatarPaletteId(paletteId) || saving || !validGameAlias(name.trim()) || (!confirm && avatarId === view.avatarId && paletteId === view.avatarPalette)) return;
     setSaving(avatarId);
     setMessage(null);
     try {
       const response = await fetch("/api/ladder/avatar", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ runId: view.runId, avatarId, paletteId }),
+        body: JSON.stringify({ runId: view.runId, avatarId, paletteId, ...(confirm ? { alias: name.trim() } : {}) }),
         signal: AbortSignal.timeout(8000),
       });
       const body = (await response.json()) as { view?: LadderView };
       if (!response.ok || !body.view || body.view.runId !== view.runId) throw new Error("avatar_save_failed");
       onView(body.view);
+      if (confirm) {
+        const ready = await fetch("/api/ladder", { method: "POST", headers: { "content-type": "application/json" },
+          body: JSON.stringify({ kind: "ready", runId: view.runId }), signal: AbortSignal.timeout(10000) });
+        const result = await ready.json();
+        if (!ready.ok || !result.view) throw new Error("ready_failed");
+        onView(result.view);
+      }
       setMessage("saved");
     } catch {
       // A lost response can follow a committed write. Reconcile before asking
@@ -56,6 +66,14 @@ export function AvatarControls({
 
   return (
     <div>
+      <label className="ladder-name-input">Game name / Nama permainan
+        <input value={name} minLength={2} maxLength={28} disabled={disabled || saving !== null}
+          onChange={(e) => setName(e.target.value)} autoComplete="off" />
+      </label>
+      <button className="ladder-secondary" type="button" disabled={disabled || saving !== null}
+        onClick={() => setName(anonymousAlias(crypto.randomUUID()))}>Random name / Nama acak ↻</button>
+      <p className="ladder-avatar-credit">Use a nickname, 2–28 letters or numbers. Your name and character lock when you confirm.
+        <br />Pakai nama panggilan, 2–28 huruf atau angka. Nama dan karakter terkunci setelah kamu konfirmasi.</p>
       <fieldset className="ladder-palette-picker" disabled={disabled || saving !== null}>
         <legend>Character colour / Warna karakter</legend>
         <div>{PALETTES.map((palette) => <button key={palette.id} type="button"
@@ -66,14 +84,18 @@ export function AvatarControls({
           {palette.en}{view.avatarPalette === palette.id ? " ✓" : ""}
         </button>)}</div>
       </fieldset>
-      <p className="ladder-avatar-credit">Your game name is random. / Nama permainanmu dibuat secara acak.</p>
+
       <AvatarPicker
         value={view.avatarId}
-        onChange={choose}
+        onChange={(id) => choose(id)}
         paletteId={view.avatarPalette}
         disabled={disabled || saving !== null}
         animate={animate}
       />
+      <button type="button" className="ladder-primary" disabled={disabled || saving !== null || !validGameAlias(name.trim())}
+        onClick={() => choose(view.avatarId, view.avatarPalette, true)}>
+        {saving ? "Saving / Menyimpan…" : view.pin ? "Ready — join the waiting room / Siap — masuk ruang tunggu" : "Begin listening / Mulai menyimak →"}
+      </button>
       <p className="ladder-avatar-save-state" role="status" aria-live="polite">
         {saving
           ? "Saving your companion… / Menyimpan temanmu…"

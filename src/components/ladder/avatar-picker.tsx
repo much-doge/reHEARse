@@ -18,7 +18,7 @@ export function AvatarPicker({ value, onChange, disabled = false, animate = true
       <div className="ladder-avatar-picker-heading">
         <div>
           <h3>Your companion / Teman perjalananmu</h3>
-          <p>Pick a character. Change it whenever you like. / Pilih karakter. Kamu bisa menggantinya kapan saja.</p>
+          <p>Pick your character before you begin. / Pilih karaktermu sebelum mulai.</p>
         </div>
         <button type="button" className="ladder-avatar-surprise" disabled={disabled} onClick={surprise}>Surprise me / Acak</button>
       </div>

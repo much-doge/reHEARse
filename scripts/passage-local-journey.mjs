@@ -5,7 +5,7 @@ import pg from "/app/node_modules/pg/lib/index.js";
 assert.equal(process.env.ALLOW_LOCAL_PASSAGE_JOURNEY, "true");
 assert.equal(process.env.FEEDBACK_PROVIDER, "template");
 assert.match(process.env.DATABASE_URL, /@db:5432\/listening$/);
-const origin = "http://rehearse-lfl021-accept:3000";
+const origin = "http://rehearse-lfl022-accept:3000";
 const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
 const hashes = [];
 try {
@@ -42,8 +42,12 @@ try {
     assert.equal((await call("/api/ladder/host", { kind: "create", key: sessionKey, activityId: "missing" }, teacher)).status, 409);
     const runId = randomUUID();
     let response = await call("/api/ladder", { kind: "start", key: runId, pin });
-    assert.equal(response.status, 200); let v = response.body.view;
-    assert.equal(v.activityId, activityId); assert.equal(v.contractVersion, "listening-ladder.v4");
+    assert.equal(response.status, 200);
+    assert.equal(response.body.view.lobby.phase, "setup");
+    assert.equal((await call("/api/ladder/host", { kind: "begin", pin }, teacher)).status, 200);
+    response = await call("/api/ladder", { kind: "ready", runId });
+    let v = response.body.view;
+    assert.equal(v.activityId, activityId); assert.equal(v.contractVersion, "listening-ladder.v5");
     assert.equal((await call(`/api/ladder?runId=${runId}`, undefined, stranger)).status, 404);
     const run = (await pool.query("SELECT passage_versions_json FROM ladder_run WHERE id=$1", [runId])).rows[0];
     const session = (await pool.query("SELECT passage_versions_json FROM ladder_session WHERE pin=$1", [pin])).rows[0];
@@ -117,10 +121,11 @@ try {
     assert.equal(response.status, 200);
     const v = kind === "start" ? response.body.view : response.body;
     assert.equal(v.activityId, "three-papers-one-thread");
-    if (kind === "start") assert.equal(v.items.length, 4);
+    if (kind === "start") assert.equal((await call("/api/ladder", { kind: "ready", runId: v.runId })).body.view.items.length, 4);
   }
   for (const activityId of ["three-papers-one-thread", "ocean-currents-in-motion"]) {
-    const r = await call("/api/ladder", { kind: "start", key: randomUUID(), activityId });
+    let r = await call("/api/ladder", { kind: "start", key: randomUUID(), activityId });
+    r = await call("/api/ladder", { kind: "ready", runId: r.body.view.runId });
     assert.equal(r.status, 200); assert.equal(r.body.view.items.length, 4); assert.equal(r.body.view.journey.map.version, "chapter-route.v1");
     assert.equal((await call("/api/ladder", { kind: "act", key: randomUUID(), runId: r.body.view.runId, revision: 0, action: { kind: "continue" } })).status, 400);
   }

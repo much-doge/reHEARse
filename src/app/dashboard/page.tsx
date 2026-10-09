@@ -1,4 +1,8 @@
 import Link from "next/link";
+import "@/components/ladder/board.css";
+import { ladderRepository } from "@/adapters/ladder/postgres-ladder";
+import { Avatar } from "@/components/ladder/avatar";
+import type { LadderView } from "@/domain/ladder/model";
 
 import { listLearnerActivities } from "@/adapters/db/listening-repository";
 import { logoutAction } from "@/app/auth-actions";
@@ -6,8 +10,16 @@ import { requireUser } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
-export default async function DashboardPage() {
+export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ completed?: string }> }) {
   const user = await requireUser();
+  const { completed } = await searchParams;
+  let recap: LadderView | null = null;
+  if (completed && /^[0-9a-f-]{36}$/i.test(completed)) {
+    try {
+      const run = await ladderRepository.view(user, completed);
+      if (run && run.items.length > 0 && run.state.choices.length === run.items.length && run.state.choices.every((choice) => choice.outcome !== "repair")) recap = run;
+    } catch { /* An unavailable or unowned run must not expose another learner's recap. */ }
+  }
   const roleLabel =
     user.role === "learner"
       ? "Learner / Peserta"
@@ -41,6 +53,14 @@ export default async function DashboardPage() {
         </div>
       </header>
 
+      {recap && <section className="ladder-completion-recap" aria-label="Completed game / Permainan selesai">
+        <Avatar id={recap.avatarId} paletteId={recap.avatarPalette} size={112} />
+        <div><p className="eyebrow">JOURNEY COMPLETE / PERJALANAN SELESAI</p>
+          <h1>{recap.title}</h1><p>{recap.alias} · Your choices and replay work are saved.<br />Pilihan dan hasil dengar ulangmu sudah tersimpan.</p>
+          <p>What became clearer when you listened again?<br />Apa yang jadi lebih jelas setelah kamu dengar lagi?</p>
+          <Link href="/ladder?new=1" className="ladder-primary">Choose another game / Pilih permainan lain →</Link>
+        </div>
+      </section>}
       <p>
         <Link href={user.role === "learner" ? "/play" : "/classroom"}>
           Classroom sessions / Sesi kelas →
@@ -53,7 +73,7 @@ export default async function DashboardPage() {
           Dengarkan, coba lagi di bagian yang belum jelas, lalu lanjutkan
           perjalananmu.
         </p>
-        <Link href="/ladder" className="ladder-primary">
+        <Link href={recap ? "/ladder?new=1" : "/ladder"} className="ladder-primary">
           Play the listening ladder / Main ular tangga menyimak →
         </Link>
         {user.role !== "learner" && (

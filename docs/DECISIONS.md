@@ -317,3 +317,13 @@ Historical single-recording content and saved routes remain readable.
 The teacher can select a passage board and see participant locations across
 passages. Projection never shows help usage, repair counts or learner explanations.
 Board position stays a game mechanic, not a listening measurement.
+
+## D026 — Teacher release and pre-game identity (LFL-022)
+
+New class sessions begin in a visible waiting room. Each learner confirms a
+bounded pseudonym and character before readiness; the owning teacher explicitly
+starts the class game. Both gates are checked server-side and hide playback/
+questions until released. Late joins remain possible. Existing sessions/runs
+migrate as started/ready; character/name choices are pinned per run and locked
+at readiness. Completed runs return to an owned activities-dashboard recap,
+without instructional scores or ranks. Passage checkpoints remain individual.

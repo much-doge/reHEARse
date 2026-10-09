@@ -20,6 +20,7 @@ export async function GET(req: Request) {
   }
 }
 const schema = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal("begin"), pin: z.string().regex(/^\d{6}$/) }).strict(),
   z
     .object({
       kind: z.literal("create"),
@@ -56,6 +57,8 @@ export async function POST(req: Request) {
     return Response.json(
       a.kind === "create"
         ? await ladderRepository.createSession(user, a.key, a.activityId)
+        : a.kind === "begin"
+          ? await ladderRepository.beginSession(user, a.pin)
         : a.kind === "close"
           ? await ladderRepository.closeSession(user, a.pin)
           : await ladderRepository.assist(

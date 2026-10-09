@@ -76,7 +76,7 @@ async function main() {
     });
     assert.equal(started.status, 200);
     const initial = started.body.view;
-    assert.equal(initial.contractVersion, "listening-ladder.v4");
+    assert.equal(initial.contractVersion, "listening-ladder.v5");
     assert.equal(typeof initial.avatarId, "string");
     assert.match(initial.alias, /^[A-Z][a-z]+ [A-Z][a-z]+$/);
     assert.equal(typeof initial.avatarPalette, "string");
@@ -122,7 +122,7 @@ async function main() {
       runId: index % 2 ? otherRun.body.view.runId : initial.runId, avatarId: firstAvatar,
     })));
     assert(parallel.every((response) => response.status === 200));
-    assert.equal((await pool.query("SELECT count(*)::int AS n FROM ladder_avatar_change WHERE actor_id=$1", [learner.id])).rows[0].n, 1);
+    assert.equal((await pool.query("SELECT count(*)::int AS n FROM ladder_avatar_change WHERE actor_id=$1", [learner.id])).rows[0].n, 2);
     const saved = await call("/api/ladder/avatar", {
       runId: initial.runId,
       avatarId: firstAvatar,
@@ -164,6 +164,8 @@ async function main() {
     assert.equal((await pool.query("SELECT count(*)::int AS n FROM ladder_avatar_change WHERE actor_id=$1", [learner.id])).rows[0].n, countBefore + 1);
     assert.equal((await call("/api/ladder/avatar", { runId: initial.runId, avatarId: firstAvatar, paletteId: "url(secret)" })).status, 400);
 
+    assert.equal((await call("/api/ladder", {kind:"ready",runId:initial.runId})).status, 200);
+    assert.equal((await call("/api/ladder/host", {kind:"begin",pin:session.body.pin},teacherCookie)).status, 200);
     const [appearance, answer] = await Promise.all([
       call("/api/ladder/avatar", {
         runId: initial.runId,
@@ -177,10 +179,10 @@ async function main() {
         action: { kind: "choice", item: 0, choice: 1 },
       }),
     ]);
-    assert.equal(appearance.status, 200);
+    assert.equal(appearance.status, 409);
     assert.equal(answer.status, 200);
     const reloaded = await call(`/api/ladder?runId=${initial.runId}`);
-    assert.equal(reloaded.body.view.avatarId, "sprout");
+    assert.equal(reloaded.body.view.avatarId, firstAvatar);
     assert.equal(reloaded.body.view.revision, initial.revision + 1);
     assert.equal(reloaded.body.view.state.choices.length, 1);
 
@@ -190,7 +192,7 @@ async function main() {
       teacherCookie,
     );
     assert.equal(host.status, 200);
-    assert.equal(host.body.players[0].avatarId, "sprout");
+    assert.equal(host.body.players[0].avatarId, firstAvatar);
     assert.equal(host.body.players[0].avatarPalette, "violet");
     assert.equal(host.body.players[0].alias, initial.alias);
 
@@ -199,11 +201,11 @@ async function main() {
       key: randomUUID(),
     });
     assert.equal(later.status, 200);
-    assert.equal(later.body.view.avatarId, "sprout");
+    assert.equal(later.body.view.avatarId, firstAvatar);
     assert.equal(later.body.view.avatarPalette, "violet");
     assert.notEqual(later.body.view.runId, initial.runId);
     console.log(
-      "PASS: own save, validation/auth/ownership, host projection, reload/later-run preference, default/duplicate no-op, six cross-run first writes/one cosmetic event, and concurrent answer preservation",
+      "PASS: own save, validation/auth/ownership, host projection, reload/later-run preference, default/duplicate no-op, six cross-run writes/two pinned cosmetics, and locked appearance with concurrent answer preservation",
     );
   } finally {
     for (const hash of sessionHashes)

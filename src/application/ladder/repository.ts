@@ -18,7 +18,10 @@ export interface LadderRepository {
     runId: string,
     avatarId: AvatarId,
     paletteId?: AvatarPaletteId,
+    alias?: string,
   ): Promise<LadderView>;
+  ready(actor: LadderActor, runId: string): Promise<LadderView>;
+  beginSession(actor: LadderActor, pin: string): Promise<HostView>;
   createSession(actor: LadderActor, key: string, activityId?: string): Promise<HostView>;
   catalogue(actor: LadderActor, format?: "single" | "passage"): Promise<LadderActivityChoice[]>;
   host(actor: LadderActor, pin: string): Promise<HostView>;

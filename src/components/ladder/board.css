@@ -75,3 +75,29 @@
  .ladder-host-shell.is-projecting .ladder-board-chapters.ladder-board-wide .ladder-board-marker:not(.is-crowded) { --marker-size: clamp(48px, calc(20svh - 90px), 96px); }
  .ladder-host-shell.is-projecting .ladder-board-chapters.ladder-board-wide .ladder-board-marker.is-crowded { --marker-size: clamp(42px, calc(15svh - 65px), 72px); }
 }
+
+/* LFL-022: a large roster before teacher-controlled release. */
+.ladder-lobby { padding: clamp(22px, 4vw, 54px); background: #fffef8; border: 1px solid #d4dfce; border-radius: 28px; }
+.ladder-lobby > header { display:flex; align-items:center; justify-content:space-between; gap:24px; flex-wrap:wrap; }
+.ladder-lobby h2 { font-size:clamp(28px,4vw,52px); margin:10px 0; color:#244b3b; }
+.ladder-lobby-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:20px; margin:32px 0; }
+.ladder-lobby-player { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:210px; gap:12px; padding:20px 10px; border-radius:24px; background:#edf3df; border:1px solid #d4e0c4; animation:lobby-arrive .35s ease-out; }
+.ladder-lobby-player strong { text-align:center; font-size:13px; }
+.ladder-lobby-name { border:1px solid #d4dfce; background:#fff; padding:8px 14px; border-radius:20px; font-weight:800; overflow-wrap:anywhere; text-align:center; }
+.ladder-lobby-empty { min-height:150px; display:grid; place-content:center; text-align:center; font-size:22px; color:#607251; }
+.ladder-name-input { display:grid; gap:8px; margin:20px 0 12px; font-weight:750; }
+.ladder-name-input input { width:100%; box-sizing:border-box; padding:16px; font:inherit; border:2px solid #99b393; border-radius:14px; background:#fff; color:#244b3b; }
+.ladder-pregame h2 small { display:block; font-size:18px; margin-top:8px; font-weight:400; }
+.ladder-lobby-pin { font-size:28px; letter-spacing:5px; color:#315e49; }
+.ladder-waiting-pulse { display:flex; gap:12px; margin:36px 0; }
+.ladder-waiting-pulse i { width:18px; height:18px; border-radius:50%; background:#6c9254; animation:lobby-pulse 1.4s infinite alternate; }
+.ladder-waiting-pulse i:nth-child(2) { animation-delay:.25s; }.ladder-waiting-pulse i:nth-child(3) { animation-delay:.5s; }
+.ladder-completion-recap { display:flex; gap:28px; align-items:center; background:#edf4df; padding:32px; margin:24px 0; border:1px solid #b4c8a3; border-radius:26px; }
+.ladder-completion-recap h1 { margin:8px 0; }.ladder-completion-recap p { line-height:1.7; }
+@keyframes lobby-arrive { from { opacity:0; transform:translateY(12px) scale(.95); } to { opacity:1; transform:none; } }
+@keyframes lobby-pulse { from { opacity:.35; transform:translateY(0); } to { opacity:1; transform:translateY(-9px); } }
+@media(max-width:600px) { .ladder-lobby-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }.ladder-lobby-player { padding:12px 6px; }.ladder-lobby > header .ladder-primary { width:100%; }.ladder-completion-recap { flex-direction:column; align-items:flex-start; padding:24px; } }
+@media(prefers-reduced-motion:reduce) { .ladder-lobby-player,.ladder-waiting-pulse i { animation:none; } }
+
+.ladder-shell.is-pregame .ladder-map { display:none; }
+.ladder-shell.is-pregame .ladder-layout { grid-template-columns:minmax(0,1fr); max-width:900px; margin-inline:auto; }

@@ -5,7 +5,7 @@ import {
   type JourneyTransition,
   type LearnerJourney,
 } from "./journey-contract";
-export const LADDER_VERSION = "listening-ladder.v4";
+export const LADDER_VERSION = "listening-ladder.v5";
 export type TaskOutcome = "matched" | "repair" | "revised" | "supported";
 export type LadderState = {
   choices: Array<{
@@ -188,6 +188,7 @@ export type LadderView = {
   avatarPalette: string;
   pin: string | null;
   sessionClosed: boolean;
+  lobby?: { phase: "setup" | "waiting" | "playing"; ready: boolean; sessionStarted: boolean };
   state: LadderState;
   position: number;
   items: LadderItemView[];
@@ -200,6 +201,7 @@ export type LadderView = {
 export type HostView = {
   pin: string;
   closed: boolean;
+  lobby?: { started: boolean; readyCount: number };
   activityId?: string;
   title?: string;
   journey?: HostJourney;
@@ -212,6 +214,7 @@ export type HostView = {
     finished: boolean;
     needsHelp: boolean;
     runId: string;
+    ready?: boolean;
     passageIndex?: number;
     lastTransition?: JourneyTransition | null;
   }>;

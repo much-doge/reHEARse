@@ -57,6 +57,7 @@ async function publishedVersions(content: LadderContent, actor: LadderActor, pin
   }
   return versions;
 }
+import { lobbyPhase, validGameAlias } from "@/domain/ladder/lobby";
 import { avatarFor, type AvatarId } from "@/domain/ladder/avatars";
 import { paletteFor, type AvatarPaletteId } from "@/domain/ladder/appearance";
 import { anonymousAlias, displayAliases } from "@/domain/ladder/anonymous-alias";
@@ -64,7 +65,7 @@ const teacher = (a: LadderActor) => {
   if (!["teacher", "admin"].includes(a.role))
     throw new LadderError("teacher_required", 403);
 };
-const queryRun = `SELECT r.*, p.avatar_id, p.avatar_palette, s.pin, (s.closed_at IS NOT NULL OR s.expires_at < now()) AS session_closed FROM ladder_run r LEFT JOIN ladder_session s ON s.id=r.session_id LEFT JOIN ladder_avatar_preference p ON p.user_id=r.learner_id WHERE r.id=$1 AND r.learner_id=$2`;
+const queryRun = `SELECT r.*, s.started_at AS session_started_at, s.pin, (s.closed_at IS NOT NULL OR s.expires_at < now()) AS session_closed FROM ladder_run r LEFT JOIN ladder_session s ON s.id=r.session_id WHERE r.id=$1 AND r.learner_id=$2`;
 function startContent(activityId?: string): LadderContent {
   const mode = process.env.LADDER_START_VERSION === "legacy" ? "legacy" : "original";
   // Pre-v4 browser tabs omitted the activity ID for their single-recording default.
@@ -129,23 +130,25 @@ export class PostgresLadderRepository implements LadderRepository {
     const aliases = row.session_id
       ? (await getPool().query("SELECT id,alias FROM ladder_run WHERE session_id=$1 ORDER BY created_at,id", [row.session_id])).rows
       : [{ id, alias: row.alias }];
+    const phase = lobbyPhase(!!row.ready_at, !row.session_id || !!row.session_started_at);
     return {
       contractVersion: LADDER_VERSION,
       runId: id,
       revision: row.revision,
       title: content.passages ? content.title.en : activity.title,
-      audioUrl: activity.audioUrl,
+      audioUrl: phase === "playing" ? activity.audioUrl : "",
       alias: displayAliases(aliases).get(id)!,
       avatarId: row.avatar_id ?? avatarFor(row.learner_id),
       avatarPalette: row.avatar_palette ?? paletteFor(row.learner_id),
       pin: row.pin ?? null,
       sessionClosed: !!row.session_closed,
+      lobby: { phase, ready: !!row.ready_at, sessionStarted: !row.session_id || !!row.session_started_at },
       state,
       position:
         mapped(row.mechanics_version)
           ? row.position
           : ladderPosition(state),
-      items: publicItems(state, content),
+      items: phase === "playing" ? publicItems(state, content) : [],
       latestNote: event?.feedback_json
         ? feedbackPresentation(event.feedback_json).summary
         : null,
@@ -234,11 +237,12 @@ export class PostgresLadderRepository implements LadderRepository {
         }
       }
       const alias = anonymousAlias(id);
+      const preference = (await client.query("SELECT avatar_id,avatar_palette FROM ladder_avatar_preference WHERE user_id=$1", [actor.id])).rows[0];
       await client.query(
         `INSERT INTO ladder_run(
            id,learner_id,activity_version_id,content_version,session_id,alias,state_json,
-           activity_id,mechanics_version,position,passage_versions_json
-         ) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+           activity_id,mechanics_version,position,passage_versions_json,avatar_id,avatar_palette
+         ) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
          ON CONFLICT(id) DO NOTHING`,
         [
           id,
@@ -252,6 +256,8 @@ export class PostgresLadderRepository implements LadderRepository {
           content.mechanicsVersion,
           mapped(content.mechanicsVersion) ? 0 : null,
           content.passages ? JSON.stringify(activities.map((activity) => activity.versionId)) : null,
+          preference?.avatar_id ?? avatarFor(actor.id),
+          preference?.avatar_palette ?? paletteFor(actor.id),
         ],
       );
       // The initial lookup can race a second start using the same key.
@@ -307,17 +313,24 @@ export class PostgresLadderRepository implements LadderRepository {
     runId: string,
     avatarId: AvatarId,
     paletteId?: AvatarPaletteId,
+    alias?: string,
   ): Promise<LadderView> {
     const client = await getPool().connect();
     try {
       await client.query("BEGIN");
       const run = (
         await client.query(
-          "SELECT id FROM ladder_run WHERE id=$1 AND learner_id=$2 FOR UPDATE",
+          "SELECT * FROM ladder_run WHERE id=$1 AND learner_id=$2 FOR UPDATE",
           [runId, actor.id],
         )
       ).rows[0];
       if (!run) throw new LadderError("run_not_found", 404);
+      if (run.ready_at) throw new LadderError("profile_locked", 409);
+      if (alias !== undefined && !validGameAlias(alias)) throw new LadderError("invalid_game_name");
+      if (run.session_id) {
+        const session = (await client.query("SELECT closed_at,expires_at FROM ladder_session WHERE id=$1", [run.session_id])).rows[0];
+        if (!session || session.closed_at || new Date(session.expires_at) < new Date()) throw new LadderError("session_closed", 409);
+      }
       // The preference is shared by all of this actor's runs. A run lock alone
       // cannot serialize first-time writes from two different owned runs.
       await client.query("SELECT id FROM app_user WHERE id=$1 FOR UPDATE", [actor.id]);
@@ -327,8 +340,8 @@ export class PostgresLadderRepository implements LadderRepository {
           [actor.id],
         )
       ).rows[0];
-      const currentId = current?.avatar_id ?? avatarFor(actor.id);
-      const currentPalette = current?.avatar_palette ?? paletteFor(actor.id);
+      const currentId = run.avatar_id ?? current?.avatar_id ?? avatarFor(actor.id);
+      const currentPalette = run.avatar_palette ?? current?.avatar_palette ?? paletteFor(actor.id);
       const palette = paletteId ?? currentPalette;
       if (currentId !== avatarId || currentPalette !== palette) {
         await client.query(
@@ -342,6 +355,11 @@ export class PostgresLadderRepository implements LadderRepository {
           [actor.id, runId, avatarId, palette],
         );
       }
+      const name = alias ?? run.alias;
+      if (currentId !== avatarId || currentPalette !== palette || name !== run.alias) {
+        await client.query("UPDATE ladder_run SET alias=$2,avatar_id=$3,avatar_palette=$4,updated_at=now() WHERE id=$1", [runId,name,avatarId,palette]);
+        await client.query("INSERT INTO ladder_profile_change(run_id,actor_id,alias,avatar_id,avatar_palette) VALUES($1,$2,$3,$4,$5)", [runId,actor.id,name,avatarId,palette]);
+      }
       await client.query("COMMIT");
     } catch (e) {
       await client.query("ROLLBACK");
@@ -350,6 +368,28 @@ export class PostgresLadderRepository implements LadderRepository {
       client.release();
     }
     return (await this.view(actor, runId))!;
+  }
+  async ready(actor: LadderActor, runId: string): Promise<LadderView> {
+    const client = await getPool().connect();
+    try {
+      await client.query("BEGIN");
+      const run = (await client.query("SELECT * FROM ladder_run WHERE id=$1 AND learner_id=$2 FOR UPDATE", [runId, actor.id])).rows[0];
+      if (!run) throw new LadderError("run_not_found", 404);
+      if (run.session_id) {
+        const session = (await client.query("SELECT closed_at,expires_at FROM ladder_session WHERE id=$1", [run.session_id])).rows[0];
+        if (!session || session.closed_at || new Date(session.expires_at) < new Date()) throw new LadderError("session_closed", 409);
+      }
+      await client.query("UPDATE ladder_run SET ready_at=coalesce(ready_at,now()) WHERE id=$1", [runId]);
+      await client.query("COMMIT");
+    } catch (e) { await client.query("ROLLBACK"); throw e; }
+    finally { client.release(); }
+    return (await this.view(actor, runId))!;
+  }
+  async beginSession(actor: LadderActor, pin: string): Promise<HostView> {
+    teacher(actor);
+    const result = await getPool().query("UPDATE ladder_session SET started_at=coalesce(started_at,now()) WHERE pin=$1 AND owner_id=$2 AND closed_at IS NULL AND expires_at>now() RETURNING id", [pin,actor.id]);
+    if (!result.rowCount) throw new LadderError("session_not_open", 409);
+    return this.host(actor,pin);
   }
   private async append(
     client: PoolClient,
@@ -361,11 +401,13 @@ export class PostgresLadderRepository implements LadderRepository {
       session_id: string | null;
       mechanics_version: string;
       position: number | null;
+      ready_at?: Date | null;
     },
     revision: number,
     key: string,
     action: LadderAction,
   ) {
+    if (!row.ready_at) throw new LadderError("setup_required", 409);
     const digest = createHash("sha256")
       .update(JSON.stringify(action))
       .digest("hex");
@@ -385,7 +427,7 @@ export class PostgresLadderRepository implements LadderRepository {
     if (row.session_id && action.kind !== "teacher_close") {
       const session = (
         await client.query(
-          "SELECT closed_at,expires_at FROM ladder_session WHERE id=$1",
+          "SELECT closed_at,expires_at,started_at FROM ladder_session WHERE id=$1",
           [row.session_id],
         )
       ).rows[0];
@@ -395,6 +437,7 @@ export class PostgresLadderRepository implements LadderRepository {
         new Date(session.expires_at) < new Date()
       )
         throw new LadderError("session_closed", 409);
+      if (!session.started_at) throw new LadderError("waiting_for_teacher", 409);
     }
     if (row.revision !== revision)
       throw new LadderError("refresh_progress", 409);
@@ -514,9 +557,8 @@ export class PostgresLadderRepository implements LadderRepository {
     const rows = (
       await getPool().query(
         `SELECT r.id,r.learner_id,r.alias,r.state_json,r.mechanics_version,
-                r.position,r.last_transition_json,p.avatar_id,p.avatar_palette
+                r.position,r.last_transition_json,r.avatar_id,r.avatar_palette,r.ready_at
          FROM ladder_run r
-         LEFT JOIN ladder_avatar_preference p ON p.user_id=r.learner_id
          WHERE r.session_id=$1 ORDER BY r.created_at,r.id`,
         [session.id],
       )
@@ -526,6 +568,7 @@ export class PostgresLadderRepository implements LadderRepository {
     if (!content) throw new LadderError("activity_version_unavailable", 409);
     return {
       pin,
+      lobby: { started: !!session.started_at, readyCount: rows.filter((r) => !!r.ready_at).length },
       closed: !!session.closed_at || new Date(session.expires_at) < new Date(),
       ...(session.activity_id ? { activityId: session.activity_id } : {}),
       ...(session.content_version && resolveLadderContent(session.content_version)
@@ -536,6 +579,7 @@ export class PostgresLadderRepository implements LadderRepository {
         questionCount: passage.toItem - passage.fromItem, journey: mapFor(content, index) })) } : {}),
       players: rows.map((r) => ({
         runId: r.id,
+        ready: !!r.ready_at,
         ...(content.passages ? { passageIndex: r.state_json.passageIndex ?? 0 } : {}),
         alias: aliases.get(r.id)!,
         avatarId: r.avatar_id ?? avatarFor(r.learner_id),
