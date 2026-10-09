@@ -1,6 +1,7 @@
 # LFL-021 — Combined game acceptance
 
-Status: container verified; production release pending.
+Status: deployed; production runtime and live checks are recorded in
+`docs/LFL021_DEPLOYMENT_RECEIPT.md`.
 
 ## Product
 

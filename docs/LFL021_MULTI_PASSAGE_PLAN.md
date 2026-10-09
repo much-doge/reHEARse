@@ -1,6 +1,7 @@
 # LFL-021 — Complete listening journeys
 
-Owner: integration lead. Status: container verified; release pending.
+Owner: integration lead. Status: deployed to PCT128 on 2026-10-09.
+Runtime and verification: `docs/LFL021_DEPLOYMENT_RECEIPT.md`.
 
 The operator requested one game containing both conversations and a separate
 game containing all three talks. Each game has one saved run, one classroom PIN,
