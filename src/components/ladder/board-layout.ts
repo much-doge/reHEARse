@@ -1,9 +1,12 @@
+import type { JourneyTransition } from "../../domain/ladder/journey-contract";
 export type BoardPlayer = {
   id?: string;
   alias: string;
   position: number;
   avatarId?: string;
   avatarPalette?: string;
+  lastTransition?: JourneyTransition | null;
+  revision?: number;
 };
 export type PlacedPlayer = BoardPlayer & { key: string; tile: number };
 
@@ -14,10 +17,10 @@ export function boardTile(position: number) {
 }
 
 /** Group the actual game positions; overflow never invents another tile. */
-export function boardGroups(players: BoardPlayer[], ownId?: string, ownAlias?: string) {
+export function boardGroups(players: BoardPlayer[], ownId?: string, ownAlias?: string, nodeCount = 13) {
   const groups = new Map<number, PlacedPlayer[]>();
   players.forEach((player, index) => {
-    const tile = boardTile(player.position);
+    const tile = nodeCount === 13 ? boardTile(player.position) : Number.isFinite(player.position) ? Math.max(0, Math.min(nodeCount - 1, Math.round(player.position))) : 0;
     const members = groups.get(tile) ?? [];
     members.push({ ...player, key: player.id ?? `${player.alias}:${index}`, tile });
     groups.set(tile, members);

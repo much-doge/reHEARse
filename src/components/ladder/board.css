@@ -54,3 +54,18 @@
 .ladder-appearance-settings .ladder-avatar-save-state { padding: 0 14px 10px; }
 .ladder-host-player > .ladder-avatar { width: 64px; height: 64px; }
 .is-projecting .ladder-host-player > .ladder-avatar { width: 48px; height: 48px; }
+
+/* LFL-020: connectors and movement share the saved chapter map. */
+.ladder-board-chapters .ladder-board-surface { aspect-ratio: 480 / 1120; }
+.ladder-board-chapters.ladder-board-wide .ladder-board-surface { aspect-ratio: 1040 / 640; }
+.ladder-board-chapters .ladder-board-marker { --marker-size: 56px; --bubble-width: 90px; transition: none; }
+.ladder-board-chapters .ladder-board-marker.is-crowded { --marker-size: 42px; --bubble-width: 65px; }
+.ladder-board-chapters.ladder-board-wide .ladder-board-marker { --marker-size: clamp(66px, 7cqw, 96px); --bubble-width: 110px; }
+.ladder-board-chapters.ladder-board-wide .ladder-board-marker.is-crowded { --marker-size: clamp(42px, 5cqw, 72px); --bubble-width: 68px; }
+.ladder-board-chapters .ladder-board-overflow { transform: translate(-50%, 42px); }
+.ladder-board-chapters .ladder-board-caption { min-height: 45px; }
+@media (max-width: 800px) {
+ .ladder-board-chapters.ladder-board-wide .ladder-board-marker { --marker-size: 40px; --bubble-width: 70px; }
+ .ladder-board-chapters.ladder-board-wide .ladder-board-marker.is-crowded { --marker-size: 26px; --bubble-width: 46px; }
+ .ladder-board-chapters.ladder-board-wide .ladder-board-overflow { transform: translate(-50%, 20px); }
+}

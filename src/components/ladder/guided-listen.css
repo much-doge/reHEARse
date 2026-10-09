@@ -1,0 +1,17 @@
+.ladder-activity-picker { border: 0; padding: 0; margin: 20px 0; min-width: 0; }
+.ladder-activity-picker legend { font-size: 14px; font-weight: 750; margin-bottom: 12px; color: #28533f; }
+.ladder-activity-picker label { display: flex; align-items: center; gap: 12px; padding: 15px; border: 2px solid #dce4d4; border-radius: 15px; margin-bottom: 10px; cursor: pointer; background: #fffdf7; }
+.ladder-activity-picker label.is-selected { border-color: #527e5e; background: #eef5e4; }
+.ladder-activity-picker label:focus-within { outline: 3px solid #3164f4; outline-offset: 3px; }
+.ladder-activity-picker input { flex: 0 0 auto; accent-color: #28533f; }
+.ladder-activity-picker label span { flex: 1; min-width: 0; }
+.ladder-activity-picker label small { display: block; color: #61745e; font-size: 12px; margin-top: 4px; }
+.ladder-activity-picker label b { color: #789065; font-size: 22px; }
+.ladder-listening-checkpoints { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0; margin: 0 0 24px; }
+.ladder-listening-checkpoints li { border: 1px solid #dce3d3; border-radius: 12px; padding: 9px 12px; font-size: 11px; color: #5c7057; background: #f8f8ef; }
+.ladder-listening-checkpoints li[aria-current="step"] { background: #285b47; border-color: #285b47; color: #fff; }
+.ladder-listening-checkpoints small { display: block; margin-top: 3px; }
+.ladder-question-help { color: #5d7259; font-size: 12px; line-height: 1.6; }
+.ladder-question-help small { display: block; }
+.ladder-board-chapter-key { color: #526c4e; font-size: 11px; line-height: 1.5; margin: 12px 4px; }
+@media (max-width: 800px) { .ladder-listening-checkpoints li { flex: 1 1 38%; } }

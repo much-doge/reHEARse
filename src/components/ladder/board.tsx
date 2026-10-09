@@ -1,6 +1,10 @@
 "use client";
 
-import { useId, useRef, useState, type CSSProperties } from "react";
+import { useId, useMemo, useRef, useState, type CSSProperties } from "react";
+import type { JourneyMap } from "@/domain/ladder/journey-contract";
+import { chapterGeometry, chapterPlace, registeredChapterMap } from "./chapter-layout";
+import { JourneyConnections } from "./journey-connections";
+import { useBoardMovement } from "./use-board-movement";
 import { Avatar } from "./avatar";
 import { boardGeometry, boardGroups, type BoardPlayer } from "./board-layout";
 import "./board.css";
@@ -9,15 +13,22 @@ function placeName(tile: number) {
   return tile === 0 ? "Start / Mulai" : tile === 12 ? "Checkpoint / Titik akhir" : `Tile ${tile} / Petak ${tile}`;
 }
 
-export function LadderBoard({ players, ownAlias, ownId, wide = false, animate = true }: {
+export function LadderBoard({ players, ownAlias, ownId, wide = false, animate = true, journeyMap }: {
   players: BoardPlayer[];
   ownAlias?: string;
   ownId?: string;
   wide?: boolean;
   animate?: boolean;
+  journeyMap?: JourneyMap;
 }) {
-  const { width, height, coords } = boardGeometry(wide);
-  const groups = boardGroups(players, ownId, ownAlias);
+  const chapters = registeredChapterMap(journeyMap);
+  const geometry = useMemo(() => chapters ? chapterGeometry(wide) : boardGeometry(wide), [chapters, wide]);
+  const { width, height, coords } = geometry;
+  const groups = boardGroups(players, ownId, ownAlias, coords.length);
+  const markerElements = useRef(new Map<string, HTMLLIElement>());
+  useBoardMovement(players, markerElements, geometry, animate && chapters);
+  const label = (tile: number) => chapters ? chapterPlace(tile) : placeName(tile);
+  const finish = coords.length - 1;
   const [expanded, setExpanded] = useState<number | null>(null);
   const expandedGroup = groups.find((group) => group.tile === expanded);
   const returnFocus = useRef<HTMLButtonElement | null>(null);
@@ -31,7 +42,7 @@ export function LadderBoard({ players, ownAlias, ownId, wide = false, animate = 
     returnFocus.current?.focus();
   }
   return (
-    <section className={`ladder-board ${wide ? "ladder-board-wide" : ""} ${animate ? "" : "ladder-board-still"}`}
+    <section className={`ladder-board ${wide ? "ladder-board-wide" : ""} ${animate ? "" : "ladder-board-still"} ${chapters ? "ladder-board-chapters" : ""}`}
       aria-label="Listening route / Jalur menyimak">
       <div className="ladder-board-surface">
         <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" aria-hidden="true">
@@ -51,13 +62,14 @@ export function LadderBoard({ players, ownAlias, ownId, wide = false, animate = 
             stroke="#b8cfad" strokeWidth="17" fill="none" />
           <path d={coords.map((p, i) => `${i ? "L" : "M"}${p.x} ${p.y}`).join(" ")}
             fill="none" stroke="#fffdf1" strokeWidth="27" strokeLinejoin="round" />
+          {chapters && <JourneyConnections map={journeyMap} coords={coords} />}
           {coords.map((p, tile) => (
             <g key={tile} filter={`url(#${shadowId})`}>
               <rect x={p.x - 39} y={p.y - 26} width="78" height="73" rx="19"
-                fill={tile === 12 ? "#285f4b" : tile % 3 === 0 ? "#fae7a3" : "#fffdf3"} stroke="#d9dfc1" />
-              <text x={p.x} y={p.y + 29} textAnchor="middle" fill={tile === 12 ? "white" : "#516c52"}
-                fontSize={tile === 0 || tile === 12 ? "12" : "17"} fontWeight="600" fontFamily="sans-serif">
-                {tile === 0 ? "START" : tile === 12 ? "FINISH" : tile}
+                fill={tile === finish ? "#285f4b" : tile % 3 === 0 ? "#fae7a3" : "#fffdf3"} stroke="#d9dfc1" />
+              <text x={p.x} y={p.y + 29} textAnchor="middle" fill={tile === finish ? "white" : "#516c52"}
+                fontSize={tile === 0 || tile === finish ? "12" : "17"} fontWeight="600" fontFamily="sans-serif">
+                {tile === 0 ? "START" : tile === finish ? "FINISH" : chapters ? ((tile - 1) % 3 === 2 ? `CAMP ${Math.floor((tile - 1) / 3) + 1}` : `${Math.floor((tile - 1) / 3) + 1}`) : tile}
               </text>
             </g>
           ))}
@@ -67,7 +79,7 @@ export function LadderBoard({ players, ownAlias, ownId, wide = false, animate = 
             const p = coords[player.tile];
             const own = ownId ? player.id === ownId : ownAlias === player.alias;
             return (
-              <li key={player.key} data-position={player.tile}
+              <li key={player.key} ref={(element) => { if (element) markerElements.current.set(player.key, element); else markerElements.current.delete(player.key); }} data-position={player.tile}
                 className={`ladder-board-marker ${crowded ? "is-crowded" : ""} ${own ? "is-own" : ""}`}
                 style={{ left: `${p.x / width * 100}%`, top: `${p.y / height * 100}%`, "--marker-offset": offset } as CSSProperties}>
                 <span className="ladder-marker-name">
@@ -77,7 +89,7 @@ export function LadderBoard({ players, ownAlias, ownId, wide = false, animate = 
                 {player.avatarId
                   ? <Avatar id={player.avatarId} paletteId={player.avatarPalette} size={112} animate={animate} />
                   : <span className="ladder-marker-placeholder" aria-hidden="true">{player.alias.slice(-2)}</span>}
-                <span className="ladder-board-sr-only">{placeName(player.tile)}</span>
+                <span className="ladder-board-sr-only">{label(player.tile)}</span>
               </li>
             );
           })}
@@ -88,7 +100,7 @@ export function LadderBoard({ players, ownAlias, ownId, wide = false, animate = 
             <button type="button" key={group.tile} className="ladder-board-overflow"
               style={{ left: `${p.x / width * 100}%`, top: `${p.y / height * 100}%` }}
               aria-expanded={expanded === group.tile} aria-controls={groupId}
-              aria-label={`${group.members.length} players at ${placeName(group.tile)}. Show everyone / Tampilkan semua peserta`}
+              aria-label={`${group.members.length} players at ${label(group.tile)}. Show everyone / Tampilkan semua peserta`}
               onClick={(event) => {
                 returnFocus.current = event.currentTarget;
                 setExpanded(expanded === group.tile ? null : group.tile);
@@ -105,10 +117,10 @@ export function LadderBoard({ players, ownAlias, ownId, wide = false, animate = 
         <span>Listen. Replay. Keep going.</span><small>Dengarkan. Putar ulang. Lanjut lagi.</small>
       </div>
       {expandedGroup && (
-        <section className="ladder-board-group" id={groupId} aria-label={`${placeName(expandedGroup.tile)}: ${expandedGroup.members.length} players / peserta`}
+        <section className="ladder-board-group" id={groupId} aria-label={`${label(expandedGroup.tile)}: ${expandedGroup.members.length} players / peserta`}
           onKeyDown={(event) => { if (event.key === "Escape") { event.preventDefault(); closeGroup(); } }}>
           <header>
-            <div><strong>{placeName(expandedGroup.tile)}</strong><span>{expandedGroup.members.length} players here / peserta di sini</span></div>
+            <div><strong>{label(expandedGroup.tile)}</strong><span>{expandedGroup.members.length} players here / peserta di sini</span></div>
             <button type="button" onClick={closeGroup}>Close / Tutup</button>
           </header>
           <ul>

@@ -5,6 +5,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { BilingualText } from "@/domain/feedback";
 import type { LadderAction, LadderView } from "@/domain/ladder/model";
 import { LadderBoard } from "./board";
+import type { LearnerJourney } from "@/domain/ladder/journey-contract";
+import { ActivityPicker } from "./activity-picker";
+import { listeningStage, listeningSpan, formatAudioTime } from "./listening-stage";
+import "./guided-listen.css";
 import { AvatarControls } from "./avatar-controls";
 import { ladderTaskKey, reconcileLadderView } from "./view-reconciliation";
 import { AnswerEffect } from "./answer-effect";
@@ -53,6 +57,7 @@ export function LadderGame({
 }) {
   const [view, setView] = useState(initial),
     [pin, setPin] = useState(initialPin ?? ""),
+    [activityId, setActivityId] = useState<string | null>(null),
     [busy, setBusy] = useState(false),
     [error, setError] = useState<BilingualText | null>(null),
     [selection, setSelection] = useState<number | null>(null),
@@ -61,6 +66,7 @@ export function LadderGame({
     [played, setPlayed] = useState(false),
     [listening, setListening] = useState(false),
     [gist, setGist] = useState(false),
+    [audioDurationMs, setAudioDurationMs] = useState<number | null>(null),
     [notice, setNotice] = useState<BilingualText | null>(null),
     [noteBusy, setNoteBusy] = useState(false),
     [answerEffect, setAnswerEffect] = useState<AnswerEffectState | null>(null);
@@ -72,19 +78,17 @@ export function LadderGame({
     celebrated = useRef(new Set<string>()),
     latestView = useRef(initial);
   const clearAnswerEffect = useCallback(() => setAnswerEffect(null), []);
-  const choiceIndex = view?.state.choices.length ?? 0;
-  const repairIndex =
-    view?.state.choices.findIndex((x) => x.outcome === "repair") ?? -1;
-  const index = choiceIndex < 4 ? choiceIndex : repairIndex;
+  const total = view?.items.length ?? 0;
+  const { index, repairing, finished } = listeningStage(view?.state ?? { choices: [], helpRequested: false }, total);
   const item = index >= 0 ? view?.items[index] : null;
-  const repairing = choiceIndex === 4 && repairIndex >= 0;
-  const finished = choiceIndex === 4 && repairIndex < 0;
+  const journey = (view as (LadderView & { journey?: LearnerJourney }) | null)?.journey;
   const task = view && index >= 0 ? view.state.choices[index] : null;
   const receive = useCallback(
     (next: LadderView, allowNewRun = false) => {
       const previous = latestView.current;
       const accepted = reconcileLadderView(previous, next, allowNewRun);
       if (!accepted || accepted === previous) return;
+      if (previous?.runId !== accepted.runId) setAudioDurationMs(null);
       if (ladderTaskKey(previous) !== ladderTaskKey(accepted)) {
         setAnswerEffect(null);
         setSelection(null);
@@ -95,6 +99,7 @@ export function LadderGame({
         setGist(false);
         audio.current?.pause();
         boundary.current = null;
+        loadTarget.current = null;
       }
       latestView.current = accepted;
       setView(accepted);
@@ -141,7 +146,7 @@ export function LadderGame({
     audio.current?.pause();
     setListening(false);
     const fingerprint = JSON.stringify(
-      start ? { pin: pin.trim() } : { runId: view?.runId, action },
+      start ? { pin: pin.trim(), activityId: pin.trim() ? undefined : activityId } : { runId: view?.runId, action },
     );
     if (pending.current?.fingerprint !== fingerprint)
       pending.current = { fingerprint, key: crypto.randomUUID() };
@@ -152,7 +157,7 @@ export function LadderGame({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(
           start
-            ? { kind: "start", key, ...(pin.trim() ? { pin: pin.trim() } : {}) }
+            ? { kind: "start", key, ...(pin.trim() ? { pin: pin.trim() } : activityId ? { activityId } : {}) }
             : {
                 kind: "act",
                 key,
@@ -254,8 +259,10 @@ export function LadderGame({
     setAnswerEffect(null);
     const el = audio.current;
     if (!el || !view) return;
-    const start = full ? view.items[0].startMs : item!.startMs;
-    boundary.current = full ? view.items[3].endMs : item!.endMs;
+    const span = listeningSpan(view.items, index, full);
+    if (!span) return;
+    const start = full ? 0 : span.startMs;
+    boundary.current = full && Number.isFinite(el.duration) && el.duration > 0 ? Math.round(el.duration * 1000) : span.endMs;
     loadTarget.current = start / 1000;
     setGist(full);
     setPlayed(false);
@@ -350,12 +357,14 @@ export function LadderGame({
           </div>
           <LadderBoard
             players={[
-              { id: view?.runId, alias: view?.alias ?? "YOU", position: view?.position ?? 0, avatarId: view?.avatarId, avatarPalette: view?.avatarPalette },
+              { id: view?.runId, alias: view?.alias ?? "YOU", position: view?.position ?? 0, avatarId: view?.avatarId, avatarPalette: view?.avatarPalette, revision: view?.revision, lastTransition: journey?.lastTransition },
             ]}
+            journeyMap={journey?.map}
             ownAlias={view?.alias ?? "YOU"}
             ownId={view?.runId}
             animate={!listening}
           />
+          {journey && <p className="ladder-board-chapter-key">Snakes lead to replay. Ladders lead to camp.<br />Ular menuju dengar ulang. Tangga menuju pos singgah.</p>}
           <div className="ladder-map-rule">
             <Image
               src="/art/kenney/campfire.svg"
@@ -428,6 +437,7 @@ export function LadderGame({
                   <small>Progres yang tersimpan tetap aman.</small>
                 </li>
               </ul>
+              {!pin && <ActivityPicker value={activityId} onChange={setActivityId} disabled={busy} />}
               {canJoin && (
                 <label className="ladder-pin">
                   Class PIN, if you have one / PIN kelas jika ada
@@ -501,6 +511,12 @@ export function LadderGame({
                 </div>
               ) : (
                 <>
+                  <ol className="ladder-listening-checkpoints" aria-label="Listening checkpoints / Titik perjalanan menyimak">
+                    {view.items.map((chapter, chapterIndex) => <li key={chapter.id} aria-current={index === chapterIndex ? "step" : undefined}>
+                      Question {chapterIndex + 1} / Pertanyaan {chapterIndex + 1}
+                      <small>{!view.state.choices[chapterIndex] ? "Listen / Simak" : view.state.choices[chapterIndex].outcome === "repair" ? "Replay ahead / Dengar lagi" : "At camp / Di pos"}</small>
+                    </li>)}
+                  </ol>
                   <div className="ladder-step-heading">
                     <span className="ladder-kicker">
                       {repairing
@@ -513,7 +529,7 @@ export function LadderGame({
                     <p className="ladder-task-count">
                       {repairing
                         ? "One part to revisit / Satu bagian untuk didengar lagi"
-                        : `Part ${index + 1} of 4 / Bagian ${index + 1} dari 4`}
+                        : `Question ${index + 1} of ${total} / Pertanyaan ${index + 1} dari ${total}`}
                     </p>
                   </div>
                   <div className="ladder-audio">
@@ -538,8 +554,8 @@ export function LadderGame({
                             : "Listen to this part / Dengarkan bagian ini"}
                       </strong>
                       <small>
-                        {(item!.startMs / 1000).toFixed(1)}–
-                        {(item!.endMs / 1000).toFixed(1)} s · No rush / Santai
+                        {formatAudioTime(gist ? 0 : item!.startMs)}–
+                        {formatAudioTime(gist && audioDurationMs !== null ? audioDurationMs : item!.endMs)} · No rush / Santai
                         saja
                       </small>
                     </div>
@@ -560,14 +576,18 @@ export function LadderGame({
                     preload="metadata"
                     onTimeUpdate={tick}
                     onEnded={() => {
-                      setPlayed(true);
+                      if (boundary.current !== null && audio.current && audio.current.currentTime * 1000 + 100 >= boundary.current) setPlayed(true);
                       setListening(false);
                       setGist(false);
                     }}
                     onPause={() => setListening(false)}
                     onLoadedMetadata={() => {
-                      if (loadTarget.current !== null)
+                      if (Number.isFinite(audio.current!.duration)) setAudioDurationMs(Math.round(audio.current!.duration * 1000));
+                      if (loadTarget.current !== null) {
                         audio.current!.currentTime = loadTarget.current;
+                        loadTarget.current = null;
+                      }
+                      if (gist && Number.isFinite(audio.current!.duration)) boundary.current = Math.round(audio.current!.duration * 1000);
                     }}
                     onError={() =>
                       setError({
@@ -610,6 +630,9 @@ export function LadderGame({
                       text={repairing ? item!.repair!.prompt : item!.prompt}
                     />
                   </h3>
+                  <p className="ladder-question-help">{repairing ? "Listen for the connection, then explain it in your words." : `Choose ${item!.options.length === 4 ? "A, B, C or D" : "A, B or C"} as you listen. Save when this part ends.`}
+                    <small>{repairing ? "Dengarkan hubungan maknanya, lalu jelaskan dengan kata-katamu sendiri." : "Pilih jawaban sambil menyimak. Simpan setelah bagian ini selesai."}</small>
+                  </p>
                   <div
                     className="ladder-options"
                     role="group"

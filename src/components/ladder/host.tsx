@@ -2,16 +2,21 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { HostView } from "@/domain/ladder/model";
+import type { HostJourney, JourneyTransition } from "@/domain/ladder/journey-contract";
+import { ActivityPicker } from "./activity-picker";
 import { HostAmbience } from "./host-ambience";
 import { LadderBoard } from "./board";
 import { Avatar } from "./avatar";
 export function LadderHost({ initialPin }: { initialPin?: string }) {
   const [view, setView] = useState<HostView | null>(null),
     [pin, setPin] = useState(initialPin ?? ""),
+    [activityId, setActivityId] = useState<string | null>(null),
+    [creationPending, setCreationPending] = useState(false),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false),
     [project, setProject] = useState(false),
     [reason, setReason] = useState("");
+  const session = view as (Omit<HostView, "players"> & { journey?: HostJourney; title?: string; players: Array<HostView["players"][number] & { lastTransition?: JourneyTransition | null; revision?: number }> }) | null;
   const stage = useRef<HTMLElement>(null);
   const [fullscreen, setFullscreen] = useState(false);
   useEffect(() => {
@@ -61,8 +66,10 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
     };
   }, [pin]);
   async function act(kind: "create" | "close" | "assist", runId?: string) {
-    if (kind === "create" && !createKey.current)
-      createKey.current = crypto.randomUUID();
+    if (kind === "create") {
+      if (!createKey.current) createKey.current = crypto.randomUUID();
+      setCreationPending(true);
+    }
     setBusy(true);
     setError("");
     try {
@@ -71,7 +78,7 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           kind,
-          ...(kind === "create" ? { key: createKey.current } : {}),
+          ...(kind === "create" ? { key: createKey.current, ...(activityId ? { activityId } : {}) } : {}),
           ...(kind !== "create" ? { pin } : {}),
           ...(kind === "assist"
             ? { runId, key: crypto.randomUUID(), reason }
@@ -83,7 +90,7 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
       const result = await r.json();
       setView(result);
       setPin(result.pin);
-      if (kind === "create") createKey.current = null;
+      if (kind === "create") { createKey.current = null; setCreationPending(false); }
       window.history.replaceState(null, "", `/ladder/host?pin=${result.pin}`);
     } catch {
       setError(
@@ -141,6 +148,7 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
           </div>
         )}
       </div>
+      {session?.title && <p className="ladder-session-title">{session.title}</p>}
       {!view ? (
         <section className="ladder-host-start">
           <h2>Open a listening session / Buka sesi menyimak</h2>
@@ -151,6 +159,7 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
             Peserta masuk, memasukkan PIN, lalu bermain mandiri. Papan hanya
             menampilkan nama permainan dan pergerakan.
           </p>
+          <ActivityPicker value={activityId} onChange={setActivityId} disabled={busy || creationPending} />
           <button
             className="ladder-primary"
             disabled={busy}
@@ -172,12 +181,15 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
         <div className="ladder-host-layout">
           <LadderBoard
             wide
-            players={view.players.map((x) => ({
+            journeyMap={session?.journey?.map}
+            players={(session?.players ?? []).map((x) => ({
               id: x.runId,
               alias: x.alias,
               position: x.position,
               avatarId: x.avatarId,
               avatarPalette: x.avatarPalette,
+              lastTransition: x.lastTransition,
+              revision: x.revision,
             }))}
           />
           <section className="ladder-host-roster">
