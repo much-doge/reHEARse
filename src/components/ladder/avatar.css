@@ -39,5 +39,6 @@
 .ladder-avatar-check { position: absolute; right: 6px; top: 6px; background: #275b40; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 13px; display: grid; place-items: center; }
 .ladder-avatar-choice:disabled, .ladder-avatar-surprise:disabled { cursor: wait; opacity: .65; }
 .ladder-avatar-picker .ladder-avatar-credit { color: #6e7b67; font-size: .7rem; margin-top: .9rem; margin-bottom: 0; }
+.ladder-avatar-save-state { min-height: 1.5rem; margin: -.6rem 1rem 1rem; color: #53645f; font-size: .8rem; line-height: 1.45; }
 @media (max-width: 540px) { .ladder-avatar-picker { padding: .9rem; } .ladder-avatar-picker-heading { flex-direction: column; gap: .4rem; } .ladder-avatar-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); max-height: 370px; gap: .4rem; } }
 @media (prefers-reduced-motion: reduce) { .ladder-avatar.is-animated *, .ladder-avatar.is-animated { animation: none !important; transition: none !important; } }
