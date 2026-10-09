@@ -25,3 +25,14 @@ export function resolveLadderContent(version: string): LadderContent | null {
 export function resolveOriginalActivity(activityId: string): LadderContent | null {
   return originalsByActivity.get(activityId) ?? null;
 }
+
+export function selectStartContent(
+  mode: "legacy" | "original",
+  activityId?: string,
+): LadderContent | null {
+  if (mode === "legacy")
+    return !activityId || activityId === legacyLadderContent.activityId
+      ? legacyLadderContent
+      : null;
+  return resolveOriginalActivity(activityId ?? "three-papers-one-thread");
+}

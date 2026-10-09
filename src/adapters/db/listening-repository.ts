@@ -49,6 +49,52 @@ export type LearnerActivity = {
   attempts: StoredAttempt[];
 };
 
+export type ResolvedActivityVersion = Pick<
+  LearnerActivity,
+  "id" | "versionId" | "slug" | "title" | "partLabel" | "promptEn" | "promptId" | "audioUrl"
+> & { mediaSha256: string | null };
+
+function activityAudioUrl(activity: Record<string, unknown>): string | null {
+  let audioUrl = activity.media_storage_key
+    ? `/api/media/${String(activity.slug)}`
+    : null;
+  if (activity.media_provider === "s3" && activity.media_storage_key) {
+    const config = readS3MediaConfig();
+    if (activity.media_bucket && activity.media_bucket !== config.bucket)
+      throw new Error("media bucket configuration mismatch");
+    if (config.deliveryMode === "public")
+      audioUrl = createPublicMediaUrl(config, String(activity.media_storage_key));
+  }
+  return audioUrl;
+}
+
+export async function getLearnerActivityVersion(
+  slug: string,
+  versionId: string,
+): Promise<ResolvedActivityVersion | null> {
+  const result = await getPool().query(
+    `SELECT a.id,a.slug,av.id AS version_id,av.title,av.part_label,av.prompt_en,av.prompt_id,
+            av.media_storage_key,av.media_provider,av.media_bucket,av.media_sha256
+     FROM activity a
+     JOIN activity_version av ON av.activity_id=a.id
+     WHERE a.slug=$1 AND av.id=$2 AND a.state='published'`,
+    [slug, versionId],
+  );
+  const activity = result.rows[0];
+  if (!activity) return null;
+  return {
+    id: activity.id,
+    versionId: activity.version_id,
+    slug: activity.slug,
+    title: publicActivityTitle(activity.title),
+    partLabel: publicPartLabel(activity.part_label),
+    promptEn: activity.prompt_en,
+    promptId: activity.prompt_id,
+    audioUrl: activityAudioUrl(activity),
+    mediaSha256: activity.media_sha256,
+  };
+}
+
 export async function listLearnerActivities(
   learnerId: string,
 ): Promise<DashboardActivity[]> {
@@ -107,16 +153,7 @@ export async function getLearnerActivity(
     [activity.id, learnerId],
   );
 
-  let audioUrl = activity.media_storage_key
-    ? `/api/media/${activity.slug}`
-    : null;
-  if (activity.media_provider === "s3" && activity.media_storage_key) {
-    const config = readS3MediaConfig();
-    if (activity.media_bucket && activity.media_bucket !== config.bucket)
-      throw new Error("media bucket configuration mismatch");
-    if (config.deliveryMode === "public")
-      audioUrl = createPublicMediaUrl(config, activity.media_storage_key);
-  }
+  const audioUrl = activityAudioUrl(activity);
   return {
     id: activity.id,
     versionId: activity.version_id,

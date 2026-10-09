@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { advanceLadder, emptyLadder, ladderPosition } from "./model";
+import { advanceChapterJourney, advanceLadder, emptyLadder, ladderPosition } from "./model";
 const keys = [
   { first: 0, repair: 2 },
   { first: 1, repair: 0 },
@@ -141,5 +141,77 @@ describe("bounded listening ladder", () => {
         keys,
       ),
     ).toThrow("explanation_required");
+  });
+});
+
+describe("chapter movement", () => {
+  const originalKeys = keys.map((key) => ({ ...key, firstCount: 4, repairCount: 3 }));
+  it("records exact match, mismatch and uncertainty paths", () => {
+    const matched = advanceChapterJourney(emptyLadder(), 0, { kind: "choice", item: 0, choice: 0 }, originalKeys, "event-1", 1);
+    expect(matched.position).toBe(3);
+    expect(matched.transition.steps.map((step) => [step.kind, step.from, step.to])).toEqual([["walk", 0, 1], ["ladder", 1, 3]]);
+    const mismatch = advanceChapterJourney(emptyLadder(), 0, { kind: "choice", item: 0, choice: 3 }, originalKeys, "event-2", 1);
+    expect(mismatch.position).toBe(1);
+    expect(mismatch.transition.steps.map((step) => [step.kind, step.from, step.to])).toEqual([["walk", 0, 2], ["snake", 2, 1]]);
+    const uncertain = advanceChapterJourney(emptyLadder(), 0, { kind: "choice", item: 0, choice: null }, originalKeys, "event-3", 1);
+    expect(uncertain.position).toBe(1);
+    expect(uncertain.transition.steps).toHaveLength(1);
+  });
+
+  it("accepts D only for a four-option first choice and rejects repair overflow", () => {
+    expect(() => advanceLadder(emptyLadder(), { kind: "choice", item: 0, choice: 3 }, keys)).toThrow("invalid_choice");
+    expect(advanceLadder(emptyLadder(), { kind: "choice", item: 0, choice: 3 }, originalKeys).choices[0].choice).toBe(3);
+    expect(() => advanceLadder(allWrong(), { kind: "repair", item: 0, choice: 3, explanation: "A bounded explanation." }, originalKeys)).toThrow("invalid_choice");
+  });
+
+  it("persists one recovery ladder and appends finish on final closure", () => {
+    let state = emptyLadder();
+    let position = 0;
+    originalKeys.forEach((key, item) => {
+      const result = advanceChapterJourney(state, position, { kind: "choice", item, choice: item === 0 ? 3 : key.first }, originalKeys, `first-${item}`, item + 1);
+      state = result.state;
+      position = result.position;
+    });
+    const repaired = advanceChapterJourney(state, position, { kind: "repair", item: 0, choice: originalKeys[0].repair, explanation: "I revised the relationship." }, originalKeys, "repair-0", 5);
+    expect(repaired.position).toBe(13);
+    expect(repaired.transition.steps.map((step) => step.kind)).toEqual(["walk", "ladder", "walk"]);
+    expect(repaired.transition.steps.at(-1)?.cause).toBe("finish");
+  });
+
+  it("returns the same deterministic transition inputs and gives help no movement", () => {
+    const first = advanceChapterJourney(emptyLadder(), 0, { kind: "choice", item: 0, choice: 3 }, originalKeys, "same-event", 1);
+    const retry = advanceChapterJourney(emptyLadder(), 0, { kind: "choice", item: 0, choice: 3 }, originalKeys, "same-event", 1);
+    expect(retry).toEqual(first);
+    expect(advanceChapterJourney(emptyLadder(), 0, { kind: "help" }, originalKeys, "help-event", 1).transition.steps).toEqual([]);
+  });
+
+  it("finishes every mixed match, mismatch and uncertainty route with bounded support", () => {
+    for (let mask = 0; mask < 3 ** 4; mask++) {
+      let code = mask;
+      let state = emptyLadder();
+      let position = 0;
+      let revision = 0;
+      for (let item = 0; item < 4; item++) {
+        const mode = code % 3;
+        code = Math.floor(code / 3);
+        const choice = mode === 0 ? originalKeys[item].first : mode === 1 ? (originalKeys[item].first + 1) % 4 : null;
+        const moved = advanceChapterJourney(state, position, { kind: "choice", item, choice }, originalKeys, `route-${mask}-${revision}`, ++revision);
+        state = moved.state;
+        position = moved.position;
+      }
+      for (let item = 0; item < 4; item++) {
+        if (state.choices[item].outcome !== "repair") continue;
+        const tried = advanceChapterJourney(state, position, { kind: "repair", item, choice: (originalKeys[item].repair + 1) % 3, explanation: "I checked this relationship again." }, originalKeys, `route-${mask}-${revision}`, ++revision);
+        state = tried.state;
+        position = tried.position;
+        if (state.choices[item].outcome === "repair") {
+          const supported = advanceChapterJourney(state, position, { kind: "support", item, explanation: "I used the bounded review connection." }, originalKeys, `route-${mask}-${revision}`, ++revision);
+          state = supported.state;
+          position = supported.position;
+        }
+      }
+      expect(position).toBe(13);
+      expect(state.choices.every((choice) => choice.outcome !== "repair")).toBe(true);
+    }
   });
 });

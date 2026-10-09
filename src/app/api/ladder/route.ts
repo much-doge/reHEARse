@@ -27,7 +27,7 @@ const action = z.discriminatedUnion("kind", [
     .object({
       kind: z.literal("choice"),
       item: z.number().int().min(0).max(3),
-      choice: z.number().int().min(0).max(2).nullable(),
+      choice: z.number().int().min(0).max(3).nullable(),
     })
     .strict(),
   z
@@ -56,6 +56,7 @@ const schema = z.discriminatedUnion("kind", [
         .string()
         .regex(/^\d{6}$/)
         .optional(),
+      activityId: z.string().trim().min(1).max(80).optional(),
     })
     .strict(),
   z
@@ -83,7 +84,7 @@ export async function POST(req: Request) {
     const a = parsed.data;
     const view =
       a.kind === "start"
-        ? await ladderRepository.start(user, a.key, a.pin)
+        ? await ladderRepository.start(user, a.key, a.pin, a.activityId)
         : await ladderRepository.act(
             user,
             a.runId,

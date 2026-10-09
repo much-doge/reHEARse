@@ -1,5 +1,6 @@
 import type { BilingualText } from "@/domain/feedback";
 import type { LadderItemView } from "@/domain/ladder/model";
+import type { LadderContent } from "./content-schema";
 export const pair = (en: string, id: string): BilingualText => ({ en, id });
 export const ladderContent = {
   slug: "three-papers-one-thread",
@@ -272,10 +273,18 @@ export const contentKeys = ladderContent.items.map((x) => ({
   first: x.first,
   repair: x.repairKey,
 }));
+export const keysFor = (content: LadderContent) =>
+  content.items.map((item) => ({
+    first: item.first,
+    repair: item.repairKey,
+    firstCount: item.options.length,
+    repairCount: item.repair.options.length,
+  }));
 export function publicItems(
   state: import("@/domain/ladder/model").LadderState,
+  content: LadderContent = ladderContent as LadderContent,
 ): LadderItemView[] {
-  return ladderContent.items.map((item, i) => {
+  return content.items.map((item, i) => {
     const task = state.choices[i];
     return {
       id: item.id,

@@ -1,4 +1,10 @@
 import type { BilingualText } from "../feedback";
+import {
+  CHAPTER_JOURNEY_MAP,
+  type HostJourney,
+  type JourneyTransition,
+  type LearnerJourney,
+} from "./journey-contract";
 export const LADDER_VERSION = "listening-ladder.v3";
 export type TaskOutcome = "matched" | "repair" | "revised" | "supported";
 export type LadderState = {
@@ -30,7 +36,12 @@ export class LadderError extends Error {
 export function advanceLadder(
   state: LadderState,
   action: LadderAction,
-  keys: Array<{ first: number; repair: number }>,
+  keys: Array<{
+    first: number;
+    repair: number;
+    firstCount?: number;
+    repairCount?: number;
+  }>,
 ): LadderState {
   const next = structuredClone(state);
   if (action.kind === "help") {
@@ -46,7 +57,7 @@ export function advanceLadder(
       action.choice !== null &&
       (!Number.isInteger(action.choice) ||
         action.choice < 0 ||
-        action.choice > 2)
+        action.choice >= (key.firstCount ?? 3))
     )
       throw new LadderError("invalid_choice");
     next.choices.push({
@@ -69,6 +80,13 @@ export function advanceLadder(
       throw new LadderError("try_replay_first", 409);
     if (action.kind === "repair" && task.tries >= 2)
       throw new LadderError("use_supported_review", 409);
+    if (
+      action.kind === "repair" &&
+      (!Number.isInteger(action.choice) ||
+        action.choice < 0 ||
+        action.choice >= (key.repairCount ?? 3))
+    )
+      throw new LadderError("invalid_choice");
     task.tries += 1;
     if (action.kind === "teacher_close" || action.kind === "support")
       task.outcome = "supported";
@@ -80,6 +98,55 @@ export function advanceLadder(
   )
     next.helpRequested = false;
   return next;
+}
+
+export function advanceChapterJourney(
+  state: LadderState,
+  position: number,
+  action: LadderAction,
+  keys: Array<{ first: number; repair: number; firstCount?: number; repairCount?: number }>,
+  eventId: string,
+  revision: number,
+): { state: LadderState; position: number; transition: JourneyTransition } {
+  const next = advanceLadder(state, action, keys);
+  const steps: JourneyTransition["steps"] = [];
+  let at = position;
+  const move = (kind: "walk" | "snake" | "ladder", to: number, chapter: number, cause: JourneyTransition["steps"][number]["cause"]) => {
+    if (at === to) return;
+    steps.push({ kind, from: at, to, chapter, cause });
+    at = to;
+  };
+  if (action.kind === "choice") {
+    const entry = action.item * 3 + 1;
+    if (action.choice === keys[action.item]?.first) {
+      move("walk", entry, action.item, "first_match");
+      move("ladder", entry + 2, action.item, "first_match");
+    } else if (action.choice === null) {
+      move("walk", entry, action.item, "uncertain");
+    } else {
+      move("walk", entry + 1, action.item, "first_mismatch");
+      move("snake", entry, action.item, "first_mismatch");
+    }
+  } else if (action.kind !== "help") {
+    const entry = action.item * 3 + 1;
+    const outcome = next.choices[action.item]?.outcome;
+    const cause =
+      action.kind === "teacher_close"
+        ? "teacher_assisted"
+        : action.kind === "support"
+          ? "supported"
+          : outcome === "revised"
+            ? "repair_revised"
+            : "repair_retry";
+    move("walk", entry, action.item, cause);
+    if (outcome !== "repair") move("ladder", entry + 2, action.item, cause);
+  }
+  if (
+    next.choices.length === keys.length &&
+    next.choices.every((choice) => choice.outcome !== "repair")
+  )
+    move("walk", 13, Math.max(0, keys.length - 1), "finish");
+  return { state: next, position: at, transition: { eventId, revision, steps } };
 }
 export function ladderPosition(state: LadderState, total = 4) {
   if (
@@ -123,10 +190,15 @@ export type LadderView = {
   items: LadderItemView[];
   latestNote: BilingualText | null;
   latestEventId: string | null;
+  activityId?: string;
+  journey?: LearnerJourney;
 };
 export type HostView = {
   pin: string;
   closed: boolean;
+  activityId?: string;
+  title?: string;
+  journey?: HostJourney;
   players: Array<{
     alias: string;
     avatarId: string;
@@ -135,5 +207,8 @@ export type HostView = {
     finished: boolean;
     needsHelp: boolean;
     runId: string;
+    lastTransition?: JourneyTransition | null;
   }>;
 };
+
+export const chapterJourney = () => ({ map: CHAPTER_JOURNEY_MAP });

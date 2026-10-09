@@ -1,7 +1,10 @@
-import { createHash, randomInt } from "node:crypto";
+import { createHash, randomInt, randomUUID } from "node:crypto";
 import type { PoolClient } from "pg";
 import { getPool } from "@/adapters/db/client";
-import { getLearnerActivity } from "@/adapters/db/listening-repository";
+import {
+  getLearnerActivity,
+  getLearnerActivityVersion,
+} from "@/adapters/db/listening-repository";
 import { createFeedbackProvider } from "@/adapters/feedback/provider-factory";
 import { feedbackPresentation } from "@/adapters/db/feedback-presentation";
 import type {
@@ -10,6 +13,8 @@ import type {
 } from "@/application/ladder/repository";
 import {
   advanceLadder,
+  advanceChapterJourney,
+  chapterJourney,
   emptyLadder,
   ladderPosition,
   LadderError,
@@ -19,7 +24,13 @@ import {
   type LadderView,
   type HostView,
 } from "@/domain/ladder/model";
-import { ladderContent, contentKeys, publicItems, pair } from "./content";
+import { keysFor, publicItems, pair } from "./content";
+import {
+  ladderContents,
+  resolveLadderContent,
+  selectStartContent,
+} from "./content-resolver";
+import type { LadderContent } from "./content-schema";
 import { avatarFor, type AvatarId } from "@/domain/ladder/avatars";
 import { paletteFor, type AvatarPaletteId } from "@/domain/ladder/appearance";
 import { anonymousAlias, displayAliases } from "@/domain/ladder/anonymous-alias";
@@ -28,6 +39,16 @@ const teacher = (a: LadderActor) => {
     throw new LadderError("teacher_required", 403);
 };
 const queryRun = `SELECT r.*, p.avatar_id, p.avatar_palette, s.pin, (s.closed_at IS NOT NULL OR s.expires_at < now()) AS session_closed FROM ladder_run r LEFT JOIN ladder_session s ON s.id=r.session_id LEFT JOIN ladder_avatar_preference p ON p.user_id=r.learner_id WHERE r.id=$1 AND r.learner_id=$2`;
+function startContent(activityId?: string): LadderContent {
+  const mode = process.env.LADDER_START_VERSION === "legacy" ? "legacy" : "original";
+  const content = selectStartContent(mode, activityId);
+  if (!content)
+    throw new LadderError(
+      mode === "legacy" ? "original_starts_disabled" : "activity_not_available",
+      mode === "legacy" ? 409 : 404,
+    );
+  return content;
+}
 function fallback(): import("@/domain/feedback").ListeningFeedback {
   return {
     contractVersion: "listening-feedback.v1",
@@ -63,10 +84,13 @@ export class PostgresLadderRepository implements LadderRepository {
     if (!id) return null;
     const row = (await getPool().query(queryRun, [id, actor.id])).rows[0];
     if (!row) throw new LadderError("run_not_found", 404);
-    if (row.content_version !== ladderContent.version)
-      throw new LadderError("activity_version_unavailable", 409);
-    const activity = await getLearnerActivity(ladderContent.slug, actor.id);
-    if (!activity?.audioUrl || activity.versionId !== row.activity_version_id)
+    const content = resolveLadderContent(row.content_version);
+    if (!content) throw new LadderError("activity_version_unavailable", 409);
+    const activity = await getLearnerActivityVersion(
+      content.slug,
+      row.activity_version_id,
+    );
+    if (!activity?.audioUrl || activity.mediaSha256 !== content.audioHash)
       throw new LadderError("activity_version_unavailable", 409);
     const state = row.state_json as LadderState;
     const event = (
@@ -90,45 +114,59 @@ export class PostgresLadderRepository implements LadderRepository {
       pin: row.pin ?? null,
       sessionClosed: !!row.session_closed,
       state,
-      position: ladderPosition(state),
-      items: publicItems(state),
+      position:
+        row.mechanics_version === "chapter-route.v1"
+          ? row.position
+          : ladderPosition(state),
+      items: publicItems(state, content),
       latestNote: event?.feedback_json
         ? feedbackPresentation(event.feedback_json).summary
         : null,
       latestEventId: event?.id ?? null,
+      activityId: content.activityId,
+      ...(row.mechanics_version === "chapter-route.v1"
+        ? {
+            journey: {
+              ...chapterJourney(),
+              lastTransition: row.last_transition_json ?? null,
+            },
+          }
+        : {}),
     };
   }
   async start(
     actor: LadderActor,
     id: string,
     pin?: string,
+    activityId?: string,
   ): Promise<LadderView> {
-    const activity = await getLearnerActivity(ladderContent.slug, actor.id);
-    if (!activity?.audioUrl) throw new LadderError("audio_unavailable", 503);
-    const media = (
-      await getPool().query(
-        "SELECT media_sha256 FROM activity_version WHERE id=$1",
-        [activity.versionId],
-      )
-    ).rows[0];
-    if (media?.media_sha256 !== ladderContent.audioHash)
-      throw new LadderError("audio_version_unavailable", 409);
+    let content: LadderContent | null = null;
+    let pinnedVersionId: string | null = null;
     let sessionId: string | null = null;
     if (pin) {
       if (actor.role !== "learner")
         throw new LadderError("learner_required_to_join", 403);
       const session = (
         await getPool().query(
-          "SELECT id FROM ladder_session WHERE pin=$1 AND closed_at IS NULL AND expires_at>now()",
+          `SELECT id,activity_id,activity_version_id,content_version,mechanics_version
+           FROM ladder_session
+           WHERE pin=$1 AND closed_at IS NULL AND expires_at>now()`,
           [pin],
         )
       ).rows[0];
       if (!session) throw new LadderError("session_not_open", 404);
+      if (activityId && activityId !== session.activity_id)
+        throw new LadderError("request_changed", 409);
+      const pinned = resolveLadderContent(session.content_version);
+      if (!pinned || pinned.activityId !== session.activity_id)
+        throw new LadderError("activity_version_unavailable", 409);
+      content = pinned;
+      pinnedVersionId = session.activity_version_id;
       sessionId = session.id;
     }
     const existing = (
       await getPool().query(
-        "SELECT id,learner_id,session_id FROM ladder_run WHERE id=$1",
+        "SELECT id,learner_id,session_id,activity_id,content_version FROM ladder_run WHERE id=$1",
         [id],
       )
     ).rows[0];
@@ -136,6 +174,27 @@ export class PostgresLadderRepository implements LadderRepository {
       throw new LadderError("run_not_found", 404);
     if (existing && existing.session_id !== sessionId)
       throw new LadderError("request_changed", 409);
+    if (existing) {
+      if (activityId && existing.activity_id !== activityId)
+        throw new LadderError("request_changed", 409);
+      return (await this.view(actor, id))!;
+    }
+    content ??= startContent(activityId);
+    const activity = pinnedVersionId
+      ? await getLearnerActivityVersion(content.slug, pinnedVersionId)
+      : await getLearnerActivity(content.slug, actor.id);
+    if (!activity?.audioUrl) throw new LadderError("audio_unavailable", 503);
+    const mediaHash =
+      "mediaSha256" in activity
+        ? activity.mediaSha256
+        : (
+            await getPool().query(
+              "SELECT media_sha256 FROM activity_version WHERE id=$1",
+              [activity.versionId],
+            )
+          ).rows[0]?.media_sha256;
+    if (mediaHash !== content.audioHash)
+      throw new LadderError("audio_version_unavailable", 409);
     const client = await getPool().connect();
     try {
       await client.query("BEGIN");
@@ -160,15 +219,22 @@ export class PostgresLadderRepository implements LadderRepository {
       }
       const alias = anonymousAlias(id);
       await client.query(
-        "INSERT INTO ladder_run(id,learner_id,activity_version_id,content_version,session_id,alias,state_json) VALUES($1,$2,$3,$4,$5,$6,$7) ON CONFLICT(id) DO NOTHING",
+        `INSERT INTO ladder_run(
+           id,learner_id,activity_version_id,content_version,session_id,alias,state_json,
+           activity_id,mechanics_version,position
+         ) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+         ON CONFLICT(id) DO NOTHING`,
         [
           id,
           actor.id,
           activity.versionId,
-          ladderContent.version,
+          content.version,
           sessionId,
           alias,
           JSON.stringify(emptyLadder()),
+          content.activityId,
+          content.mechanicsVersion,
+          content.mechanicsVersion === "chapter-route.v1" ? 0 : null,
         ],
       );
       await client.query("COMMIT");
@@ -266,6 +332,8 @@ export class PostgresLadderRepository implements LadderRepository {
       state_json: LadderState;
       content_version: string;
       session_id: string | null;
+      mechanics_version: string;
+      position: number | null;
     },
     revision: number,
     key: string,
@@ -276,7 +344,7 @@ export class PostgresLadderRepository implements LadderRepository {
       .digest("hex");
     const previous = (
       await client.query(
-        "SELECT request_digest FROM ladder_event WHERE run_id=$1 AND request_key=$2",
+        "SELECT request_digest,transition_json FROM ladder_event WHERE run_id=$1 AND request_key=$2",
         [row.id, key],
       )
     ).rows[0];
@@ -285,8 +353,8 @@ export class PostgresLadderRepository implements LadderRepository {
         throw new LadderError("request_changed", 409);
       return;
     }
-    if (row.content_version !== ladderContent.version)
-      throw new LadderError("activity_version_unavailable", 409);
+    const content = resolveLadderContent(row.content_version);
+    if (!content) throw new LadderError("activity_version_unavailable", 409);
     if (row.session_id && action.kind !== "teacher_close") {
       const session = (
         await client.query(
@@ -303,35 +371,99 @@ export class PostgresLadderRepository implements LadderRepository {
     }
     if (row.revision !== revision)
       throw new LadderError("refresh_progress", 409);
-    const next = advanceLadder(row.state_json, action, contentKeys);
+    const eventId = randomUUID();
+    const keys = keysFor(content);
+    const advanced =
+      row.mechanics_version === "chapter-route.v1"
+        ? advanceChapterJourney(
+            row.state_json,
+            row.position ?? 0,
+            action,
+            keys,
+            eventId,
+            revision + 1,
+          )
+        : {
+            state: advanceLadder(row.state_json, action, keys),
+            position: null,
+            transition: null,
+          };
+    const next = advanced.state;
     if (action.kind === "teacher_close") next.helpRequested = false;
     await client.query(
-      "INSERT INTO ladder_event(run_id,request_key,request_digest,revision,action_json) VALUES($1,$2,$3,$4,$5)",
-      [row.id, key, digest, revision + 1, JSON.stringify(action)],
+      `INSERT INTO ladder_event(
+         id,run_id,request_key,request_digest,revision,action_json,transition_json
+       ) VALUES($1,$2,$3,$4,$5,$6,$7)`,
+      [
+        eventId,
+        row.id,
+        key,
+        digest,
+        revision + 1,
+        JSON.stringify(action),
+        advanced.transition ? JSON.stringify(advanced.transition) : null,
+      ],
     );
     await client.query(
-      "UPDATE ladder_run SET state_json=$2,revision=$3,updated_at=now() WHERE id=$1",
-      [row.id, JSON.stringify(next), revision + 1],
+      `UPDATE ladder_run
+       SET state_json=$2,revision=$3,position=coalesce($4,position),
+           last_transition_json=coalesce($5,last_transition_json),updated_at=now()
+       WHERE id=$1`,
+      [
+        row.id,
+        JSON.stringify(next),
+        revision + 1,
+        advanced.position,
+        advanced.transition ? JSON.stringify(advanced.transition) : null,
+      ],
     );
   }
-  async createSession(actor: LadderActor, key: string): Promise<HostView> {
+  async createSession(
+    actor: LadderActor,
+    key: string,
+    activityId?: string,
+  ): Promise<HostView> {
     teacher(actor);
     const existing = (
       await getPool().query(
-        "SELECT pin,owner_id FROM ladder_session WHERE id=$1",
+        "SELECT pin,owner_id,activity_id FROM ladder_session WHERE id=$1",
         [key],
       )
     ).rows[0];
     if (existing) {
       if (existing.owner_id !== actor.id)
         throw new LadderError("session_not_found", 404);
+      if (activityId && existing.activity_id !== activityId)
+        throw new LadderError("request_changed", 409);
       return this.host(actor, existing.pin);
     }
+    const content = startContent(activityId);
+    const activity = await getLearnerActivity(content.slug, actor.id);
+    if (!activity?.audioUrl) throw new LadderError("audio_unavailable", 503);
+    const media = (
+      await getPool().query(
+        "SELECT media_sha256 FROM activity_version WHERE id=$1",
+        [activity.versionId],
+      )
+    ).rows[0];
+    if (media?.media_sha256 !== content.audioHash)
+      throw new LadderError("audio_version_unavailable", 409);
     for (let i = 0; i < 8; i++) {
       const pin = String(randomInt(100000, 1000000));
       const row = await getPool().query(
-        "INSERT INTO ladder_session(id,owner_id,pin) VALUES($1,$2,$3) ON CONFLICT DO NOTHING RETURNING id",
-        [key, actor.id, pin],
+        `INSERT INTO ladder_session(
+           id,owner_id,pin,activity_id,activity_version_id,content_version,mechanics_version
+         ) VALUES($1,$2,$3,$4,$5,$6,$7)
+         ON CONFLICT DO NOTHING RETURNING id`,
+        [
+          key,
+          actor.id,
+          pin,
+          content.activityId,
+          activity.versionId,
+          content.version,
+          content.mechanicsVersion,
+        ],
       );
       if (row.rowCount) return this.host(actor, pin);
     }
@@ -355,7 +487,8 @@ export class PostgresLadderRepository implements LadderRepository {
     if (!session) throw new LadderError("session_not_found", 404);
     const rows = (
       await getPool().query(
-        `SELECT r.id,r.learner_id,r.alias,r.state_json,p.avatar_id,p.avatar_palette
+        `SELECT r.id,r.learner_id,r.alias,r.state_json,r.mechanics_version,
+                r.position,r.last_transition_json,p.avatar_id,p.avatar_palette
          FROM ladder_run r
          LEFT JOIN ladder_avatar_preference p ON p.user_id=r.learner_id
          WHERE r.session_id=$1 ORDER BY r.created_at,r.id`,
@@ -366,18 +499,31 @@ export class PostgresLadderRepository implements LadderRepository {
     return {
       pin,
       closed: !!session.closed_at || new Date(session.expires_at) < new Date(),
+      ...(session.activity_id ? { activityId: session.activity_id } : {}),
+      ...(session.content_version && resolveLadderContent(session.content_version)
+        ? { title: resolveLadderContent(session.content_version)!.title.en }
+        : {}),
+      ...(session.mechanics_version === "chapter-route.v1"
+        ? { journey: chapterJourney() }
+        : {}),
       players: rows.map((r) => ({
         runId: r.id,
         alias: aliases.get(r.id)!,
         avatarId: r.avatar_id ?? avatarFor(r.learner_id),
         avatarPalette: r.avatar_palette ?? paletteFor(r.learner_id),
-        position: ladderPosition(r.state_json),
+        position:
+          r.mechanics_version === "chapter-route.v1"
+            ? r.position
+            : ladderPosition(r.state_json),
         finished:
           r.state_json.choices.length === 4 &&
           r.state_json.choices.every(
             (x: { outcome: string }) => x.outcome !== "repair",
           ),
         needsHelp: r.state_json.helpRequested,
+        ...(r.mechanics_version === "chapter-route.v1"
+          ? { lastTransition: r.last_transition_json ?? null }
+          : {}),
       })),
     };
   }
@@ -448,7 +594,7 @@ export class PostgresLadderRepository implements LadderRepository {
     try {
       const row = (
         await client.query(
-          "SELECT e.*,r.learner_id,r.activity_version_id FROM ladder_event e JOIN ladder_run r ON r.id=e.run_id WHERE e.id=$1 AND r.learner_id=$2",
+          "SELECT e.*,r.learner_id,r.activity_version_id,r.content_version FROM ladder_event e JOIN ladder_run r ON r.id=e.run_id WHERE e.id=$1 AND r.learner_id=$2",
           [eventId, actor.id],
         )
       ).rows[0];
@@ -472,7 +618,10 @@ export class PostgresLadderRepository implements LadderRepository {
       ).rows[0];
       if (saved.feedback_json)
         return feedbackPresentation(saved.feedback_json).summary;
-      const item = ladderContent.items[row.action_json.item];
+      const item = resolveLadderContent(row.content_version)?.items[
+        row.action_json.item
+      ];
+      if (!item) throw new LadderError("activity_version_unavailable", 409);
       let result = fallback();
       try {
         const provider = createFeedbackProvider({
@@ -507,6 +656,30 @@ export class PostgresLadderRepository implements LadderRepository {
           .catch(() => undefined);
       client.release();
     }
+  }
+
+  async catalogue(actor: LadderActor) {
+    const available = [];
+    for (const content of ladderContents.filter(
+      (candidate) => candidate.questionFormat === "original-four",
+    )) {
+      const activity = await getLearnerActivity(content.slug, actor.id);
+      if (!activity?.audioUrl) continue;
+      const media = (
+        await getPool().query(
+          "SELECT media_sha256 FROM activity_version WHERE id=$1",
+          [activity.versionId],
+        )
+      ).rows[0];
+      if (media?.media_sha256 !== content.audioHash) continue;
+      available.push({
+        id: content.activityId,
+        title: content.title,
+        durationMs: content.durationMs,
+        questionCount: content.items.length,
+      });
+    }
+    return available;
   }
 }
 export const ladderRepository = new PostgresLadderRepository();
