@@ -20,11 +20,12 @@ import {
   type HostView,
 } from "@/domain/ladder/model";
 import { ladderContent, contentKeys, publicItems, pair } from "./content";
+import { avatarFor, type AvatarId } from "@/domain/ladder/avatars";
 const teacher = (a: LadderActor) => {
   if (!["teacher", "admin"].includes(a.role))
     throw new LadderError("teacher_required", 403);
 };
-const queryRun = `SELECT r.*, s.pin, (s.closed_at IS NOT NULL OR s.expires_at < now()) AS session_closed FROM ladder_run r LEFT JOIN ladder_session s ON s.id=r.session_id WHERE r.id=$1 AND r.learner_id=$2`;
+const queryRun = `SELECT r.*, p.avatar_id, s.pin, (s.closed_at IS NOT NULL OR s.expires_at < now()) AS session_closed FROM ladder_run r LEFT JOIN ladder_session s ON s.id=r.session_id LEFT JOIN ladder_avatar_preference p ON p.user_id=r.learner_id WHERE r.id=$1 AND r.learner_id=$2`;
 function fallback(): import("@/domain/feedback").ListeningFeedback {
   return {
     contractVersion: "listening-feedback.v1",
@@ -79,6 +80,7 @@ export class PostgresLadderRepository implements LadderRepository {
       title: activity.title,
       audioUrl: activity.audioUrl,
       alias: row.alias,
+      avatarId: row.avatar_id ?? avatarFor(row.learner_id),
       pin: row.pin ?? null,
       sessionClosed: !!row.session_closed,
       state,
@@ -201,6 +203,48 @@ export class PostgresLadderRepository implements LadderRepository {
     }
     return (await this.view(actor, runId))!;
   }
+  async setAvatar(
+    actor: LadderActor,
+    runId: string,
+    avatarId: AvatarId,
+  ): Promise<LadderView> {
+    const client = await getPool().connect();
+    try {
+      await client.query("BEGIN");
+      const run = (
+        await client.query(
+          "SELECT id FROM ladder_run WHERE id=$1 AND learner_id=$2 FOR UPDATE",
+          [runId, actor.id],
+        )
+      ).rows[0];
+      if (!run) throw new LadderError("run_not_found", 404);
+      const current = (
+        await client.query(
+          "SELECT avatar_id FROM ladder_avatar_preference WHERE user_id=$1 FOR UPDATE",
+          [actor.id],
+        )
+      ).rows[0]?.avatar_id;
+      if (current !== avatarId) {
+        await client.query(
+          `INSERT INTO ladder_avatar_preference(user_id,avatar_id)
+           VALUES($1,$2)
+           ON CONFLICT(user_id) DO UPDATE SET avatar_id=excluded.avatar_id,updated_at=now()`,
+          [actor.id, avatarId],
+        );
+        await client.query(
+          "INSERT INTO ladder_avatar_change(actor_id,run_id,avatar_id) VALUES($1,$2,$3)",
+          [actor.id, runId, avatarId],
+        );
+      }
+      await client.query("COMMIT");
+    } catch (e) {
+      await client.query("ROLLBACK");
+      throw e;
+    } finally {
+      client.release();
+    }
+    return (await this.view(actor, runId))!;
+  }
   private async append(
     client: PoolClient,
     row: {
@@ -298,7 +342,10 @@ export class PostgresLadderRepository implements LadderRepository {
     if (!session) throw new LadderError("session_not_found", 404);
     const rows = (
       await getPool().query(
-        "SELECT id,alias,state_json FROM ladder_run WHERE session_id=$1 ORDER BY created_at",
+        `SELECT r.id,r.learner_id,r.alias,r.state_json,p.avatar_id
+         FROM ladder_run r
+         LEFT JOIN ladder_avatar_preference p ON p.user_id=r.learner_id
+         WHERE r.session_id=$1 ORDER BY r.created_at`,
         [session.id],
       )
     ).rows;
@@ -308,6 +355,7 @@ export class PostgresLadderRepository implements LadderRepository {
       players: rows.map((r) => ({
         runId: r.id,
         alias: r.alias,
+        avatarId: r.avatar_id ?? avatarFor(r.learner_id),
         position: ladderPosition(r.state_json),
         finished:
           r.state_json.choices.length === 4 &&

@@ -1,4 +1,5 @@
 import type { HostView, LadderAction, LadderView } from "@/domain/ladder/model";
+import type { AvatarId } from "@/domain/ladder/avatars";
 export type LadderActor = { id: string; role: "learner" | "teacher" | "admin" };
 export interface LadderRepository {
   view(actor: LadderActor, runId?: string): Promise<LadderView | null>;
@@ -9,6 +10,11 @@ export interface LadderRepository {
     revision: number,
     key: string,
     action: LadderAction,
+  ): Promise<LadderView>;
+  setAvatar(
+    actor: LadderActor,
+    runId: string,
+    avatarId: AvatarId,
   ): Promise<LadderView>;
   createSession(actor: LadderActor, key: string): Promise<HostView>;
   host(actor: LadderActor, pin: string): Promise<HostView>;
