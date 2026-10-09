@@ -1,6 +1,6 @@
 # LFL-019F character colours and anonymous names
 
-Date: 2026-10-09. Status: container-verified; deployment pending.
+Date: 2026-10-09. Status: deployed under `f24a97c`; see `docs/GAME_SPRINT_DEPLOYMENT_RECEIPT.md`.
 
 Thirty existing animated character compositions now support independent colour
 selection: original, mint, teal, ocean, sky, violet, lilac, rose, coral, amber,
@@ -39,7 +39,7 @@ lost-response reconciliation, phone and reduced motion. The actual teacher
 session showed 30 distinct animal aliases and 12 saved palettes; its projected
 board exceeded 1600 CSS pixels and all 30 same-tile players were accessible.
 The gallery's arm animation nesting was corrected and bounded limb/overflow
-checks passed for desktop and phone. Production receipt remains pending.
+checks passed for desktop and phone. Production acceptance passed; the linked deployment receipt records its scope and limits.
 
 Rollback: restore the previous application image; retain additive columns and
 cosmetic history. No source content, game movement, proficiency interpretation,
