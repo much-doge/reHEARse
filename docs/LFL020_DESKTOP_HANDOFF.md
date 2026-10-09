@@ -12,9 +12,8 @@ purposeful replay and historical version resolution. Deliver this first.
 Keep the existing game playable, preserve all old runs, and retain finite
 repair/support and cosmetic settings. This afternoon's deployment is owned by
 the lead after combined acceptance, not by either worker declaring its own
-slice done. Additional functional snakes/recovery ladders are an optional
-scope decision currently asked of the human; do not implement them until
-explicitly added to this handoff. No multi-floor or video expansion today.
+slice done. The human explicitly added functional snakes/recovery ladders today.
+Implement the exact topology and saved movement contract below. No multi-floor or video expansion today.
 
 ## Current source and isolation
 
@@ -40,7 +39,7 @@ pnpm directory in this environment is
 
 ## Second desktop — LFL-020B, approximately 60%
 
-Own the content and backend compatibility vertical slice:
+Own the content, backend compatibility and executable movement vertical slice:
 
 1. Preserve the current authored three-choice content version byte-for-byte
    in behaviour. Add a new immutable, neutrally named content version for the
@@ -77,6 +76,11 @@ Own the content and backend compatibility vertical slice:
    feedback/media version resolution. Add a guarded local PostgreSQL/API
    journey; do not seed or test with writes in production.
 
+7. Implement the new deterministic chapter movement reducer and persist each
+   accepted transition together with its event. Pin content and mechanics on
+   session/run creation. Legacy runs retain legacy movement. Include exhaustive
+   mixed-choice/repair/support simulation and idempotent movement tests.
+
 Owned paths:
 
 - `src/domain/ladder/model.ts`, model tests, and new domain content/version
@@ -100,13 +104,14 @@ If another path is necessary, propose the exact change through the human.
 
 ## Lead — LFL-020A, approximately 40% plus acceptance
 
-Own the learner-facing A–D presentation, clear question/replay checkpoints,
+Own the functional snake/ladder board and saved-transition animation, learner-facing A–D presentation, clear question/replay checkpoints,
 robust timestamp/audio controls, bilingual guidance and accessible responsive
 layout. Remove hardcoded four-item indexing from the UI, keep original option
 letters/order, and preserve drafts/selection across cosmetic/feedback updates.
 Maintain speech priority, reduced motion and honest supported completion.
 
-Owned: `src/components/ladder/game.tsx`, new listening UI helper/components and
+Owned: `src/components/ladder/game.tsx`, `board.tsx`, `board-layout.ts` and tests,
+`board.css`, `host.tsx`, `src/domain/ladder/journey-contract.ts`, new listening UI helper/components and
 focused tests, scoped styles, `view-reconciliation.ts` if needed, and later
 integration/browser/journey checks. Lead serializes shared ledger/decision edits,
 reviews confidential content worksheet, integrates actual commits, runs final
@@ -121,8 +126,8 @@ private source details, provider credentials and all prior records.
 - `startMs`/`endMs` stay integer millisecond contextual replay bounds. These
   describe the current item's purposeful listen, not arbitrary timeline slices.
 - `items.length` is the total task count. UI must not assume index 3 exists.
-- Existing fields/actions and appearance contracts remain available. No movement
-  or score change in Next A. An explicit DTO bump is permitted, but report it
+- Existing fields/actions and appearance contracts remain available. Legacy movement stays unchanged; new runs use the separately pinned
+  chapter-route.v1 mechanics below. No scores or ranks. An explicit DTO bump is permitted, but report it
   before handoff and update both legacy/new projected results consistently.
 - New optional `contentVersion`/`questionFormat` metadata may be proposed; keys,
   source identifiers, complete transcript and reasons must never cross the
@@ -130,6 +135,57 @@ private source details, provider credentials and all prior records.
 - The lead can build against the existing DTO while backend work is isolated.
   If any contract must change incompatibly, stop that portion and report it
   through the human before implementing dependent changes.
+
+## Approved chapter topology and movement contract
+
+The user approved this scope after the initial coordination commit. This
+revision supersedes the earlier Next A-only movement boundary.
+
+Public types and map live in the lead-owned
+`src/domain/ladder/journey-contract.ts`; import them, do not edit them.
+`LadderView` adds optional `journey?: LearnerJourney`; `HostView` adds optional
+`journey?: HostJourney`, and each host player adds optional
+`lastTransition?: JourneyTransition | null`. Legacy DTOs omit journey. New
+DTOs always supply the immutable map and latest saved transition. The lead
+renders these fields, not an inferred snake from a position delta.
+
+Four chapters use entry/replay nodes E = 3*i+1, snake-trigger nodes T =
+3*i+2 and camp nodes C = 3*i+3 for i=0..3. Start is 0; finish is 13.
+The immutable map has snakes T->E and ladders E->C for each chapter.
+Finish is distinct from camp 12, so pending repairs cannot appear finished.
+
+For a new first choice:
+
+- Match: walk current->E, then ladder E->C (`first_match`).
+- Mismatch: walk current->T, then snake T->E (`first_mismatch`), queue repair.
+- Uncertain: walk current->E (`uncertain`), queue repair, no snake.
+- Proceed to the next first-listen question without forced earlier replay.
+
+After all four first choices, an accepted repair first walks current->that
+chapter's E if necessary. A failed repair stays there (`repair_retry`) with
+no extra snake. A revised, supported or teacher-assisted closure uses E->C
+ladder (`repair_revised`, `supported`, `teacher_assisted`). When all chapters
+close, append walk current->13 (`finish`) to the same accepted transition.
+Skip zero-length walks. Help-only events do not invent movement. Uncertainty
+is neutral and legitimate supported completion receives equal celebration.
+
+Store eventId, revision and ordered steps from the public contract. Event
+retries must return the recorded transition, not a new animation event. A
+reload shows the saved final node without replaying old movement. The client
+may animate a newly acknowledged higher revision and must stop motion for
+speech/reduced-motion/unmount. The latest transition and `position` must agree.
+
+Reserve migration 013 for additive content/mechanics pinning and nullable
+movement JSON. Never modify old events/state. Treat imported old rows as legacy.
+The worker may choose an internal state shape but must expose the frozen
+public contract. Validate both first and repair option cardinalities.
+
+Provide an adapter-level `LADDER_START_VERSION=legacy|original` switch (default
+original once accepted) to disable new original starts while retaining readers
+for already-created versions. No process/env dependency in domain functions.
+Rollback after new runs exist must retain their version readers; do not claim
+that an old v1-only image can resume a new version. Explain this in the receipt.
+The lead owns any production Compose/environment wiring needed for the switch.
 
 ## Handoff and release gate
 
