@@ -1,6 +1,6 @@
 # LFL-022 — Ready, wait, listen
 
-Owner: integration lead. Status: container verified; release pending.
+Owner: integration lead. Status: deployed. See `docs/LFL022_DEPLOYMENT_RECEIPT.md`.
 
 New class sessions open in a waiting room. Learners join, choose a bounded game
 name or random animal alias, and configure their character before confirming

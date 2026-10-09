@@ -1,6 +1,7 @@
 # LFL-022 — Lobby and finish acceptance
 
-Status: container verified; production deployment pending.
+Status: deployed; runtime and live checks are recorded in
+`docs/LFL022_DEPLOYMENT_RECEIPT.md`.
 
 New class sessions show a large waiting roster with each joined alias, animated
 character and ready status. Students configure a nickname or random animal name,
