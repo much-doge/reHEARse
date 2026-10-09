@@ -17,9 +17,14 @@ async function main() {
         "SELECT id,role FROM app_user WHERE role IN ('learner','teacher') ORDER BY created_at",
       )
     ).rows;
-    const learner = users.find((user) => user.role === "learner");
     const teacher = users.find((user) => user.role === "teacher");
-    assert(learner && teacher);
+    assert(teacher);
+    const learner = (
+      await pool.query(
+        "INSERT INTO app_user(email,display_name,password_hash,role) VALUES($1,'Avatar owner fixture','local-fixture-no-login','learner') RETURNING id,role",
+        [`avatar-owner-${randomUUID()}@test.invalid`],
+      )
+    ).rows[0];
     const foreign = (
       await pool.query(
         "INSERT INTO app_user(email,display_name,password_hash,role) VALUES($1,'Avatar fixture','local-fixture-no-login','learner') RETURNING id,role",
@@ -42,10 +47,10 @@ async function main() {
     const foreignCookie = await cookie(foreign);
 
     async function call(path, body, auth = ownedCookie) {
-      const response = await fetch(`http://app:3000${path}`, {
+      const response = await fetch(`http://127.0.0.1:3000${path}`, {
         method: body ? "POST" : "GET",
         headers: {
-          origin: "http://app:3000",
+          origin: "http://127.0.0.1:3000",
           "content-type": "application/json",
           ...(auth ? { cookie: auth } : {}),
         },
@@ -73,6 +78,7 @@ async function main() {
     const initial = started.body.view;
     assert.equal(initial.contractVersion, "listening-ladder.v2");
     assert.equal(typeof initial.avatarId, "string");
+    const firstAvatar = initial.avatarId === "fern" ? "moss" : "fern";
 
     assert.equal(
       (
@@ -104,12 +110,23 @@ async function main() {
       404,
     );
 
+    // A repeated default is a no-op; first writes from different owned runs
+    // must serialize even while no preference row exists yet.
+    assert.equal((await call("/api/ladder/avatar", { runId: initial.runId, avatarId: initial.avatarId })).status, 200);
+    assert.equal((await pool.query("SELECT count(*)::int AS n FROM ladder_avatar_change WHERE actor_id=$1", [learner.id])).rows[0].n, 0);
+    const otherRun = await call("/api/ladder", { kind: "start", key: randomUUID() });
+    assert.equal(otherRun.status, 200);
+    const parallel = await Promise.all(Array.from({ length: 6 }, (_, index) => call("/api/ladder/avatar", {
+      runId: index % 2 ? otherRun.body.view.runId : initial.runId, avatarId: firstAvatar,
+    })));
+    assert(parallel.every((response) => response.status === 200));
+    assert.equal((await pool.query("SELECT count(*)::int AS n FROM ladder_avatar_change WHERE actor_id=$1", [learner.id])).rows[0].n, 1);
     const saved = await call("/api/ladder/avatar", {
       runId: initial.runId,
-      avatarId: "fern",
+      avatarId: firstAvatar,
     });
     assert.equal(saved.status, 200);
-    assert.equal(saved.body.view.avatarId, "fern");
+    assert.equal(saved.body.view.avatarId, firstAvatar);
     assert.equal(saved.body.view.revision, initial.revision);
     assert.deepEqual(saved.body.view.state, initial.state);
     assert.match(saved.cache, /no-store/);
@@ -122,7 +139,7 @@ async function main() {
     ).rows[0].n;
     const duplicate = await call("/api/ladder/avatar", {
       runId: initial.runId,
-      avatarId: "fern",
+      avatarId: firstAvatar,
     });
     assert.equal(duplicate.status, 200);
     assert.equal(
@@ -171,7 +188,7 @@ async function main() {
     assert.equal(later.body.view.avatarId, "sprout");
     assert.notEqual(later.body.view.runId, initial.runId);
     console.log(
-      "PASS: own save, validation/auth/ownership, host projection, reload and later-run preference, duplicate no-op, and concurrent answer preservation",
+      "PASS: own save, validation/auth/ownership, host projection, reload/later-run preference, default/duplicate no-op, six cross-run first writes/one cosmetic event, and concurrent answer preservation",
     );
   } finally {
     for (const hash of sessionHashes)

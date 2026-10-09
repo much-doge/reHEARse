@@ -218,12 +218,15 @@ export class PostgresLadderRepository implements LadderRepository {
         )
       ).rows[0];
       if (!run) throw new LadderError("run_not_found", 404);
+      // The preference is shared by all of this actor's runs. A run lock alone
+      // cannot serialize first-time writes from two different owned runs.
+      await client.query("SELECT id FROM app_user WHERE id=$1 FOR UPDATE", [actor.id]);
       const current = (
         await client.query(
           "SELECT avatar_id FROM ladder_avatar_preference WHERE user_id=$1 FOR UPDATE",
           [actor.id],
         )
-      ).rows[0]?.avatar_id;
+      ).rows[0]?.avatar_id ?? avatarFor(actor.id);
       if (current !== avatarId) {
         await client.query(
           `INSERT INTO ladder_avatar_preference(user_id,avatar_id)

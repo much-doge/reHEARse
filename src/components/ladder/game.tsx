@@ -5,6 +5,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { BilingualText } from "@/domain/feedback";
 import type { LadderAction, LadderView } from "@/domain/ladder/model";
 import { LadderBoard } from "./board";
+import { AvatarControls } from "./avatar-controls";
+import { ladderTaskKey, reconcileLadderView } from "./view-reconciliation";
 import { AnswerEffect } from "./answer-effect";
 import { confirmedAnswerEffect, type AnswerEffect as AnswerEffectState } from "./answer-effect-state";
 function Words({ text }: { text: BilingualText }) {
@@ -67,7 +69,8 @@ export function LadderGame({
     loadTarget = useRef<number | null>(null),
     pending = useRef<{ fingerprint: string; key: string } | null>(null),
     syncLock = useRef(false),
-    celebrated = useRef(new Set<string>());
+    celebrated = useRef(new Set<string>()),
+    latestView = useRef(initial);
   const clearAnswerEffect = useCallback(() => setAnswerEffect(null), []);
   const choiceIndex = view?.state.choices.length ?? 0;
   const repairIndex =
@@ -78,10 +81,11 @@ export function LadderGame({
   const finished = choiceIndex === 4 && repairIndex < 0;
   const task = view && index >= 0 ? view.state.choices[index] : null;
   const receive = useCallback(
-    (previous: LadderView | null, next: LadderView) => {
-      const taskKey = (v: LadderView | null) =>
-        `${v?.runId}:${v?.state.choices.length}:${v?.state.choices.findIndex((x) => x.outcome === "repair")}`;
-      if (taskKey(previous) !== taskKey(next)) {
+    (next: LadderView, allowNewRun = false) => {
+      const previous = latestView.current;
+      const accepted = reconcileLadderView(previous, next, allowNewRun);
+      if (!accepted || accepted === previous) return;
+      if (ladderTaskKey(previous) !== ladderTaskKey(accepted)) {
         setAnswerEffect(null);
         setSelection(null);
         setUncertain(false);
@@ -92,7 +96,8 @@ export function LadderGame({
         audio.current?.pause();
         boundary.current = null;
       }
-      setView(next);
+      latestView.current = accepted;
+      setView(accepted);
     },
     [],
   );
@@ -113,9 +118,10 @@ export function LadderGame({
             active &&
             !syncLock.current &&
             (body.view.revision > view.revision ||
-              body.view.sessionClosed !== view.sessionClosed)
+              body.view.sessionClosed !== view.sessionClosed ||
+              body.view.avatarId !== view.avatarId)
           )
-            receive(view, body.view);
+            receive(body.view);
         }
       } catch {
         /* A network gap must not reset the task. */
@@ -163,12 +169,12 @@ export function LadderGame({
           const fresh = await fetch(`/api/ladder?runId=${view!.runId}`, {
             cache: "no-store",
           });
-          if (fresh.ok) receive(view, (await fresh.json()).view);
+          if (fresh.ok) receive((await fresh.json()).view);
         }
         throw new Error(body.error);
       }
       const next = body.view as LadderView;
-      receive(view, next);
+      receive(next, start);
       const effect = confirmedAnswerEffect(view, next, action);
       if (effect && !celebrated.current.has(effect.id)) {
         celebrated.current.add(effect.id);
@@ -213,11 +219,12 @@ export function LadderGame({
             .then(async (r) => {
               if (r.ok) {
                 const x = await r.json();
-                setView((v) =>
-                  v?.latestEventId === next.latestEventId
-                    ? { ...v, latestNote: x.note }
-                    : v,
-                );
+                const current = latestView.current;
+                if (current?.latestEventId === next.latestEventId) {
+                  const updated = { ...current, latestNote: x.note };
+                  latestView.current = updated;
+                  setView(updated);
+                }
               }
             })
             .catch(() => undefined)
@@ -343,7 +350,7 @@ export function LadderGame({
           </div>
           <LadderBoard
             players={[
-              { id: view?.runId, alias: view?.alias ?? "YOU", position: view?.position ?? 0 },
+              { id: view?.runId, alias: view?.alias ?? "YOU", position: view?.position ?? 0, avatarId: view?.avatarId },
             ]}
             ownAlias={view?.alias ?? "YOU"}
             ownId={view?.runId}
@@ -375,6 +382,12 @@ export function LadderGame({
             </a>{" "}
             · CC0
           </p>
+          {view && (
+            <details className="ladder-appearance-settings">
+              <summary>Change your character / Ganti karaktermu</summary>
+              <AvatarControls view={view} disabled={busy} animate={!listening} onView={receive} />
+            </details>
+          )}
         </aside>
         <section
           className="ladder-desk"
@@ -447,6 +460,7 @@ export function LadderGame({
                     className="ladder-primary"
                     onClick={() => {
                       setPin("");
+                      latestView.current = null;
                       setView(null);
                     }}
                   >
@@ -474,6 +488,7 @@ export function LadderGame({
                     className="ladder-primary"
                     onClick={() => {
                       setPin("");
+                      latestView.current = null;
                       setView(null);
                       setNotice(null);
                     }}

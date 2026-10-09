@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { HostView } from "@/domain/ladder/model";
 import { HostAmbience } from "./host-ambience";
 import { LadderBoard } from "./board";
+import { Avatar } from "./avatar";
 export function LadderHost({ initialPin }: { initialPin?: string }) {
   const [view, setView] = useState<HostView | null>(null),
     [pin, setPin] = useState(initialPin ?? ""),
@@ -175,6 +176,7 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
               id: x.runId,
               alias: x.alias,
               position: x.position,
+              avatarId: x.avatarId,
             }))}
           />
           <section className="ladder-host-roster">
@@ -191,7 +193,7 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
             ) : (
               view.players.map((p) => (
                 <div className="ladder-host-player" key={p.runId}>
-                  <span className="ladder-player-dot" />
+                  <Avatar id={p.avatarId} size={64} />
                   <strong>{p.alias}</strong>
                   <span>
                     {p.finished

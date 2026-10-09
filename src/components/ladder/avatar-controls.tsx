@@ -29,13 +29,25 @@ export function AvatarControls({
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ runId: view.runId, avatarId }),
+        signal: AbortSignal.timeout(8000),
       });
       const body = (await response.json()) as { view?: LadderView };
-      if (!response.ok || !body.view) throw new Error("avatar_save_failed");
+      if (!response.ok || !body.view || body.view.runId !== view.runId) throw new Error("avatar_save_failed");
       onView(body.view);
       setMessage("saved");
     } catch {
-      setMessage("failed");
+      // A lost response can follow a committed write. Reconcile before asking
+      // for another selection, and never claim the earlier choice is unchanged.
+      try {
+        const response = await fetch(`/api/ladder?runId=${view.runId}`, {
+          cache: "no-store", signal: AbortSignal.timeout(6000),
+        });
+        const body = (await response.json()) as { view?: LadderView };
+        if (response.ok && body.view?.runId === view.runId) {
+          onView(body.view);
+          setMessage(body.view.avatarId === avatarId ? "saved" : "failed");
+        } else setMessage("failed");
+      } catch { setMessage("failed"); }
     } finally {
       setSaving(null);
     }
@@ -55,7 +67,7 @@ export function AvatarControls({
           : message === "saved"
             ? "Companion saved. / Teman tersimpan."
             : message === "failed"
-              ? "Could not save. Your previous companion is unchanged—try again. / Belum dapat disimpan. Teman sebelumnya tidak berubah—coba lagi."
+              ? "Selection could not be confirmed. You can try again. / Pilihan belum dapat dipastikan. Kamu bisa mencoba lagi."
               : ""}
       </p>
     </div>

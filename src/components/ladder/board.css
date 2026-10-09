@@ -1,5 +1,5 @@
 /* LFL-019D: the map shows real positions, with explicit same-tile overflow. */
-.ladder-board-surface { position: relative; aspect-ratio: 480 / 640; }
+.ladder-board-surface { position: relative; aspect-ratio: 480 / 640; container-type: inline-size; }
 .ladder-board-wide .ladder-board-surface { aspect-ratio: 1040 / 480; }
 .ladder-board > .ladder-board-surface > svg { display: block; width: 100%; height: 100%; max-height: none; }
 .ladder-board-markers { list-style: none; margin: 0; padding: 0; }
@@ -10,8 +10,8 @@
 .ladder-board-marker.is-own .ladder-marker-name { border-color: #58876c; background: #f8fff1; }
 .ladder-board .ladder-avatar { width: var(--marker-size, 88px); height: var(--marker-size, 88px); max-height: none; }
 .ladder-marker-placeholder { display: grid; place-items: center; width: var(--marker-size, 64px); height: var(--marker-size, 64px); border-radius: 50%; border: 4px solid #fff; background: #305f50; color: white; font-size: 20px; font-weight: 700; box-shadow: 0 4px 12px #21463825; }
-.ladder-board-wide .ladder-board-marker { --marker-size: clamp(72px, 6.8vw, 112px); --bubble-width: 124px; }
-.ladder-board-wide .ladder-board-marker.is-crowded { --marker-size: clamp(48px, 4.2vw, 68px); --bubble-width: 68px; }
+.ladder-board-wide .ladder-board-marker { --marker-size: clamp(72px, 9cqw, 124px); --bubble-width: 124px; }
+.ladder-board-wide .ladder-board-marker.is-crowded { --marker-size: clamp(48px, 5.5cqw, 88px); --bubble-width: 68px; }
 .ladder-board-wide .ladder-marker-name { font-size: 13px; }
 .ladder-board-overflow { position: absolute; z-index: 3; transform: translate(-50%, 27px); min-width: 38px; min-height: 28px; padding: 3px 7px; border: 2px solid #fff; border-radius: 999px; background: #214e3d; color: #fff; font-size: 12px; font-weight: 750; cursor: pointer; box-shadow: 0 3px 9px #21463825; }
 .ladder-board-overflow:focus-visible, .ladder-board-group button:focus-visible { outline: 3px solid #3164f4; outline-offset: 3px; }
@@ -31,8 +31,9 @@
 .ladder-board-still .ladder-fireflies span { animation-play-state: paused; }
 @media (min-width: 801px) {
  .ladder-host-shell.is-projecting .ladder-board-wide .ladder-board-surface { aspect-ratio: auto; height: clamp(360px, calc(100svh - 280px), 1000px); }
- .ladder-host-shell.is-projecting .ladder-board-wide .ladder-board-marker:not(.is-crowded) { --marker-size: clamp(88px, 7vw, 124px); }
+ .ladder-host-shell.is-projecting .ladder-board-wide .ladder-board-marker:not(.is-crowded) { --marker-size: clamp(88px, 9cqw, 132px); }
 }
+@media (max-width: 1399px) { .ladder-host-layout { grid-template-columns: 1fr; } .ladder-host-roster { max-height: none; } }
 @media (max-width: 800px) {
  .ladder-board-wide .ladder-board-surface { aspect-ratio: 1040 / 600; }
  .ladder-board-wide .ladder-board-marker { --marker-size: clamp(34px, 7vw, 60px); --bubble-width: 64px; }
@@ -45,3 +46,11 @@
 .ladder-board-marker.is-crowded .ladder-marker-name { padding: 4px 3px; font-size: 10px; }
 .ladder-board-wide .ladder-board-marker.is-crowded .ladder-marker-name { font-size: 11px; }
 @media (max-width: 800px) { .ladder-board-wide .ladder-board-marker.is-crowded .ladder-marker-name { font-size: 8px; padding: 3px 2px; } }
+.ladder-appearance-settings { margin-top: 16px; border: 1px solid #d4dfce; border-radius: 16px; background: #fffef8; }
+.ladder-appearance-settings > summary { padding: 14px 16px; color: #28533f; font-size: 12px; font-weight: 700; cursor: pointer; }
+.ladder-appearance-settings .ladder-avatar-picker { border: 0; margin: 0; padding: 12px; }
+.ladder-appearance-settings .ladder-avatar-picker-heading { flex-direction: column; }
+.ladder-appearance-settings .ladder-avatar-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.ladder-appearance-settings .ladder-avatar-save-state { padding: 0 14px 10px; }
+.ladder-host-player > .ladder-avatar { width: 64px; height: 64px; }
+.is-projecting .ladder-host-player > .ladder-avatar { width: 48px; height: 48px; }
