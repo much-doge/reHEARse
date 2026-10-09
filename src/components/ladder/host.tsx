@@ -10,7 +10,7 @@ import { Avatar } from "./avatar";
 export function LadderHost({ initialPin }: { initialPin?: string }) {
   const [view, setView] = useState<HostView | null>(null),
     [pin, setPin] = useState(initialPin ?? ""),
-    [activityId, setActivityId] = useState<string | null>(null),
+    [activityId, setActivityId] = useState<string | null>("conversation-journey"),
     [creationPending, setCreationPending] = useState(false),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false),

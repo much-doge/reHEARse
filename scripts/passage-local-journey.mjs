@@ -20,10 +20,15 @@ try {
     const r = await fetch(origin + path, { method: body ? "POST" : "GET", headers: { origin, "content-type": "application/json", ...(auth ? { cookie: auth.cookie } : {}) }, ...(body ? { body: JSON.stringify(body) } : {}) });
     return { status: r.status, body: await r.json() };
   }
-  const catalogue = await call("/api/ladder/catalogue");
+  const catalogue = await call("/api/ladder/catalogue?format=passage-v1");
   assert.equal(catalogue.status, 200);
+  assert.equal(catalogue.body.contractVersion, "ladder-catalogue.v2");
+  const older = await call("/api/ladder/catalogue");
+  assert.equal(older.body.contractVersion, "ladder-catalogue.v1");
+  assert.deepEqual(older.body.activities.map((activity) => activity.questionCount), [4, 4]);
+  assert.equal((await call("/api/ladder/catalogue?format=unsupported")).status, 400);
   assert.deepEqual(catalogue.body.activities.map((a) => [a.id, a.passageCount, a.questionCount]), [["conversation-journey", 2, 8], ["talk-journey", 3, 12]]);
-  assert.equal((await call("/api/ladder/catalogue", undefined, null)).status, 401);
+  assert.equal((await call("/api/ladder/catalogue?format=passage-v1", undefined, null)).status, 401);
   assert.equal((await call("/api/ladder/host", { kind: "create", key: randomUUID() })).status, 403);
   for (const [activityId, sizes, keys, repairs] of [
     ["conversation-journey", [4, 4], [0, 3, 1, 2, 2, 0, 1, 2], [2, 1, 0, 0, 1, 2, 0, 1]],
@@ -101,10 +106,18 @@ try {
       assert.equal((await call(`/api/ladder?runId=${runId}`)).status, 200);
       const late = await call("/api/ladder", { kind: "start", key: randomUUID(), pin }, stranger);
       assert.equal(late.status, 200); assert.equal(late.body.view.passage.index, 0);
-      assert(!(await call("/api/ladder/catalogue")).body.activities.some((a) => a.id === activityId));
+      assert(!(await call("/api/ladder/catalogue?format=passage-v1")).body.activities.some((a) => a.id === activityId));
     } finally { await pool.query("UPDATE activity SET current_version=$2 WHERE id=$1", [changed.id, changed.current_version]); }
     await call("/api/ladder/host", { kind: "close", pin }, teacher);
     assert.equal((await call(`/api/ladder?runId=${runId}`)).body.view.sessionClosed, true);
+  }
+  // Mounted pre-v4 clients send no activity ID and must keep their old four-item shape.
+  for (const [path, kind, auth] of [["/api/ladder", "start", learner], ["/api/ladder/host", "create", teacher]]) {
+    const response = await call(path, { kind, key: randomUUID() }, auth);
+    assert.equal(response.status, 200);
+    const v = kind === "start" ? response.body.view : response.body;
+    assert.equal(v.activityId, "three-papers-one-thread");
+    if (kind === "start") assert.equal(v.items.length, 4);
   }
   for (const activityId of ["three-papers-one-thread", "ocean-currents-in-motion"]) {
     const r = await call("/api/ladder", { kind: "start", key: randomUUID(), activityId });

@@ -19,17 +19,31 @@ describe("GET /api/ladder/catalogue", () => {
   });
 
   it("returns only the neutral published projection without source or answer data", async () => {
-    const response = await GET();
+    const response = await GET(new Request("http://localhost/api/ladder/catalogue"));
     expect(response.status).toBe(200);
     expect(response.headers.get("cache-control")).toBe("private, no-store");
     const body = await response.json();
     expect(body.activities).toHaveLength(1);
+    expect(body.contractVersion).toBe("ladder-catalogue.v1");
+    expect(catalogue).toHaveBeenCalledWith({ id: "actor", role: "teacher" }, "single");
     expect(JSON.stringify(body)).not.toMatch(/answer|transcript|source|questionRange|package/i);
+  });
+
+  it("selects complete games only for the explicitly versioned catalogue", async () => {
+    const response = await GET(new Request("http://localhost/api/ladder/catalogue?format=passage-v1"));
+    expect(response.status).toBe(200);
+    expect((await response.json()).contractVersion).toBe("ladder-catalogue.v2");
+    expect(catalogue).toHaveBeenCalledWith({ id: "actor", role: "teacher" }, "passage");
+  });
+
+  it("rejects unknown catalogue formats", async () => {
+    expect((await GET(new Request("http://localhost/api/ladder/catalogue?format=unsupported"))).status).toBe(400);
+    expect(catalogue).not.toHaveBeenCalled();
   });
 
   it("requires authentication", async () => {
     currentUser.mockResolvedValue(null);
-    expect((await GET()).status).toBe(401);
+    expect((await GET(new Request("http://localhost/api/ladder/catalogue"))).status).toBe(401);
     expect(catalogue).not.toHaveBeenCalled();
   });
 });

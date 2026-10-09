@@ -11,7 +11,7 @@ export function ActivityPicker({ value, onChange, disabled = false }: {
     let mounted = true;
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 8000);
-    fetch("/api/ladder/catalogue", { cache: "no-store", signal: controller.signal })
+    fetch("/api/ladder/catalogue?format=passage-v1", { cache: "no-store", signal: controller.signal })
       .then(async (response) => {
         // Compatibility while the UI slice is integrated before its backend.
         if (response.status === 404) return;
@@ -23,6 +23,9 @@ export function ActivityPicker({ value, onChange, disabled = false }: {
       .finally(() => clearTimeout(timeout));
     return () => { mounted = false; controller.abort(); clearTimeout(timeout); };
   }, []);
+  useEffect(() => {
+    if (choices.length && !choices.some((choice) => choice.id === value)) onChange(choices[0].id);
+  }, [choices, value, onChange]);
   if (!choices.length) return unavailable ? <p role="status">Game choices could not load. You can still open the default activity. / Pilihan permainan belum dimuat. Kamu tetap bisa membuka aktivitas awal.</p> : null;
   return <fieldset className="ladder-activity-picker" disabled={disabled}>
     <legend>Choose a game / Pilih permainan</legend>

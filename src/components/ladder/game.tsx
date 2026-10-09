@@ -57,7 +57,7 @@ export function LadderGame({
 }) {
   const [view, setView] = useState(initial),
     [pin, setPin] = useState(initialPin ?? ""),
-    [activityId, setActivityId] = useState<string | null>(null),
+    [activityId, setActivityId] = useState<string | null>("conversation-journey"),
     [busy, setBusy] = useState(false),
     [error, setError] = useState<BilingualText | null>(null),
     [selection, setSelection] = useState<number | null>(null),

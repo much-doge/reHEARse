@@ -20,7 +20,7 @@ export interface LadderRepository {
     paletteId?: AvatarPaletteId,
   ): Promise<LadderView>;
   createSession(actor: LadderActor, key: string, activityId?: string): Promise<HostView>;
-  catalogue(actor: LadderActor): Promise<LadderActivityChoice[]>;
+  catalogue(actor: LadderActor, format?: "single" | "passage"): Promise<LadderActivityChoice[]>;
   host(actor: LadderActor, pin: string): Promise<HostView>;
   closeSession(actor: LadderActor, pin: string): Promise<HostView>;
 }

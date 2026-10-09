@@ -27,6 +27,7 @@ import {
 import { keysFor, publicItems, pair } from "./content";
 import {
   gameContents,
+  ladderContents,
   resolveLadderContent,
   selectStartContent,
 } from "./content-resolver";
@@ -66,7 +67,8 @@ const teacher = (a: LadderActor) => {
 const queryRun = `SELECT r.*, p.avatar_id, p.avatar_palette, s.pin, (s.closed_at IS NOT NULL OR s.expires_at < now()) AS session_closed FROM ladder_run r LEFT JOIN ladder_session s ON s.id=r.session_id LEFT JOIN ladder_avatar_preference p ON p.user_id=r.learner_id WHERE r.id=$1 AND r.learner_id=$2`;
 function startContent(activityId?: string): LadderContent {
   const mode = process.env.LADDER_START_VERSION === "legacy" ? "legacy" : "original";
-  const content = selectStartContent(mode, activityId);
+  // Pre-v4 browser tabs omitted the activity ID for their single-recording default.
+  const content = selectStartContent(mode, activityId ?? (mode === "original" ? "three-papers-one-thread" : undefined));
   if (!content)
     throw new LadderError(
       mode === "legacy" ? "original_starts_disabled" : "activity_not_available",
@@ -686,9 +688,11 @@ export class PostgresLadderRepository implements LadderRepository {
     }
   }
 
-  async catalogue(actor: LadderActor) {
+  async catalogue(actor: LadderActor, format: "single" | "passage" = "passage") {
     const available = [];
-    const contents = process.env.LADDER_START_VERSION === "legacy" ? [startContent()] : gameContents;
+    const contents = process.env.LADDER_START_VERSION === "legacy" ? [startContent()]
+      : format === "passage" ? gameContents
+        : ladderContents.filter((content) => content.questionFormat === "original-four" && !content.passages);
     for (const content of contents) {
       try { await publishedVersions(content, actor); }
       catch (error) {

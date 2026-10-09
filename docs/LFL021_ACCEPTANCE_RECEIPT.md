@@ -50,3 +50,25 @@ import/check the three audio objects, then recreate only the app. Preserve earli
 attempts/runs/room state and unrelated containers. After new multi-passage runs exist,
 retain compatible readers; a start-only fallback may use `LADDER_START_VERSION=legacy`.
 Do not restore an older image that cannot read the new content versions.
+
+## LFL-021A — Mounted older browser compatibility
+
+Pre-v4 browser tabs can omit the activity ID when starting. Preserve their
+historical single-recording default at the adapter boundary. New learner and
+teacher interfaces explicitly select the conversation journey. If the published
+catalogue changes (including the legacy-start fallback), the picker selects a
+valid listed activity. Existing runs and PIN pins are unchanged.
+
+Validate implicit old-client starts, explicit combined starts, both full new
+browser journeys, and a legacy-start catalogue before the follow-up deployment.
+
+The v2 catalogue is selected explicitly with `format=passage-v1`. Unversioned
+catalogue requests retain the two original single-recording choices, so a
+previously mounted picker cannot offer a route its client cannot handle. Unknown
+catalogue formats are rejected. New interfaces use only the v2 catalogue.
+
+Follow-up acceptance passed: `pnpm check` (140 tests in 37 files, lint,
+TypeScript and build); final runner; complete PostgreSQL/API games including
+v1/v2 catalogue selection, unsupported formats and implicit old-client starts;
+both full Chromium games; default solo combined selection and legacy-mode
+catalogue/start journey. No classroom claim is added.
