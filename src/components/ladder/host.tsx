@@ -177,6 +177,7 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
               alias: x.alias,
               position: x.position,
               avatarId: x.avatarId,
+              avatarPalette: x.avatarPalette,
             }))}
           />
           <section className="ladder-host-roster">
@@ -193,7 +194,7 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
             ) : (
               view.players.map((p) => (
                 <div className="ladder-host-player" key={p.runId}>
-                  <Avatar id={p.avatarId} size={64} />
+                  <Avatar id={p.avatarId} paletteId={p.avatarPalette} size={64} />
                   <strong>{p.alias}</strong>
                   <span>
                     {p.finished

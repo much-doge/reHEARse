@@ -76,8 +76,10 @@ async function main() {
     });
     assert.equal(started.status, 200);
     const initial = started.body.view;
-    assert.equal(initial.contractVersion, "listening-ladder.v2");
+    assert.equal(initial.contractVersion, "listening-ladder.v3");
     assert.equal(typeof initial.avatarId, "string");
+    assert.match(initial.alias, /^[A-Z][a-z]+ [A-Z][a-z]+$/);
+    assert.equal(typeof initial.avatarPalette, "string");
     const firstAvatar = initial.avatarId === "fern" ? "moss" : "fern";
 
     assert.equal(
@@ -152,6 +154,16 @@ async function main() {
       countBefore,
     );
 
+    const colour = await call("/api/ladder/avatar", { runId: initial.runId, avatarId: firstAvatar, paletteId: "violet" });
+    assert.equal(colour.status, 200);
+    assert.equal(colour.body.view.avatarPalette, "violet");
+    assert.equal(colour.body.view.revision, initial.revision);
+    assert.deepEqual(colour.body.view.state, initial.state);
+    assert.equal((await pool.query("SELECT count(*)::int AS n FROM ladder_avatar_change WHERE actor_id=$1", [learner.id])).rows[0].n, countBefore + 1);
+    await call("/api/ladder/avatar", { runId: initial.runId, avatarId: firstAvatar, paletteId: "violet" });
+    assert.equal((await pool.query("SELECT count(*)::int AS n FROM ladder_avatar_change WHERE actor_id=$1", [learner.id])).rows[0].n, countBefore + 1);
+    assert.equal((await call("/api/ladder/avatar", { runId: initial.runId, avatarId: firstAvatar, paletteId: "url(secret)" })).status, 400);
+
     const [appearance, answer] = await Promise.all([
       call("/api/ladder/avatar", {
         runId: initial.runId,
@@ -179,6 +191,8 @@ async function main() {
     );
     assert.equal(host.status, 200);
     assert.equal(host.body.players[0].avatarId, "sprout");
+    assert.equal(host.body.players[0].avatarPalette, "violet");
+    assert.equal(host.body.players[0].alias, initial.alias);
 
     const later = await call("/api/ladder", {
       kind: "start",
@@ -186,6 +200,7 @@ async function main() {
     });
     assert.equal(later.status, 200);
     assert.equal(later.body.view.avatarId, "sprout");
+    assert.equal(later.body.view.avatarPalette, "violet");
     assert.notEqual(later.body.view.runId, initial.runId);
     console.log(
       "PASS: own save, validation/auth/ownership, host projection, reload/later-run preference, default/duplicate no-op, six cross-run first writes/one cosmetic event, and concurrent answer preservation",

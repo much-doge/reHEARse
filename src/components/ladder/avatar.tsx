@@ -1,5 +1,7 @@
 "use client";
 
+import { useId, type CSSProperties } from "react";
+import { paletteDefinition } from "@/domain/ladder/appearance";
 import { avatarDefinition } from "@/domain/ladder/avatars";
 import "./avatar.css";
 
@@ -12,14 +14,17 @@ const BODY = {
 function Part({ file, x, y, width, height }: {
   file: string; x: number; y: number; width: number; height: number;
 }) {
-  return <image href={`${ROOT}${file}.png`} x={x} y={y} width={width} height={height} preserveAspectRatio="none" />;
+  return <image className={/^(body|arm|leg|detail)_/.test(file) ? "ladder-avatar-skin" : undefined} href={`${ROOT}${file}.png`} x={x} y={y} width={width} height={height} preserveAspectRatio="none" />;
 }
 
 /** Kenney CC0 parts; layered motion and creature compositions authored for reHEARse. */
-export function Avatar({ id, size = 72, animate = true }: {
-  id: string; size?: number; animate?: boolean;
+export function Avatar({ id, size = 72, animate = true, paletteId = "original" }: {
+  id: string; size?: number; animate?: boolean; paletteId?: string;
 }) {
   const avatar = avatarDefinition(id);
+  const palette = paletteDefinition(paletteId);
+  const filterId = `skin-${useId().replaceAll(":", "")}`;
+  const channels = [1, 3, 5].map((offset) => parseInt(palette.hex.slice(offset, offset + 2), 16) / 255);
   const [bodyY, bodyWidth, bodyHeight] = BODY[avatar.body];
   const eyeSize = avatar.eyes === 1 ? 45 : avatar.eyes === 2 ? 34 : 26;
   const eyeGap = avatar.eyes === 1 ? 0 : avatar.eyes === 2 ? 42 : 30;
@@ -29,8 +34,17 @@ export function Avatar({ id, size = 72, animate = true }: {
     <svg
       className={`ladder-avatar ladder-avatar-${avatar.motion}${animate ? " is-animated" : ""}`}
       width={size} height={size} viewBox="0 0 240 240"
-      role="img" aria-label={avatar.name}
+      role="img" aria-label={`${avatar.name}, ${palette.en}`}
+      style={{ "--avatar-skin-filter": palette.id === "original" ? "none" : `url(#${filterId})` } as CSSProperties}
     >
+      <defs><filter id={filterId} colorInterpolationFilters="sRGB">
+        <feColorMatrix type="saturate" values="0" />
+        <feComponentTransfer>
+          <feFuncR type="linear" slope={channels[0] * .55} intercept={channels[0] * .45} />
+          <feFuncG type="linear" slope={channels[1] * .55} intercept={channels[1] * .45} />
+          <feFuncB type="linear" slope={channels[2] * .55} intercept={channels[2] * .45} />
+        </feComponentTransfer>
+      </filter></defs>
       <ellipse className="ladder-avatar-shadow" cx="120" cy="218" rx="56" ry="9" fill="#213f38" opacity=".15" />
       <g className="ladder-avatar-creature">
         <g className="ladder-avatar-leg ladder-avatar-leg-left">

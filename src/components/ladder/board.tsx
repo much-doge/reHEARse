@@ -75,7 +75,7 @@ export function LadderBoard({ players, ownAlias, ownId, wide = false, animate = 
                   {own && <small>You / Kamu</small>}
                 </span>
                 {player.avatarId
-                  ? <Avatar id={player.avatarId} size={112} animate={animate} />
+                  ? <Avatar id={player.avatarId} paletteId={player.avatarPalette} size={112} animate={animate} />
                   : <span className="ladder-marker-placeholder" aria-hidden="true">{player.alias.slice(-2)}</span>}
                 <span className="ladder-board-sr-only">{placeName(player.tile)}</span>
               </li>
@@ -116,7 +116,7 @@ export function LadderBoard({ players, ownAlias, ownId, wide = false, animate = 
               <li key={player.key}>
                 <span className="ladder-marker-name">{player.alias}</span>
                 {player.avatarId
-                  ? <Avatar id={player.avatarId} size={88} animate={animate} />
+                  ? <Avatar id={player.avatarId} paletteId={player.avatarPalette} size={88} animate={animate} />
                   : <span className="ladder-marker-placeholder" aria-hidden="true">{player.alias.slice(-2)}</span>}
               </li>
             ))}

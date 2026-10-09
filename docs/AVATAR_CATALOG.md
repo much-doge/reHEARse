@@ -44,3 +44,10 @@ game privileges.
 Kenney supplies static modular parts. reHEARse defines these compositions and
 their layered body, blink, arm, leg, accessory and shadow motion; the source
 pack must not be described as supplying animated characters.
+
+LFL-019F adds independent colour choices to all thirty compositions. The
+composition descriptions above refer to their original palette. Learners can
+choose original, mint, teal, ocean, sky, violet, lilac, rose, coral, amber, gold,
+fern or slate. The gallery now opens in mixed colours and provides a colour
+selector. Creature names identify character designs; board names are separate
+anonymous adjective-and-animal aliases.

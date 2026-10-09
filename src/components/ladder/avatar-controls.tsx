@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import type { LadderView } from "@/domain/ladder/model";
+import { PALETTES, isAvatarPaletteId } from "@/domain/ladder/appearance";
 import { isAvatarId } from "@/domain/ladder/avatars";
 import { AvatarPicker } from "./avatar-picker";
 
@@ -20,15 +21,15 @@ export function AvatarControls({
   const [saving, setSaving] = useState<string | null>(null);
   const [message, setMessage] = useState<"saved" | "failed" | null>(null);
 
-  async function choose(avatarId: string) {
-    if (!isAvatarId(avatarId) || saving || avatarId === view.avatarId) return;
+  async function choose(avatarId: string, paletteId = view.avatarPalette) {
+    if (!isAvatarId(avatarId) || !isAvatarPaletteId(paletteId) || saving || (avatarId === view.avatarId && paletteId === view.avatarPalette)) return;
     setSaving(avatarId);
     setMessage(null);
     try {
       const response = await fetch("/api/ladder/avatar", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ runId: view.runId, avatarId }),
+        body: JSON.stringify({ runId: view.runId, avatarId, paletteId }),
         signal: AbortSignal.timeout(8000),
       });
       const body = (await response.json()) as { view?: LadderView };
@@ -45,7 +46,7 @@ export function AvatarControls({
         const body = (await response.json()) as { view?: LadderView };
         if (response.ok && body.view?.runId === view.runId) {
           onView(body.view);
-          setMessage(body.view.avatarId === avatarId ? "saved" : "failed");
+          setMessage(body.view.avatarId === avatarId && body.view.avatarPalette === paletteId ? "saved" : "failed");
         } else setMessage("failed");
       } catch { setMessage("failed"); }
     } finally {
@@ -55,9 +56,21 @@ export function AvatarControls({
 
   return (
     <div>
+      <fieldset className="ladder-palette-picker" disabled={disabled || saving !== null}>
+        <legend>Character colour / Warna karakter</legend>
+        <div>{PALETTES.map((palette) => <button key={palette.id} type="button"
+          aria-label={`Colour ${palette.en} / Warna ${palette.idLabel}`}
+          aria-pressed={view.avatarPalette === palette.id}
+          onClick={() => choose(view.avatarId, palette.id)}>
+          <span aria-hidden="true" style={{ backgroundColor: palette.hex }} />
+          {palette.en}{view.avatarPalette === palette.id ? " ✓" : ""}
+        </button>)}</div>
+      </fieldset>
+      <p className="ladder-avatar-credit">Your game name is random. / Nama permainanmu dibuat secara acak.</p>
       <AvatarPicker
         value={view.avatarId}
         onChange={choose}
+        paletteId={view.avatarPalette}
         disabled={disabled || saving !== null}
         animate={animate}
       />

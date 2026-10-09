@@ -119,7 +119,7 @@ export function LadderGame({
             !syncLock.current &&
             (body.view.revision > view.revision ||
               body.view.sessionClosed !== view.sessionClosed ||
-              body.view.avatarId !== view.avatarId)
+              body.view.avatarId !== view.avatarId || body.view.avatarPalette !== view.avatarPalette)
           )
             receive(body.view);
         }
@@ -350,7 +350,7 @@ export function LadderGame({
           </div>
           <LadderBoard
             players={[
-              { id: view?.runId, alias: view?.alias ?? "YOU", position: view?.position ?? 0, avatarId: view?.avatarId },
+              { id: view?.runId, alias: view?.alias ?? "YOU", position: view?.position ?? 0, avatarId: view?.avatarId, avatarPalette: view?.avatarPalette },
             ]}
             ownAlias={view?.alias ?? "YOU"}
             ownId={view?.runId}

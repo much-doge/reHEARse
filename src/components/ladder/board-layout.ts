@@ -3,6 +3,7 @@ export type BoardPlayer = {
   alias: string;
   position: number;
   avatarId?: string;
+  avatarPalette?: string;
 };
 export type PlacedPlayer = BoardPlayer & { key: string; tile: number };
 

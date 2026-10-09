@@ -3,8 +3,8 @@ import type { LadderView } from "@/domain/ladder/model";
 import { ladderTaskKey, reconcileLadderView } from "./view-reconciliation";
 
 const base: LadderView = {
-  contractVersion: "listening-ladder.v2", runId: "run-a", revision: 2,
-  title: "Conversation", audioUrl: "/audio", alias: "Listener ABCD", avatarId: "moss",
+  contractVersion: "listening-ladder.v3", runId: "run-a", revision: 2,
+  title: "Conversation", audioUrl: "/audio", alias: "Listener ABCD", avatarId: "moss", avatarPalette: "mint",
   pin: null, sessionClosed: false, state: { choices: [{ choice: 0, outcome: "repair", tries: 1 }], helpRequested: false },
   position: 1, items: [], latestNote: null, latestEventId: "event-a",
 };

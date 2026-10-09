@@ -42,3 +42,13 @@
 .ladder-avatar-save-state { min-height: 1.5rem; margin: -.6rem 1rem 1rem; color: #53645f; font-size: .8rem; line-height: 1.45; }
 @media (max-width: 540px) { .ladder-avatar-picker { padding: .9rem; } .ladder-avatar-picker-heading { flex-direction: column; gap: .4rem; } .ladder-avatar-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); max-height: 370px; gap: .4rem; } }
 @media (prefers-reduced-motion: reduce) { .ladder-avatar.is-animated *, .ladder-avatar.is-animated { animation: none !important; transition: none !important; } }
+
+.ladder-avatar-skin { filter: var(--avatar-skin-filter, none); }
+.ladder-palette-picker { border: 0; padding: 0; margin: 0 0 1rem; }
+.ladder-palette-picker legend { font-weight: 750; margin-bottom: .6rem; }
+.ladder-palette-picker > div { display: flex; flex-wrap: wrap; gap: .45rem; }
+.ladder-palette-picker button { display: flex; align-items: center; gap: .4rem; border: 2px solid #d6dfd1; border-radius: 2rem; background: #fffdf8; padding: .4rem .65rem; font-size: .8rem; color: #213f38; cursor: pointer; }
+.ladder-palette-picker button[aria-pressed="true"] { border-color: #234f42; box-shadow: 0 0 0 2px #dce8d8; }
+.ladder-palette-picker button:focus-visible { outline: 3px solid #245cc1; outline-offset: 3px; }
+.ladder-palette-picker button:disabled { opacity: .6; cursor: wait; }
+.ladder-palette-picker button span { width: 1.2rem; height: 1.2rem; border-radius: 50%; box-shadow: inset 0 0 0 1px #0002; }

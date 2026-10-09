@@ -13,6 +13,7 @@ vi.mock("@/domain/ladder/avatars", () => ({
   isAvatarId: (value: unknown) =>
     typeof value === "string" && ["moss", "fern"].includes(value),
 }));
+vi.mock("@/domain/ladder/appearance", () => import("../../../../domain/ladder/appearance"));
 vi.mock("@/domain/ladder/model", () => ({
   LadderError: class LadderError extends Error {
     constructor(
@@ -67,7 +68,15 @@ describe("POST /api/ladder/avatar", () => {
     const response = await POST(request({ runId, avatarId: "moss" }));
     expect(response.status).toBe(200);
     expect(response.headers.get("cache-control")).toBe("private, no-store");
-    expect(setAvatar).toHaveBeenCalledWith(actor, runId, "moss");
+    expect(setAvatar).toHaveBeenCalledWith(actor, runId, "moss", undefined);
+  });
+
+  it("accepts named colours but rejects arbitrary filter values", async () => {
+    expect((await POST(request({ runId, avatarId: "moss", paletteId: "violet" }))).status).toBe(200);
+    expect(setAvatar).toHaveBeenCalledWith(actor, runId, "moss", "violet");
+    setAvatar.mockClear();
+    expect((await POST(request({ runId, avatarId: "moss", paletteId: "url(secret)" }))).status).toBe(400);
+    expect(setAvatar).not.toHaveBeenCalled();
   });
 
   it("rejects unauthenticated, foreign-origin and arbitrary-path requests", async () => {

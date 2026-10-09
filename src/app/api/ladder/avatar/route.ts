@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { ladderRepository } from "@/adapters/ladder/postgres-ladder";
 import { isAvatarId } from "@/domain/ladder/avatars";
+import { isAvatarPaletteId } from "@/domain/ladder/appearance";
 import { LadderError } from "@/domain/ladder/model";
 import { ladderFailure } from "@/lib/ladder-response";
 import { isSameOriginRequest } from "@/lib/same-origin";
@@ -12,7 +13,7 @@ export const runtime = "nodejs";
 
 const headers = { "Cache-Control": "private, no-store" };
 const schema = z
-  .object({ runId: z.uuid(), avatarId: z.string().min(1).max(40) })
+  .object({ runId: z.uuid(), avatarId: z.string().min(1).max(40), paletteId: z.string().max(20).optional() })
   .strict();
 
 export async function POST(req: Request) {
@@ -26,12 +27,13 @@ export async function POST(req: Request) {
     const raw = await req.text();
     if (raw.length > 256) throw new LadderError("request_too_large", 413);
     const parsed = schema.safeParse(JSON.parse(raw));
-    if (!parsed.success || !isAvatarId(parsed.data.avatarId))
+    if (!parsed.success || !isAvatarId(parsed.data.avatarId) || (parsed.data.paletteId !== undefined && !isAvatarPaletteId(parsed.data.paletteId)))
       throw new LadderError("invalid_request");
     const view = await ladderRepository.setAvatar(
       user,
       parsed.data.runId,
       parsed.data.avatarId,
+      parsed.data.paletteId,
     );
     return Response.json({ view }, { headers });
   } catch (error) {

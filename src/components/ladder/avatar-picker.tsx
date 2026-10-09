@@ -3,8 +3,8 @@
 import { AVATARS, avatarDefinition } from "@/domain/ladder/avatars";
 import { Avatar } from "./avatar";
 
-export function AvatarPicker({ value, onChange, disabled = false, animate = true }: {
-  value: string; onChange: (id: string) => void; disabled?: boolean; animate?: boolean;
+export function AvatarPicker({ value, onChange, disabled = false, animate = true, paletteId = "original" }: {
+  value: string; onChange: (id: string) => void; disabled?: boolean; animate?: boolean; paletteId?: string;
 }) {
   const selected = avatarDefinition(value);
   function surprise() {
@@ -28,7 +28,7 @@ export function AvatarPicker({ value, onChange, disabled = false, animate = true
           <button key={avatar.id} type="button" aria-pressed={selected.id === avatar.id}
             aria-label={`Choose ${avatar.name} / Pilih ${avatar.name}`} disabled={disabled}
             className="ladder-avatar-choice" onClick={() => onChange(avatar.id)}>
-            <Avatar id={avatar.id} size={88} animate={animate} />
+            <Avatar id={avatar.id} size={88} animate={animate} paletteId={paletteId} />
             <span>{avatar.name}</span>
             {selected.id === avatar.id && <span className="ladder-avatar-check" aria-hidden="true">✓</span>}
           </button>

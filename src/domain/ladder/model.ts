@@ -1,5 +1,5 @@
 import type { BilingualText } from "../feedback";
-export const LADDER_VERSION = "listening-ladder.v2";
+export const LADDER_VERSION = "listening-ladder.v3";
 export type TaskOutcome = "matched" | "repair" | "revised" | "supported";
 export type LadderState = {
   choices: Array<{
@@ -115,6 +115,7 @@ export type LadderView = {
   audioUrl: string;
   alias: string;
   avatarId: string;
+  avatarPalette: string;
   pin: string | null;
   sessionClosed: boolean;
   state: LadderState;
@@ -129,6 +130,7 @@ export type HostView = {
   players: Array<{
     alias: string;
     avatarId: string;
+    avatarPalette: string;
     position: number;
     finished: boolean;
     needsHelp: boolean;
