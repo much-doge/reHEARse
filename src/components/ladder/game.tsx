@@ -79,7 +79,7 @@ export function LadderGame({
     latestView = useRef(initial);
   const clearAnswerEffect = useCallback(() => setAnswerEffect(null), []);
   const total = view?.items.length ?? 0;
-  const { index, repairing, finished } = listeningStage(view?.state ?? { choices: [], helpRequested: false }, total);
+  const { index, repairing, finished } = listeningStage(view?.state ?? { choices: [], helpRequested: false }, total, view?.passage);
   const item = index >= 0 ? view?.items[index] : null;
   const journey = (view as (LadderView & { journey?: LearnerJourney }) | null)?.journey;
   const task = view && index >= 0 ? view.state.choices[index] : null;
@@ -88,7 +88,7 @@ export function LadderGame({
       const previous = latestView.current;
       const accepted = reconcileLadderView(previous, next, allowNewRun);
       if (!accepted || accepted === previous) return;
-      if (previous?.runId !== accepted.runId) setAudioDurationMs(null);
+      if (previous?.runId !== accepted.runId || previous.audioUrl !== accepted.audioUrl) setAudioDurationMs(null);
       if (ladderTaskKey(previous) !== ladderTaskKey(accepted)) {
         setAnswerEffect(null);
         setSelection(null);
@@ -146,7 +146,7 @@ export function LadderGame({
     audio.current?.pause();
     setListening(false);
     const fingerprint = JSON.stringify(
-      start ? { pin: pin.trim(), activityId: pin.trim() ? undefined : activityId } : { runId: view?.runId, action },
+      start ? { pin: pin.trim(), activityId: pin.trim() ? undefined : activityId } : { runId: view?.runId, action, ...(action?.kind === "continue" ? { passageIndex: view?.passage?.index } : {}) },
     );
     if (pending.current?.fingerprint !== fingerprint)
       pending.current = { fingerprint, key: crypto.randomUUID() };
@@ -236,6 +236,7 @@ export function LadderGame({
             .finally(() => setNoteBusy(false));
         }
       }
+      if (action?.kind === "continue") setNotice(null);
       if (action?.kind === "support") {
         setExplanation("");
         setNotice({
@@ -259,7 +260,9 @@ export function LadderGame({
     setAnswerEffect(null);
     const el = audio.current;
     if (!el || !view) return;
-    const span = listeningSpan(view.items, index, full);
+    const span = full && view.passage
+      ? listeningSpan(view.items.slice(view.passage.fromItem, view.passage.toItem), 0, true)
+      : listeningSpan(view.items, index, full);
     if (!span) return;
     const start = full ? 0 : span.startMs;
     boundary.current = full && Number.isFinite(el.duration) && el.duration > 0 ? Math.round(el.duration * 1000) : span.endMs;
@@ -338,11 +341,11 @@ export function LadderGame({
             alt=""
           />
           <span>
-            {view?.title ?? "Choose a conversation / Pilih percakapan"}
+            {view?.title ?? "Choose a game / Pilih permainan"}
             <small>
-              One conversation · Individual play
+              {view?.passage ? `Recording ${view.passage.index + 1} of ${view.passage.total} · Individual play` : "Individual play"}
               <br />
-              Satu percakapan · Main mandiri
+              {view?.passage ? `Rekaman ${view.passage.index + 1} dari ${view.passage.total} · Main mandiri` : "Main mandiri"}
             </small>
           </span>
         </div>
@@ -360,6 +363,7 @@ export function LadderGame({
               { id: view?.runId, alias: view?.alias ?? "YOU", position: view?.position ?? 0, avatarId: view?.avatarId, avatarPalette: view?.avatarPalette, revision: view?.revision, lastTransition: journey?.lastTransition },
             ]}
             journeyMap={journey?.map}
+            checkpointEnd={!!view?.passage && view.passage.index < view.passage.total - 1}
             ownAlias={view?.alias ?? "YOU"}
             ownId={view?.runId}
             animate={!listening}
@@ -412,7 +416,7 @@ export function LadderGame({
               <span className="ladder-kicker">
                 A SMALL ADVENTURE IN LISTENING
               </span>
-              <h2>Follow the conversation.</h2>
+              <h2>Follow the listening journey.</h2>
               <p>
                 Choose what you think is happening. If a part is unclear, replay
                 it and explain it in your own words.
@@ -477,11 +481,23 @@ export function LadderGame({
                     Start a new solo journey / Mulai perjalanan mandiri
                   </button>
                 </div>
+              ) : view.passage?.checkpoint ? (
+                <div className="ladder-finish ladder-passage-checkpoint">
+                  <div className="ladder-finish-icon" aria-hidden="true">⚑</div>
+                  <span className="ladder-kicker">PASSAGE CHECKPOINT / POS ANTARREKAMAN</span>
+                  <h2>One recording complete.<small>Satu rekaman selesai.</small></h2>
+                  <p><Words text={view.passage.title} /></p>
+                  <p>Take a breath. Your choices and revisions are saved. The next recording opens when you are ready.
+                    <small>Istirahat sebentar. Pilihan dan revisimu tersimpan. Buka rekaman berikutnya saat kamu siap.</small></p>
+                  <button className="ladder-primary" disabled={busy} onClick={() => send({ kind: "continue" })}>
+                    {busy ? "Opening / Membuka…" : `Continue to recording ${view.passage.index + 2} / Lanjut ke rekaman ${view.passage.index + 2} →`}
+                  </button>
+                </div>
               ) : finished ? (
                 <div className="ladder-finish">
                   <div className="ladder-finish-icon">✦</div>
                   <span className="ladder-kicker">
-                    CHECKPOINT REACHED / TITIK AKHIR TERCAPAI
+                    JOURNEY COMPLETE / PERJALANAN SELESAI
                   </span>
                   <h2>You found a way through.</h2>
                   <p>
@@ -511,11 +527,17 @@ export function LadderGame({
                 </div>
               ) : (
                 <>
+                  {view.passage && <div className="ladder-passage-heading">
+                    <span className="ladder-kicker">RECORDING {view.passage.index + 1} / {view.passage.total} · REKAMAN {view.passage.index + 1} / {view.passage.total}</span>
+                    <h2><Words text={view.passage.title} /></h2>
+                  </div>}
                   <ol className="ladder-listening-checkpoints" aria-label="Listening checkpoints / Titik perjalanan menyimak">
-                    {view.items.map((chapter, chapterIndex) => <li key={chapter.id} aria-current={index === chapterIndex ? "step" : undefined}>
+                    {view.items.slice(view.passage?.fromItem ?? 0, view.passage?.toItem ?? total).map((chapter, localIndex) => {
+                      const chapterIndex = localIndex + (view.passage?.fromItem ?? 0);
+                      return <li key={chapter.id} aria-current={index === chapterIndex ? "step" : undefined}>
                       Question {chapterIndex + 1} / Pertanyaan {chapterIndex + 1}
                       <small>{!view.state.choices[chapterIndex] ? "Listen / Simak" : view.state.choices[chapterIndex].outcome === "repair" ? "Replay ahead / Dengar lagi" : "At camp / Di pos"}</small>
-                    </li>)}
+                    </li>; })}
                   </ol>
                   <div className="ladder-step-heading">
                     <span className="ladder-kicker">
@@ -548,7 +570,7 @@ export function LadderGame({
                     <div>
                       <strong>
                         {gist
-                          ? "Whole conversation / Percakapan lengkap"
+                          ? "Whole recording / Rekaman lengkap"
                           : repairing
                             ? "Replay this part / Dengar ulang bagian ini"
                             : "Listen to this part / Dengarkan bagian ini"}
@@ -598,7 +620,7 @@ export function LadderGame({
                   />
                   <div className="ladder-audio-tools">
                     <button disabled={busy} onClick={() => play(true)}>
-                      Hear the whole conversation / Dengar lengkap
+                      Hear the whole recording / Dengar lengkap
                     </button>
                     <label>
                       Speed / Kecepatan

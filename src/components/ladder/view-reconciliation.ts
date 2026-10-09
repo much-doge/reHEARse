@@ -11,5 +11,5 @@ export function reconcileLadderView(previous: LadderView | null, next: LadderVie
 }
 
 export function ladderTaskKey(view: LadderView | null) {
-  return `${view?.runId}:${view?.state.choices.length}:${view?.state.choices.findIndex((choice) => choice.outcome === "repair")}`;
+  return `${view?.runId}:${view?.state.passageIndex ?? 0}:${view?.state.choices.length}:${view?.state.choices.findIndex((choice) => choice.outcome === "repair")}`;
 }

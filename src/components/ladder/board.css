@@ -56,7 +56,7 @@
 .is-projecting .ladder-host-player > .ladder-avatar { width: 48px; height: 48px; }
 
 /* LFL-020: connectors and movement share the saved chapter map. */
-.ladder-board-chapters .ladder-board-surface { aspect-ratio: 480 / 1120; }
+.ladder-board-chapters .ladder-board-surface { aspect-ratio: var(--board-ratio, 480 / 1120); }
 .ladder-board-chapters.ladder-board-wide .ladder-board-surface { aspect-ratio: 1040 / 640; }
 .ladder-board-chapters .ladder-board-marker { --marker-size: 56px; --bubble-width: 90px; transition: none; }
 .ladder-board-chapters .ladder-board-marker.is-crowded { --marker-size: 42px; --bubble-width: 65px; }

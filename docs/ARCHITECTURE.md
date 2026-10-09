@@ -125,3 +125,20 @@ Only the teacher receives audio playback URLs; student DTOs gate options and
 answer/cue reveal by phase. Two-second polling recovers current authoritative
 state after reconnect; the teacher speaker is the single audio clock.
 See D-015 and CLASSROOM_GAME.md for privacy, moderation and pilot limits.
+
+### Complete listening journeys (LFL-021)
+
+`listening-ladder.v4` adds ordered passage metadata. New `passage-route.v1`
+content partitions a flattened immutable item list into recordings. The domain
+reducer scopes choices and repairs to the current passage. An acknowledged,
+idempotent `continue` event changes the passage only after bounded replay or
+supported review has closed it; earlier actions remain intact. Variable
+`chapter-route.v2` maps contain executable connectors for three to five items.
+
+Migration 014 adds nullable recording-version lists to runs and classroom
+sessions. All versions are resolved and checksum-checked before start; joins
+inherit the session list. Current publication pointers cannot retarget saved
+recordings. Historical single-recording content readers remain registered.
+The teacher DTO exposes passage locations and route transitions, while learner
+explanations and answer material remain outside projection. No new service or
+scoring path is introduced.

@@ -39,7 +39,7 @@ async function main() {
 
     const catalogue = await call("/api/ladder/catalogue", null);
     assert.equal(catalogue.status, 200);
-    assert.deepEqual(catalogue.body.activities.map((item) => item.id).sort(), ["ocean-currents-in-motion", "three-papers-one-thread"]);
+    assert.deepEqual(catalogue.body.activities.map((item) => item.id).sort(), ["conversation-journey", "talk-journey"]);
     assert(!/transcript|answer|source|package|questionRange/i.test(JSON.stringify(catalogue.body)));
 
     for (const host of [false, true]) {

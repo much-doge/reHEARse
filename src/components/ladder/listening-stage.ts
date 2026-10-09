@@ -1,7 +1,11 @@
 import type { LadderState, LadderItemView } from "../../domain/ladder/model";
-export function listeningStage(state: LadderState, total: number) {
-  const first = state.choices.length, repair = state.choices.findIndex((choice) => choice.outcome === "repair");
-  return { index: first < total ? first : repair, repairing: first === total && repair >= 0, finished: total > 0 && first === total && repair < 0 };
+export function listeningStage(state: LadderState, total: number, passage?: { fromItem: number; toItem: number }) {
+  const from = passage?.fromItem ?? 0, end = passage?.toItem ?? total;
+  const first = state.choices.length;
+  const localRepair = state.choices.slice(from, end).findIndex((choice) => choice.outcome === "repair");
+  const repair = localRepair < 0 ? -1 : from + localRepair;
+  return { index: first < end ? first : repair, repairing: first === end && repair >= 0,
+    finished: total > 0 && first === total && repair < 0 };
 }
 export function listeningSpan(items: LadderItemView[], index: number, whole = false) {
   const selected = whole ? items : items[index] ? [items[index]] : [];

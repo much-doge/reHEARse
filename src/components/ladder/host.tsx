@@ -15,7 +15,8 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false),
     [project, setProject] = useState(false),
-    [reason, setReason] = useState("");
+    [reason, setReason] = useState(""),
+    [passageIndex, setPassageIndex] = useState(0);
   const session = view as (Omit<HostView, "players"> & { journey?: HostJourney; title?: string; players: Array<HostView["players"][number] & { lastTransition?: JourneyTransition | null; revision?: number }> }) | null;
   const stage = useRef<HTMLElement>(null);
   const [fullscreen, setFullscreen] = useState(false);
@@ -149,6 +150,13 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
         )}
       </div>
       {session?.title && <p className="ladder-session-title">{session.title}</p>}
+      {view?.passages && <nav className="ladder-passage-tabs" aria-label="Passage boards / Papan tiap rekaman">
+        {view.passages.map((passage, index) => <button key={index} type="button" aria-pressed={passageIndex === index}
+          onClick={() => setPassageIndex(index)}>
+          <strong>{index + 1}. {passage.title.en}</strong><small lang="id">{passage.title.id}</small>
+          <span>{view.players.filter((player) => player.passageIndex === index).length} here / peserta di sini</span>
+        </button>)}
+      </nav>}
       {!view ? (
         <section className="ladder-host-start">
           <h2>Open a listening session / Buka sesi menyimak</h2>
@@ -181,8 +189,10 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
         <div className="ladder-host-layout">
           <LadderBoard
             wide
-            journeyMap={session?.journey?.map}
-            players={(session?.players ?? []).map((x) => ({
+            key={passageIndex}
+            journeyMap={session?.passages?.[passageIndex]?.journey.map ?? session?.journey?.map}
+            checkpointEnd={!!session?.passages && passageIndex < session.passages.length - 1}
+            players={(session?.players ?? []).filter((player) => !session?.passages || player.passageIndex === passageIndex).map((x) => ({
               id: x.runId,
               alias: x.alias,
               position: x.position,
@@ -210,8 +220,8 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
                   <strong>{p.alias}</strong>
                   <span>
                     {p.finished
-                      ? "At the checkpoint / Di titik akhir"
-                      : "On the path / Dalam perjalanan"}
+                      ? "Journey complete / Perjalanan selesai"
+                      : view.passages ? `Recording ${(p.passageIndex ?? 0) + 1} / Rekaman ${(p.passageIndex ?? 0) + 1}` : "On the path / Dalam perjalanan"}
                   </span>
                   {!project && p.needsHelp && (
                     <button

@@ -18,7 +18,7 @@ export function confirmedAnswerEffect(
   if (
     !previous || previous.runId !== next.runId ||
     next.revision <= previous.revision || !action ||
-    action.kind === "help" || action.kind === "teacher_close"
+    action.kind === "help" || action.kind === "continue" || action.kind === "teacher_close"
   ) return null;
   const before = previous.state.choices[action.item];
   const after = next.state.choices[action.item];

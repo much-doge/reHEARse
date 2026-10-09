@@ -1,3 +1,5 @@
+import { gameContents } from "./content-games";
+export { gameContents } from "./content-games";
 import { ladderContent } from "./content";
 import { oceanCurrentsOriginal, threePapersOriginal } from "./content-original";
 import { validateLadderContent, type LadderContent } from "./content-schema";
@@ -11,7 +13,7 @@ export const legacyLadderContent = validateLadderContent({
   durationMs: 97115,
 } satisfies LadderContent);
 
-export const ladderContents = [legacyLadderContent, threePapersOriginal, oceanCurrentsOriginal] as const;
+export const ladderContents = [legacyLadderContent, threePapersOriginal, oceanCurrentsOriginal, ...gameContents] as const;
 
 const byVersion = new Map(ladderContents.map((content) => [content.version, content]));
 const originalsByActivity = new Map(
@@ -34,5 +36,5 @@ export function selectStartContent(
     return !activityId || activityId === legacyLadderContent.activityId
       ? legacyLadderContent
       : null;
-  return resolveOriginalActivity(activityId ?? "three-papers-one-thread");
+  return resolveOriginalActivity(activityId ?? "conversation-journey");
 }

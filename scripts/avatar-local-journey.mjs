@@ -76,7 +76,7 @@ async function main() {
     });
     assert.equal(started.status, 200);
     const initial = started.body.view;
-    assert.equal(initial.contractVersion, "listening-ladder.v3");
+    assert.equal(initial.contractVersion, "listening-ladder.v4");
     assert.equal(typeof initial.avatarId, "string");
     assert.match(initial.alias, /^[A-Z][a-z]+ [A-Z][a-z]+$/);
     assert.equal(typeof initial.avatarPalette, "string");

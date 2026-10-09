@@ -26,14 +26,14 @@ const action = z.discriminatedUnion("kind", [
   z
     .object({
       kind: z.literal("choice"),
-      item: z.number().int().min(0).max(3),
+      item: z.number().int().min(0).max(11),
       choice: z.number().int().min(0).max(3).nullable(),
     })
     .strict(),
   z
     .object({
       kind: z.literal("repair"),
-      item: z.number().int().min(0).max(3),
+      item: z.number().int().min(0).max(11),
       choice: z.number().int().min(0).max(2),
       explanation: z.string().trim().min(3).max(1200),
     })
@@ -41,11 +41,12 @@ const action = z.discriminatedUnion("kind", [
   z
     .object({
       kind: z.literal("support"),
-      item: z.number().int().min(0).max(3),
+      item: z.number().int().min(0).max(11),
       explanation: z.string().trim().min(3).max(1200),
     })
     .strict(),
   z.object({ kind: z.literal("help") }).strict(),
+  z.object({ kind: z.literal("continue") }).strict(),
 ]);
 const schema = z.discriminatedUnion("kind", [
   z

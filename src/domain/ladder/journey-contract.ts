@@ -14,8 +14,8 @@ export type JourneyTransition = {
   steps: JourneyStep[];
 };
 export type JourneyMap = {
-  version: typeof CHAPTER_JOURNEY_VERSION;
-  nodeCount: 14;
+  version: typeof CHAPTER_JOURNEY_VERSION | "chapter-route.v2";
+  nodeCount: number;
   connections: Array<{ id: string; kind: "snake" | "ladder"; from: number; to: number; chapter: number }>;
 };
 export const CHAPTER_JOURNEY_MAP: JourneyMap = {
@@ -35,4 +35,18 @@ export type LadderActivityChoice = {
   title: import("../feedback").BilingualText;
   durationMs: number;
   questionCount: number;
+  passageCount?: number;
 };
+
+/** Registered passage maps retain the same executable connectors for 3–5 items. */
+export function passageJourneyMap(questionCount: number): JourneyMap {
+  if (![3, 4, 5].includes(questionCount)) throw new Error("invalid_passage_size");
+  return {
+    version: "chapter-route.v2",
+    nodeCount: questionCount * 3 + 2,
+    connections: Array.from({ length: questionCount }, (_, chapter) => [
+      { id: `chapter-${chapter}-snake`, kind: "snake" as const, from: chapter * 3 + 2, to: chapter * 3 + 1, chapter },
+      { id: `chapter-${chapter}-ladder`, kind: "ladder" as const, from: chapter * 3 + 1, to: chapter * 3 + 3, chapter },
+    ]).flat(),
+  };
+}

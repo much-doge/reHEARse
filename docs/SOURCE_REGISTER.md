@@ -43,3 +43,19 @@ No full exam transcript is redistributed. Source ASR errors (especially Jan,
 upper-level, and speaker labels) were checked against context; the authored
 questions avoid relying on uncertain proper-name spelling. The game importer
 stores per-clip source SHA-256, size and storage key with the immutable deck.
+
+## LFL-021 — Three operator-supplied talks
+
+Added neutral activities `room-for-next-year`, `body-temperature`, and
+`work-beyond-the-office`, containing five, three and four original A–D items.
+They form one twelve-question game; the two previously reviewed conversations
+form one eight-question game. Source mapping and operator import manifests stay
+in protected ignored storage. Original choice order was cross-checked with the
+local question bank and scanned options; talk meanings were corroborated against
+the matching local script. An unrelated local transcript was excluded.
+
+Replay bounds use local speech alignment with sentence-context padding; broad
+main-topic questions retain broad spans. No audio was sent to an external
+transcription provider. Alignment is timing assistance, not a certified transcript
+or classroom approval. Audio rights remain under the existing operator-supplied
+source policy. No new artwork or music was required for this change.

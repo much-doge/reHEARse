@@ -23,13 +23,13 @@ export function ActivityPicker({ value, onChange, disabled = false }: {
       .finally(() => clearTimeout(timeout));
     return () => { mounted = false; controller.abort(); clearTimeout(timeout); };
   }, []);
-  if (!choices.length) return unavailable ? <p role="status">Conversation choices could not load. You can still open the default activity. / Pilihan percakapan belum dimuat. Kamu tetap bisa membuka aktivitas awal.</p> : null;
+  if (!choices.length) return unavailable ? <p role="status">Game choices could not load. You can still open the default activity. / Pilihan permainan belum dimuat. Kamu tetap bisa membuka aktivitas awal.</p> : null;
   return <fieldset className="ladder-activity-picker" disabled={disabled}>
-    <legend>Choose a conversation / Pilih percakapan</legend>
+    <legend>Choose a game / Pilih permainan</legend>
     {choices.map((choice, index) => <label key={choice.id} className={(value ?? choices[0].id) === choice.id ? "is-selected" : ""}>
       <input type="radio" name="ladder-conversation" checked={(value ?? choices[0].id) === choice.id} onChange={() => onChange(choice.id)} />
       <span><strong>{choice.title.en}</strong><small lang="id">{choice.title.id}</small>
-        <small>{Math.ceil(choice.durationMs / 1000)} s · {choice.questionCount} questions / pertanyaan</small></span>
+        <small>{choice.passageCount ? `${choice.passageCount} recordings / rekaman · ` : ""}{Math.ceil(choice.durationMs / 1000)} s · {choice.questionCount} questions / pertanyaan</small></span>
       <b aria-hidden="true">{String(index + 1).padStart(2, "0")}</b>
     </label>)}
   </fieldset>;

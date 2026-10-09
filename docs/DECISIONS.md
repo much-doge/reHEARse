@@ -304,3 +304,16 @@ music is default off and available only before active learners or after their
 finish/session closure, with manual volume and tab-hide pause. It never plays
 on learner pages. Reward/tension changes remain proposals in
 GAMEPLAY_ENERGY_PLAN.md, not silently introduced progression rules.
+
+## D025 — Whole-section games with durable passage checkpoints (LFL-021)
+
+Accepted at the operator's request. New games combine the two conversations and,
+separately, the three talks. Each has one run/session and a final finish. Passage
+completion opens an explicit checkpoint, then a committed continue action changes
+the recording and board. Replay/support remains bounded within the current passage;
+no new debt or points are introduced. All recording versions are pinned at start.
+Historical single-recording content and saved routes remain readable.
+
+The teacher can select a passage board and see participant locations across
+passages. Projection never shows help usage, repair counts or learner explanations.
+Board position stays a game mechanic, not a listening measurement.

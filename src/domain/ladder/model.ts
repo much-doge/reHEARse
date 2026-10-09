@@ -5,7 +5,7 @@ import {
   type JourneyTransition,
   type LearnerJourney,
 } from "./journey-contract";
-export const LADDER_VERSION = "listening-ladder.v3";
+export const LADDER_VERSION = "listening-ladder.v4";
 export type TaskOutcome = "matched" | "repair" | "revised" | "supported";
 export type LadderState = {
   choices: Array<{
@@ -14,6 +14,7 @@ export type LadderState = {
     tries: number;
   }>;
   helpRequested: boolean;
+  passageIndex?: number;
 };
 export const emptyLadder = (): LadderState => ({
   choices: [],
@@ -24,6 +25,7 @@ export type LadderAction =
   | { kind: "repair"; item: number; choice: number; explanation: string }
   | { kind: "support"; item: number; explanation: string }
   | { kind: "help" }
+  | { kind: "continue" }
   | { kind: "teacher_close"; item: number; explanation: string };
 export class LadderError extends Error {
   constructor(
@@ -43,6 +45,7 @@ export function advanceLadder(
     repairCount?: number;
   }>,
 ): LadderState {
+  if (action.kind === "continue") throw new LadderError("invalid_action");
   const next = structuredClone(state);
   if (action.kind === "help") {
     next.helpRequested = true;
@@ -127,7 +130,7 @@ export function advanceChapterJourney(
       move("walk", entry + 1, action.item, "first_mismatch");
       move("snake", entry, action.item, "first_mismatch");
     }
-  } else if (action.kind !== "help") {
+  } else if (action.kind !== "help" && action.kind !== "continue") {
     const entry = action.item * 3 + 1;
     const outcome = next.choices[action.item]?.outcome;
     const cause =
@@ -145,7 +148,7 @@ export function advanceChapterJourney(
     next.choices.length === keys.length &&
     next.choices.every((choice) => choice.outcome !== "repair")
   )
-    move("walk", 13, Math.max(0, keys.length - 1), "finish");
+    move("walk", keys.length * 3 + 1, Math.max(0, keys.length - 1), "finish");
   return { state: next, position: at, transition: { eventId, revision, steps } };
 }
 export function ladderPosition(state: LadderState, total = 4) {
@@ -192,6 +195,7 @@ export type LadderView = {
   latestEventId: string | null;
   activityId?: string;
   journey?: LearnerJourney;
+  passage?: PassageView;
 };
 export type HostView = {
   pin: string;
@@ -199,6 +203,7 @@ export type HostView = {
   activityId?: string;
   title?: string;
   journey?: HostJourney;
+  passages?: Array<{ title: BilingualText; questionCount: number; journey: HostJourney }>;
   players: Array<{
     alias: string;
     avatarId: string;
@@ -207,8 +212,18 @@ export type HostView = {
     finished: boolean;
     needsHelp: boolean;
     runId: string;
+    passageIndex?: number;
     lastTransition?: JourneyTransition | null;
   }>;
 };
 
 export const chapterJourney = () => ({ map: CHAPTER_JOURNEY_MAP });
+
+export type PassageView = {
+  index: number;
+  total: number;
+  title: BilingualText;
+  fromItem: number;
+  toItem: number;
+  checkpoint: boolean;
+};

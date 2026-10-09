@@ -13,21 +13,23 @@ function placeName(tile: number) {
   return tile === 0 ? "Start / Mulai" : tile === 12 ? "Checkpoint / Titik akhir" : `Tile ${tile} / Petak ${tile}`;
 }
 
-export function LadderBoard({ players, ownAlias, ownId, wide = false, animate = true, journeyMap }: {
+export function LadderBoard({ players, ownAlias, ownId, wide = false, animate = true, journeyMap, checkpointEnd = false }: {
   players: BoardPlayer[];
   ownAlias?: string;
   ownId?: string;
   wide?: boolean;
   animate?: boolean;
   journeyMap?: JourneyMap;
+  checkpointEnd?: boolean;
 }) {
   const chapters = registeredChapterMap(journeyMap);
-  const geometry = useMemo(() => chapters ? chapterGeometry(wide) : boardGeometry(wide), [chapters, wide]);
+  const count = chapters ? (journeyMap.nodeCount - 2) / 3 : 4;
+  const geometry = useMemo(() => chapters ? chapterGeometry(wide, count) : boardGeometry(wide), [chapters, wide, count]);
   const { width, height, coords } = geometry;
   const groups = boardGroups(players, ownId, ownAlias, coords.length);
   const markerElements = useRef(new Map<string, HTMLLIElement>());
   useBoardMovement(players, markerElements, geometry, animate && chapters);
-  const label = (tile: number) => chapters ? chapterPlace(tile) : placeName(tile);
+  const label = (tile: number) => chapters ? (tile === coords.length - 1 && checkpointEnd ? "Passage checkpoint / Pos antarrekaman" : chapterPlace(tile, coords.length - 1)) : placeName(tile);
   const finish = coords.length - 1;
   const [expanded, setExpanded] = useState<number | null>(null);
   const expandedGroup = groups.find((group) => group.tile === expanded);
@@ -44,7 +46,7 @@ export function LadderBoard({ players, ownAlias, ownId, wide = false, animate = 
   return (
     <section className={`ladder-board ${wide ? "ladder-board-wide" : ""} ${animate ? "" : "ladder-board-still"} ${chapters ? "ladder-board-chapters" : ""}`}
       aria-label="Listening route / Jalur menyimak">
-      <div className="ladder-board-surface">
+      <div className="ladder-board-surface" style={{ "--board-ratio": `${width} / ${height}` } as CSSProperties}>
         <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" aria-hidden="true">
           <defs>
             <linearGradient id={forestId} x2="0" y2="1">
@@ -69,7 +71,7 @@ export function LadderBoard({ players, ownAlias, ownId, wide = false, animate = 
                 fill={tile === finish ? "#285f4b" : tile % 3 === 0 ? "#fae7a3" : "#fffdf3"} stroke="#d9dfc1" />
               <text x={p.x} y={p.y + 29} textAnchor="middle" fill={tile === finish ? "white" : "#516c52"}
                 fontSize={tile === 0 || tile === finish ? "12" : "17"} fontWeight="600" fontFamily="sans-serif">
-                {tile === 0 ? "START" : tile === finish ? "FINISH" : chapters ? ((tile - 1) % 3 === 2 ? `CAMP ${Math.floor((tile - 1) / 3) + 1}` : `${Math.floor((tile - 1) / 3) + 1}`) : tile}
+                {tile === 0 ? "START" : tile === finish ? (checkpointEnd ? "CHECKPOINT" : "FINISH") : chapters ? ((tile - 1) % 3 === 2 ? `CAMP ${Math.floor((tile - 1) / 3) + 1}` : `${Math.floor((tile - 1) / 3) + 1}`) : tile}
               </text>
             </g>
           ))}
