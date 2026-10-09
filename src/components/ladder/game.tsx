@@ -338,7 +338,7 @@ export function LadderGame({
             alt=""
           />
           <span>
-            {view?.title ?? "Three papers, one thread"}
+            {view?.title ?? "Choose a conversation / Pilih percakapan"}
             <small>
               One conversation · Individual play
               <br />

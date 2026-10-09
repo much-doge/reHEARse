@@ -69,3 +69,9 @@
  .ladder-board-chapters.ladder-board-wide .ladder-board-marker.is-crowded { --marker-size: 26px; --bubble-width: 46px; }
  .ladder-board-chapters.ladder-board-wide .ladder-board-overflow { transform: translate(-50%, 20px); }
 }
+/* Keep the complete chapter route inside a projector viewport. */
+@media (min-width: 801px) {
+ .ladder-host-shell.is-projecting .ladder-board-chapters.ladder-board-wide .ladder-board-surface { height: clamp(300px, calc(100svh - 380px), 1000px); }
+ .ladder-host-shell.is-projecting .ladder-board-chapters.ladder-board-wide .ladder-board-marker:not(.is-crowded) { --marker-size: clamp(48px, calc(20svh - 90px), 96px); }
+ .ladder-host-shell.is-projecting .ladder-board-chapters.ladder-board-wide .ladder-board-marker.is-crowded { --marker-size: clamp(42px, calc(15svh - 65px), 72px); }
+}

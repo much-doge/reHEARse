@@ -1,3 +1,4 @@
+import { validateLadderContent } from "./content-schema";
 import { describe, expect, it } from "vitest";
 import { ladderContents, legacyLadderContent, resolveLadderContent, resolveOriginalActivity, selectStartContent } from "./content-resolver";
 
@@ -30,5 +31,22 @@ describe("immutable ladder content registry", () => {
     }
     expect(resolveLadderContent("missing-version")).toBeNull();
     expect(resolveOriginalActivity("private-source-code")).toBeNull();
+  });
+});
+
+describe("content acceptance boundaries", () => {
+  it("rejects fractional or nonfinite stored answer keys", () => {
+    for (const field of ["first", "repairKey"] as const) {
+      for (const value of [0.5, Number.NaN, Number.POSITIVE_INFINITY]) {
+        const content = structuredClone(ladderContents[1]);
+        content.items[0][field] = value;
+        expect(() => validateLadderContent(content)).toThrow();
+      }
+    }
+  });
+
+  it("keeps the chemistry follow-up aligned with the reviewed reason", () => {
+    const item = resolveOriginalActivity("three-papers-one-thread")!.items[3];
+    expect(item.repair.options[item.repairKey].en).toMatch(/no experience/);
   });
 });

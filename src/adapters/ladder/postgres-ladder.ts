@@ -237,6 +237,16 @@ export class PostgresLadderRepository implements LadderRepository {
           content.mechanicsVersion === "chapter-route.v1" ? 0 : null,
         ],
       );
+      // The initial lookup can race a second start using the same key.
+      // Validate the winner while still holding this transaction's row lock.
+      const saved = (await client.query(
+        "SELECT learner_id,session_id,activity_id FROM ladder_run WHERE id=$1 FOR UPDATE",
+        [id],
+      )).rows[0];
+      if (saved.learner_id !== actor.id)
+        throw new LadderError("run_not_found", 404);
+      if (saved.session_id !== sessionId || saved.activity_id !== content.activityId)
+        throw new LadderError("request_changed", 409);
       await client.query("COMMIT");
     } catch (e) {
       await client.query("ROLLBACK");
@@ -469,11 +479,15 @@ export class PostgresLadderRepository implements LadderRepository {
     }
     const raced = (
       await getPool().query(
-        "SELECT pin FROM ladder_session WHERE id=$1 AND owner_id=$2",
+        "SELECT pin,activity_id FROM ladder_session WHERE id=$1 AND owner_id=$2",
         [key, actor.id],
       )
     ).rows[0];
-    if (raced) return this.host(actor, raced.pin);
+    if (raced) {
+      if (activityId && raced.activity_id !== activityId)
+        throw new LadderError("request_changed", 409);
+      return this.host(actor, raced.pin);
+    }
     throw new LadderError("session_unavailable", 503);
   }
   async host(actor: LadderActor, pin: string): Promise<HostView> {
@@ -660,9 +674,10 @@ export class PostgresLadderRepository implements LadderRepository {
 
   async catalogue(actor: LadderActor) {
     const available = [];
-    for (const content of ladderContents.filter(
-      (candidate) => candidate.questionFormat === "original-four",
-    )) {
+    const contents = process.env.LADDER_START_VERSION === "legacy"
+      ? [startContent()]
+      : ladderContents.filter((candidate) => candidate.questionFormat === "original-four");
+    for (const content of contents) {
       const activity = await getLearnerActivity(content.slug, actor.id);
       if (!activity?.audioUrl) continue;
       const media = (

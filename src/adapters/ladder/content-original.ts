@@ -112,7 +112,7 @@ export const threePapersOriginal = validateLadderContent({
         pair("She doesn't need any help.", "Ia tidak membutuhkan bantuan apa pun."),
       ],
       first: 2,
-      repairKey: 1,
+      repairKey: 0,
       repair: {
         prompt: pair("Why is his specific offer not useful to her?", "Mengapa tawaran khususnya tidak berguna baginya?"),
         options: [

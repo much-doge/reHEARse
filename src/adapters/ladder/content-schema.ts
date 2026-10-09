@@ -45,9 +45,9 @@ export function validateLadderContent(content: LadderContent): LadderContent {
       throw new Error("span_not_integer");
     if (item.startMs < 0 || item.endMs <= item.startMs || item.endMs > content.durationMs)
       throw new Error("invalid_span");
-    if (item.first < 0 || item.first >= item.options.length)
+    if (!Number.isInteger(item.first) || item.first < 0 || item.first >= item.options.length)
       throw new Error("invalid_first_key");
-    if (item.repairKey < 0 || item.repairKey >= item.repair.options.length)
+    if (!Number.isInteger(item.repairKey) || item.repairKey < 0 || item.repairKey >= item.repair.options.length)
       throw new Error("invalid_repair_key");
     if (item.reasons.length !== item.options.length)
       throw new Error("reason_count");

@@ -54,9 +54,9 @@ export type ResolvedActivityVersion = Pick<
   "id" | "versionId" | "slug" | "title" | "partLabel" | "promptEn" | "promptId" | "audioUrl"
 > & { mediaSha256: string | null };
 
-function activityAudioUrl(activity: Record<string, unknown>): string | null {
+function activityAudioUrl(activity: Record<string, unknown>, versionId?: string): string | null {
   let audioUrl = activity.media_storage_key
-    ? `/api/media/${String(activity.slug)}`
+    ? `/api/media/${String(activity.slug)}${versionId ? `?version=${encodeURIComponent(versionId)}` : ""}`
     : null;
   if (activity.media_provider === "s3" && activity.media_storage_key) {
     const config = readS3MediaConfig();
@@ -90,7 +90,7 @@ export async function getLearnerActivityVersion(
     partLabel: publicPartLabel(activity.part_label),
     promptEn: activity.prompt_en,
     promptId: activity.prompt_id,
-    audioUrl: activityAudioUrl(activity),
+    audioUrl: activityAudioUrl(activity, versionId),
     mediaSha256: activity.media_sha256,
   };
 }

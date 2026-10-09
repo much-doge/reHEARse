@@ -42,6 +42,18 @@ async function main() {
     assert.deepEqual(catalogue.body.activities.map((item) => item.id).sort(), ["ocean-currents-in-motion", "three-papers-one-thread"]);
     assert(!/transcript|answer|source|package|questionRange/i.test(JSON.stringify(catalogue.body)));
 
+    for (const host of [false, true]) {
+      const key = randomUUID();
+      const path = host ? "/api/ladder/host" : "/api/ladder";
+      const kind = host ? "create" : "start";
+      const actorCookie = host ? teacherCookie : learnerCookie;
+      const raced = await Promise.all([
+        call(path, { kind, key, activityId: "three-papers-one-thread" }, actorCookie),
+        call(path, { kind, key, activityId: "ocean-currents-in-motion" }, actorCookie),
+      ]);
+      assert.deepEqual(raced.map((result) => result.status).sort(), [200, 409]);
+    }
+
     const original = await call("/api/ladder", { kind: "start", key: randomUUID(), activityId: "three-papers-one-thread" });
     assert.equal(original.status, 200, JSON.stringify(original.body));
     assert.equal(original.body.view.items[0].options.length, 4);
@@ -66,6 +78,9 @@ async function main() {
       assert.equal(response.status, 200);
       ocean = response.body.view;
     }
+    const repaired = await call("/api/ladder", { kind: "act", runId: ocean.runId, revision: ocean.revision, key: randomUUID(), action: { kind: "repair", item: 0, choice: 0, explanation: "I checked what connects the examples." } });
+    assert.equal(repaired.status, 200);
+    ocean = repaired.body.view;
     const invalidRepair = await call("/api/ladder", { kind: "act", runId: ocean.runId, revision: ocean.revision, key: randomUUID(), action: { kind: "repair", item: 0, choice: 3, explanation: "I checked the relationship." } });
     assert.equal(invalidRepair.status, 400);
 
@@ -81,6 +96,26 @@ async function main() {
     assert.equal(joined.body.view.activityId, "ocean-currents-in-motion");
     await call("/api/ladder/host", { kind: "close", pin: created.body.pin }, teacherCookie);
     assert.equal((await call("/api/ladder", { kind: "act", runId: joined.body.view.runId, revision: 0, key: randomUUID(), action: { kind: "choice", item: 0, choice: 0 } })).status, 409);
+
+    // Move latest media away, then prove an existing run still serves its own bytes.
+    const pinned = (await pool.query("SELECT activity_version_id FROM ladder_run WHERE id=$1", [original.body.view.runId])).rows[0].activity_version_id;
+    const stored = (await pool.query("SELECT activity_id,version_number FROM activity_version WHERE id=$1", [pinned])).rows[0];
+    const latest = (await pool.query("SELECT current_version FROM activity WHERE id=$1", [stored.activity_id])).rows[0].current_version;
+    const nextVersion = (await pool.query("SELECT max(version_number)+1 AS n FROM activity_version WHERE activity_id=$1", [stored.activity_id])).rows[0].n;
+    await pool.query(`INSERT INTO activity_version SELECT (jsonb_populate_record(NULL::activity_version,to_jsonb(av)||jsonb_build_object('id',$2::text,'version_number',$3::int,'media_storage_key','fixture-current-missing.mp3'))).* FROM activity_version av WHERE id=$1`, [pinned, randomUUID(), nextVersion]);
+    try {
+      await pool.query("UPDATE activity SET current_version=$2 WHERE id=$1", [stored.activity_id, nextVersion]);
+      const resumed = await call(`/api/ladder?runId=${original.body.view.runId}`, null);
+      assert.equal(resumed.status, 200);
+      assert.equal(new URL(resumed.body.view.audioUrl, baseUrl).searchParams.get("version"), pinned);
+      const bytes = await fetch(new URL(resumed.body.view.audioUrl, baseUrl), { headers: { cookie: learnerCookie } });
+      assert.equal(bytes.status, 200);
+      assert.equal(createHash("sha256").update(Buffer.from(await bytes.arrayBuffer())).digest("hex"), "d728ede236948a4877dc38926114abdad19ff358dc35414f9be107ffbeed42c2");
+      const note = (await pool.query("SELECT id FROM ladder_event WHERE run_id=$1 AND action_json->>'kind'='repair' LIMIT 1", [ocean.runId])).rows[0];
+      if (note) assert.equal((await call("/api/ladder/feedback", { eventId: note.id })).status, 200);
+    } finally {
+      await pool.query("UPDATE activity SET current_version=$2 WHERE id=$1", [stored.activity_id, latest]);
+    }
 
     const activity = (await pool.query("SELECT a.id,av.id AS version_id FROM activity a JOIN activity_version av ON av.activity_id=a.id AND av.version_number=a.current_version WHERE a.slug='three-papers-one-thread'")).rows[0];
     const legacyId = randomUUID();

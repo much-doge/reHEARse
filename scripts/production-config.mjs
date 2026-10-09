@@ -1,4 +1,5 @@
 export function validateProductionConfig(env = process.env) {
+  if (env.LADDER_START_VERSION !== undefined && !["legacy", "original"].includes(env.LADDER_START_VERSION)) throw new Error("invalid_ladder_start_version");
   if (env.NODE_ENV !== "production") throw new Error("production_node_env_required");
   if (!/^[a-f0-9]{64,}$/i.test(env.POSTGRES_PASSWORD ?? "")) throw new Error("strong_database_password_required");
   if (!/^[a-f0-9]{64,}$/i.test(env.SESSION_SECRET ?? "")) throw new Error("strong_session_secret_required");

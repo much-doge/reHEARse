@@ -1,6 +1,6 @@
 import { createHash, randomBytes } from "node:crypto";
 import { createReadStream } from "node:fs";
-import { copyFile, mkdir, readFile, rm, stat } from "node:fs/promises";
+import { chmod, copyFile, mkdir, readFile, rm, stat } from "node:fs/promises";
 import path from "node:path";
 
 import pg from "pg";
@@ -243,6 +243,9 @@ async function prepareMedia(activityPackage: ActivityPackage, mediaPath: string,
   if (!target.startsWith(`${uploadRoot}${path.sep}`)) throw new Error("invalid local media target");
   await mkdir(path.dirname(target), { recursive: true });
   await copyFile(mediaPath, target);
+  // Protected operator inputs may be mode 0600; the unprivileged app must
+  // be able to read its own imported media volume after a tools-root import.
+  await chmod(target, 0o644);
   return {
     provider: "local",
     bucket: null,

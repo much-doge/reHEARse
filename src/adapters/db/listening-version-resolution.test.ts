@@ -24,4 +24,10 @@ describe("stored activity-version resolution", () => {
     expect(result?.versionId).toBe("stored-version");
     expect(result?.audioUrl).toBe("https://media.example/rehearse/media/stored.mp3");
   });
+  it("pins authenticated local media to the stored version too", async () => {
+    query.mockResolvedValue({ rows: [{ id: "activity", slug: "neutral-dialogue", version_id: "stored-version", title: "Neutral dialogue", media_storage_key: "stored.mp3", media_provider: "local" }] });
+    const result = await getLearnerActivityVersion("neutral-dialogue", "stored-version");
+    expect(result?.audioUrl).toBe("/api/media/neutral-dialogue?version=stored-version");
+  });
+
 });

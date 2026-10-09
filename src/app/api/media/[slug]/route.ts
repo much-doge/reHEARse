@@ -1,6 +1,8 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
+import { z } from "zod";
+
 import { NextResponse } from "next/server";
 
 import { getPool } from "@/adapters/db/client";
@@ -19,13 +21,17 @@ export async function GET(
   if (!user) return NextResponse.json({ error: "authentication_required" }, { status: 401 });
 
   const { slug } = await params;
+  const version = new URL(request.url).searchParams.get("version");
+  if (version !== null && !z.uuid().safeParse(version).success)
+    return NextResponse.json({ error: "invalid_version" }, { status: 400 });
   const result = await getPool().query(
     `SELECT av.media_storage_key, av.media_provider, av.media_content_type, av.media_bucket
      FROM activity a
      JOIN activity_version av
-       ON av.activity_id = a.id AND av.version_number = a.current_version
+       ON av.activity_id = a.id
+       AND (($2::uuid IS NULL AND av.version_number = a.current_version) OR av.id = $2::uuid)
      WHERE a.slug = $1 AND a.state = 'published'`,
-    [slug],
+    [slug, version],
   );
   const storageKey = result.rows[0]?.media_storage_key;
   if (!storageKey) return NextResponse.json({ error: "media_not_found" }, { status: 404 });
