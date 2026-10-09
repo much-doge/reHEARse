@@ -5,6 +5,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { BilingualText } from "@/domain/feedback";
 import type { LadderAction, LadderView } from "@/domain/ladder/model";
 import { LadderBoard } from "./board";
+import { AnswerEffect } from "./answer-effect";
+import { confirmedAnswerEffect, type AnswerEffect as AnswerEffectState } from "./answer-effect-state";
 function Words({ text }: { text: BilingualText }) {
   return (
     <>
@@ -58,12 +60,15 @@ export function LadderGame({
     [listening, setListening] = useState(false),
     [gist, setGist] = useState(false),
     [notice, setNotice] = useState<BilingualText | null>(null),
-    [noteBusy, setNoteBusy] = useState(false);
+    [noteBusy, setNoteBusy] = useState(false),
+    [answerEffect, setAnswerEffect] = useState<AnswerEffectState | null>(null);
   const audio = useRef<HTMLAudioElement>(null),
     boundary = useRef<number | null>(null),
     loadTarget = useRef<number | null>(null),
     pending = useRef<{ fingerprint: string; key: string } | null>(null),
-    syncLock = useRef(false);
+    syncLock = useRef(false),
+    celebrated = useRef(new Set<string>());
+  const clearAnswerEffect = useCallback(() => setAnswerEffect(null), []);
   const choiceIndex = view?.state.choices.length ?? 0;
   const repairIndex =
     view?.state.choices.findIndex((x) => x.outcome === "repair") ?? -1;
@@ -77,6 +82,7 @@ export function LadderGame({
       const taskKey = (v: LadderView | null) =>
         `${v?.runId}:${v?.state.choices.length}:${v?.state.choices.findIndex((x) => x.outcome === "repair")}`;
       if (taskKey(previous) !== taskKey(next)) {
+        setAnswerEffect(null);
         setSelection(null);
         setUncertain(false);
         setExplanation("");
@@ -125,6 +131,7 @@ export function LadderGame({
     setBusy(true);
     syncLock.current = true;
     setError(null);
+    setAnswerEffect(null);
     audio.current?.pause();
     setListening(false);
     const fingerprint = JSON.stringify(
@@ -162,6 +169,11 @@ export function LadderGame({
       }
       const next = body.view as LadderView;
       receive(view, next);
+      const effect = confirmedAnswerEffect(view, next, action);
+      if (effect && !celebrated.current.has(effect.id)) {
+        celebrated.current.add(effect.id);
+        setAnswerEffect(effect);
+      }
       if (start) window.history.replaceState(null, "", "/ladder");
       pending.current = null;
       if (action?.kind === "choice")
@@ -181,8 +193,8 @@ export function LadderGame({
         setNotice(
           revised
             ? {
-                en: "Your revision is saved. The ladder brings you forward.",
-                id: "Revisimu tersimpan. Tangga membawamu maju.",
+                en: "Your revision is saved. You can move forward.",
+                id: "Revisimu tersimpan. Kamu bisa maju lagi.",
               }
             : {
                 en: "Your explanation is saved. Try the focus cue, or open guided review.",
@@ -232,6 +244,7 @@ export function LadderGame({
     }
   }
   async function play(full = false) {
+    setAnswerEffect(null);
     const el = audio.current;
     if (!el || !view) return;
     const start = full ? view.items[0].startMs : item!.startMs;
@@ -280,6 +293,9 @@ export function LadderGame({
   }
   return (
     <main className="ladder-shell">
+      {answerEffect && !listening && (
+        <AnswerEffect key={answerEffect.id} effect={answerEffect} onDone={clearAnswerEffect} />
+      )}
       <header className="ladder-header">
         <Link href="/" className="ladder-brand" aria-label="reHEARse home">
           <span className="brand-pulse" />
@@ -387,9 +403,9 @@ export function LadderGame({
                   <small>Tanpa hitung mundur. Dengarkan dengan tenang.</small>
                 </li>
                 <li>
-                  Snakes make short detours. Ladders bring you back.
+                  Replays give you another route forward.
                   <small>
-                    Ular memberi putaran pendek. Tangga membawamu kembali.
+                    Dengar ulang membuka jalan untuk lanjut.
                   </small>
                 </li>
                 <li>
@@ -486,6 +502,7 @@ export function LadderGame({
                   <div className="ladder-audio">
                     <button
                       className="ladder-play"
+                      disabled={busy}
                       onClick={() => (listening ? pause() : play())}
                       aria-label={
                         listening
@@ -543,7 +560,7 @@ export function LadderGame({
                     }
                   />
                   <div className="ladder-audio-tools">
-                    <button onClick={() => play(true)}>
+                    <button disabled={busy} onClick={() => play(true)}>
                       Hear the whole conversation / Dengar lengkap
                     </button>
                     <label>

@@ -1,0 +1,20 @@
+.effect { position: fixed; inset: 0; z-index: 50; pointer-events: none; --tone: #23774b; }
+.revisit { --tone: #b53f40; }
+.neutral { --tone: #3d637b; }
+.frame { position: absolute; inset: 0; border: 5px solid var(--tone); box-shadow: inset 0 0 65px color-mix(in srgb, var(--tone) 24%, transparent); animation: frame-arrive 1.5s ease-out both; }
+.neutral .frame { display: none; }
+.particles { position: absolute; inset: 0; overflow: hidden; }
+.particles i { position: absolute; left: var(--x); top: -24px; width: 12px; height: 21px; background: hsl(var(--hue) 63% 48%); border-radius: 3px; animation: confetti-travel 1.8s cubic-bezier(.16,.66,.5,1) var(--delay) both; }
+.particles i:nth-child(3n) { border-radius: 50%; width: 13px; height: 13px; }
+.particles i:nth-child(4n) { background: #f3c65c; }
+.revisit .particles i { top: auto; bottom: 0; width: 7px; height: 7px; background: #c66a5c; border-radius: 50%; animation-name: ember-lift; animation-duration: 1.25s; }
+.toast { position: absolute; left: 50%; bottom: max(28px, env(safe-area-inset-bottom)); transform: translateX(-50%); display: flex; gap: 15px; align-items: center; width: max-content; max-width: min(620px, calc(100% - 32px)); padding: 18px 24px; color: #fff; background: var(--tone); border: 2px solid #ffffff7a; border-radius: 22px; box-shadow: 0 12px 45px #182c332b; animation: toast-arrive .3s ease-out both; }
+.toast > b { font-size: 36px; font-weight: 400; }
+.toast strong { display: block; font-size: 17px; line-height: 1.4; }
+.toast small { display: block; margin-top: 5px; font-size: 14px; line-height: 1.4; }
+@keyframes frame-arrive { 0% { opacity: 0; } 16% { opacity: .8; } 100% { opacity: 0; } }
+@keyframes confetti-travel { 0% { opacity: 0; transform: translateY(-25px) rotate(var(--turn)); } 10% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--drift), 90vh) rotate(calc(var(--turn) + 270deg)); } }
+@keyframes ember-lift { 0% { opacity: 0; transform: translateY(0); } 20% { opacity: .7; } 100% { opacity: 0; transform: translate(var(--drift), -24vh); } }
+@keyframes toast-arrive { from { opacity: 0; translate: 0 15px; } to { opacity: 1; translate: 0 0; } }
+@media (prefers-reduced-motion: reduce) { .particles, .frame { display: none; } .toast { animation: none; } }
+@media (max-width: 600px) { .toast { padding: 14px 17px; border-radius: 17px; gap: 10px; } .toast strong { font-size: 15px; } .toast small { font-size: 13px; } .toast > b { font-size: 27px; } }
