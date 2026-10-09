@@ -1,33 +1,26 @@
-# Avatar scaffold checkpoint
+# Avatar lane status
 
-Work ID: LFL-019B. Status: incomplete scaffold, not integrated or deployed.
+Work ID: LFL-019B. Status: source-complete in the isolated avatar lane; not
+integrated, pushed or deployed.
 
-The 30 named compositions in `src/domain/ladder/avatars.ts`, layered renderer,
-picker and CSS are a starting point for the other desktop Codex. The running
-game does not import them yet. `pnpm check` passed with this scaffold present
-(lint, TypeScript, 85 tests and production build); that does not verify its
-artwork, animation or usability.
+The earlier scaffold is now backed by 136 required local PNG parts from Kenney's
+CC0 Monster Builder Pack 1.0 and its original licence. Thirty named compositions
+render through `Avatar`, visibly animate through layered CSS, and remain still
+when `animate={false}` or the user prefers reduced motion. The bilingual picker,
+random choice, save controller, owned API, user preference, append-only change
+record and learner/teacher DTO fields are implemented.
 
-**Missing dependency:** `public/art/avatars/parts/` has not been populated.
-Rendering the scaffold now will request missing PNGs. No avatar persistence,
-appearance API, board integration, catalogue gallery or dedicated avatar tests
-have been implemented. Complete and verify these before claiming this slice
-source-complete.
+The persisted choice is a per-user cosmetic preference. It applies to all of
+that user's owned ladder runs, including later runs, without changing immutable
+learning records, gameplay revision, aliases, session membership or teacher
+ownership. Users with no row receive a stable distributed fallback derived from
+their user ID.
 
-Research handoff: the creator's [Monster Builder Pack page](https://kenney.nl/assets/monster-builder-pack)
-identifies the artwork as CC0. The downloaded archive at
-`/tmp/kenney-monsters.zip` contains the original licence; a contact sheet is at
-`/tmp/monster-parts.jpg`. Temporary files may disappear: re-verify the creator
-page, archive and licence if either is absent. Verify every referenced filename
-before copying only required parts. Preserve the original licence in the asset
-directory and record sources in `docs/AVATAR_LICENSES.md`.
+Open `/art/avatars/gallery.html` in a running build for the rendered catalogue.
+See `docs/AVATAR_CATALOG.md`, `docs/AVATAR_LICENSES.md` and
+`docs/AVATAR_IMPLEMENTATION_RECEIPT.md` for the exact catalogue, lineage,
+contracts, checks and integration boundary.
 
-Kenney supplies static modular artwork. The compositions and layered
-blink/wave/bob animation are authored for this application. Do not claim the
-source pack itself supplies animated characters. Thirty palette swaps alone
-are insufficient: inspect the varied silhouettes, facial arrangements and
-accessories at actual board sizes. The scaffold is replaceable if its visual
-quality is poor, provided the agreed component/domain contracts are preserved.
-
-Rollback: these unreferenced scaffold files can be removed without changing
-the current application. Do not integrate them before assets are available.
+The original desktop Codex still owns mounting the controls in `game.tsx`, board
+markers/name bubbles/crowding, combined acceptance, push and deployment. This
+lane has not edited those paths or claimed integrated release completion.
