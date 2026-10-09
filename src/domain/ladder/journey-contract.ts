@@ -28,3 +28,11 @@ export const CHAPTER_JOURNEY_MAP: JourneyMap = {
 };
 export type LearnerJourney = { map: JourneyMap; lastTransition: JourneyTransition | null };
 export type HostJourney = { map: JourneyMap };
+
+/** Published neutral activity choices; no source identifiers or answer material. */
+export type LadderActivityChoice = {
+  id: string;
+  title: import("../feedback").BilingualText;
+  durationMs: number;
+  questionCount: number;
+};

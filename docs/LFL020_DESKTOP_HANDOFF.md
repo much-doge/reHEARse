@@ -6,8 +6,8 @@ installation. Do not spawn substitute agents or message another chat.
 
 ## Delivery target
 
-The next ordered slice in `MECHANICS_REVIEW_AND_SPRINT.md` is Next A: one
-complete passage using its original four questions/options (A, B, C, D), with
+The next ordered slice in `MECHANICS_REVIEW_AND_SPRINT.md` is Next A plus functional movement: both
+Part B conversations using its original four questions/options (A, B, C, D), with
 purposeful replay and historical version resolution. Deliver this first.
 Keep the existing game playable, preserve all old runs, and retain finite
 repair/support and cosmetic settings. This afternoon's deployment is owned by
@@ -43,10 +43,11 @@ Own the content, backend compatibility and executable movement vertical slice:
 
 1. Preserve the current authored three-choice content version byte-for-byte
    in behaviour. Add a new immutable, neutrally named content version for the
-   same passage with the original four prompts/options and original A–D order.
+   two conversations with their original four prompts/options each and original A–D order.
    Verify against operator audio and source materials, including the spoken
    question clips. Do not invent D or silently substitute a different target.
-   First passage only; no pretending all twenty later questions are ready.
+   Both Part B conversations (four questions each, eight total); exclude the
+   three later monologue/talk passages.
 2. Use the protected/local source inventory to corroborate wording, key and
    contextual spans. Source-register URLs are starting points, not official
    answer authority. Check online if needed. Do not publish confidential source
@@ -135,6 +136,46 @@ private source details, provider credentials and all prior records.
 - The lead can build against the existing DTO while backend work is isolated.
   If any contract must change incompatibly, stop that portion and report it
   through the human before implementing dependent changes.
+
+## Both Part B conversations — confirmed scope expansion
+
+The user explicitly requested all Part B conversations. The local manifest
+contains two dialogue passages, approximately 97.1s and 99.0s, with four
+questions each. Three later shared passages are talks and outside today's
+Part B scope. Detailed filenames, original numbering and source codes stay
+in the private worksheet. Ship both conversations as independently playable
+activities with a visible finish; do not silently extend a running game.
+
+The second desktop owns the second activity's original content, transcript/
+teacher guide, replay map, version registration and an ignored import package
+plus safe repeatable import command. Do not commit private source captures or
+run a production import. The lead validates media checksum/type/size, imports
+through the existing configured adapter after acceptance, and checks delivery.
+Use neutral public IDs and titles derived from the dialogue topic; do not
+invent the second topic before inspecting it. Preserve the first activity's
+historical versions and the common appearance preference.
+
+Extend the frozen boundary as follows:
+
+- Authenticated `GET /api/ladder/catalogue` returns `{ activities:
+  LadderActivityChoice[] }` using the type in `journey-contract.ts`.
+  Include only available published activities with validated audio/version.
+  Both teacher and learner can read; no source/keys/transcript in this DTO.
+- Solo start accepts optional `activityId` (neutral catalogue ID). Missing
+  retains the default first conversation for old clients. A PIN join uses
+  the session's pinned activity/content/mechanics; reject conflicting explicit
+  activityId rather than silently changing content.
+- Teacher `create` accepts optional `activityId`, pins it, and fences same-key
+  retries with a changed activity. Return optional `activityId` and `title`
+  on host/run DTOs. The lead owns selector UI in learner and teacher lobby.
+- Four chapters per conversation use the identical frozen movement topology;
+  one class session is one complete conversation. A new session/solo start
+  selects another conversation; no unannounced extra finish/floor today.
+- Test starts, host projection, feedback and owned media/version resolution for
+  both; absent second publication must not advertise a broken activity.
+
+The lead may stage private second-activity import material and configure its
+neutral public media path, never overwriting an earlier activity version.
 
 ## Approved chapter topology and movement contract
 
