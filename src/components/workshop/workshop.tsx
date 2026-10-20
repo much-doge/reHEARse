@@ -12,6 +12,7 @@ import type {
   Text,
 } from "@/domain/workshop/contracts";
 import { secondsUntil, workshopClock } from "./time";
+import { acknowledgeMutation, pendingMutation } from "./pending-mutation";
 import styles from "./workshop.module.css";
 
 const id = () => crypto.randomUUID();
@@ -65,6 +66,17 @@ async function json<T>(url: string, init?: RequestInit): Promise<T> {
   return value as T;
 }
 
+async function savedMutation<T>(slot: string, freshBody: object): Promise<T> {
+  const body = pendingMutation(sessionStorage, slot, freshBody);
+  const result = await json<T>(slot.startsWith("host:") ? "/api/workshop/host" : "/api/workshop", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  acknowledgeMutation(sessionStorage, slot);
+  return result;
+}
+
 export function WorkshopHost({ initialPin = "" }: { initialPin?: string }) {
   const [pin, setPin] = useState(initialPin);
   const [view, setView] = useState<HostView | null>(null);
@@ -83,7 +95,7 @@ export function WorkshopHost({ initialPin = "" }: { initialPin?: string }) {
   async function create() {
     setBusy(true); setMessage("");
     try {
-      const next = await json<HostView>("/api/workshop/host", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kind: "create", key: id() }) });
+      const next = await savedMutation<HostView>("host:create", { kind: "create", key: id() });
       setPin(next.pin); setView(next); history.replaceState(null, "", `?pin=${next.pin}`);
     } catch (e) { setMessage(e instanceof Error ? e.message : "Unable to create session"); }
     finally { setBusy(false); }
@@ -91,7 +103,7 @@ export function WorkshopHost({ initialPin = "" }: { initialPin?: string }) {
   async function act(action: HostAction) {
     if (!view) return;
     setBusy(true); setMessage("");
-    try { setView(await json<HostView>("/api/workshop/host", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kind: "act", pin: view.pin, key: id(), revision: view.revision, action }) })); }
+    try { setView(await savedMutation<HostView>(`host:act:${view.pin}`, { kind: "act", pin: view.pin, key: id(), revision: view.revision, action })); await refresh(); }
     catch (e) { setMessage(e instanceof Error ? e.message : "Unable to update session"); await refresh(); }
     finally { setBusy(false); }
   }
@@ -147,8 +159,8 @@ export function WorkshopLearner({ initialPin = "" }: { initialPin?: string }) {
     catch (e) { setMessage(e instanceof Error ? e.message : "Unable to refresh"); }
   }, [pin, accept]);
   useEffect(() => { if (!view) return; const poll=setInterval(()=>void refresh(),2000), clock=setInterval(()=>setTick(Date.now()),250); return()=>{clearInterval(poll);clearInterval(clock);}; }, [view,refresh]);
-  async function join() { setBusy(true);setMessage("");try{const next=await json<LearnerView>("/api/workshop",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({kind:"join",pin,key:id()})});accept(next);history.replaceState(null,"",`?pin=${pin}`);}catch(e){setMessage(e instanceof Error?e.message:"Unable to join");}finally{setBusy(false);} }
-  async function act(action: LearnerAction) { if(!view)return null;setBusy(true);setMessage("");try{const previous=view.current?.result;const next=await json<LearnerView>("/api/workshop",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({kind:"act",pin:view.pin,key:id(),revision:view.revision,action})});accept(next);if(previous!==next.current?.result&&next.current?.result?.result==="correct"){setCelebrate(true);setTimeout(()=>setCelebrate(false),1800);}return next;}catch(e){setMessage(e instanceof Error?e.message:"Unable to save");await refresh();return null;}finally{setBusy(false);} }
+  async function join() { setBusy(true);setMessage("");try{const next=await savedMutation<LearnerView>(`learner:join:${pin}`,{kind:"join",pin,key:id()});accept(next);history.replaceState(null,"",`?pin=${pin}`);}catch(e){setMessage(e instanceof Error?e.message:"Unable to join");}finally{setBusy(false);} }
+  async function act(action: LearnerAction) { if(!view)return null;setBusy(true);setMessage("");try{const previous=view.current?.result;const next=await savedMutation<LearnerView>(`learner:act:${view.pin}`,{kind:"act",pin:view.pin,key:id(),revision:view.revision,action});accept(next);if(previous!==next.current?.result&&next.current?.result?.result==="correct"){setCelebrate(true);setTimeout(()=>setCelebrate(false),1800);}await refresh();return next;}catch(e){setMessage(e instanceof Error?e.message:"Unable to save");await refresh();return null;}finally{setBusy(false);} }
   async function listen() { const item=view?.current;if(!item)return;const next=await act({kind:"listen_start",itemId:item.id});if(next?.current&&audio.current){audio.current.currentTime=0;void audio.current.play().catch(()=>setMessage("Press play in the audio control. / Tekan putar pada kontrol audio."));} }
   if (!view) return <WorkshopWelcome teacher={false} pin={pin} setPin={setPin} busy={busy} message={message} onPrimary={()=>{}} onResume={()=>void join()} />;
   const current=view.current, now=workshopClock(view.serverTime,receivedAt,tick), opens=secondsUntil(current?.answerOpensAt??null,now), closes=secondsUntil(current?.deadline??null,now), replay=secondsUntil(current?.replayEndsAt??null,now);

@@ -26,13 +26,17 @@ Polling is deliberately bounded to the existing two-second classroom pattern.
 
 ## Verification
 
-`pnpm check` passed after the final interface correction:
+The initial interface `pnpm check` passed after its render-purity correction:
 
 - ESLint;
 - TypeScript;
 - 41 Vitest files and 150 tests;
 - Next 16 production build, including `/workshop`, `/workshop/join`, and both
   workshop API routes.
+
+Final integration subsequently added durable lost-response request recovery.
+The integrated check passed 44 Vitest files and 163 tests; see
+`docs/LFL023_INTEGRATION_RECEIPT.md`.
 
 The first check exposed React's render-purity rule for eager `Date.now()` state
 initializers. Initial time state now starts inert and is set only when a server
@@ -53,4 +57,3 @@ projection is accepted. The final check passed.
 
 Rollback is removal of the two new pages and workshop component directory;
 historical classroom and ladder interfaces are not modified.
-
