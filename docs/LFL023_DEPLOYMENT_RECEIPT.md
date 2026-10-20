@@ -74,6 +74,10 @@ on `192.168.8.63:3001` behind Cloudflare.
   and none of the guarded source fields. The temporary session, room,
   participant, join and event records were removed; final workshop room and
   participant counts returned to zero.
+- A dedicated `teacher@rehearse.najala.org` account was provisioned with the
+  teacher role. A live browser sign-in returned to `/workshop` and rendered the
+  session creation and resume controls. Its password was delivered directly to
+  the operator and is not stored in Git or this receipt.
 - The production checkout is clean at `2dbc4f52a492`; environment and private
   import permissions are 0600; all 30 private deployment audio inputs are
   present for reproducible operations.
@@ -103,3 +107,7 @@ required. For an application-only rollback, restore the previous compatible
 016, immutable media objects or learner evidence. An older app does not expose
 the workshop route, so new workshop rooms must remain disabled until a
 compatible image is restored.
+
+The dedicated workshop teacher account can be disabled independently by
+revoking its sessions and removing or rotating that single account; no content,
+workshop history or other user record needs to change.
