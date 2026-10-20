@@ -12,7 +12,7 @@ export function safeReturnTo(value: unknown): string {
     const url = new URL(value, "https://rehearse.invalid");
     if (
       url.origin !== "https://rehearse.invalid" ||
-      !/^(?:\/|\/dashboard|\/ladder(?:\/host)?|\/classroom|\/play|\/learn\/[a-z0-9]+(?:-[a-z0-9]+)*)$/.test(
+      !/^(?:\/|\/dashboard|\/workshop|\/ladder(?:\/host)?|\/classroom|\/play|\/learn\/[a-z0-9]+(?:-[a-z0-9]+)*)$/.test(
         url.pathname,
       )
     )
@@ -22,7 +22,7 @@ export function safeReturnTo(value: unknown): string {
     if (
       pin &&
       /^\d{6}$/.test(pin) &&
-      ["/ladder", "/ladder/host", "/classroom", "/play"].includes(url.pathname)
+      ["/workshop", "/ladder", "/ladder/host", "/classroom", "/play"].includes(url.pathname)
     )
       query.set("pin", pin);
     if (url.pathname === "/ladder" && url.searchParams.get("new") === "1")

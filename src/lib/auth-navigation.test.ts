@@ -8,6 +8,9 @@ describe("authentication destinations", () => {
     expect(safeReturnTo("/learn/three-papers-one-thread")).toBe(
       "/learn/three-papers-one-thread",
     );
+    expect(safeReturnTo("/workshop?pin=632581")).toBe(
+      "/workshop?pin=632581",
+    );
     expect(safeReturnTo("/")).toBe("/");
     expect(safeReturnTo("/ladder?pin=bad&unknown=secret#fragment")).toBe(
       "/ladder",
@@ -30,6 +33,9 @@ describe("authentication destinations", () => {
   it("encodes a single safe return path and expiry reason", () => {
     expect(signInUrl("/ladder?pin=632581", true)).toBe(
       "/login?next=%2Fladder%3Fpin%3D632581&reason=expired",
+    );
+    expect(signInUrl("/workshop?pin=632581")).toBe(
+      "/login?next=%2Fworkshop%3Fpin%3D632581",
     );
   });
 });
