@@ -37,3 +37,19 @@ describe("workshop listening state",()=>{
   expect(()=>advanceParticipant(state,item,{kind:"choose",itemId:"other-item",choice:"A"},100,15)).toThrow("item_order");
  });
 });
+
+describe("closed and open action matrix",()=>{
+ const phases=["ready","timed_choice","relisten_1","relisten_2","guided_compare","explain_distractors","item_complete"] as const;
+ for(const phase of phases)it(`only accepts allowed actions in ${phase}`,()=>{
+  const before=emptyParticipant();before.items[item.id]={phase,startedAt:0,answerOpensAt:100,deadline:12100,replayStartedAt:phase.startsWith("relisten")?0:null,replayEndsAt:phase.startsWith("relisten")?100:null,replayCount:phase.startsWith("relisten")?1:0,result:null,firstCorrect:false,explanations:phase==="item_complete"?{B:"Saved B",C:"Saved C",D:"Saved D"}:{}};
+  const actions:LearnerAction[]=[{kind:"listen_start",itemId:item.id},{kind:"choose",itemId:item.id,choice:"A"},{kind:"explain",itemId:item.id,option:"B",text:"A reason."},{kind:"next_item",itemId:item.id}];
+  const allowed=phase==="ready"?"listen_start":["timed_choice","relisten_1","relisten_2","guided_compare"].includes(phase)?"choose":phase==="explain_distractors"?"explain":"next_item";
+  for(const action of actions){if(action.kind===allowed)expect(()=>advanceParticipant(before,item,action,100,15)).not.toThrow();else expect(()=>advanceParticipant(before,item,action,100,15)).toThrow();}
+  expect(before.items[item.id].phase).toBe(phase);
+ });
+ it("requires bounded prose and valid choices without semantically grading it",()=>{
+  let state=advanceParticipant(emptyParticipant(),item,{kind:"listen_start",itemId:item.id},0,15);state=advanceParticipant(state,item,{kind:"choose",itemId:item.id,choice:"A"},100,15);
+  for(const text of ["  ","ab","x".repeat(401)])expect(()=>advanceParticipant(state,item,{kind:"explain",itemId:item.id,option:"B",text},100,15)).toThrow("explanation_required");
+  expect(advanceParticipant(state,item,{kind:"explain",itemId:item.id,option:"B",text:"  A short learner explanation.  "},100,15).items[item.id].explanations.B).toBe("A short learner explanation.");
+ });
+});

@@ -23,3 +23,11 @@ export function failure(error:unknown){return Response.json({error:error instanc
 export const membershipHash=(token:string)=>createHash("sha256").update(token).digest("hex");
 export async function membership(){const token=(await cookies()).get("rehearse_workshop")?.value;if(!token)throw new WorkshopError("membership_required",401);return membershipHash(token);}
 export function joinToken(pin:string,key:string){const secret=process.env.SESSION_SECRET;if(!secret||secret.length<20)throw new WorkshopError("membership_unavailable",503);return createHmac("sha256",secret).update(`workshop-join.v1:${pin}:${key}`).digest("base64url");}
+
+/** Join retry identifiers are keyed too: database readers must not recover a
+ * browser credential by replaying a stored, unauthenticated join UUID. */
+export function joinRecordKey(pin:string,key:string){
+ const secret=process.env.SESSION_SECRET;if(!secret||secret.length<20)throw new WorkshopError("membership_unavailable",503);
+ const hex=createHmac("sha256",secret).update(`workshop-join-record.v1:${pin}:${key}`).digest("hex").slice(0,32);
+ return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;
+}
