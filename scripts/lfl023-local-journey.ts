@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 import { randomUUID,randomBytes,createHash } from "node:crypto";
 import pg from "pg";
-import { fixture } from "../src/domain/workshop/fixture.test-support";
+import { fixture, partBcFixture } from "../src/domain/workshop/fixture.test-support";
 assert.equal(process.env.ALLOW_LOCAL_WORKSHOP_JOURNEY,"true");
 assert.equal(process.env.FEEDBACK_PROVIDER,"template");
 assert.equal(process.env.DATABASE_URL,"postgresql://listening:listening@rehearse-lfl023-db:5432/listening");
@@ -48,7 +48,7 @@ try{
  for(const expected of ["relisten_2","guided_compare"]){await act({kind:"listen_start",itemId:item.id});await new Promise(r=>setTimeout(r,130));await act({kind:"choose",itemId:item.id,choice:"B"});assert.equal(view.current.phase,expected);}
  assert.deepEqual(view.current.comparison,item.guidedComparison);assert.equal((await act({kind:"listen_start",itemId:item.id})).status,409);await act({kind:"choose",itemId:item.id,choice:"D"});assert.equal(view.current.phase,"explain_distractors");
  for(const option of ["B","C","D"])await act({kind:"explain",itemId:item.id,option,text});assert.equal(view.current.phase,"item_complete");
- const counts=(await call(`/api/workshop/host?pin=${pin}`,undefined,teacher.cookie)).body.items;assert.equal(counts[0].firstListenStarted,true);assert.equal(counts[0].replayUsed,true);assert.equal(counts[1].firstListenStarted,true);assert(!JSON.stringify(counts).includes(text));
+ const counts=(await call(`/api/workshop/host?pin=${pin}`,undefined,teacher.cookie)).body.items;assert.equal(counts[0].firstListenStarted,true,"first item start signal");assert.equal(counts[1].replayUsed,true,"second item replay signal");assert.equal(counts[1].firstListenStarted,true,"second item start signal");assert(!JSON.stringify(counts).includes(text));
  await act({kind:"next_item",itemId:item.id});item=content.items[2];await act({kind:"listen_start",itemId:item.id});
  // Deliberately expire only this disposable fixture's timer to exercise the real endpoint.
  const participantId=(await pool.query("SELECT id FROM workshop_participant WHERE room_id=(SELECT id FROM workshop_room WHERE pin=$1)",[pin])).rows[0].id;
@@ -81,9 +81,28 @@ try{
   const next=await call("/api/workshop/host",{kind:"act",pin:completePin,key:randomUUID(),revision:completeHost.revision,action:{kind:"next_group"}},teacher.cookie);assert.equal(next.status,200);completeHost=next.body;
  }
  assert.equal(completeHost.phase,"finished");assert.equal((await call(`/api/workshop?pin=${completePin}`,undefined,completeCookie)).body.phase,"finished");
+ // Exercise the separate shared-passage Part B/C contract and its delayed choice window.
+ const bc=partBcFixture();bc.version=`local-bc-${randomUUID()}`;
+ await pool.query("INSERT INTO workshop_content(version,activity_id,grouping_version,pedagogy_version,digest,content_json,media_json) VALUES($1,$2,$3,$4,$5,$6,'[]')",[bc.version,bc.id,bc.groupingVersion,bc.pedagogyVersion,"1".repeat(64),JSON.stringify(bc)]);
+ const partA=fixture();partA.version="short-conversation-workshop-v2";
+ await pool.query("INSERT INTO workshop_content(version,activity_id,grouping_version,pedagogy_version,digest,content_json,media_json) VALUES($1,$2,$3,$4,$5,$6,'[]')",[partA.version,partA.id,partA.groupingVersion,partA.pedagogyVersion,"2".repeat(64),JSON.stringify(partA)]);
+ const defaultRoom=await call("/api/workshop/host",{kind:"create",key:randomUUID()},teacher.cookie);assert.equal(defaultRoom.status,200);assert.equal(defaultRoom.body.activity.version,"short-conversation-workshop-v2");
+ const bcRoom=await call("/api/workshop/host",{kind:"create",key:randomUUID(),version:bc.version},teacher.cookie);assert.equal(bcRoom.status,200);assert.equal(bcRoom.body.activity.version,bc.version);
+ const bcPin=bcRoom.body.pin,bcJoin=await call("/api/workshop",{kind:"join",pin:bcPin,key:randomUUID()}),bcCookie=bcJoin.cookie!.split(";")[0];let bcView=bcJoin.body;const bcHost=bcRoom.body;
+ assert.equal((await call("/api/workshop/host",{kind:"act",pin:bcPin,key:randomUUID(),revision:bcHost.revision,action:{kind:"open_practice"}},teacher.cookie)).status,200);
+ bcView=(await call(`/api/workshop?pin=${bcPin}`,undefined,bcCookie)).body;assert.equal(bcView.current.title.en,"Question 31");assert.equal(bcView.current.audioUrl,null);assert.equal(bcView.current.passageAudioUrl,null);
+ const first=bc.items[0],bcListen=await call("/api/workshop",{kind:"act",pin:bcPin,key:randomUUID(),revision:bcView.revision,action:{kind:"listen_start",itemId:first.id}},bcCookie);assert.equal(bcListen.status,200);bcView=bcListen.body;
+ assert.equal(bcView.current.audioUrl,"https://media.example.invalid/sample-0.mp3");assert.equal(bcView.current.passageAudioUrl,"https://media.example.invalid/passage-0.mp3");
+ assert.equal(Date.parse(bcView.current.answerOpensAt)-Date.parse(bcView.current.startedAt),1100);assert.equal(Date.parse(bcView.current.deadline)-Date.parse(bcView.current.answerOpensAt),12000);
+ assert.equal((await call("/api/workshop",{kind:"act",pin:bcPin,key:randomUUID(),revision:bcView.revision,action:{kind:"choose",itemId:first.id,choice:"D"}},bcCookie)).body.error,"answer_not_open");
+ await new Promise(r=>setTimeout(r,1200));
+ const wrong=await call("/api/workshop",{kind:"act",pin:bcPin,key:randomUUID(),revision:bcView.revision,action:{kind:"choose",itemId:first.id,choice:"D"}},bcCookie);assert.equal(wrong.status,200);bcView=wrong.body;assert.equal(bcView.current.phase,"relisten_1");assert.deepEqual(bcView.current.hint,first.tips[0]);
+ const replay=await call("/api/workshop",{kind:"act",pin:bcPin,key:randomUUID(),revision:bcView.revision,action:{kind:"listen_start",itemId:first.id}},bcCookie);assert.equal(replay.status,200);bcView=replay.body;
+ assert.equal(bcView.current.passageAudioUrl,"https://media.example.invalid/passage-0.mp3");assert.equal(Date.parse(bcView.current.replayEndsAt)-Date.parse(bcView.current.replayStartedAt),1100);
+ assert(!/decisiveEvidence|optionReasons|privateSourceReference|guidedComparison|"answer"|What is the main topic/.test(JSON.stringify(bcView)));
  // Historical readers retain their original capability contracts.
  const oldRun=await call("/api/ladder",{kind:"start",key:randomUUID(),activityId:"three-papers-one-thread"},teacher.cookie);assert.equal(oldRun.status,200);const oldId=oldRun.body.view.runId;const ready=await call("/api/ladder",{kind:"ready",runId:oldId},teacher.cookie);assert.equal(ready.status,200);assert.equal(ready.body.view.items.length,4);assert.equal((await call(`/api/ladder?runId=${oldId}`,undefined,teacher.cookie)).body.view.runId,oldId);
  const deck=(await pool.query("INSERT INTO game_deck(version,title,rounds,source) VALUES($1,'Local historical fixture',$2,'{}') RETURNING id",[`local-${randomUUID()}`,JSON.stringify([{number:1,audioUrl:"https://media.example.invalid/legacy.mp3",prompt:"Original fixture task",options:["One","Two","Three","Four"],answer:0,cue:{en:"Compare the actions.",id:"Bandingkan tindakan."},explanation:{en:"The action is explicit.",id:"Tindakannya jelas."}}])])).rows[0];assert(deck.id);
  const oldGame=await call("/api/game",{kind:"create"},teacher.cookie);assert.equal(oldGame.status,200);const oldView=await call(`/api/game?pin=${oldGame.body.pin}`,undefined,teacher.cookie);assert.equal(oldView.body.contractVersion,"classroom-game.v1");assert.equal(oldView.body.phase,"lobby");
- assert(contentId);console.log("PASS: local PostgreSQL/API membership/auth/ownership/CSRF, original retry acknowledgements and conflicts, six-way listen/advance races, pinned clip+12-second timing, both answer/relisten branches, immutable three-explanation saves, non-countdown learning signals, section release/history, deadline/expiry/close, refresh, privacy, all thirty synthetic items/group finishes and historical ladder/classroom readers.");
+ assert(contentId);console.log("PASS: local PostgreSQL/API membership/auth/ownership/CSRF, original retry acknowledgements and conflicts, six-way listen/advance races, Part A and shared-passage B/C timing, passage/prompt release and replay, both answer/relisten branches, immutable three-explanation saves, non-countdown learning signals, section release/history, deadline/expiry/close, refresh, privacy, all thirty synthetic items/group finishes and historical ladder/classroom readers.");
 }finally{for(const hash of hashes)await pool.query("UPDATE app_session SET expires_at=now() WHERE token_hash=$1",[hash]);await pool.end();}

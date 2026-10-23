@@ -59,3 +59,11 @@ main-topic questions retain broad spans. No audio was sent to an external
 transcription provider. Alignment is timing assistance, not a certified transcript
 or classroom approval. Audio rights remain under the existing operator-supplied
 source policy. No new artwork or music was required for this change.
+
+## LFL-025 — ConTEFL package 1467 Parts B/C
+
+The operator supplied `/home/miko/Downloads/TOEFL_ITP_Listening_Transcript_1_50_Clean.docx` and `/home/miko/Downloads/TOEFL_ITP_Listening_Review_Parts_A_B_C_FINAL_170_Slides.pptx`. The transcript's question numbers and the review deck's answer reveals map to the five shared passage files and twenty spoken prompts captured in ConTEFL package 1467. The private package builder requires each selected file to match `listening/manifest.json` in relative path, media category, byte size, SHA-256 and duration.
+
+The review deck's question stems and transcript do not enter the runtime package or learner/host DTOs. The imported item record carries only A–D choices, the private key/review, bilingual replay guidance and its own spoken-prompt audio. Each dialogue/talk group's separate passage audio is released only when a learner starts its first question or an authorized replay. Longman Part B Skills 18–22 and Part C Skills 23–27 inform original bilingual preparation; no textbook examples or test questions are copied into those cards.
+
+The slide deck has one option-text correction: Q36 option B says “Mr. Connors,” while the supplied transcript and answer explanation identify Ms. Connors. The import uses “Ms. Connors,” retains position B and records the correction in protected operator review. The mapping is source-consistent but still awaits independent human listening across every prompt and passage. Protected import materials are ignored under `.secrets/lfl025-source-review.json` and `.secrets/lfl025-import.json`; see `docs/LFL025_SOURCE_SEARCH.md` and `docs/LFL025_CONTENT_RECEIPT.md`.

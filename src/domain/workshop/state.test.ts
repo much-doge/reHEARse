@@ -1,9 +1,20 @@
 import {describe,it,expect} from "vitest";
-import {fixture} from "./fixture.test-support";
-import {advanceParticipant,emptyParticipant,effectivePhase,emptyItem} from "./state";
+import {fixture,partBcFixture} from "./fixture.test-support";
+import {advanceParticipant,emptyParticipant,effectivePhase,emptyItem,workshopPlaybackTiming} from "./state";
 import type {LearnerAction} from "./contracts";
 const item=fixture().items[0];
 describe("workshop listening state",()=>{
+ it("starts the Part B/C choice window after passage plus spoken question and replays both",()=>{
+  const content=partBcFixture(),first=content.items[0];
+  const firstTiming=workshopPlaybackTiming(content,0,0,first);expect(firstTiming).toEqual({firstListenMs:1100,replayMs:1100});
+  const later=content.items[3];expect(workshopPlaybackTiming(content,0,1,later)).toEqual({firstListenMs:100,replayMs:1100});
+  let state=advanceParticipant(emptyParticipant(),first,{kind:"listen_start",itemId:first.id},1000,3,firstTiming);
+  expect(state.items[first.id].answerOpensAt).toBe(2100);expect(state.items[first.id].deadline).toBe(14100);
+  state=advanceParticipant(state,first,{kind:"choose",itemId:first.id,choice:"D"},2100,3);
+  expect(state.items[first.id].phase).toBe("relisten_1");
+  state=advanceParticipant(state,first,{kind:"listen_start",itemId:first.id},2200,3,firstTiming);
+  expect(state.items[first.id].replayEndsAt).toBe(3300);
+ });
  it("pins one first-choice window exactly twelve seconds after clip end",()=>{
   const initial=emptyParticipant();const started=advanceParticipant(initial,item,{kind:"listen_start",itemId:item.id},1000,15);
   expect(started.items[item.id]).toMatchObject({startedAt:1000,answerOpensAt:1100,deadline:13100});expect(initial.items).toEqual({});

@@ -1,5 +1,6 @@
 import type { LearnerAction, Option, ItemPhase, ChoiceResult, EnrichmentActivityId, EnrichmentResult } from "./contracts";
 import type { WorkshopContent, WorkshopItem } from "./content";
+import { PART_BC_WORKSHOP_VERSION } from "./contracts";
 export class WorkshopError extends Error {
   constructor(readonly code: string, readonly status = 409) { super(code); }
 }
@@ -12,6 +13,11 @@ export type ParticipantState = {
   items: Record<string,ItemState>; cursors: Record<string,number>;
   enrichment?: Record<string, Partial<Record<EnrichmentActivityId, EnrichmentResult[]>>>;
 };
+export type PlaybackTiming = { firstListenMs?: number; replayMs?: number };
+export function workshopPlaybackTiming(content:WorkshopContent,groupIndex:number,itemIndex:number,item:WorkshopItem):PlaybackTiming {
+  const passage=content.contractVersion===PART_BC_WORKSHOP_VERSION?(content.groups[groupIndex]?.passageMedia?.durationMs??0):0;
+  return {firstListenMs:item.media.durationMs+(itemIndex===0?passage:0),replayMs:item.media.durationMs+passage};
+}
 export const emptyParticipant = (): ParticipantState => ({ items:{}, cursors:{}, enrichment:{} });
 export const emptyItem = (): ItemState => ({ phase:"ready", startedAt:null, answerOpensAt:null,deadline:null,replayStartedAt:null,replayEndsAt:null,replayCount:0,result:null,firstCorrect:false,explanations:{} });
 export const options: Option[] = ["A","B","C","D"];
@@ -24,7 +30,7 @@ export function effectivePhase(state: ItemState, now: number): ItemPhase {
   return state.phase === "timed_choice" && now > state.deadline! ? "relisten_1" : state.phase;
 }
 export function advanceParticipant(before: ParticipantState, item: WorkshopItem, action: LearnerAction, now: number,
-  groupItemCount: number): ParticipantState {
+  groupItemCount: number, timing: PlaybackTiming = {}): ParticipantState {
   if(action.itemId !== item.id) throw new WorkshopError("item_order");
   const next = structuredClone(before), state = next.items[item.id] ??= emptyItem();
   if(action.kind === "enrichment_choose") {
@@ -46,13 +52,13 @@ export function advanceParticipant(before: ParticipantState, item: WorkshopItem,
   }
   if(action.kind === "listen_start") {
     if(state.phase === "ready") {
-      state.phase="timed_choice"; state.startedAt=now; state.answerOpensAt=now+item.media.durationMs; state.deadline=state.answerOpensAt+12000;
+      state.phase="timed_choice"; state.startedAt=now; state.answerOpensAt=now+(timing.firstListenMs??item.media.durationMs); state.deadline=state.answerOpensAt+12000;
     } else {
       if(state.phase === "timed_choice" && now > state.deadline!) {
         state.phase="relisten_1"; state.result={choice:null,result:"incorrect",attempt:1};
       }
       if(!["relisten_1","relisten_2"].includes(state.phase) || state.replayStartedAt !== null) throw new WorkshopError("listen_already_started");
-      state.replayStartedAt=now; state.replayEndsAt=now+item.media.durationMs; state.replayCount++;
+      state.replayStartedAt=now; state.replayEndsAt=now+(timing.replayMs??item.media.durationMs); state.replayCount++;
     }
     return next;
   }

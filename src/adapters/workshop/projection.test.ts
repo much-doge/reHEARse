@@ -1,10 +1,19 @@
 import {describe,it,expect} from "vitest";
-import {fixture} from "../../domain/workshop/fixture.test-support";
+import {fixture,partBcFixture} from "../../domain/workshop/fixture.test-support";
 import {emptyParticipant,advanceParticipant} from "../../domain/workshop/state";
 import {learnerProjection,hostProjection,type RoomRow} from "./projection";
 const room:RoomRow={id:"room",pin:"123456",revision:0,phase:"preparation",group_index:0,expires_at:new Date(100000),content_json:fixture()};
 const participant={id:"learner",alias:"Sunny Otter",revision:0,state_json:emptyParticipant()};
 describe("workshop privacy projection",()=>{
+ it("releases shared-passage and prompt audio only after start while projecting no stems or answer keys",()=>{
+  const content=partBcFixture(),bcRoom={...room,content_json:content,phase:"practice" as const};
+  const before=learnerProjection(bcRoom,participant,0);expect(before.current?.audioUrl).toBeNull();expect(before.current?.passageAudioUrl).toBeNull();
+  const state=advanceParticipant(participant.state_json,content.items[0],{kind:"listen_start",itemId:content.items[0].id},0,3,{firstListenMs:1100,replayMs:1100});
+  const after=learnerProjection(bcRoom,{...participant,state_json:state},0);
+  expect(after.current?.audioUrl).toContain("sample-0.mp3");expect(after.current?.passageAudioUrl).toContain("passage-0.mp3");
+  expect(after.current?.title).toEqual({en:"Question 31",id:"Soal 31"});
+  expect(JSON.stringify(after)).not.toMatch(/What is the main topic|decisiveEvidence|optionReasons|guidedComparison|privateSourceReference|"answer"/);
+ });
  it("withholds active options/audio during preparation and all private content always",()=>{
   const view=learnerProjection(room,participant,0);expect(view.current).toBeNull();
   expect(JSON.stringify(view)).not.toMatch(/decisiveEvidence|optionReasons|privateSourceReference|sha256|tips|guidedComparison|answer\"/);

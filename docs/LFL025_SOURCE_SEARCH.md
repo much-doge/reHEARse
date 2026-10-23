@@ -1,66 +1,34 @@
-# LFL-025 package 1467 source search
+# LFL-025 source matching record
 
-Status: source gate open; no Part B/C items have been imported.
+Status: matching supplied sources found; content implementation is source-complete. Production publication and classroom verification are separate release gates.
 
-## Verified local package
+## Supplied source set
 
-The authorized ConTEFL takeout at
-`/home/miko/Documents/playground/ConTEFL/artifacts/ConTEFL-2026-10-16-package-1467/`
-contains the audio sequence and checksums, not a transcript or answer choices.
-Its local listening README and manifest show five shared passage files:
+The transcript and review presentation supplied by the teacher cover questions 31–50 in test order. Their five group boundaries and item counts align with the package-1467 audio manifest:
 
-| Questions | Local recording | Duration |
-|---|---|---:|
-| 31–33 | `31_33_Dialog.mp3` | 98.46 s |
-| 34–37 | `34_37_Dialog.mp3` | 93.48 s |
-| 38–42 | `38_42_Talk.mp3` | 128.50 s |
-| 43–46 | `43_46_Talk.mp3` | 95.31 s |
-| 47–50 | `47_50_Talk.mp3` | 75.74 s |
+| Questions | Transcript/review topic | Shared audio | Prompt files |
+|---|---|---|---|
+| 31–33 | Native American dance troupe interview | `31_33_Dialog.mp3` | `31.mp3`–`33.mp3` |
+| 34–37 | Apartment repair conversation | `34_37_Dialog.mp3` | `34.mp3`–`37.mp3` |
+| 38–42 | Effective-speaking lecture | `38_42_Talk.mp3` | `38.mp3`–`42.mp3` |
+| 43–46 | History of mail delivery museum talk | `43_46_Talk.mp3` | `43.mp3`–`46.mp3` |
+| 47–50 | Photographing the skies lecture | `47_50_Talk.mp3` | `47.mp3`–`50.mp3` |
 
-It also contains one spoken prompt clip per item (31–50). The package sequence
-capture confirms these shared passages and prompts were played in order; it
-does not include the A–D text, question-key mapping, or a script. Local
-manifest paths: `listening/manifest.json`, `listening/LINKS.md`, and
-`listening/README.md`; sequence evidence is in the separate ConTEFL private
-evidence archive dated 2026-10-16.
+The supplied transcript gives each question once in increasing order, and the review deck contains a separate answer-reveal slide for each. All 20 A–D sets and keys were checked against those reveal slides. The audio build script additionally matches all 25 local media files to package 1467's captured manifest by relative path, category, byte size, SHA-256 and duration. The package capture identifies five `shared-passage` files and twenty `question-prompt` files.
 
-## Online lookup
+Online exact-phrase searches did not establish a publisher-authenticated origin for this particular test set. They were not used to fill any source gap. The teacher-supplied transcript and slide deck are the working source for item wording, options and keys.
 
-Exact searches for the package code, shared-file names, and the package URL did
-not find a matching transcript/options set. The UNY BeSmart category does list
-TOEFL Listening and ProTEFL practice courses:
+## Source correction
 
-- <https://besmart.uny.ac.id/v2/course/index.php?categoryid=149>
-- Candidate course `TOEFL Listening P2B` (`id=6703`) could not be retrieved by
-  the search interface (cache miss).
-- Candidate `PRACTICE TESTS 2` (`id=1403`) redirects to UNY SSO. No course
-  content was accessed.
+Review slide 134 keys option B for question 36 as “Talk to Mr. Connors.” The same slide's question and the supplied transcript name Ms. Connors, and the correct-answer excerpt says Paula will meet Ms. Connors. The private import corrects that single option to “Talk to Ms. Connors,” preserves the B position and key, and records the change in `.secrets/lfl025-source-review.json`. Do not silently restore the slide typo.
 
-The local scanned `96年12月北美真题.pdf` and its matching secondary script
-refer to a different recording set captured as ConTEFL package 1163. Those
-materials are not acceptable evidence for package 1467; their audio group
-boundaries and recordings differ. Do not reuse their B/C transcript, options,
-or keys for this work item.
+## Boundaries
 
-No local speech-recognition model or transcription CLI was available in the
-current environment. The captured audio was not sent to an external service.
+- The complete transcript and question stems stay in the teacher-supplied source files. The runtime package does not include them; learner and host DTOs contain neither.
+- During preparation, learner DTOs do not release group audio or question audio. Starting a question releases its audio sequence; answer choices appear in the learner interface only after playback timing permits.
+- Part B/C is a new immutable workshop version. Part A v2 remains the default for an unversioned/older room-create request, and existing rooms remain pinned to their original content.
+- A source-to-audio mapping by package number and captured hashes is not equivalent to an independent human review of every recording. Human listening acceptance remains outstanding.
 
-## Import gate
+## Longman reference
 
-Before importing B/C, obtain a source that can be checked against the actual
-package-1467 audio: original A–D order for every item, the matching spoken
-question prompt, a transcript or independently reviewed script, and the key
-with an evidence-based rationale. Record the source URL/page or supplied file,
-the matching group filename and SHA-256, and an independent human listening
-review. Keep the full transcript and answer key private and out of learner
-DTOs. Until those checks pass, prepare no invented dialogue topics, question
-wording, options, keys, or bespoke replay clues.
-
-## Longman design scope retained
-
-The intended original bilingual preparation draws on Longman Intermediate
-Skills 18–27: anticipate likely topics and questions, identify the topic, infer
-who/what/when/where from evidence, and follow question/detail order. Part B
-will be sequenced by conversation and Part C by talk, with paper notes rather
-than an on-screen notes field. The Longman skills guide the teaching design;
-they do not establish which content belongs to package 1467.
+The supplied Deborah Phillips Longman preparation course lists Part B Skills 18–22 and Part C Skills 23–27. The cards use those skills to structure prediction, paper notes, topic recognition, contextual inference and answer order. They paraphrase the methods in original bilingual language and do not reproduce Longman examples or passages. The skills are applied to whole dialogue/talk groups, not used to split a passage by item type.
