@@ -10,6 +10,14 @@ describe("workshop privacy projection",()=>{
   expect(JSON.stringify(view)).not.toMatch(/decisiveEvidence|optionReasons|privateSourceReference|sha256|tips|guidedComparison|answer\"/);
   const active=learnerProjection({...room,phase:"practice"},participant,0);expect(active.current?.hint).toBeNull();expect(active.current?.comparison).toBeNull();expect(active.current?.explanationOptions).toEqual([]);expect(JSON.stringify(active)).not.toContain('"prompt"');
  });
+ it("replaces historical written examples with the expanded Longman card without changing the stored room",()=>{
+  const before=JSON.stringify(room.content_json.groups[0].preparation);
+  const view=learnerProjection(room,participant,0);
+  expect(view.group.preparation.procedure).toHaveLength(5);
+  expect(view.group.preparation.longmanReference.en).toContain("Skills 1–3");
+  expect(JSON.stringify(view)).not.toContain("Is the room free?");
+  expect(JSON.stringify(room.content_json.groups[0].preparation)).toBe(before);
+ });
  it("releases only the current tip and never learner text on the teacher board",()=>{
   const item=room.content_json.items[0];let state=advanceParticipant(participant.state_json,item,{kind:"listen_start",itemId:item.id},0,15);
   state=advanceParticipant(state,item,{kind:"choose",itemId:item.id,choice:"B"},100,15);

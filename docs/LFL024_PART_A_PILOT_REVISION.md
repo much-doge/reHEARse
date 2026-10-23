@@ -1,8 +1,9 @@
 # LFL-024 — Part A pilot revision
 
-Status: implementation complete; production acceptance pending. Owner:
-integration lead. Part B/C bootstrap is explicitly deferred until the Part A
-pilot revision is accepted.
+Status: the first pilot revision has been deployed; this Longman instruction
+expansion is source-complete and pending production deployment/publication.
+Owner: integration lead. Part B/C bootstrap is explicitly deferred until the
+Part A pilot revision is accepted.
 
 ## Pilot problems and decisions
 
@@ -44,29 +45,63 @@ pilot revision is accepted.
 
 Reference: Deborah Phillips, *Longman Complete Course for the TOEFL Test:
 Preparation for the Paper Tests* (2001), Part A Short Dialogues, Skills 1–17,
-as identified from the supplied table of contents. This is a teaching map, not
-a claim of publisher endorsement or publisher-authenticated source content.
+as identified from the supplied table of contents and checked against the
+relevant section headings. This is a teaching map, not a claim of publisher
+endorsement or publisher-authenticated source content. The cards explain the
+ideas in original English and Indonesian wording; no textbook example dialogue
+or test item is reproduced. The cards use skill numbers and names; this
+instructor reference records the book's printed pages.
 
-| Current item group | Longman skill range | Adapted focus |
-|---|---:|---|
-| Restatement and sequence | 1–3 | Last-line meaning, paraphrase rather than word matching, similar-sound traps |
-| Supported inference | 4–6 | Who/what/where, passive agent, reference among multiple nouns |
-| Negatives and near-negatives | 7–10 | Negative scope, double/near negatives, comparative negatives |
-| Suggestions, responses and intentions | 11–13 | Agreement, uncertainty/suggestion, surprise and response function |
-| Idioms and multiword expressions | 16–17 | Multi-part verbs and idiomatic meaning in context |
+| Current item group | Longman skill range | Printed pages | Adapted focus |
+|---|---:|---:|---|
+| Restatement and sequence | 1–3 | 16–20 (review exercise 21) | Last-line meaning, paraphrase rather than word matching, similar-sound traps |
+| Supported inference | 4–6 | 22–28 (review exercise 29) | Who/what/where, passive agent, reference among multiple nouns |
+| Negatives and near-negatives | 7–10 | 31–38 (exercise 39) | Negative scope, double/near negatives, comparative negatives |
+| Suggestions, responses and intentions | 11–13 | 41–47 (exercise 48) | Agreement, uncertainty/suggestion, surprise and response function |
+| Idioms and multiword expressions | 16–17 | 56–59 (exercise 60) | Multi-part verbs and idiomatic meaning in context |
 
 Skills 14–15 concern wishes and untrue conditions; do not force them into a
 group without reviewed source items that actually exercise them.
+
+### What students now learn from those skills
+
+- **Skills 1–3:** The first turn supplies context; the reply often carries the
+  decisive meaning. Learners form a brief paraphrase before comparing A–D,
+  preserve roles and event order, and treat sound-alike wording as a reason to
+  verify meaning rather than as evidence by itself.
+- **Skills 4–6:** Learners combine contextual clues to infer a speaker, likely
+  next action, or setting; distinguish the grammatical subject from the agent
+  in active/passive restatements; and track who did what to whom when several
+  nouns occur.
+- **Skills 7–10:** Learners locate the scope of ordinary negatives and negative
+  prefixes; parse double-negative constructions instead of assuming they all
+  cancel; distinguish near-zero quantity (`hardly`, `barely`) from near-zero
+  frequency (`rarely`, `seldom`); and interpret negative comparatives as a
+  complete construction.
+- **Skills 11–13:** Learners preserve the polarity of agreement, keep hedged
+  knowledge distinct from certainty, interpret a suggestion as a proposal
+  rather than an accepted plan, and use emphatic surprise to consider the
+  speaker's prior expectation.
+- **Skills 16–17:** Learners interpret a verb plus particle as a unit and use
+  the exchange to distinguish a conventional figurative idiom from a literal
+  reading.
+
+Every group card now includes a bilingual explanation of the mapped Longman
+skills, a five-step decision process, five specific distractor patterns, and
+three or four language notes. The procedures are original applications of the
+book's strategies to the current audio-only A–D flow, not copied worked
+examples. This is deliberately more useful than displaying skill numbers
+alone while keeping source stems and dialogues off the screen.
 
 ## Enrichment design
 
 The source recordings are the only enrichment audio. After completing the
 current clip, the learner can revisit completed clips in three optional modes:
-a cold replay with choices hidden until the recording ends; a focus-led replay
-using the group's skill target; and a delayed replay that presents the
-learner's own first choice after playback so they can compare it with a fresh
-choice. All three present the real A–D options and return immediate individual
-feedback without a score, transcript, generated dialogue, or generated audio.
+reconstruct a brief meaning before A–D appears; replay while testing one
+skill-specific cue; and pause before making a fresh choice, then compare it with
+the first response. All three present the real A–D options and return immediate
+individual feedback without a score, transcript, generated dialogue, or
+generated audio.
 Choices are saved separately from core attempts, capped at four tries per mode,
 and omitted from the teacher projection. A supported choice closes that mode;
 misses give the existing item-specific listening cue before another untimed
@@ -121,9 +156,12 @@ roster, participant count, learner completion count, or correctness aggregate.
 Dashboard links are role-aware, and teacher section changes preserve saved
 learner state.
 
-The current source verification is `pnpm check` (ESLint, TypeScript, Vitest and
-Next production build). Production media-lineage dry-run/publication, real
-PostgreSQL/API journey, deployed browser/audio acceptance and classroom trial
-are separate release gates and remain pending. No production/database write,
-media upload, push, or deployment has been performed for LFL-024. No raw learner
-response text was inspected.
+The initial source change passed `pnpm check` (ESLint, TypeScript, 164 tests and
+the Next production build) and was deployed as application code `8089b99`; its
+guarded v2 media-lineage dry-run passed, with no v2 database row published.
+This follow-up expands the cards and activity instructions; its focused
+preparation/projection tests (4) and full `pnpm check` (ESLint, TypeScript, 165
+tests and Next production build) passed locally. The expanded follow-up has not
+yet been deployed or published as an immutable v2 row. Its production-shaped
+dry-run/publication, deployed browser/audio acceptance and classroom trial
+remain separate gates. No raw learner response text was inspected.

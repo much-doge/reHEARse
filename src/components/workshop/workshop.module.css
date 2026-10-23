@@ -29,6 +29,9 @@
 .bilingual { margin-bottom: 22px; }
 .bilingual strong { display: block; font-size: 15px; line-height: 1.45; }
 .bilingual span { display: block; margin-top: 4px; color: #65716f; font-size: 13px; line-height: 1.5; }
+.longmanExplanation { margin: 8px 0 22px; padding: 14px 16px; border-left: 3px solid #315ee8; border-radius: 0 10px 10px 0; background: #f1f4ff; }
+.longmanExplanation .bilingual { margin: 0; }
+.longmanExplanation .bilingual strong { font-weight: 550; }
 .materialGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
 .materialGrid section { min-width: 0; padding-top: 16px; border-top: 1px solid #dfddd6; }
 .materialGrid h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }

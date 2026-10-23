@@ -36,7 +36,7 @@ async function main() {
       version: TARGET_VERSION,
       title: old.title,
       groupingVersion: "longman-part-a-v1",
-      pedagogyVersion: "audio-only-enrichment-v1",
+      pedagogyVersion: "longman-part-a-practice-v2",
       groups: workshopGroups,
       items,
     });

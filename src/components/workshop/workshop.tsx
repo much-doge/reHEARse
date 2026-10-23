@@ -25,7 +25,7 @@ function PreparationCard({ preparation }: { preparation: Preparation }) {
     <p className={styles.eyebrow}>Preparation material / Materi persiapan</p>
     <h2 id="preparation-title">Prepare for this listening skill / Persiapkan keterampilan menyimak ini</h2>
     <h3>Skill focus / Fokus keterampilan</h3>{bilingual(preparation.questionTask)}
-    <h3>Longman reference / Rujukan Longman</h3>{bilingual(preparation.longmanReference)}
+    <h3>Longman skill explanation / Penjelasan keterampilan Longman</h3><div className={styles.longmanExplanation}>{bilingual(preparation.longmanReference)}</div>
     <h3>Listening target / Fokus menyimak</h3>{bilingual(preparation.listeningTarget)}
     <div className={styles.materialGrid}>
       <section><h3>Decision process / Langkah menentukan jawaban</h3><ol>{preparation.procedure.map((x, i) => <li key={i}>{x.en}<br /><small>{x.id}</small></li>)}</ol></section>
