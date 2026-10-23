@@ -1,6 +1,6 @@
 # LFL-025 Part B/C content receipt
 
-Status: container-verified in the local checkout. Production publication, integrated browser acceptance and classroom review remain pending. Owner: integration lead.
+Status: container-verified; production publication is blocked by the configured storage endpoint. Integrated browser acceptance and classroom review remain pending. Owner: integration lead.
 
 ## What the teacher can run
 
@@ -72,7 +72,7 @@ Passed locally:
 - Source match: 20 question numbers in order in the DOCX; all twenty answer keys and four-option sets match the named review slides, with only the logged Q36 correction.
 - Private package build: 20 questions, five shared passages and 25 files; source capture manifest hashes, sizes, durations and media categories matched.
 - Importer dry-run: 20 items in five groups; 25 local media checks passed; no network or credentials used.
-- ESLint, TypeScript, 44 Vitest files / 169 tests, and Next production build passed. `pnpm check` itself was unavailable in this host shell; equivalent commands were run directly.
+- ESLint, TypeScript, 41 source Vitest files / 161 tests, and Next production build passed. Vitest excludes `.next` because Next standalone output copies test files. `pnpm check` itself was unavailable in this host shell; equivalent commands were run directly.
 - Isolated disposable PostgreSQL/API journey passed against migrations 001–016. It covered the existing Part A journey and the new shared-passage B/C path, teacher selection, default-to-Part-A compatibility, passage/prompt timing, delayed answer window, replay, wrong/correct branches, private DTO boundaries and historical readers.
 - Private importer dry-run passed for all 20 items, five passages and 25 captured assets.
 - The production importer uses the `migrator` image; it includes `ffprobe` so publication rechecks audio type and duration rather than trusting the source manifest.
@@ -81,3 +81,41 @@ Passed locally:
 - Network/provider error names are also included in the safe preflight category when no HTTP response is available; raw messages remain redacted.
 
 Not yet run: authenticated browser playback, public object publication/range verification, production deployment, and classroom acceptance. The 25 recordings have not received independent human listening review. Do not report B/C as live until publication and deployment pass.
+
+## Live release attempt — 2026-10-23
+
+The release commit was pushed and pulled into `/opt/rehearse` in PCT128. The
+production-shaped app image `rehearse-app:29b67af` built successfully but was
+not started. Production importer images and a read-only package dry-run passed.
+The protected release bundle remains at
+`/opt/rehearse/imports/private/lfl025` (directory mode 0700; manifest and all
+25 audio files mode 0600). A mode-0600 database dump and container baseline are
+at `/opt/rehearse/.secrets/lfl025-before.dump` and
+`/opt/rehearse/.secrets/lfl025-containers-before.txt`.
+
+Publication did not complete. The effective settings identify bucket
+`najala-dumpster`, prefix `rehearse/media`, endpoint
+`s3.us-west-000.backblazeb2.com`, and public delivery host
+`archive.najala.org`. A signed `HeadObject` for a fresh random key timed out
+before `PutObject`; the configured endpoint itself returned an anonymous 403.
+The actual bucket endpoint/region was not available to verify, so no production
+storage setting or Proxmox clock was changed. Backblaze says the S3 endpoint
+must match the bucket region and should be copied from bucket details ([S3 API
+endpoint guidance](https://www.backblaze.com/docs/en/cloud-storage-call-the-s3-compatible-api),
+[regional endpoint guidance](https://www.backblaze.com/docs/cloud-storage-design-a-network-for-high-throughput-access-to-backblaze-b2));
+confirm that exact value before another publish attempt.
+
+Read-only database verification still returns the existing
+`short-conversation-workshop-v1` and `short-conversation-workshop-v2` rows and
+zero `conversation-academic-talk-v1` rows. PCT128 health remains `ok`; the app
+is still `rehearse-app:1bbf939`. PostgreSQL, Writing Analysis Studio and other
+containers were not recreated. Migration 016 remains unchanged. The app image
+is not deployed and teachers must not select B/C yet.
+
+One earlier publish attempt used the pre-diagnostic importer and returned only
+a generic failure. Its content row was not inserted, but the exact stage and
+whether any public objects were written cannot be proven; potential unreferenced
+objects under the reHEARse prefix must not be guessed at or deleted. Later
+attempts failed at the preflight request before upload. No bucket listing or
+deletion was performed. Reconcile any possible orphan only by exact key through
+the storage operator; do not enumerate the shared bucket from this app.
