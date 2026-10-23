@@ -68,11 +68,12 @@ export class S3CompatibleMediaStore implements RemoteMediaStore {
       exists = true;
     } catch (error) {
       const status = (error as { $metadata?: { httpStatusCode?: number } })?.$metadata?.httpStatusCode;
-      if (status !== 404) throw new Error("media key preflight failed");
+      if (status !== 404) throw new Error(`media_key_preflight_http_${Number.isInteger(status) ? status : "unknown"}`);
     }
     if (exists) throw new Error("refusing to overwrite an existing media key");
-    await this.client.send(
-      new PutObjectCommand({
+    try {
+      await this.client.send(
+        new PutObjectCommand({
         Bucket: this.config.bucket,
         Key: input.storageKey,
         Body: createReadStream(input.path),
@@ -84,8 +85,12 @@ export class S3CompatibleMediaStore implements RemoteMediaStore {
           "activity-slug": input.activitySlug,
           "contract-version": "listening-activity-package.v1",
         },
-      }),
-    );
+        }),
+      );
+    } catch (error) {
+      const status = (error as { $metadata?: { httpStatusCode?: number } })?.$metadata?.httpStatusCode;
+      throw new Error(`media_put_http_${Number.isInteger(status) ? status : "unknown"}`);
+    }
   }
 
   async deleteObject(storageKey: string) {

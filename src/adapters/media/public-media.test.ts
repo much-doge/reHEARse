@@ -34,3 +34,15 @@ describe("confined public media", () => {
      expect(commands).toHaveLength(1); expect(commands[0]).toBeInstanceOf(HeadObjectCommand);
    } finally { await rm(folder, {recursive:true}); }
  });
+
+ it("reports only the HTTP status when the unique-key preflight is denied", async () => {
+   const { mkdtemp, writeFile, rm } = await import("node:fs/promises");
+   const { tmpdir } = await import("node:os");
+   const folder = await mkdtemp(`${tmpdir()}/rehearse-test-`);
+   const file = `${folder}/a.mp3`; await writeFile(file, "synthetic");
+   const client = { send: async () => { throw Object.assign(new Error("sensitive provider response"), { $metadata: { httpStatusCode: 403 } }); } } as unknown as import("@aws-sdk/client-s3").S3Client;
+   try {
+     const store = new S3CompatibleMediaStore(readS3MediaConfig(env), client);
+     await expect(store.uploadFile({path:file,storageKey:"rehearse/media/activities/new/v1/random.mp3",contentType:"audio/mpeg",sizeBytes:9,sha256:"a".repeat(64),activitySlug:"test"})).rejects.toThrow("media_key_preflight_http_403");
+   } finally { await rm(folder, {recursive:true}); }
+ });
