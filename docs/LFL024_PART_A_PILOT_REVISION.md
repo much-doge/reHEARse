@@ -1,7 +1,8 @@
 # LFL-024 — Part A pilot revision
 
-Status: in progress. Owner: integration lead. Part B/C bootstrap is explicitly
-deferred until the Part A pilot revision is accepted.
+Status: implementation complete; production acceptance pending. Owner:
+integration lead. Part B/C bootstrap is explicitly deferred until the Part A
+pilot revision is accepted.
 
 ## Pilot problems and decisions
 
@@ -29,10 +30,11 @@ deferred until the Part A pilot revision is accepted.
   the room to preparation without deleting or resetting any learner cursor,
   answer, explanation, replay, or extension event.
 - Remove joined totals, per-item not-started/completed totals, participant
-  names, and any other denominator from the teacher live projection. Retain
-  only non-identifying answer/replay signals that help the teacher decide
-  whether to pause or discuss. Do not display or make unfinished counts
-  inferable from the rendered view.
+  names, correctness totals, and any other denominator from the teacher live
+  projection. Retain only non-identifying Boolean process signals (a first
+  listen has started; a replay has been used) that help the teacher decide
+  whether to pause or discuss. No participant totals or unfinished indicators
+  are returned or rendered.
 - Add an explicit role-aware dashboard entry to `/workshop`.
 - Keep the existing Part A media objects and shared-bucket scope. Publish any
   content change as a new immutable version; existing rooms and evidence stay
@@ -58,14 +60,24 @@ group without reviewed source items that actually exercise them.
 
 ## Enrichment design
 
-The source recordings are the only enrichment audio. Each completed clip can
-be revisited in three optional modes: a cold replay with choices hidden until
-the recording ends; a focus-led replay using the group's skill target; and a
-delayed replay to compare a new choice with the learner's earlier listening.
-All three present the real A–D options and return immediate individual
-diagnostic feedback without a score, leaderboard, public record, or transcript.
-An incorrect selection gives the existing item-specific replay tip and another
-bounded opportunity. No audio is synthesized or uploaded by this revision.
+The source recordings are the only enrichment audio. After completing the
+current clip, the learner can revisit completed clips in three optional modes:
+a cold replay with choices hidden until the recording ends; a focus-led replay
+using the group's skill target; and a delayed replay that presents the
+learner's own first choice after playback so they can compare it with a fresh
+choice. All three present the real A–D options and return immediate individual
+feedback without a score, transcript, generated dialogue, or generated audio.
+Choices are saved separately from core attempts, capped at four tries per mode,
+and omitted from the teacher projection. A supported choice closes that mode;
+misses give the existing item-specific listening cue before another untimed
+try. No audio is synthesized or uploaded by this revision.
+
+Teacher signals are Boolean, not counts: a clip has a first-listen start and/or
+a replay in use. Clips without a signal are omitted from the live list. There
+is no correctness aggregate, participant denominator, roster, or unfinished
+indicator. Section selection changes the selected group and returns the room
+to preparation while leaving per-learner cursors, choices, explanations,
+replays, and enrichment history intact.
 
 ## Acceptance boundary
 
@@ -91,3 +103,27 @@ Student free-text responses have not been inspected. The earlier production
 free-text query was blocked by the safety gate because open response text may
 contain identifying or sensitive content. Aggregate length and event counts
 were used instead. Obtain renewed approval before any raw-text audit.
+
+## Implementation and verification record
+
+The source now serves `part-a-workshop.v2` for both new and historical rooms.
+Version 2 removes item prompt fields from the content schema and public DTO;
+historical v1 storage remains unchanged, with its source preparation replaced
+only at the projection boundary. The v2 publisher is guarded, validates the
+existing v1 media lineage and original ordered A–D/key tuple, creates an
+immutable v2 row, and reuses all thirty existing public media references. It
+does not upload or alter an object. No migration is required.
+
+Enrichment actions are revision-keyed and append to participant state; server
+checks require a completed current item and cap retries. New and historical
+content use the same filtered projection. The teacher projection contains no
+roster, participant count, learner completion count, or correctness aggregate.
+Dashboard links are role-aware, and teacher section changes preserve saved
+learner state.
+
+The current source verification is `pnpm check` (ESLint, TypeScript, Vitest and
+Next production build). Production media-lineage dry-run/publication, real
+PostgreSQL/API journey, deployed browser/audio acceptance and classroom trial
+are separate release gates and remain pending. No production/database write,
+media upload, push, or deployment has been performed for LFL-024. No raw learner
+response text was inspected.

@@ -35,6 +35,10 @@ export class PostgresWorkshopRepository implements WorkshopRepository {
     if(room.revision!==revision)throw new WorkshopError("refresh_required");if(room.phase==="closed"||room.phase==="finished")throw new WorkshopError("room_closed");
     if(action.kind==="open_practice"){if(room.phase!=="preparation")throw new WorkshopError("practice_already_open");room.phase="practice";}
     else if(action.kind==="next_group"){if(room.phase!=="practice")throw new WorkshopError("practice_not_open");if(room.group_index+1===room.content_json.groups.length)room.phase="finished";else{room.group_index++;room.phase="preparation";}}
+    else if(action.kind==="select_group"){
+      if(!Number.isInteger(action.groupIndex)||action.groupIndex<0||action.groupIndex>=room.content_json.groups.length)throw new WorkshopError("group_unavailable",400);
+      room.group_index=action.groupIndex;room.phase="preparation";
+    }
     else room.phase="closed";
     room.revision++;await c.query("UPDATE workshop_room SET phase=$2,group_index=$3,revision=$4 WHERE id=$1",[room.id,room.phase,room.group_index,room.revision]);
     const result=hostProjection(room,await participants(c,room.id),now);
@@ -58,9 +62,18 @@ export class PostgresWorkshopRepository implements WorkshopRepository {
     const p=(await c.query("SELECT * FROM workshop_participant WHERE room_id=$1 AND token_hash=$2 FOR UPDATE",[room.id,tokenHash])).rows[0];if(!p)throw new WorkshopError("membership_required",401);
     const hash=digest({revision,action}),prior=(await c.query("SELECT request_digest,result_json FROM workshop_event WHERE participant_id=$1 AND request_key=$2",[p.id,key])).rows[0];
     if(prior){if(prior.request_digest!==hash)throw new WorkshopError("request_changed");return prior.result_json;}
-    if(room.phase!=="practice")throw new WorkshopError("practice_not_open");if(p.revision!==revision)throw new WorkshopError("refresh_required");
-    const {item,items}=itemAt(room.content_json,room.group_index,p.state_json);if(!item)throw new WorkshopError("group_complete");
-    p.state_json=advanceParticipant(p.state_json,item,action,now,items.length);p.revision++;
+    if(room.phase==="closed")throw new WorkshopError("room_closed");
+    if(room.phase!=="practice"&&!(room.phase==="finished"&&action.kind==="enrichment_choose"))throw new WorkshopError("practice_not_open");
+    if(p.revision!==revision)throw new WorkshopError("refresh_required");
+    const current=itemAt(room.content_json,room.group_index,p.state_json);
+    let target:(typeof current.items)[number]|null=current.item;
+    if(action.kind==="enrichment_choose"){
+      if(current.item&&p.state_json.items[current.item.id]?.phase!=="item_complete")throw new WorkshopError("enrichment_not_available");
+      target=current.items.find(candidate=>candidate.id===action.itemId)??null;
+      if(!target||p.state_json.items[target.id]?.phase!=="item_complete")throw new WorkshopError("enrichment_requires_completed_item");
+    }
+    if(!target)throw new WorkshopError("group_complete");
+    p.state_json=advanceParticipant(p.state_json,target,action,now,current.items.length);p.revision++;
     await c.query("UPDATE workshop_participant SET state_json=$2,revision=$3 WHERE id=$1",[p.id,JSON.stringify(p.state_json),p.revision]);
     const result=learnerProjection(room,p,now);
     await c.query("INSERT INTO workshop_event(room_id,participant_id,request_key,request_digest,action_json,result_json) VALUES($1,$2,$3,$4,$5,$6)",[room.id,p.id,key,hash,JSON.stringify(action),JSON.stringify(result)]);return result;

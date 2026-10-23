@@ -67,6 +67,14 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         </Link>
       </p>
       <section className="ladder-dashboard-entry">
+        <p className="eyebrow">TOEFL Listening · Part A</p>
+        <h2>Part A listening workshop / Lokakarya menyimak Bagian A</h2>
+        <p>Teacher-led practice with the original recordings and A–D choices. / Latihan yang dipandu guru dengan rekaman asli dan pilihan A–D.</p>
+        <Link href={user.role === "learner" ? "/workshop/join" : "/workshop"} className="ladder-primary">
+          {user.role === "learner" ? "Join with your teacher's PIN / Gabung dengan PIN guru" : "Open the teacher workshop / Buka lokakarya guru"} →
+        </Link>
+      </section>
+      <section className="ladder-dashboard-entry">
         <p className="eyebrow">A listening journey / Perjalanan menyimak</p>
         <h2>Listen, take a detour, find a way forward.</h2>
         <p>

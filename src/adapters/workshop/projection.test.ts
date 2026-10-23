@@ -8,12 +8,12 @@ describe("workshop privacy projection",()=>{
  it("withholds active options/audio during preparation and all private content always",()=>{
   const view=learnerProjection(room,participant,0);expect(view.current).toBeNull();
   expect(JSON.stringify(view)).not.toMatch(/decisiveEvidence|optionReasons|privateSourceReference|sha256|tips|guidedComparison|answer\"/);
-  const active=learnerProjection({...room,phase:"practice"},participant,0);expect(active.current?.hint).toBeNull();expect(active.current?.comparison).toBeNull();expect(active.current?.explanationOptions).toEqual([]);
+  const active=learnerProjection({...room,phase:"practice"},participant,0);expect(active.current?.hint).toBeNull();expect(active.current?.comparison).toBeNull();expect(active.current?.explanationOptions).toEqual([]);expect(JSON.stringify(active)).not.toContain('"prompt"');
  });
  it("releases only the current tip and never learner text on the teacher board",()=>{
   const item=room.content_json.items[0];let state=advanceParticipant(participant.state_json,item,{kind:"listen_start",itemId:item.id},0,15);
   state=advanceParticipant(state,item,{kind:"choose",itemId:item.id,choice:"B"},100,15);
   const p={...participant,state_json:state};const view=learnerProjection({...room,phase:"practice"},p,100);expect(view.current?.hint).toEqual(item.tips[0]);expect(view.current?.comparison).toBeNull();
-  const host=hostProjection(room,[p],100);expect(host.items[0]).toMatchObject({notStarted:0,firstListenCorrect:0,relistening:1,completed:0});expect(JSON.stringify(host)).not.toMatch(/state_json|explanations|result|answer|token/);
+  const host=hostProjection(room,[p],100);expect(host.items[0]).toMatchObject({firstListenStarted:true,replayUsed:false});expect(JSON.stringify(host)).not.toMatch(/state_json|explanations|result|answer|token|participantCount|participants|notStarted|firstListenCorrect|completedWithReplay/);
  });
 });

@@ -19,7 +19,7 @@ async function main(){
   if(exists){if(exists.digest!==digest)throw new Error("immutable_version_conflict");await c.query("ROLLBACK");console.log("Identical immutable workshop version already published; no upload.");return;}
   const id=randomUUID(),lineage=[];
   for(const item of content.items){
-   const key=`${config.prefix}/activities/${id}/workshop-v1/${randomBytes(16).toString("hex")}.mp3`;
+   const key=`${config.prefix}/activities/${id}/workshop-v2/${randomBytes(16).toString("hex")}.mp3`;
    await media.uploadFile({path:item.media.localFile,storageKey:key,contentType:"audio/mpeg",sizeBytes:item.media.sizeBytes,sha256:item.media.sha256,activitySlug:content.id});
    const url=(await media.createDownloadUrl(key)).url,publicUrl=new URL(url),base=new URL(config.publicBaseUrl);
    if(publicUrl.protocol!=="https:"||publicUrl.origin!==base.origin||!publicUrl.pathname.startsWith(base.pathname.replace(/\/$/,"")+"/"))throw new Error("media_delivery_not_direct_public");

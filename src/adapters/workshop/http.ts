@@ -11,6 +11,7 @@ export const learnerActionSchema=z.discriminatedUnion("kind",[
  z.object({kind:z.literal("choose"),itemId:z.string().max(61),choice:optionSchema.nullable()}).strict(),
  z.object({kind:z.literal("explain"),itemId:z.string().max(61),option:optionSchema,text:z.string().trim().min(3).max(400)}).strict(),
  z.object({kind:z.literal("next_item"),itemId:z.string().max(61)}).strict(),
+ z.object({kind:z.literal("enrichment_choose"),itemId:z.string().max(61),activityId:z.enum(["cold-replay","focus-replay","delayed-replay"]),choice:optionSchema}).strict(),
 ]);
 export async function body<T>(request:Request,schema:z.ZodType<T>):Promise<T>{
  if(!isSameOriginRequest(request))throw new WorkshopError("origin_rejected",403);

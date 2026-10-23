@@ -33,14 +33,26 @@
 .materialGrid section { min-width: 0; padding-top: 16px; border-top: 1px solid #dfddd6; }
 .materialGrid h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
 .materialGrid ol, .materialGrid ul { margin: 0; padding-left: 20px; color: #394744; font-size: 13px; line-height: 1.6; }
-.example { grid-column: 1 / -1; background: #f3f6ff; padding: 18px !important; border: 1px solid #d4dcf7 !important; border-radius: 13px; }
-.example p { margin: 8px 0; line-height: 1.55; }
 .controls { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
 .groups { display: grid; gap: 9px; }
 .group { padding: 12px; border-radius: 10px; border: 1px solid #dedbd3; font-size: 12px; }
 .groupActive { border-color: #315ee8; background: #f1f4ff; }
-.roster { margin: 10px 0 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 7px; }
-.roster li { padding: 6px 9px; border-radius: 8px; background: #edf0ea; font-size: 11px; }
+.groupSelect { width: 100%; margin-top: 12px; padding: 10px 12px; font-size: 12px; }
+.extensionOverview { grid-column: 1 / -1; padding: 18px !important; border: 1px solid #d4dcf7 !important; border-radius: 13px; background: #f3f6ff; }
+.extensionOverview > p { color: #394744; font-size: 13px; line-height: 1.55; }
+.extensionOverview ol { display: grid; gap: 10px; padding-left: 22px; }
+.extensionOverview li { padding-left: 3px; }
+.extensionOverview li p { margin-bottom: 0; }
+.enrichmentNote { color: #4d5a58; font-size: 13px; line-height: 1.6; }
+.enrichmentClips { display: grid; gap: 12px; margin-top: 18px; }
+.enrichmentClip { border: 1px solid #d9d6ce; border-radius: 12px; background: #fff; }
+.enrichmentClip summary { padding: 14px 16px; cursor: pointer; font-weight: 750; }
+.enrichmentActivity { margin: 0 14px 14px; padding: 16px; border: 1px solid #e0ddd6; border-radius: 10px; background: #fcfbf7; }
+.enrichmentActivity h3 { margin: 0 0 10px; font-size: 15px; line-height: 1.45; }
+.enrichmentActivity h3 small { color: #65716f; font-size: 12px; }
+.enrichmentActivity > p { font-size: 13px; line-height: 1.6; }
+.enrichmentActivity > p small { color: #65716f; }
+.enrichmentCue { color: #43514f; font-size: 13px; line-height: 1.55; }
 .tableWrap { overflow-x: auto; }
 .table { width: 100%; border-collapse: collapse; font-size: 12px; }
 .table th, .table td { padding: 11px 8px; text-align: left; border-bottom: 1px solid #e3e0d8; }
@@ -51,6 +63,8 @@
 .option { width: 100%; display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: center; padding: 14px; border: 1px solid #cfcfc9; border-radius: 11px; background: white; color: #18222b; text-align: left; cursor: pointer; font: inherit; }
 .option:disabled { opacity: .5; cursor: not-allowed; }
 .option b { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 8px; background: #e9edfb; color: #17358f; }
+.optionReadOnly { width: 100%; display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: center; padding: 14px; border: 1px solid #cfcfc9; border-radius: 11px; background: white; color: #18222b; font: inherit; }
+.optionReadOnly b { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 8px; background: #e9edfb; color: #17358f; }
 .hint { margin-top: 16px; padding: 16px; border-left: 4px solid #315ee8; background: #f1f4ff; }
 .result { margin-top: 16px; padding: 14px; border-radius: 10px; background: #e9f5ee; color: #175d43; font-weight: 750; }
 .explanation { display: grid; gap: 7px; margin-top: 16px; }
@@ -63,5 +77,4 @@
 .confetti i:nth-child(4n) { background: #1f785a; }
 @keyframes fall { to { transform: translate3d(var(--drift), 105vh, 0) rotate(540deg); opacity: .2; } }
 @media (prefers-reduced-motion: reduce) { .confetti { display: none; } }
-@media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .materialGrid { grid-template-columns: 1fr; } .example { grid-column: auto; } .nav span { display: none; } .main { width: min(100% - 20px, 720px); padding-top: 24px; } }
-
+@media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .materialGrid { grid-template-columns: 1fr; } .extensionOverview { grid-column: auto; } .nav span { display: none; } .main { width: min(100% - 20px, 720px); padding-top: 24px; } }

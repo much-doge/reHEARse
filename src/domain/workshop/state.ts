@@ -1,4 +1,4 @@
-import type { LearnerAction, Option, ItemPhase, ChoiceResult } from "./contracts";
+import type { LearnerAction, Option, ItemPhase, ChoiceResult, EnrichmentActivityId, EnrichmentResult } from "./contracts";
 import type { WorkshopContent, WorkshopItem } from "./content";
 export class WorkshopError extends Error {
   constructor(readonly code: string, readonly status = 409) { super(code); }
@@ -8,8 +8,11 @@ export type ItemState = {
   replayStartedAt: number | null; replayEndsAt: number | null; replayCount: number;
   result: ChoiceResult | null; firstCorrect: boolean; explanations: Partial<Record<Option,string>>;
 };
-export type ParticipantState = { items: Record<string,ItemState>; cursors: Record<string,number> };
-export const emptyParticipant = (): ParticipantState => ({ items:{}, cursors:{} });
+export type ParticipantState = {
+  items: Record<string,ItemState>; cursors: Record<string,number>;
+  enrichment?: Record<string, Partial<Record<EnrichmentActivityId, EnrichmentResult[]>>>;
+};
+export const emptyParticipant = (): ParticipantState => ({ items:{}, cursors:{}, enrichment:{} });
 export const emptyItem = (): ItemState => ({ phase:"ready", startedAt:null, answerOpensAt:null,deadline:null,replayStartedAt:null,replayEndsAt:null,replayCount:0,result:null,firstCorrect:false,explanations:{} });
 export const options: Option[] = ["A","B","C","D"];
 export function itemAt(content: WorkshopContent, groupIndex: number, state: ParticipantState) {
@@ -24,6 +27,17 @@ export function advanceParticipant(before: ParticipantState, item: WorkshopItem,
   groupItemCount: number): ParticipantState {
   if(action.itemId !== item.id) throw new WorkshopError("item_order");
   const next = structuredClone(before), state = next.items[item.id] ??= emptyItem();
+  if(action.kind === "enrichment_choose") {
+    if(state.phase !== "item_complete") throw new WorkshopError("enrichment_requires_completed_item");
+    if(!options.includes(action.choice)) throw new WorkshopError("invalid_choice",400);
+    const allAttempts = next.enrichment ??= {};
+    const itemAttempts = allAttempts[item.id] ??= {};
+    const activityAttempts = itemAttempts[action.activityId] ??= [];
+    if(activityAttempts.some(attempt=>attempt.result==="correct")) throw new WorkshopError("enrichment_already_complete");
+    if(activityAttempts.length >= 4) throw new WorkshopError("enrichment_attempt_limit");
+    activityAttempts.push({ choice: action.choice, result: action.choice === item.answer ? "correct" : "incorrect", attempt: activityAttempts.length + 1 });
+    return next;
+  }
   if(action.kind === "next_item") {
     if(state.phase !== "item_complete") throw new WorkshopError("item_not_complete");
     const current = next.cursors[item.groupId] ?? 0;

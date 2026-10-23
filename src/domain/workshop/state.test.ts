@@ -1,6 +1,6 @@
 import {describe,it,expect} from "vitest";
 import {fixture} from "./fixture.test-support";
-import {advanceParticipant,emptyParticipant,effectivePhase} from "./state";
+import {advanceParticipant,emptyParticipant,effectivePhase,emptyItem} from "./state";
 import type {LearnerAction} from "./contracts";
 const item=fixture().items[0];
 describe("workshop listening state",()=>{
@@ -35,6 +35,16 @@ describe("workshop listening state",()=>{
   expect(()=>advanceParticipant(state,item,{kind:"explain",itemId:item.id,option:"B",text:"Changed reason."},100,15)).toThrow("explanation_already_saved");
   expect(()=>advanceParticipant(state,item,{kind:"next_item",itemId:item.id},100,15)).toThrow("item_not_complete");
   expect(()=>advanceParticipant(state,item,{kind:"choose",itemId:"other-item",choice:"A"},100,15)).toThrow("item_order");
+ });
+ it("keeps untimed enrichment attempts separate and stops after a supported choice",()=>{
+  const before=emptyParticipant();before.items[item.id]={...emptyItem(),phase:"item_complete",result:{choice:"A",result:"correct",attempt:1},firstCorrect:true};
+  const first=advanceParticipant(before,item,{kind:"enrichment_choose",itemId:item.id,activityId:"cold-replay",choice:"B"},100,15);
+  expect(first.enrichment?.[item.id]?.["cold-replay"]).toEqual([{choice:"B",result:"incorrect",attempt:1}]);
+  const second=advanceParticipant(first,item,{kind:"enrichment_choose",itemId:item.id,activityId:"cold-replay",choice:"A"},200,15);
+  expect(second.enrichment?.[item.id]?.["cold-replay"]).toEqual([{choice:"B",result:"incorrect",attempt:1},{choice:"A",result:"correct",attempt:2}]);
+  expect(before.enrichment).toEqual({});
+  expect(()=>advanceParticipant(second,item,{kind:"enrichment_choose",itemId:item.id,activityId:"cold-replay",choice:"C"},300,15)).toThrow("enrichment_already_complete");
+  expect(()=>advanceParticipant(emptyParticipant(),item,{kind:"enrichment_choose",itemId:item.id,activityId:"focus-replay",choice:"A"},300,15)).toThrow("enrichment_requires_completed_item");
  });
 });
 

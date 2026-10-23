@@ -1,39 +1,122 @@
-import type { Preparation, Skill, Text } from "../../domain/workshop/contracts";
-const t=(en:string,id:string):Text=>({en,id});
-export const workshopGroups: Array<{id:string;title:Text;skill:Skill;preparation:Preparation}>=[
-{id:"meaning-in-context",title:t("Restatement and sequence","Pernyataan ulang dan urutan"),skill:"restatement",preparation:{
- questionTask:t("Identify the option that preserves what the speaker says, including who acts and when.","Pilih opsi yang mempertahankan maksud pembicara, termasuk siapa yang bertindak dan kapan."),
- listeningTarget:t("Track the second speaker's main statement, then connect time words and references to the first turn.","Ikuti pernyataan utama pembicara kedua, lalu hubungkan penanda waktu dan rujukannya dengan giliran pertama."),
- procedure:[t("State the main action in a short phrase before reading the choices.","Rumuskan tindakan utama dalam frasa singkat sebelum membaca pilihan."),t("Check the actor, object, and sequence in each candidate.","Periksa pelaku, objek, dan urutan dalam tiap pilihan."),t("Choose an equivalent meaning even when the vocabulary differs.","Pilih makna yang setara meskipun kosakatanya berbeda.")],
- distractorPatterns:[t("Repeated words can occur in an option that changes the action.","Kata yang diulang bisa muncul pada opsi yang mengubah tindakan."),t("A plausible plan can still reverse the stated order or change the time.","Rencana yang masuk akal tetap bisa membalik urutan atau mengubah waktu yang disebutkan.")],
- example:{dialogue:t("A: Can we use the seminar room now? B: The booking lasts until noon; after that it is available.","A: Bisa pakai ruang seminar sekarang? B: Pemesanannya sampai tengah hari; setelah itu tersedia."),question:t("When is the room available?","Kapan ruang itu tersedia?"),discussion:t("The equivalent meaning is availability after noon. Being booked now does not mean it is unavailable all day.","Makna setaranya adalah tersedia setelah tengah hari. Dipesan sekarang bukan berarti tidak tersedia seharian.")},
- inquiryPrompts:[t("Who performs the action, and what happens first?","Siapa yang bertindak, dan apa yang terjadi lebih dulu?"),t("Does this choice preserve the time and relationship?","Apakah pilihan ini mempertahankan waktu dan hubungannya?")],languageNotes:[t("Before, after, until and once organize events; keep their order when paraphrasing.","Before, after, until, dan once mengatur urutan peristiwa; pertahankan urutannya saat menyatakan ulang.")] }},
-{id:"supported-inference",title:t("Supported inference","Inferensi yang didukung percakapan"),skill:"inference",preparation:{
- questionTask:t("Infer an action, situation, or attitude that the conversation supports without stating it directly.","Simpulkan tindakan, situasi, atau sikap yang didukung percakapan meskipun tidak dinyatakan langsung."),
- listeningTarget:t("Connect a stated detail with the question being asked. Use both turns when the connection depends on context.","Hubungkan detail yang disebutkan dengan pertanyaannya. Gunakan kedua giliran jika hubungan itu bergantung pada konteks."),
- procedure:[t("Identify whether the question asks about meaning, a next action, a situation, or an attitude.","Tentukan apakah pertanyaan menanyakan maksud, tindakan berikutnya, situasi, atau sikap."),t("Name the detail that makes your conclusion reasonable.","Sebutkan detail yang membuat simpulanmu masuk akal."),t("Reject conclusions that require an additional story the speakers did not provide.","Singkirkan simpulan yang membutuhkan cerita tambahan yang tidak disampaikan pembicara.")],
- distractorPatterns:[t("A choice may describe the topic correctly but answer a different question.","Pilihan bisa menggambarkan topiknya dengan benar tetapi menjawab pertanyaan lain."),t("An option can overstate a small clue as a definite intention or a general fact.","Opsi bisa melebihkan petunjuk kecil menjadi niat pasti atau fakta umum.")],
- example:{dialogue:t("A: Can you bring the display to the lecture? B: It is still in the repair shop, and they close after the lecture starts.","A: Bisa bawa layarnya ke kuliah? B: Masih di tempat servis, dan tempatnya tutup setelah kuliah mulai."),question:t("What can be inferred about using that display for the lecture?","Apa yang dapat disimpulkan tentang penggunaan layar itu untuk kuliah?"),discussion:t("The reply makes timely use unlikely. It gives no reason to conclude the display is permanently broken or that the lecture is cancelled.","Jawaban itu membuat penggunaan tepat waktu kurang mungkin. Tidak ada alasan menyimpulkan layarnya rusak permanen atau kuliahnya dibatalkan.")},
- inquiryPrompts:[t("Which spoken detail supports my conclusion?","Detail lisan mana yang mendukung simpulanku?"),t("Am I inferring the minimum needed, or adding an unsupported assumption?","Apakah aku menyimpulkan secukupnya, atau menambah asumsi yang tidak didukung?")],languageNotes:[] }},
-{id:"negative-meaning",title:t("Negatives and near-negatives","Makna negatif dan hampir negatif"),skill:"negatives",preparation:{
- questionTask:t("Work out what did or did not happen when a reply includes a negative or a near-negative expression.","Tentukan apa yang terjadi atau tidak terjadi ketika jawaban memuat ungkapan negatif atau hampir negatif."),
- listeningTarget:t("Locate the negative word, identify its scope, and distinguish an actual event from something that nearly happened.","Temukan kata negatif, tentukan cakupannya, dan bedakan kejadian nyata dari sesuatu yang hampir terjadi."),
- procedure:[t("Attach the negative to its verb or description rather than to the whole conversation.","Hubungkan penanda negatif dengan kata kerja atau keterangan yang tepat, bukan dengan seluruh percakapan."),t("Rewrite the statement in plain words and keep its cause or qualification.","Nyatakan ulang dengan kata sederhana sambil mempertahankan sebab atau pembatasnya."),t("Check whether almost or hardly changes the conclusion you first expected.","Periksa apakah almost atau hardly mengubah simpulan yang semula kamu harapkan.")],
- distractorPatterns:[t("One choice may drop the negative and reverse the meaning.","Satu pilihan bisa menghilangkan penanda negatif dan membalik makna."),t("Another may treat an event that nearly happened as an event that actually happened.","Pilihan lain bisa memperlakukan hal yang hampir terjadi sebagai hal yang benar-benar terjadi.")],
- example:{dialogue:t("A: Did everyone catch the announcement? B: I nearly missed it, but the final sentence was clear.","A: Semua sempat mendengar pengumumannya? B: Aku hampir melewatkannya, tetapi kalimat terakhir terdengar jelas."),question:t("Did the second speaker hear any of the announcement?","Apakah pembicara kedua mendengar sebagian pengumumannya?"),discussion:t("Nearly missed does not mean missed completely. The qualification confirms that some information was heard.","Nearly missed bukan berarti melewatkan seluruhnya. Keterangan lanjutannya menegaskan bahwa sebagian informasi terdengar.")},
- inquiryPrompts:[t("Exactly which event is being negated?","Kejadian mana tepatnya yang dinegasikan?"),t("Did it happen, fail to happen, or only come close to happening?","Apakah hal itu terjadi, tidak terjadi, atau hanya hampir terjadi?")],languageNotes:[t("Almost did not do X can still mean X happened, although it was difficult or unexpected.","Almost did not do X masih bisa berarti X terjadi, meskipun sulit atau tidak terduga.")] }},
-{id:"speaker-intentions",title:t("Suggestions, responses and intentions","Saran, tanggapan, dan maksud pembicara"),skill:"functional-expressions",preparation:{
- questionTask:t("Identify what the speaker is doing with the reply: suggesting, offering, declining, accepting, or reassuring.","Tentukan fungsi jawaban pembicara: menyarankan, menawarkan, menolak, menerima, atau menenangkan."),
- listeningTarget:t("Hear the response in relation to the preceding problem or invitation. Literal sentence form and conversational purpose can differ.","Dengarkan jawaban dalam kaitannya dengan masalah atau ajakan sebelumnya. Bentuk kalimat harfiah dan tujuan percakapan bisa berbeda."),
- procedure:[t("Identify the problem, request or offer in the first turn.","Kenali masalah, permintaan, atau tawaran pada giliran pertama."),t("Ask what response would follow naturally from the second turn.","Tanyakan tanggapan apa yang secara wajar mengikuti giliran kedua."),t("Match the implied action or stance, without adding a commitment the speaker did not make.","Cocokkan tindakan atau sikap yang tersirat tanpa menambah komitmen yang tidak dibuat pembicara.")],
- distractorPatterns:[t("An option may take a rhetorical question as a genuine request for information.","Opsi bisa menganggap pertanyaan retoris sebagai permintaan informasi yang sungguh-sungguh."),t("A response may mention an event while declining it; mentioning is not agreeing.","Jawaban bisa menyebut kegiatan sambil menolaknya; menyebut bukan berarti menyetujui.")],
- example:{dialogue:t("A: These notes are hard to read. B: Would the typed version on the course page help?", "A: Catatan ini sulit dibaca. B: Bagaimana kalau pakai versi ketik di halaman mata kuliah?"),question:t("What does the reply suggest?","Apa yang disarankan oleh jawaban itu?"),discussion:t("The question proposes an alternative resource. It does not ask the first speaker to type a new document.","Pertanyaan itu mengusulkan sumber alternatif. Bukan meminta pembicara pertama mengetik dokumen baru.")},
- inquiryPrompts:[t("What problem or offer is the reply responding to?","Jawaban ini menanggapi masalah atau tawaran apa?"),t("Is this a literal question, or is it performing another function?","Apakah ini pertanyaan harfiah, atau menjalankan fungsi lain?")],languageNotes:[t("Why don't you, you might, and have you tried can introduce suggestions without using should.","Why don't you, you might, dan have you tried dapat menyampaikan saran tanpa kata should.")] }},
-{id:"expressions-in-context",title:t("Idioms and multiword expressions","Idiom dan ungkapan beberapa kata"),skill:"idioms",preparation:{
- questionTask:t("Interpret an expression as a meaningful unit and connect it to the situation being discussed.","Tafsirkan ungkapan sebagai satu kesatuan makna dan hubungkan dengan situasi yang dibahas."),
- listeningTarget:t("Notice combinations whose conversational meaning cannot be obtained by translating each word separately.","Perhatikan gabungan kata yang makna percakapannya tidak dapat diperoleh dengan menerjemahkan setiap kata secara terpisah."),
- procedure:[t("Identify the expression and the person or action it describes.","Kenali ungkapan serta orang atau tindakan yang diterangkannya."),t("Use the surrounding situation to test a plain-language paraphrase.","Gunakan situasi di sekitarnya untuk menguji parafrasa dalam bahasa sederhana."),t("Eliminate literal interpretations that do not fit the exchange.","Singkirkan tafsiran harfiah yang tidak sesuai dengan percakapan.")],
- distractorPatterns:[t("A wrong option may reuse a concrete noun from a figurative expression.","Opsi salah dapat memakai kembali kata benda konkret dari ungkapan kiasan."),t("A familiar topic word can distract from the verb phrase that carries the actual meaning.","Kata topik yang akrab bisa mengalihkan perhatian dari frasa kerja yang membawa makna sebenarnya.")],
- example:{dialogue:t("A: Did the committee reject your proposal? B: No, it is still on the table.","A: Panitia menolak usulanmu? B: Tidak, usulannya masih dipertimbangkan."),question:t("What is the status of the proposal?","Bagaimana status usulan itu?"),discussion:t("On the table means under consideration here. The location of a piece of paper is irrelevant to the decision.","On the table berarti masih dipertimbangkan dalam konteks ini. Letak selembar kertas tidak relevan dengan keputusan tersebut.")},
- inquiryPrompts:[t("Would a word-by-word translation make sense in this situation?","Apakah terjemahan kata per kata masuk akal dalam situasi ini?"),t("Which plain expression keeps the same meaning and speaker attitude?","Ungkapan sederhana mana yang mempertahankan makna dan sikap pembicara?")],languageNotes:[t("Particles can change a verb's meaning. Interpret the whole expression before comparing options.","Partikel dapat mengubah makna kata kerja. Tafsirkan seluruh ungkapan sebelum membandingkan opsi.")] }},
+import type { EnrichmentActivity, Preparation, Skill, Text } from "../../domain/workshop/contracts";
+
+const t = (en: string, id: string): Text => ({ en, id });
+const activity = (id: EnrichmentActivity["id"], title: string, titleId: string, instruction: string, instructionId: string): EnrichmentActivity => ({
+  id, title: t(title, titleId), instruction: t(instruction, instructionId),
+});
+
+const replayActivities: EnrichmentActivity[] = [
+  activity("cold-replay", "Listen before looking at the choices", "Dengarkan sebelum melihat pilihan", "Replay a completed recording with the choices covered. Note its main point in a few words. When playback ends, open A–D and choose the option best supported by what you heard.", "Putar ulang rekaman yang sudah selesai dengan pilihan tertutup. Catat gagasan utamanya dalam beberapa kata. Setelah audio selesai, buka pilihan A–D dan pilih yang paling didukung oleh audio."),
+  activity("focus-replay", "Listen for one specific cue", "Dengarkan satu petunjuk tertentu", "Use the skill focus on this card. Replay the recording, then compare the A–D options for one change in actor, time, meaning, or speaker purpose.", "Gunakan fokus keterampilan pada kartu ini. Putar ulang rekaman, lalu bandingkan pilihan A–D untuk menemukan perubahan pelaku, waktu, makna, atau tujuan pembicara."),
+  activity("delayed-replay", "Compare a later response", "Bandingkan jawaban setelah jeda", "Pause before reopening the recording. Listen once more, make a fresh A–D choice, then compare it with your first response and identify the audio cue that did—or did not—change your view.", "Berhenti sejenak sebelum membuka kembali rekaman. Dengarkan sekali lagi, pilih A–D, lalu bandingkan dengan jawaban pertamamu dan tentukan petunjuk audio yang mengubah—atau tidak mengubah—pemahamanmu."),
+];
+
+const activities = (): EnrichmentActivity[] => structuredClone(replayActivities);
+
+export const workshopGroups: Array<{ id: string; title: Text; skill: Skill; preparation: Preparation }> = [
+  {
+    id: "meaning-in-context", title: t("Restatement and sequence", "Pernyataan ulang dan urutan"), skill: "restatement",
+    preparation: {
+      questionTask: t("Track the meaning of the final line and how it relates to the exchange.", "Ikuti makna bagian akhir dan hubungannya dengan percakapan."),
+      listeningTarget: t("First identify the main point in the response. Then check who acts, what changes, and when.", "Kenali gagasan utama dalam tanggapan. Lalu periksa siapa yang bertindak, apa yang berubah, dan kapan."),
+      procedure: [
+        t("Listen through once before comparing individual words with the choices.", "Dengarkan sampai selesai sebelum membandingkan kata satu per satu dengan pilihan."),
+        t("Reduce the response to its actor, action, object, and time or sequence.", "Ringkas tanggapan menjadi pelaku, tindakan, sasaran, serta waktu atau urutannya."),
+        t("Choose a paraphrase that preserves those relationships, even when its vocabulary is different.", "Pilih parafrasa yang mempertahankan hubungan itu meski kosakatanya berbeda."),
+      ],
+      distractorPatterns: [
+        t("A repeated word can make an option familiar while its action or relationship is wrong.", "Kata yang diulang dapat membuat pilihan terasa akrab meski tindakan atau hubungannya keliru."),
+        t("A similar-sounding word may be mistaken for the word actually heard.", "Kata yang bunyinya mirip dapat tertukar dengan kata yang benar-benar terdengar."),
+        t("An option may preserve the topic but reverse who acts or when it happens.", "Pilihan dapat mempertahankan topik tetapi membalik pelaku atau waktu kejadian."),
+      ],
+      longmanReference: t("Longman Part A, Skills 1–3: attend to the last line, compare equivalent meaning, and watch for similar sounds.", "Longman Bagian A, Keterampilan 1–3: perhatikan bagian akhir, bandingkan kesetaraan makna, dan waspadai bunyi yang mirip."),
+      extensionActivities: activities(),
+      inquiryPrompts: [t("Which person performs the action in the option I chose?", "Siapa yang melakukan tindakan dalam pilihan saya?"), t("Did I preserve the time and sequence, or only repeat a familiar word?", "Apakah saya mempertahankan waktu dan urutan, atau hanya mengulang kata yang akrab?")],
+      languageNotes: [t("Until, before, after, and once establish relationships between events. Keep their direction when you paraphrase.", "Until, before, after, dan once membentuk hubungan antarperistiwa. Pertahankan arahnya saat memparafrasakan.")],
+    },
+  },
+  {
+    id: "supported-inference", title: t("Supported inference", "Inferensi yang didukung percakapan"), skill: "inference",
+    preparation: {
+      questionTask: t("Draw only the conclusion supported by the exchange and the requested detail.", "Tarik hanya simpulan yang didukung percakapan dan detail yang diminta."),
+      listeningTarget: t("Connect a spoken clue to the people, situation, place, or action it supports.", "Hubungkan petunjuk lisan dengan orang, situasi, tempat, atau tindakan yang didukungnya."),
+      procedure: [
+        t("Identify the kind of information the audio calls for: a person, action, place, situation, or next step.", "Kenali jenis informasi yang dibutuhkan dari audio: orang, tindakan, tempat, situasi, atau langkah berikutnya."),
+        t("Name the spoken detail that supports your choice.", "Tentukan detail lisan yang mendukung pilihanmu."),
+        t("Reject an option that adds a cause, intention, or certainty not established in the conversation.", "Singkirkan pilihan yang menambahkan sebab, niat, atau kepastian yang tidak ditetapkan dalam percakapan."),
+      ],
+      distractorPatterns: [
+        t("A true detail can still answer a different point than the one being tested.", "Detail yang benar tetap dapat menjawab hal yang berbeda dari fokus yang diuji."),
+        t("An option may turn a possibility into a certainty or extend one case into a general rule.", "Pilihan dapat mengubah kemungkinan menjadi kepastian atau memperluas satu kasus menjadi aturan umum."),
+        t("When several people or things are mentioned, track which noun each pronoun or action refers to.", "Saat beberapa orang atau benda disebut, ikuti rujukan setiap kata ganti atau tindakan."),
+      ],
+      longmanReference: t("Longman Part A, Skills 4–6: infer who, what, or where; identify an agent in a passive statement; track multiple nouns.", "Longman Bagian A, Keterampilan 4–6: simpulkan siapa, apa, atau di mana; kenali pelaku dalam kalimat pasif; lacak beberapa kata benda."),
+      extensionActivities: activities(),
+      inquiryPrompts: [t("What exact audio detail supports this choice?", "Detail audio apa yang secara tepat mendukung pilihan ini?"), t("Does the option add an assumption the speakers did not establish?", "Apakah pilihan ini menambahkan asumsi yang tidak disampaikan para pembicara?")],
+      languageNotes: [t("A passive statement may leave the agent unstated. Use the surrounding exchange to identify who performed the action.", "Kalimat pasif dapat tidak menyebutkan pelakunya. Gunakan percakapan di sekitarnya untuk mengenali siapa yang melakukan tindakan.")],
+    },
+  },
+  {
+    id: "negative-meaning", title: t("Negatives and near-negatives", "Makna negatif dan hampir negatif"), skill: "negatives",
+    preparation: {
+      questionTask: t("Determine what happened, did not happen, or nearly happened.", "Tentukan hal yang terjadi, tidak terjadi, atau hampir terjadi."),
+      listeningTarget: t("Locate the negative expression and attach it to the correct action or description.", "Temukan ungkapan negatif dan hubungkan dengan tindakan atau keterangan yang tepat."),
+      procedure: [
+        t("Identify each negative or limiting expression and the verb or comparison it modifies.", "Kenali setiap ungkapan negatif atau pembatas serta kata kerja atau perbandingan yang diterangkannya."),
+        t("Restate the event in plain words, keeping any qualification such as almost, hardly, or not until.", "Nyatakan ulang peristiwanya dengan kata sederhana dan pertahankan batasan seperti almost, hardly, atau not until."),
+        t("Check whether a double or comparative negative changes the direction of meaning.", "Periksa apakah negatif ganda atau perbandingan negatif mengubah arah makna."),
+      ],
+      distractorPatterns: [
+        t("A choice may omit a negative and reverse what happened.", "Pilihan dapat menghilangkan penanda negatif dan membalik kejadian."),
+        t("A near-negative can be mistaken for a complete failure or a complete success.", "Ungkapan yang hampir negatif dapat disalahartikan sebagai kegagalan total atau keberhasilan total."),
+        t("A comparative negative may express a preference, not the absence of both alternatives.", "Perbandingan negatif dapat menyatakan pilihan, bukan ketiadaan kedua alternatif."),
+      ],
+      longmanReference: t("Longman Part A, Skills 7–10: negatives, double negatives, near-negative expressions, and negatives with comparisons.", "Longman Bagian A, Keterampilan 7–10: bentuk negatif, negatif ganda, ungkapan hampir negatif, dan negatif dalam perbandingan."),
+      extensionActivities: activities(),
+      inquiryPrompts: [t("Which exact action or description is negated?", "Tindakan atau keterangan mana tepatnya yang dinegasikan?"), t("Did the event happen, fail to happen, or come close to happening?", "Apakah peristiwa itu terjadi, tidak terjadi, atau hampir terjadi?")],
+      languageNotes: [t("Almost and hardly do not mean the same thing. Track the phrase as a whole before deciding.", "Almost dan hardly tidak bermakna sama. Ikuti frasa secara utuh sebelum memutuskan.")],
+    },
+  },
+  {
+    id: "speaker-intentions", title: t("Suggestions, responses and intentions", "Saran, tanggapan, dan maksud pembicara"), skill: "functional-expressions",
+    preparation: {
+      questionTask: t("Recognize what a speaker is doing through a reply, not only its grammatical form.", "Kenali fungsi tanggapan pembicara, bukan hanya bentuk tata bahasanya."),
+      listeningTarget: t("Relate the response to the problem, request, invitation, or suggestion immediately before it.", "Hubungkan tanggapan dengan masalah, permintaan, ajakan, atau saran yang mendahuluinya."),
+      procedure: [
+        t("Identify the situation the speaker is responding to.", "Kenali situasi yang ditanggapi pembicara."),
+        t("Listen for whether the reply agrees, hesitates, suggests, offers, declines, or expresses surprise.", "Dengarkan apakah tanggapan menyetujui, ragu, menyarankan, menawarkan, menolak, atau menunjukkan keterkejutan."),
+        t("Choose the function best supported by the tone and wording; do not add a commitment that was not made.", "Pilih fungsi yang paling didukung oleh nada dan kata-katanya; jangan menambahkan komitmen yang tidak disampaikan."),
+      ],
+      distractorPatterns: [
+        t("A rhetorical question may function as a suggestion rather than a request for information.", "Pertanyaan retoris dapat berfungsi sebagai saran, bukan permintaan informasi."),
+        t("Mentioning an activity is not the same as accepting it.", "Menyebut suatu kegiatan tidak sama dengan menyetujuinya."),
+        t("Uncertainty can qualify a response; do not treat it as a firm promise.", "Keraguan dapat membatasi suatu tanggapan; jangan menganggapnya sebagai janji pasti."),
+      ],
+      longmanReference: t("Longman Part A, Skills 11–13: agreement, uncertainty and suggestions, and expressions of surprise.", "Longman Bagian A, Keterampilan 11–13: persetujuan, keraguan dan saran, serta ungkapan keterkejutan."),
+      extensionActivities: activities(),
+      inquiryPrompts: [t("What problem, request, or offer is the reply responding to?", "Masalah, permintaan, atau tawaran apa yang ditanggapi?"), t("What is the reply doing in this exchange?", "Apa fungsi tanggapan itu dalam percakapan ini?")],
+      languageNotes: [t("A suggestion may be phrased as a question. Interpret the exchange, not just the sentence form.", "Saran dapat disampaikan dalam bentuk pertanyaan. Tafsirkan percakapannya, bukan hanya bentuk kalimatnya.")],
+    },
+  },
+  {
+    id: "expressions-in-context", title: t("Idioms and multiword expressions", "Idiom dan ungkapan beberapa kata"), skill: "idioms",
+    preparation: {
+      questionTask: t("Interpret a multiword expression as a unit and test it against the situation.", "Tafsirkan ungkapan beberapa kata sebagai satu kesatuan dan uji kecocokannya dengan situasi."),
+      listeningTarget: t("Attend to the full verb phrase or idiom rather than translating each word separately.", "Perhatikan seluruh frasa kerja atau idiom, bukan menerjemahkan kata satu per satu."),
+      procedure: [
+        t("Identify the expression and what person, plan, or event it describes.", "Kenali ungkapan serta orang, rencana, atau peristiwa yang diterangkannya."),
+        t("Replace it with a plain-language meaning that fits the surrounding exchange.", "Ganti ungkapan itu dengan makna sederhana yang sesuai dengan percakapan di sekitarnya."),
+        t("Choose the option that fits both the expression and the situation; reject a literal reading that does not fit.", "Pilih opsi yang sesuai dengan ungkapan dan situasinya; singkirkan tafsiran harfiah yang tidak cocok."),
+      ],
+      distractorPatterns: [
+        t("A choice may repeat a concrete word from the idiom while missing its contextual meaning.", "Pilihan dapat mengulang kata konkret dari idiom tetapi melewatkan makna kontekstualnya."),
+        t("A familiar topic word can distract from the multiword verb that carries the meaning.", "Kata topik yang akrab dapat mengalihkan perhatian dari kata kerja majemuk yang membawa makna."),
+        t("A literal translation may sound possible but fail to fit the speakers' situation.", "Terjemahan harfiah mungkin terdengar masuk akal tetapi tidak sesuai dengan situasi pembicara."),
+      ],
+      longmanReference: t("Longman Part A, Skills 16–17: interpret multi-part verbs and idiomatic expressions in context.", "Longman Bagian A, Keterampilan 16–17: tafsirkan kata kerja majemuk dan ungkapan idiomatis dalam konteks."),
+      extensionActivities: activities(),
+      inquiryPrompts: [t("Does the literal meaning fit the situation?", "Apakah makna harfiahnya sesuai dengan situasi?"), t("Which plain-language phrase preserves the speaker's meaning?", "Frasa sederhana mana yang mempertahankan makna pembicara?")],
+      languageNotes: [t("Particles can change a verb's meaning. Listen for the whole expression before choosing.", "Partikel dapat mengubah makna kata kerja. Dengarkan ungkapan secara utuh sebelum memilih.")],
+    },
+  },
 ];
