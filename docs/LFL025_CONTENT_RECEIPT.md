@@ -78,5 +78,6 @@ Passed locally:
 - The production importer uses the `migrator` image; it includes `ffprobe` so publication rechecks audio type and duration rather than trusting the source manifest.
 - Failed publishes report only a safe stage and error class/code, never raw provider text, paths, payloads or credentials.
 - The object-store uniqueness probe distinguishes a missing key (404) from denied/unavailable preflight using only the sanitized HTTP status.
+- Network/provider error names are also included in the safe preflight category when no HTTP response is available; raw messages remain redacted.
 
 Not yet run: authenticated browser playback, public object publication/range verification, production deployment, and classroom acceptance. The 25 recordings have not received independent human listening review. Do not report B/C as live until publication and deployment pass.

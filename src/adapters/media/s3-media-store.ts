@@ -68,7 +68,10 @@ export class S3CompatibleMediaStore implements RemoteMediaStore {
       exists = true;
     } catch (error) {
       const status = (error as { $metadata?: { httpStatusCode?: number } })?.$metadata?.httpStatusCode;
-      if (status !== 404) throw new Error(`media_key_preflight_http_${Number.isInteger(status) ? status : "unknown"}`);
+      if (status !== 404) {
+        const name=error instanceof Error&&/^[A-Za-z][A-Za-z0-9]*$/.test(error.name)?error.name:"UnknownError";
+        throw new Error(`media_key_preflight_http_${Number.isInteger(status) ? status : "unknown"}_${name}`);
+      }
     }
     if (exists) throw new Error("refusing to overwrite an existing media key");
     try {
