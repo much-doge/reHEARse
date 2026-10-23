@@ -1,9 +1,9 @@
 # LFL-024 — Part A pilot revision
 
-Status: the first pilot revision has been deployed; this Longman instruction
-expansion is source-complete and pending production deployment/publication.
-Owner: integration lead. Part B/C bootstrap is explicitly deferred until the
-Part A pilot revision is accepted.
+Status: deployed to PCT128 at source commit `1bbf939483132c9d95caea6475e475407935707d`;
+the immutable Part A v2 package is published. Browser/classroom acceptance is
+still pending. Owner: integration lead. Part B/C bootstrap remains deferred
+until the Part A pilot revision is accepted.
 
 ## Pilot problems and decisions
 
@@ -157,11 +157,17 @@ Dashboard links are role-aware, and teacher section changes preserve saved
 learner state.
 
 The initial source change passed `pnpm check` (ESLint, TypeScript, 164 tests and
-the Next production build) and was deployed as application code `8089b99`; its
-guarded v2 media-lineage dry-run passed, with no v2 database row published.
-This follow-up expands the cards and activity instructions; its focused
+the Next production build) and was deployed as application code `8089b99`. This
+follow-up expands each card and the optional activity instructions; its focused
 preparation/projection tests (4) and full `pnpm check` (ESLint, TypeScript, 165
-tests and Next production build) passed locally. The expanded follow-up has not
-yet been deployed or published as an immutable v2 row. Its production-shaped
-dry-run/publication, deployed browser/audio acceptance and classroom trial
-remain separate gates. No raw learner response text was inspected.
+tests and Next production build) passed locally. Commit
+`1bbf939483132c9d95caea6475e475407935707d` was pushed and deployed as
+`rehearse-app:1bbf939`. The guarded production dry-run passed and the publisher
+added one immutable `short-conversation-workshop-v2` row with the new cards,
+preserving the v1 row, all thirty source-choice/key tuples, and the existing
+public media references. No migration or media upload was needed. Production
+Compose validation, app/tools builds, LAN and public HTTPS health, and the
+unchanged PostgreSQL/Writing Analysis Studio container IDs are recorded in
+`docs/LFL024_LONGMAN_DEPLOYMENT_RECEIPT.md`. A timed live teacher/student browser
+run and classroom trial remain separate acceptance gates. No raw learner
+response text was inspected.
