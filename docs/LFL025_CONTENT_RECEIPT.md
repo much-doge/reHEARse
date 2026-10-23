@@ -75,5 +75,6 @@ Passed locally:
 - ESLint, TypeScript, 44 Vitest files / 169 tests, and Next production build passed. `pnpm check` itself was unavailable in this host shell; equivalent commands were run directly.
 - Isolated disposable PostgreSQL/API journey passed against migrations 001–016. It covered the existing Part A journey and the new shared-passage B/C path, teacher selection, default-to-Part-A compatibility, passage/prompt timing, delayed answer window, replay, wrong/correct branches, private DTO boundaries and historical readers.
 - Private importer dry-run passed for all 20 items, five passages and 25 captured assets.
+- The production importer uses the `migrator` image; it includes `ffprobe` so publication rechecks audio type and duration rather than trusting the source manifest.
 
 Not yet run: authenticated browser playback, public object publication/range verification, production deployment, and classroom acceptance. The 25 recordings have not received independent human listening review. Do not report B/C as live until publication and deployment pass.

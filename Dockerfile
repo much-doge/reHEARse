@@ -14,6 +14,7 @@ COPY . .
 RUN pnpm build
 
 FROM deps AS migrator
+RUN apk add --no-cache ffmpeg
 COPY migrations ./migrations
 COPY scripts ./scripts
 COPY src ./src
