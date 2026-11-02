@@ -12,10 +12,13 @@ common traps and a source-faithful example. Source images remain appropriate
 for passages, line references, selected Longman tables and original A-D
 options, but not as a substitute for teaching the strategy.
 
-The final corrective draft is v7. It replaces v3 as the handoff artifact.
-Questions and A-D options are adapted as editable slide text. Reproduced images
-are limited to the passage area and its line references; source question blocks
-are excluded.
+The final corrective draft is v8. It replaces v7 as the handoff artifact.
+Skill-level guided questions remain editable adaptations, while the optional
+full-passage block now uses Longman Passage Four and digitizes Questions 19-28
+verbatim with their original numbering and A-D order. Reproduced images are
+limited to passage areas and line references; source question blocks are
+excluded. Question 29 is intentionally omitted so the block contains exactly
+ten questions.
 
 ## Outcome
 
@@ -29,9 +32,10 @@ closing slide.
 
 - Private source PDF: owner-provided Longman Reading excerpt, book pages
   183-246 (64 PDF pages). The source remains outside Git.
-- Preserve source passages and line references. Adapt question wording and A-D
-  options as editable slide text while retaining the skill and information
-  being tested.
+- Preserve source passages and line references. Skill-level guided questions
+  may be adapted as editable slide text while retaining the skill and
+  information being tested. For the optional full-passage block, preserve the
+  source wording, numbering and A-D order of Questions 19-28 exactly.
 - Use high-resolution crops only for passage areas. Digitize questions,
   options, headings, workshop directions, strategies and explanations for
   projection readability.
@@ -46,19 +50,19 @@ deploy the application, or claim classroom verification.
 
 ## Verification
 
-- Final artifact: `output/presentations/LFL026_TOEFL_ITP_Reading_Workshop_Draft_v7.pptx`
-- Slide count: 38, 16:9 widescreen.
+- Final artifact: `output/presentations/LFL026_TOEFL_ITP_Reading_Workshop_Draft_v8.pptx`
+- Slide count: 41, 16:9 widescreen.
 - Final SHA-256:
-  `a867308aeaef539286e8be300732dab344610a65bf09dd79f92220390d0c8d9d`.
+  `4ff68595096daa6009fe39e31cfaeb9f9897268a394722895a202acd744cd4a3`.
 - Package integrity passed with zero findings.
 - Layout geometry, heading fit and the declared Carlito font policy passed with
   zero findings and zero warnings.
 - The first-party Artifact Tool re-imported the exact final PPTX and confirmed
-  all 38 slides.
+  all 41 slides.
 - Every slide was rendered. The full deck montage was reviewed for sequence,
   consistency and density. Representative slides were additionally inspected
-  at full size: the Skill 1 strategy and practice, Skill 8 practice, Skill 13
-  practice, and complete Pony Express practice.
+  at full size: the complete Longman Passage Four practice block on slides
+  35-39, including the passage, Questions 19-28 and both discussion tables.
 - Corrective visual passes repaired comparison-slide contrast, removed source
   question blocks from passage images, and restored the complete Skill 1
   passage without including its source question.
