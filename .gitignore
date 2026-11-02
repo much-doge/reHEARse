@@ -11,6 +11,7 @@ imports/private/
 *.tsbuildinfo
 .DS_Store
 .codex-build/
+.~lock.*#
 
 .secrets/
 .env.production
