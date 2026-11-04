@@ -9,12 +9,16 @@ repository, not only in chat or commit messages.
 
 ## Product constitution
 
-This is a listening-learning environment, not an assessment platform.
+The main reHEARse application is a listening-learning environment, not an
+assessment platform. The separately bounded ProTEFL Test Center under
+`apps/protefl-center/` may conduct formal TOEFL ITP preparation tests only
+under D-027. Its scores, placement decisions, answer keys, source archive and
+learner records must not enter reHEARse learning diagnostics or history.
 
 1. **Build listening before testing it.** The core loop is listen, externalize
    understanding, receive diagnostic guidance, relisten with a purpose, revise,
    and notice what changed.
-2. **No-score learning invariant.** Instructional activities must not calculate
+2. **No-score learning invariant.** reHEARse instructional activities must not calculate
    or display scores, percentages, grades, bands, mastery values, ranks,
    traffic-light proficiency, or aggregate correctness. Numerical points are
    permitted only inside an explicitly recreational game capability, isolated

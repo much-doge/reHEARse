@@ -15,6 +15,7 @@ system it borrows from.
 | Listening-source provenance | `docs/SOURCE_REGISTER.md` |
 | Design language and bilingual UX | `docs/DESIGN_SYSTEM.md` |
 | Work status and verification | `docs/CHANGE_LEDGER.md` |
+| ProTEFL companion product boundary | `apps/protefl-center/README.md` |
 
 ## Precedence
 

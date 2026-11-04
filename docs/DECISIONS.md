@@ -327,3 +327,35 @@ questions until released. Late joins remain possible. Existing sessions/runs
 migrate as started/ready; character/name choices are pinned per run and locked
 at readiness. Completed runs return to an owned activities-dashboard recap,
 without instructional scores or ranks. Passage checkpoints remain individual.
+
+## D027 — Separate ProTEFL course companion and Test Center (LFL-027)
+
+Accepted for planning. The ProTEFL/TOEFL ITP course companion lives under
+`apps/protefl-center/` in this Git repository. A shared repository is a source
+management choice, not permission to share runtime state. The Test Center has
+its own product charter, application boundary, deployment configuration,
+database schema or database, access-control policy and verification receipts.
+The existing reHEARse application remains at the repository root and must stay
+runnable while the companion is developed.
+
+The Test Center may eventually administer a formal full-length diagnostic or
+placement test and report section and total results. This is a narrow exception
+to the reHEARse no-score learning invariant: assessment results must never be
+written into reHEARse attempts, listening feedback, games, learner history or
+teacher diagnostics. Course activities outside an explicitly labeled test
+remain learning activities and must not quietly become scored assessment.
+
+ConTEFL archive files, answer keys, transcripts, credentials, candidate data
+and actual test responses are owner-only material. They stay outside Git in an
+ignored private path. The public repository may contain only neutral schemas,
+synthetic fixtures and provenance records that do not expose protected source
+content. Before any real test is digitized or administered, the owner must
+record source authorization, test form/version, scoring interpretation,
+retention policy, access roles, incident/recovery procedure and an explicit
+publication gate.
+
+The first slice is planning and a synthetic walking skeleton. Do not add shared
+identity, shared tables, Zoom automation, asynchronous jobs, payment, marketing
+CMS or deployment infrastructure until a concrete journey requires it. Links
+between the companion and reHEARse may be added later through narrow public
+routes; direct cross-product database reads are not authorized.
