@@ -28,9 +28,10 @@ learner records must not enter reHEARse learning diagnostics or history.
    meaning, contradiction, uncertainty, and insufficient evidence.
 4. **Guide the next listen.** Just-in-time feedback gives one bounded attention
    target without revealing locked answers or the full transcript.
-5. **Bilingual by contract.** Learner feedback and critical UI guidance have
-   paired English and Indonesian fields. Translation is not an optional display
-   afterthought.
+5. **English-only presentation.** Public-facing learner, teacher,
+   administrator and Test Center interfaces render English only. Historical
+   bilingual fields remain readable for contract compatibility and immutable
+   evidence, but are not displayed or destructively rewritten. See D029.
 6. **Preserve attempts.** Notes, reconstructions, transcript versions, activity
    versions, teacher guides, and feedback remain immutable evidence. A retry
    creates a new attempt; it does not overwrite an earlier one.

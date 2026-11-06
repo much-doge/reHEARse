@@ -18,7 +18,7 @@ next listen.
    you think was happening?”
 3. **Diagnose, do not grade.** The system describes evidenced meaning,
    mismatches, uncertainty, and what cannot be inferred.
-4. **Focus.** The learner receives one bilingual next-listen target without an
+4. **Focus.** The learner receives one English next-listen target without an
    answer reveal.
 5. **Relisten and revise.** A new immutable attempt records what changed.
 6. **Reveal later.** A teacher-controlled capability may expose transcript
@@ -37,10 +37,11 @@ scores:
 When the evidence is insufficient, the system says so. It never assigns a
 percentage of understanding.
 
-## Bilingual contract
+## Product language and stored compatibility
 
-The primary language pair is English and Indonesian (`en`, `id`). Learner
-feedback stores both versions together under one immutable feedback record.
+The rendered product language is English. Historical learner feedback may
+retain English and Indonesian (`en`, `id`) fields together under one immutable
+feedback record for backward compatibility; the interface renders only English.
 The learner may write notes and reconstruction in either or both languages.
 Language quality is not evaluated unless a future activity explicitly teaches
 language production.
@@ -54,7 +55,7 @@ language production.
 - chooses an activity pseudonym that is not their login identity;
 - plays self-paced audio, takes notes, and reconstructs meaning;
 - submits an immutable attempt;
-- receives bilingual, non-scored feedback and one relistening target;
+- receives English, non-scored feedback and one relistening target;
 - opens earlier attempts and compares changes across retries.
 
 ### Teacher
@@ -76,7 +77,7 @@ Included in the first runnable slice:
 - private audio storage served through an authorized route;
 - activity draft/publish flow;
 - notes plus a reconstruction prompt;
-- versioned attempts and bilingual feedback;
+- versioned attempts and English feedback presentation;
 - provider-neutral feedback port, deterministic demo adapter, and optional
   OpenAI Responses adapter;
 - Docker Compose with PostgreSQL.
@@ -99,6 +100,6 @@ Nothing deferred should appear to work in the MVP UI.
 From a fresh database, Compose starts the app and PostgreSQL. A seed command
 creates one teacher and one published sample activity. A learner can register,
 sign in, open that activity, submit notes and a reconstruction, receive paired
-English/Indonesian diagnostic guidance with no numeric assessment, relisten,
+English diagnostic guidance with no numeric assessment, relisten,
 submit again, and reopen both immutable attempts. A teacher can create and
 publish another activity with an uploaded audio file.

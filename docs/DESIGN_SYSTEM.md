@@ -26,9 +26,9 @@ Use neutral states: Captured, Unclear, Reconsider, Newly noticed, and Not enough
 evidence. Never Strong/Weak, Pass/Fail, percentage-complete, or traffic-light
 mastery.
 
-English is shown first with Indonesian immediately paired beneath it in a
-quieter style. A later locale preference may reverse emphasis, but both remain
-available for critical feedback.
+All rendered interface and feedback copy is English-only. Historical paired
+language fields may remain in stored contracts for compatibility, but the UI
+must not render the Indonesian field. See D029.
 
 ## Primary screen
 

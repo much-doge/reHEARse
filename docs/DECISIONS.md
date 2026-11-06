@@ -383,3 +383,19 @@ placement interpretation, source-complete status or classroom verification.
 The source owner authorized closed course-internal digitization in the LFL-028
 request; protected source details, transcripts and keys remain in the ignored
 Test Center private workspace.
+
+## D029 — English-only rendered product language (LFL-029)
+
+Accepted at the operator's request. All learner, teacher, administrator and
+Test Center interfaces render English only. This supersedes the earlier
+bilingual presentation requirement in D023 and the original product and design
+specifications; it does not weaken the listening-learning, no-score, privacy or
+assessment-isolation invariants.
+
+Existing immutable records and versioned contracts may retain paired `en` and
+`id` fields for backward compatibility and auditability. The application must
+not delete or rewrite historical attempts, feedback, preparation content or
+test records merely to change presentation language. UI adapters select the
+English field, and new public-facing copy is authored in English. Removing the
+legacy Indonesian storage shape requires a separate additive migration and
+contract-version decision; it is not part of this display-only change.
