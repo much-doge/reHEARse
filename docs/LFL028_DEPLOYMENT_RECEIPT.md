@@ -68,6 +68,22 @@ and twelve-second response window before learners begin. Keep the activity
 labelled as a supervised pilot and stop the run if any content mismatch is
 observed.
 
+## First Begin request hotfix
+
+The first authenticated learner Begin request exposed an invalid HTTP adapter
+schema: two members of a Zod discriminated union used the same `start` value.
+The domain, imported form, learner role and stored answers were not disabled or
+damaged; the route rejected the request before starting an attempt.
+
+Commit `f67c41f` replaces that adapter schema with a strict union and adds
+regression cases for both full and remedial start payloads plus invalid mixed
+payloads. `pnpm check` passed with 42 test files and 164 tests. The hotfix image
+was deployed by recreating only the reHEARse app container. The container is
+healthy, `/api/health` passes, the Test Center POST route now initializes and
+returns the expected `authentication_required` response to an unauthenticated
+probe, and post-cutover logs contain no duplicate-discriminator failure. A
+normal signed-in learner Begin request remains the final classroom check.
+
 ## Rollback
 
 Restore the prior `rehearse-app` image tag and recreate only the app service.
