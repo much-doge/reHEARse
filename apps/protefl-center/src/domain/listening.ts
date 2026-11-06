@@ -3,6 +3,29 @@ export const LISTENING_CONTRACT = "protefl-listening-attempt.v1";
 
 export type Option = "A" | "B" | "C" | "D";
 
+export type RemedialSelectionItem = {
+  id: string;
+  ordinal: number;
+  part: "A" | "B" | "C";
+  passageGroup: string;
+  correct: boolean;
+};
+
+export function selectRemedialItems(items: RemedialSelectionItem[]) {
+  const missedPassages = new Set(
+    items
+      .filter((item) => item.part !== "A" && !item.correct)
+      .map((item) => item.passageGroup),
+  );
+  return items
+    .filter(
+      (item) =>
+        (item.part === "A" && !item.correct) ||
+        (item.part !== "A" && missedPassages.has(item.passageGroup)),
+    )
+    .sort((left, right) => left.ordinal - right.ordinal);
+}
+
 export type ListeningAction =
   | { kind: "start"; key: string; mode: "full"; parentAttemptId?: never }
   | { kind: "start"; key: string; mode: "remedial"; parentAttemptId: string }

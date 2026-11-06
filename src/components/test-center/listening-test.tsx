@@ -175,7 +175,7 @@ export function ListeningTest({ initial, learnerName }: { initial: ListeningView
         </div>
         {result.canRemediate && (
           <button className="ptc-primary" disabled={busy} onClick={() => void start("remedial")}>
-            Retry {result.wrong} missed item{result.wrong === 1 ? "" : "s"}</button>
+            Review missed items with their complete passages</button>
         )}
         {message && <p className="ptc-error" role="alert">{message}</p>}
         <div className="ptc-review">

@@ -7,6 +7,7 @@ import {
   LISTENING_CONTRACT,
   LISTENING_FORM_CODE,
   ListeningPilotError,
+  selectRemedialItems,
   type ListeningAction,
   type ListeningView,
   type Option,
@@ -200,13 +201,22 @@ export class PostgresListeningPilotRepository implements ListeningPilotRepositor
             )
           ).rows[0];
           if (!parent) throw new ListeningPilotError("parent_attempt_not_found", 404);
-          itemRows = (
+          const parentItems = (
             await client.query(
-              `SELECT ai.item_id AS id FROM protefl_attempt_item ai
-               WHERE ai.attempt_id=$1 AND ai.correct=false ORDER BY ai.sequence`,
+              `SELECT i.id,i.ordinal,i.part,i.passage_group,ai.correct
+               FROM protefl_attempt_item ai
+               JOIN protefl_test_item i ON i.id=ai.item_id
+               WHERE ai.attempt_id=$1 ORDER BY i.ordinal`,
               [parent.id],
             )
-          ).rows;
+          ).rows.map((row) => ({
+            id: String(row.id),
+            ordinal: Number(row.ordinal),
+            part: row.part as "A" | "B" | "C",
+            passageGroup: String(row.passage_group),
+            correct: row.correct === true,
+          }));
+          itemRows = selectRemedialItems(parentItems);
           if (!itemRows.length) throw new ListeningPilotError("nothing_to_remediate");
         }
         const inserted = (
