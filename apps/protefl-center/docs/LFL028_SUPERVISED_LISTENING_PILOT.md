@@ -40,8 +40,8 @@ Internal form code: `ptc-listening-2000-10-v1`.
 
 - The answer window opens after the pinned audio segment ends and lasts twelve
   seconds according to server time.
-- A choice may change until the deadline. Expiry locks the latest choice or an
-  omitted response and advances.
+- The first accepted choice locks the item and advances immediately. If no
+  choice is accepted, expiry locks an omitted response and advances.
 - Duplicate request keys replay the original acknowledgement. Refresh or retry
   cannot reset a timer or overwrite an accepted answer.
 - A disconnected learner resumes the server-authoritative state. Elapsed items

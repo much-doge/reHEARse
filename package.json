@@ -19,7 +19,8 @@
     "compose:up": "docker compose up --build",
     "compose:down": "docker compose down",
     "db:migrate": "node scripts/migrate.mjs",
-    "activity:import": "tsx scripts/import-activity.ts"
+    "activity:import": "tsx scripts/import-activity.ts",
+    "protefl:import": "tsx scripts/import-protefl-listening.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1146.0",

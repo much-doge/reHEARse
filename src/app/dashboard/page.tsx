@@ -67,6 +67,14 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         </Link>
       </p>
       <section className="ladder-dashboard-entry">
+        <p className="eyebrow">ProTEFL Test Center · Supervised pilot</p>
+        <h2>Listening test — Form 2000-10</h2>
+        <p>Complete the 50-item Parts A–C listening form, review your raw item outcomes, then retry only missed items. / Selesaikan 50 nomor Bagian A–C, tinjau hasil setiap nomor, lalu ulangi hanya nomor yang salah atau terlewat.</p>
+        <Link href="/test-center/listening/2000-10" className="ladder-primary">
+          Open the listening test / Buka tes menyimak →
+        </Link>
+      </section>
+      <section className="ladder-dashboard-entry">
         <p className="eyebrow">TOEFL ITP Listening · Parts A–C</p>
         <h2>TOEFL ITP listening workshop / Lokakarya menyimak TOEFL ITP</h2>
         <p>Teacher-led practice with the original recordings and A–D choices. The teacher selects Part A or Parts B/C. / Latihan yang dipandu guru dengan rekaman asli dan pilihan A–D. Guru memilih Bagian A atau Bagian B/C.</p>

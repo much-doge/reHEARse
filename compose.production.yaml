@@ -22,6 +22,7 @@ x-runtime: &runtime
   OBJECT_STORAGE_SECRET_ACCESS_KEY: ${OBJECT_STORAGE_SECRET_ACCESS_KEY:?required}
   OBJECT_STORAGE_PREFIX: ${OBJECT_STORAGE_PREFIX:?required}
   PUBLIC_MEDIA_BASE_URL: ${PUBLIC_MEDIA_BASE_URL:?required}
+  PROTEFL_MEDIA_ROOT: /data/protefl-media
 services:
   validate-config:
     image: rehearse-tools:${REHEARSE_IMAGE_TAG:-lfl006}
@@ -36,6 +37,7 @@ services:
     command: [node, scripts/start-production.mjs]
     environment: *runtime
     ports: ["${APP_BIND_ADDRESS:-127.0.0.1}:${APP_PORT:-3001}:3000"]
+    volumes: ["./imports/protefl-pilot/media:/data/protefl-media:ro"]
     networks: [rehearse]
     depends_on:
       migrate: {condition: service_completed_successfully}
@@ -89,6 +91,18 @@ services:
     entrypoint: [pnpm, activity:import, --]
     environment: *runtime
     volumes: ["./imports/private:/imports:ro"]
+    networks: [rehearse]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    restart: "no"
+  import-protefl-listening:
+    profiles: [tools]
+    image: rehearse-tools:${REHEARSE_IMAGE_TAG:-lfl006}
+    entrypoint: [pnpm, protefl:import, --, /imports/package/form.private.json]
+    environment:
+      DATABASE_URL: postgresql://rehearse:${POSTGRES_PASSWORD:?required}@postgres:5432/rehearse
+      PROTEFL_IMPORT_MEDIA_DIR: /imports/media/ptc-listening-2000-10-v1
+    volumes: ["./imports/protefl-pilot:/imports:ro"]
     networks: [rehearse]
     depends_on:
       migrate: {condition: service_completed_successfully}
