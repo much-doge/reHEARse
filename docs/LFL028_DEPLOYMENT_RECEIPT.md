@@ -114,3 +114,11 @@ uploaded to a new immutable Backblaze prefix and `rclone check` reported 50
 matches and zero differences. The v2 importer passed from an empty disposable
 database. The v1 form and objects remain unchanged for audit and must not be
 used for new attempts.
+
+Commit `b8bc05e` and the v2 form are deployed in PCT128. The live database
+contains exactly 50 v2 items whose object keys run from corrected v2 `001.mp3`
+through `050.mp3`; the app container is healthy on Next.js `16.3.4`, the public
+health contract passes, and post-cutover startup logs are clean. Because the
+application now selects the v2 form code, an existing broken v1 attempt is not
+resumed after refresh. A normal-account replay of item 1 remains the final
+classroom observation.
