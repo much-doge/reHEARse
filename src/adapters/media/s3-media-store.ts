@@ -104,8 +104,10 @@ export class S3CompatibleMediaStore implements RemoteMediaStore {
 
 export function assertSafeObjectKey(storageKey: string, prefix = "") {
   if (prefix && !/^[A-Za-z0-9_-]+(?:\/[A-Za-z0-9_-]+)*$/.test(prefix)) throw new Error("invalid media prefix");
-  const required = prefix ? `${prefix}/activities/` : "activities/";
-  if (!storageKey.startsWith(required) || storageKey.includes("..") || !/^[A-Za-z0-9._-]+(?:\/[A-Za-z0-9._-]+)*$/.test(storageKey)) throw new Error("invalid media storage key");
+  const roots = prefix
+    ? [`${prefix}/activities/`, `${prefix}/test-center/`]
+    : ["activities/", "test-center/"];
+  if (!roots.some((root) => storageKey.startsWith(root)) || storageKey.includes("..") || !/^[A-Za-z0-9._-]+(?:\/[A-Za-z0-9._-]+)*$/.test(storageKey)) throw new Error("invalid media storage key");
 }
 export function createPublicMediaUrl(config: S3MediaConfig, storageKey: string): string {
   if (!config.prefix || !config.publicBaseUrl) throw new Error("public media configuration missing");

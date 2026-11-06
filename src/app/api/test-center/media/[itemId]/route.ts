@@ -5,6 +5,8 @@ import { z } from "zod";
 
 import { listeningPilotRepository } from "@protefl/adapters/postgres-listening";
 import { ListeningPilotError } from "@protefl/domain/listening";
+import { readS3MediaConfig } from "@/adapters/media/s3-config";
+import { S3CompatibleMediaStore } from "@/adapters/media/s3-media-store";
 import { resolvePrivateMediaPath } from "@/lib/media-path";
 import { currentUser } from "@/lib/session";
 
@@ -23,6 +25,17 @@ export async function GET(
     if (!z.uuid().safeParse(itemId).success || !z.uuid().safeParse(attemptId).success)
       throw new ListeningPilotError("media_not_found", 404);
     const media = await listeningPilotRepository.media(user.id, attemptId!, itemId);
+    if (!process.env.PROTEFL_MEDIA_ROOT) {
+      const delivery = await new S3CompatibleMediaStore(readS3MediaConfig()).createDownloadUrl(media.storageKey);
+      return new Response(null, {
+        status: 307,
+        headers: {
+          "Cache-Control": "private, no-store",
+          Location: delivery.url,
+          "Referrer-Policy": "no-referrer",
+        },
+      });
+    }
     const root = process.env.PROTEFL_MEDIA_ROOT ?? path.join(process.cwd(), "apps/protefl-center/private/media");
     const filePath = resolvePrivateMediaPath(root, media.storageKey);
     if (!filePath) throw new ListeningPilotError("media_not_found", 404);

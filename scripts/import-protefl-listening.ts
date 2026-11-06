@@ -35,8 +35,11 @@ const formSchema = z.object({
 
 const packagePath = process.argv.slice(2).find((argument) => argument !== "--");
 const databaseUrl = process.env.DATABASE_URL;
+const storagePrefix = process.env.OBJECT_STORAGE_PREFIX?.trim();
 if (!packagePath) throw new Error("Usage: tsx scripts/import-protefl-listening.ts <private-package.json>");
 if (!databaseUrl) throw new Error("DATABASE_URL is required");
+if (!storagePrefix || !/^[A-Za-z0-9_-]+(?:\/[A-Za-z0-9_-]+)*$/.test(storagePrefix))
+  throw new Error("OBJECT_STORAGE_PREFIX is required and must be a safe object prefix");
 
 const raw = await readFile(path.resolve(packagePath), "utf8");
 const parsed = formSchema.parse(JSON.parse(raw));
@@ -84,7 +87,7 @@ try {
           current.group,
           JSON.stringify(current.options),
           current.answer,
-          `${parsed.code}/${String(current.number).padStart(3, "0")}.mp3`,
+          `${storagePrefix}/test-center/${parsed.code}/${String(current.number).padStart(3, "0")}.mp3`,
           current.media.durationMs,
           current.media.sha256,
           current.media.sizeBytes,

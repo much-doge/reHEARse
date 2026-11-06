@@ -17,6 +17,9 @@ Internal form code: `ptc-listening-2000-10-v1`.
 - The protected source, transcript, answer key and media-review files remain in
   `apps/protefl-center/private/` with owner-only permissions and are ignored by
   Git.
+- Immutable question clips are delivered from the existing Najala Dumpster
+  Backblaze object store through the configured public media route; PCT128 does
+  not serve or retain the runtime audio set.
 - The reHEARse route adapter supplies only the authenticated actor identifier.
 - Assessment persistence uses `protefl_*` tables and does not read or write
   reHEARse attempts, feedback, games or learner history.
