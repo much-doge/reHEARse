@@ -26,7 +26,26 @@ the spoken question during remediation, without the passage it referred to.
 - Next.js production build passed.
 - A read-only production aggregate found 20 full attempts in progress, two
   submitted full attempts and two legacy remedial attempts in progress before
-  deployment. Recovery of those legacy remedials remains a deployment step.
+  deployment.
+
+## Deployment and live recovery
+
+- Built and deployed `rehearse-app:7e75b41` by recreating only the application
+  container; no migration or content import ran.
+- The container reported healthy and both LAN and public `health.v1` endpoints
+  returned OK.
+- Four additional legacy remedials began during image transfer. After the new
+  image was live, all six contextless remedial attempts were preserved and
+  changed from `in_progress` to `invalidated`. No response row was deleted.
+- The post-recovery aggregate was 16 full attempts in progress, six submitted
+  full attempts, six invalidated legacy remedials and zero in-progress legacy
+  remedials. Affected learners therefore fall back to their submitted main
+  result and can start a new passage-aware remedial attempt.
+- Exact temporary image archives were removed from the workstation, Proxmox
+  host and PCT128.
+
+This is deployment and aggregate-state verification, not a completed learner
+browser journey through the corrected Part B/C remedial flow.
 
 ## Rollback
 
