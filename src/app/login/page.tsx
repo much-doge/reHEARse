@@ -15,9 +15,9 @@ export default async function LoginPage({
   if (await currentUser()) redirect(destination);
   const message =
     error === "credentials"
-      ? "The email or password is incorrect. / Email atau kata sandi tidak sesuai."
+      ? "The email or password is incorrect."
       : error === "invalid"
-        ? "Enter your email and a password of at least 10 characters. / Masukkan email dan kata sandi minimal 10 karakter."
+        ? "Enter your email and a password of at least 10 characters."
         : null;
 
   return (
@@ -27,22 +27,17 @@ export default async function LoginPage({
         <span>reHEARse</span>
       </Link>
       <section className="auth-card">
-        <p className="eyebrow">Sign in / Masuk</p>
+        <p className="eyebrow">Sign in</p>
         <h1>Continue your listening practice.</h1>
         <p>
-          Open your activities and review your previous responses. / Buka
-          aktivitas dan tinjau jawaban sebelumnya.
-        </p>
+          Open your activities and review your previous responses.</p>
         {message && (
           <div className="auth-error" role="alert">
             {message}
           </div>
         )}
         {reason === "expired" && (
-          <p role="status">
-            Your session has ended. Sign in to continue where you left off. /
-            Sesi kamu berakhir. Masuk untuk melanjutkan aktivitasmu.
-          </p>
+          <p role="status">Your session ended. Sign in to continue your activity.</p>
         )}
         <form action={loginAction} className="auth-form">
           <input type="hidden" name="next" value={destination} />
@@ -51,7 +46,7 @@ export default async function LoginPage({
             <input name="email" type="email" autoComplete="email" required />
           </label>
           <label>
-            <span>Password / Kata sandi</span>
+            <span>Password</span>
             <input
               name="password"
               type="password"
@@ -62,16 +57,15 @@ export default async function LoginPage({
             />
           </label>
           <button className="button button-primary" type="submit">
-            Sign in / Masuk <span aria-hidden="true">→</span>
+            Sign in<span aria-hidden="true">→</span>
           </button>
         </form>
         <p className="auth-switch">
-          New here? / Belum punya akun?{" "}
+          New here?{" "}
           <Link
             href={`/register?${new URLSearchParams({ next: destination })}`}
           >
-            Create an account / Buat akun
-          </Link>
+            Create an account</Link>
         </p>
       </section>
     </main>

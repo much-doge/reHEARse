@@ -27,7 +27,7 @@ export function AnswerEffect({ effect, onDone }: { effect: Effect; onDone: () =>
       )}
       <div className={styles.toast} role="status" aria-live="polite" aria-atomic="true">
         <b aria-hidden="true">{effect.kind === "celebrate" ? "✦" : effect.kind === "revisit" ? "↻" : "◌"}</b>
-        <div><strong>{effect.text.en}</strong><small lang="id">{effect.text.id}</small></div>
+        <div><strong>{effect.text.en}</strong></div>
       </div>
     </div>
   );

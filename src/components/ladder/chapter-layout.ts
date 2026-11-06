@@ -36,8 +36,8 @@ export function registeredChapterMap(map?: JourneyMap): map is JourneyMap {
     map.connections.some((connection) => connection.id === expected.id && connection.kind === expected.kind && connection.from === expected.from && connection.to === expected.to && connection.chapter === expected.chapter));
 }
 export function chapterPlace(node: number, finish = 13) {
-  if (node === 0) return "Start / Mulai";
-  if (node === finish) return "Finish / Selesai";
+  if (node === 0) return "Start";
+  if (node === finish) return "Finish";
   const chapter = Math.floor((node - 1) / 3) + 1;
-  return (node - 1) % 3 === 2 ? `Camp ${chapter} / Pos ${chapter}` : `Listen ${chapter} / Simak ${chapter}`;
+  return (node - 1) % 3 === 2 ? `Camp ${chapter}` : `Listen ${chapter}`;
 }

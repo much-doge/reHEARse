@@ -3,12 +3,12 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import type { GameView } from "@/domain/game/contracts";
 const labels = {
-  lobby: ["Ready to listen", "Siap menyimak"],
-  listen: ["Listen to the conversation", "Dengarkan percakapan"],
-  comprehend: ["Compare your understanding", "Bandingkan pemahamanmu"],
-  quiz: ["Choose the meaning", "Pilih maknanya"],
-  review: ["Review and listen again", "Tinjau dan dengarkan ulang"],
-  finished: ["Reflect on your listening", "Tinjau proses menyimakmu"],
+  lobby: "Ready to listen",
+  listen: "Listen to the conversation",
+  comprehend: "Compare your understanding",
+  quiz: "Choose the meaning",
+  review: "Review and listen again",
+  finished: "Reflect on your listening",
 };
 export function ClassroomGame({
   teacher = false,
@@ -40,7 +40,7 @@ export function ClassroomGame({
       }
     } catch {
       setMessage(
-        "Connection interrupted; reconnecting / Koneksi terputus; menghubungkan kembali",
+        "Connection interrupted; reconnecting",
       );
     }
   }, [pin]);
@@ -79,7 +79,7 @@ export function ClassroomGame({
       }
       await refresh();
     } catch (e) {
-      setMessage(e instanceof Error ? e.message : "Try again / Coba lagi");
+      setMessage(e instanceof Error ? e.message : "Try again");
       await refresh();
     } finally {
       setBusy(false);
@@ -89,18 +89,16 @@ export function ClassroomGame({
     <main className="game-shell">
       <header className="game-nav">
         <Link href="/" aria-label="reHEARse home">reHEARse</Link>
-        <span>CLASSROOM LISTENING / MENYIMAK BERSAMA</span>
+        <span>CLASSROOM LISTENING</span>
         <Link href={teacher ? "/play" : "/classroom"}>
-          {teacher ? "Join a session / Gabung sesi" : "Teacher / Guru"}
+          {teacher ? "Join a session" : "Teacher"}
         </Link>
       </header>
       <p className="game-contract">
-        Listen, discuss, and answer together. / Dengarkan, diskusikan, dan jawab
-        bersama.
-      </p>
+        Listen, discuss, and answer together.</p>
       {!room ? (
         <section className="game-welcome">
-          <p className="eyebrow">Listening session / Sesi menyimak</p>
+          <p className="eyebrow">Listening session</p>
           <h1>
             {teacher
               ? "Lead a listening session."
@@ -108,13 +106,12 @@ export function ClassroomGame({
           </h1>
           <p>
             {teacher
-              ? "Play each conversation, allow discussion, then open the question. / Putar percakapan, beri waktu berdiskusi, lalu buka pertanyaan."
-              : "Enter the PIN shared by your teacher. Your team name is assigned automatically. / Masukkan PIN dari guru. Nama tim diberikan secara otomatis."}
+              ? "Play each conversation, allow discussion, then open the question."
+              : "Enter the PIN shared by your teacher. Your team name is assigned automatically."}
           </p>
           {teacher && (
             <button disabled={busy} onClick={() => void act("create")}>
-              Create session / Buat sesi
-            </button>
+              Create session</button>
           )}
           <form
             onSubmit={(e) => {
@@ -124,19 +121,18 @@ export function ClassroomGame({
             }}
           >
             <label>
-              Session PIN / PIN sesi
-              <input
+              Session PIN<input
                 inputMode="numeric"
                 maxLength={6}
                 value={pin}
                 onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
-                placeholder="6 digits / 6 angka"
+                placeholder="6 digits"
                 required
                 pattern="[0-9]{6}"
               />
             </label>
             <button disabled={busy}>
-              {teacher ? "Resume session / Lanjutkan sesi" : "Join / Gabung"}
+              {teacher ? "Resume session" : "Join"}
             </button>
           </form>
         </section>
@@ -144,14 +140,14 @@ export function ClassroomGame({
         <>
           <div className="game-status">
             <strong className="game-pin">{room.pin}</strong>
-            <span>{room.players} teams / tim</span>
-            <span>{room.host ? "Teacher / Guru" : room.alias}</span>
+            <span>{room.players} teams</span>
+            <span>{room.host ? "Teacher" : room.alias}</span>
             <span>
-              Round / Putaran {room.roundIndex + 1} / {room.total}
+              Round {room.roundIndex + 1} of {room.total}
             </span>
           </div>
           <p className="game-join">
-            Join / Gabung:{" "}
+            Join{" "}
             <strong>
               {typeof location !== "undefined" ? location.origin : ""}/play?pin=
               {room.pin}
@@ -159,14 +155,11 @@ export function ClassroomGame({
           </p>
           <section className={`game-stage phase-${room.phase}`}>
             <p className="eyebrow">{room.title}</p>
-            <h1>{labels[room.phase][0]}</h1>
-            <p>{labels[room.phase][1]}</p>
+            <h1>{labels[room.phase]}</h1>
             {room.phase === "lobby" && (
               <p>
                 Use one phone per team. Listen for the situation and what each
-                speaker means. / Gunakan satu ponsel per tim. Dengarkan
-                situasinya dan maksud setiap pembicara.
-              </p>
+                speaker means.</p>
             )}
             {room.round.audioUrl && (
               <div className="game-audio">
@@ -178,25 +171,18 @@ export function ClassroomGame({
                 />
                 <p>
                   Play the audio through the classroom speaker. Replay it when a
-                  detail needs another listen. / Putar audio melalui speaker
-                  kelas. Ulangi untuk memperjelas detail tertentu.
-                </p>
+                  detail needs another listen.</p>
               </div>
             )}
             {room.phase === "listen" && !room.host && (
               <p>
-                Listen to the conversation and note its main idea. / Dengarkan
-                percakapan dan catat gagasan utamanya.
-              </p>
+                Listen to the conversation and note its main idea.</p>
             )}
             {room.phase === "comprehend" && (
               <>
                 <p>
                   Discuss the conversation with your team. Submit one key idea
-                  or a detail you want to check. / Diskusikan percakapan dengan
-                  tim. Kirim satu gagasan utama atau detail yang ingin
-                  diperjelas.
-                </p>
+                  or a detail you want to check.</p>
                 {!room.host && !room.cloudSubmitted && (
                   <form
                     onSubmit={(e) => {
@@ -205,7 +191,7 @@ export function ClassroomGame({
                     }}
                   >
                     <input
-                      aria-label="Key idea or question / Gagasan utama atau pertanyaan"
+                      aria-label="Key idea or question"
                       maxLength={40}
                       value={term}
                       onChange={(e) =>
@@ -215,22 +201,21 @@ export function ClassroomGame({
                         })
                       }
                       required
-                      placeholder="Up to 40 characters / Maksimal 40 karakter"
+                      placeholder="Up to 40 characters"
                     />
                     <button disabled={busy}>
-                      Send to teacher / Kirim ke guru
-                    </button>
+                      Send to teacher</button>
                   </form>
                 )}
                 {!room.host && room.cloudSubmitted && (
-                  <p>Your phrase has been sent. / Frasamu telah dikirim.</p>
+                  <p>Your phrase has been sent.</p>
                 )}
               </>
             )}
             {["comprehend", "review"].includes(room.phase) && (
               <div
                 className="game-cloud"
-                aria-label="Class ideas / Gagasan kelas"
+                aria-label="Class ideas"
               >
                 {room.cloud.length ? (
                   room.cloud.map((w) => (
@@ -244,7 +229,7 @@ export function ClassroomGame({
                       {room.host && (
                         <button
                           className="cloud-hide"
-                          aria-label={`Hide phrase / Sembunyikan frasa: ${w.term}`}
+                          aria-label={`Hide phrase: ${w.term}`}
                           onClick={() =>
                             void act("moderate", {
                               cloudId: w.id,
@@ -258,17 +243,14 @@ export function ClassroomGame({
                     </span>
                   ))
                 ) : (
-                  <p>
-                    The teacher will choose phrases for the class to discuss. /
-                    Guru akan memilih frasa untuk didiskusikan bersama.
-                  </p>
+                  <p>The teacher will choose phrases for the class to discuss.</p>
                 )}
               </div>
             )}
             {room.host && room.pending.length > 0 && (
               <details>
                 <summary>
-                  Review phrases / Tinjau frasa ({room.pending.length})
+                  Review phrases{room.pending.length})
                 </summary>
                 <div className="moderation">
                   {room.pending.map((w) => (
@@ -280,8 +262,7 @@ export function ClassroomGame({
                           void act("moderate", { cloudId: w.id, visible: true })
                         }
                       >
-                        Show / Tampilkan
-                      </button>
+                        Show</button>
                     </div>
                   ))}
                 </div>
@@ -294,8 +275,8 @@ export function ClassroomGame({
                   <p className="game-timer" role="timer">
                     {remaining}s ·{" "}
                     {remaining
-                      ? "Time remaining / Waktu tersisa"
-                      : "Discuss the answer / Diskusikan jawaban"}
+                      ? "Time remaining"
+                      : "Discuss the answer"}
                   </p>
                 )}
                 <div className="game-options">
@@ -323,40 +304,31 @@ export function ClassroomGame({
                 {room.answered && room.phase === "quiz" && (
                   <p>
                     Answer submitted. Be ready to explain which part of the
-                    audio helped you decide. / Jawaban terkirim. Siapkan
-                    penjelasan tentang bagian audio yang mendukung pilihanmu.
-                  </p>
+                    audio helped you decide.</p>
                 )}
               </>
             )}
             {room.phase === "review" && (
               <div className="game-review">
-                <h3>Meaning / Makna</h3>
+                <h3>Meaning</h3>
                 <p>{room.round.explanation?.en}</p>
-                <p>{room.round.explanation?.id}</p>
-                <h3>Replay focus / Fokus dengar ulang</h3>
+                <h3>Replay focus</h3>
                 <p>{room.round.cue?.en}</p>
-                <p>{room.round.cue?.id}</p>
                 <p>
                   Compare your first interpretation with what you hear now.
-                  Explain any change to your team. / Bandingkan pemahaman awalmu
-                  dengan yang kamu dengar sekarang. Jelaskan perubahannya kepada
-                  tim.
-                </p>
+                  Explain any change to your team.</p>
               </div>
             )}
             {room.phase === "finished" && (
               <p>
                 Which phrase or detail helped you understand a speaker’s
-                meaning? Share it with your team. / Frasa atau detail apa yang
-                membantumu memahami maksud pembicara? Bagikan kepada tim.
-              </p>
+                meaning? Share it with your team.</p>
             )}
           </section>
           {room.host && room.phase !== "finished" && (
             <div className="game-controls">
               <label>
-                Answer time / Waktu menjawab{" "}
+                Answer time{" "}
                 <select
                   value={duration}
                   onChange={(e) => setDuration(Number(e.target.value))}
@@ -376,12 +348,12 @@ export function ClassroomGame({
                 {
                   (
                     {
-                      lobby: "Start listening / Mulai menyimak",
+                      lobby: "Start listening",
                       listen:
-                        "Discuss the conversation / Diskusikan percakapan",
-                      comprehend: "Open question / Buka pertanyaan",
-                      quiz: "Review / Tinjau",
-                      review: "Next round / Putaran berikutnya",
+                        "Discuss the conversation",
+                      comprehend: "Open question",
+                      quiz: "Review",
+                      review: "Next round",
                     } as Record<string, string>
                   )[room.phase]
                 }
@@ -391,18 +363,15 @@ export function ClassroomGame({
                 disabled={busy}
                 onClick={() => void act("finish")}
               >
-                Finish session / Akhiri sesi
-              </button>
+                Finish session</button>
             </div>
           )}
           {room.leaderboard.length > 0 && (
             <section className="game-board">
-              <h2>Team standings / Poin tim</h2>
+              <h2>Team standings</h2>
               <p>
                 1000 points for a correct answer, plus up to 200 for responding
-                quickly. / 1000 poin untuk jawaban benar, ditambah bonus
-                kecepatan hingga 200.
-              </p>
+                quickly.</p>
               <ol>
                 {room.leaderboard.map((p) => (
                   <li key={p.alias}>

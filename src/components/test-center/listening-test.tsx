@@ -19,10 +19,10 @@ async function mutate(action: ListeningAction): Promise<ListeningView> {
 }
 
 const errorCopy: Record<string, string> = {
-  answer_closed: "The response window has closed. Refreshing the item… / Waktu menjawab sudah habis. Memuat keadaan terbaru…",
-  answer_not_open: "Wait until the recording finishes. / Tunggu sampai rekaman selesai.",
-  refresh_required: "This attempt changed in another tab. Refreshing… / Percobaan berubah di tab lain. Memuat ulang…",
-  test_center_unavailable: "The test could not be reached. Your accepted answers are still saved. / Tes belum dapat dihubungi. Jawaban yang sudah diterima tetap tersimpan.",
+  answer_closed: "The response window has closed. Refreshing the item…",
+  answer_not_open: "Wait until the recording finishes.",
+  refresh_required: "This attempt changed in another tab. Refreshing…",
+  test_center_unavailable: "The test could not be reached. Your accepted answers are still saved.",
 };
 
 export function ListeningTest({ initial, learnerName }: { initial: ListeningView; learnerName: string }) {
@@ -125,7 +125,7 @@ export function ListeningTest({ initial, learnerName }: { initial: ListeningView
     } catch (error) {
       audioRef.current.pause();
       const code = error instanceof Error ? error.message : "test_center_unavailable";
-      setMessage(errorCopy[code] ?? "Audio could not start. Try once more. / Audio belum dapat diputar. Coba sekali lagi.");
+      setMessage(errorCopy[code] ?? "Audio could not start. Try once more.");
     } finally {
       setBusy(false);
     }
@@ -149,15 +149,14 @@ export function ListeningTest({ initial, learnerName }: { initial: ListeningView
         <div className="ptc-kicker">Listening comprehension · Form 2000-10</div>
         <h1>50 questions. One uninterrupted listening run.</h1>
         <p className="ptc-lead">This is a closed classroom pilot for {learnerName}. Use headphones and choose a quiet place before you begin.</p>
-        <p className="ptc-id">Ini uji coba kelas tertutup untuk {learnerName}. Gunakan headphone dan cari tempat yang tenang sebelum mulai.</p>
         <div className="ptc-rules">
-          <article><strong>Parts A–C</strong><span>Short conversations, longer conversations, and talks.</span><small>Percakapan pendek, percakapan panjang, dan monolog.</small></article>
-          <article><strong>One play per item</strong><span>The recording cannot be replayed during the main run.</span><small>Rekaman tidak dapat diputar ulang selama pengerjaan utama.</small></article>
-          <article><strong>12 seconds</strong><span>Choose A, B, C, or D after the recording ends.</span><small>Pilih A, B, C, atau D setelah rekaman selesai.</small></article>
+          <article><strong>Parts A–C</strong><span>Short conversations, longer conversations, and talks.</span></article>
+          <article><strong>One play per item</strong><span>The recording cannot be replayed during the main run.</span></article>
+          <article><strong>12 seconds</strong><span>Choose A, B, C, or D after the recording ends.</span></article>
         </div>
-        <div className="ptc-notice"><strong>Pilot notice / Catatan uji coba</strong><br />This is not an official TOEFL administration or converted TOEFL score. After submitting, you will see the raw item outcomes and can retry only missed items.<br />Ini bukan penyelenggaraan TOEFL resmi atau skor TOEFL terkonversi. Setelah selesai, kamu dapat melihat hasil setiap nomor dan mengulang hanya nomor yang terlewat atau salah.</div>
+        <div className="ptc-notice"><strong>Pilot notice</strong><br />This is not an official TOEFL administration or converted TOEFL score. After submitting, you will see the raw item outcomes and can retry only missed items.</div>
         {message && <p className="ptc-error" role="alert">{message}</p>}
-        <button className="ptc-primary" disabled={busy} onClick={() => void start("full")}>Begin the listening test / Mulai tes menyimak</button>
+        <button className="ptc-primary" disabled={busy} onClick={() => void start("full")}>Begin the listening test</button>
       </section>
     );
   }
@@ -166,31 +165,29 @@ export function ListeningTest({ initial, learnerName }: { initial: ListeningView
     const result = view.attempt.result;
     return (
       <section className="ptc-results">
-        <div className="ptc-kicker">Attempt submitted / Percobaan sudah dikirim</div>
+        <div className="ptc-kicker">Attempt submitted</div>
         <h1>{view.attempt.kind === "remedial" ? "Remedial review complete" : "Listening test complete"}</h1>
         <p>Your response record is locked. Review each item below before deciding whether to retry missed items.</p>
-        <p className="ptc-id">Catatan jawabanmu sudah dikunci. Tinjau setiap nomor sebelum mengulang nomor yang salah atau terlewat.</p>
         <div className="ptc-totals" aria-label="Raw outcome counts">
-          <div className="correct"><strong>{result.correct}</strong><span>Correct / Benar</span></div>
-          <div className="wrong"><strong>{result.wrong}</strong><span>Wrong or omitted / Salah atau kosong</span></div>
-          <div><strong>{result.omitted}</strong><span>Omitted / Kosong</span></div>
+          <div className="correct"><strong>{result.correct}</strong><span>Correct</span></div>
+          <div className="wrong"><strong>{result.wrong}</strong><span>Wrong or omitted</span></div>
+          <div><strong>{result.omitted}</strong><span>Omitted</span></div>
         </div>
         {result.canRemediate && (
           <button className="ptc-primary" disabled={busy} onClick={() => void start("remedial")}>
-            Retry {result.wrong} missed item{result.wrong === 1 ? "" : "s"} / Ulangi {result.wrong} nomor
-          </button>
+            Retry {result.wrong} missed item{result.wrong === 1 ? "" : "s"}</button>
         )}
         {message && <p className="ptc-error" role="alert">{message}</p>}
         <div className="ptc-review">
           {result.items.map((item) => (
             <article className={item.correct ? "is-correct" : "is-wrong"} key={item.number}>
-              <header><strong>{item.number}</strong><span>Part {item.part}</span><b>{item.correct ? "Correct / Benar" : item.choice ? "Wrong / Salah" : "Omitted / Kosong"}</b></header>
+              <header><strong>{item.number}</strong><span>Part {item.part}</span><b>{item.correct ? "Correct" : item.choice ? "Wrong" : "Omitted"}</b></header>
               <div className="ptc-review-options">
                 {options.map((letter) => (
                   <p className={letter === item.answer ? "answer" : letter === item.choice ? "choice" : ""} key={letter}>
                     <span>{letter}</span>{item.options[letter]}
-                    {letter === item.answer && <em>Correct answer / Jawaban benar</em>}
-                    {letter === item.choice && letter !== item.answer && <em>Your choice / Pilihanmu</em>}
+                    {letter === item.answer && <em>Correct answer</em>}
+                    {letter === item.choice && letter !== item.answer && <em>Your choice</em>}
                   </p>
                 ))}
               </div>
@@ -202,31 +199,31 @@ export function ListeningTest({ initial, learnerName }: { initial: ListeningView
     );
   }
 
-  if (!current) return <section className="ptc-intro"><p>Loading the next item… / Memuat nomor berikutnya…</p></section>;
+  if (!current) return <section className="ptc-intro"><p>Loading the next item…</p></section>;
 
   const progress = Math.round((view.attempt.position / view.attempt.totalItems) * 100);
   return (
     <section className="ptc-test">
       <div className="ptc-progress-row">
         <span>Part {current.part}</span>
-        <strong>Question {current.number} / Nomor {current.number}</strong>
+        <strong>Question {current.number}</strong>
         <span>{view.attempt.position + 1} of {view.attempt.totalItems}</span>
       </div>
       <div className="ptc-progress"><span style={{ width: `${progress}%` }} /></div>
       <div className="ptc-listening-panel">
         <div className={`ptc-disc ${playing ? "is-playing" : ""}`} aria-hidden="true"><span /></div>
         <div>
-          <div className="ptc-kicker">Listen once / Dengarkan sekali</div>
+          <div className="ptc-kicker">Listen once</div>
           {!current.startedAt ? (
             <>
               <h1>Ready for question {current.number}?</h1>
               <p>The answer timer begins when the recording ends.</p>
-              <button className="ptc-primary" disabled={busy} onClick={() => void play()}>▶ Play question {current.number} / Putar nomor {current.number}</button>
+              <button className="ptc-primary" disabled={busy} onClick={() => void play()}>▶ Play question {current.number}</button>
             </>
           ) : !canChoose && (remainingMs ?? 1) > 0 ? (
-            <><h1>Listen to the complete recording.</h1><p>Options unlock when the audio ends. / Pilihan aktif setelah audio selesai.</p>{!playing && <button className="ptc-primary" disabled={busy} onClick={() => void play()}>▶ Resume audio / Lanjutkan audio</button>}</>
+            <><h1>Listen to the complete recording.</h1><p>Options unlock when the audio ends.</p>{!playing && <button className="ptc-primary" disabled={busy} onClick={() => void play()}>▶ Resume audio</button>}</>
           ) : (
-            <><h1>Choose the best answer.</h1><p>Pilih jawaban terbaik sebelum waktu habis.</p></>
+            <h1>Choose the best answer.</h1>
           )}
         </div>
       </div>
@@ -236,11 +233,11 @@ export function ListeningTest({ initial, learnerName }: { initial: ListeningView
         preload="auto"
         onPlaying={() => setPlaying(true)}
         onEnded={() => setPlaying(false)}
-        onError={() => setMessage("Audio could not be loaded. Your timer has not been reset. / Audio belum dapat dimuat. Waktu tidak diulang.")}
+        onError={() => setMessage("Audio could not be loaded. Your timer has not been reset.")}
       />
       <div className={`ptc-timer ${canChoose && (remainingMs ?? 0) < 4000 ? "urgent" : ""}`}>
         <strong>{current.startedAt ? (canChoose ? ((remainingMs ?? 0) / 1000).toFixed(1) : "LISTEN") : "READY"}</strong>
-        <span>{canChoose ? "seconds remaining / detik tersisa" : "response window / waktu menjawab"}</span>
+        <span>{canChoose ? "seconds remaining" : "response window"}</span>
       </div>
       <div className="ptc-options" aria-live="polite">
         {options.map((letter) => (
@@ -250,11 +247,11 @@ export function ListeningTest({ initial, learnerName }: { initial: ListeningView
         ))}
       </div>
       {message && <p className="ptc-error" role="alert">{message}</p>}
-      <p className="ptc-save">Every accepted answer is saved immediately. / Setiap jawaban yang diterima langsung tersimpan.</p>
+      <p className="ptc-save">Every accepted answer is saved immediately.</p>
     </section>
   );
 }
 
 function LinkBack() {
-  return <a className="ptc-dashboard-link" href="/dashboard">Return to dashboard / Kembali ke dashboard →</a>;
+  return <a className="ptc-dashboard-link" href="/dashboard">Return to dashboard</a>;
 }

@@ -32,7 +32,7 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
       else await stage.current?.requestFullscreen();
     } catch {
       setError(
-        "Fullscreen is unavailable here. Use projector mode or maximize your browser. / Layar penuh belum tersedia. Gunakan mode proyektor atau perbesar browser.",
+        "Fullscreen is unavailable here. Use projector mode or maximize your browser.",
       );
     }
   }
@@ -55,7 +55,7 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
       } catch {
         if (active)
           setError(
-            "The board could not refresh. Existing progress is safe. / Papan belum bisa diperbarui. Progres tetap tersimpan.",
+            "The board could not refresh. Existing progress is safe.",
           );
       }
     }
@@ -95,7 +95,7 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
       window.history.replaceState(null, "", `/ladder/host?pin=${result.pin}`);
     } catch {
       setError(
-        "That action could not be confirmed. Refresh this board before trying again. / Tindakan belum bisa dipastikan. Perbarui papan sebelum mencoba lagi.",
+        "That action could not be confirmed. Refresh this board before trying again.",
       );
     } finally {
       setBusy(false);
@@ -111,18 +111,17 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
           reHEARse
         </Link>
         <span className="ladder-mode">
-          LIVE LISTENING BOARD / PAPAN MENYIMAK LANGSUNG
-        </span>
+          LIVE LISTENING BOARD</span>
         <div className="ladder-stage-tools">
           <button onClick={toggleFullscreen}>
             {fullscreen
-              ? "Exit fullscreen / Keluar layar penuh"
-              : "Fullscreen / Layar penuh"}
+              ? "Exit fullscreen"
+              : "Fullscreen"}
           </button>
           <button onClick={() => setProject((x) => !x)}>
             {project
-              ? "Teacher controls / Kontrol guru"
-              : "Project board / Tampilkan papan"}
+              ? "Teacher controls"
+              : "Project board"}
           </button>
         </div>
       </header>
@@ -134,50 +133,45 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
             <br />
             <em>Each at their own pace.</em>
           </h1>
-          <p>Perjalanan bersama. Masing-masing dengan waktunya sendiri.</p>
+
         </div>
         {view && (
           <div className="ladder-host-pin">
-            <small>JOIN AT / GABUNG DI</small>
+            <small>JOIN AT</small>
             <strong>rehearse.najala.org/ladder</strong>
             <span>{view.pin}</span>
             <small>
               {view.closed
-                ? "SESSION ENDED / SESI SELESAI"
-                : "CLASS PIN / PIN KELAS"}
+                ? "SESSION ENDED"
+                : "CLASS PIN"}
             </small>
           </div>
         )}
       </div>
       {session?.title && <p className="ladder-session-title">{session.title}</p>}
-      {view?.lobby?.started && view?.passages && <nav className="ladder-passage-tabs" aria-label="Passage boards / Papan tiap rekaman">
+      {view?.lobby?.started && view?.passages && <nav className="ladder-passage-tabs" aria-label="Passage boards">
         {view.passages.map((passage, index) => <button key={index} type="button" aria-pressed={passageIndex === index}
           onClick={() => setPassageIndex(index)}>
-          <strong>{index + 1}. {passage.title.en}</strong><small lang="id">{passage.title.id}</small>
-          <span>{view.players.filter((player) => player.passageIndex === index).length} here / peserta di sini</span>
+          <strong>{index + 1}. {passage.title.en}</strong>
+          <span>{view.players.filter((player) => player.passageIndex === index).length} here</span>
         </button>)}
       </nav>}
       {!view ? (
         <section className="ladder-host-start">
-          <h2>Open a listening session / Buka sesi menyimak</h2>
+          <h2>Open a listening session</h2>
           <p>
             Students join, choose their name and character, then wait for you to start. Only game
             aliases and movement appear on the projected board.
-            <br />
-            Peserta bergabung, memilih nama dan karakter, lalu menunggu kamu memulai. Papan hanya
-            menampilkan nama permainan dan pergerakan.
-          </p>
+            </p>
           <ActivityPicker value={activityId} onChange={setActivityId} disabled={busy || creationPending} />
           <button
             className="ladder-primary"
             disabled={busy}
             onClick={() => act("create")}
           >
-            Create a class session / Buat sesi kelas
-          </button>
+            Create a class session</button>
           <label>
-            Reopen your board / Buka papanmu lagi
-            <input
+            Reopen your board<input
               inputMode="numeric"
               maxLength={6}
               value={pin}
@@ -186,22 +180,21 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
           </label>
         </section>
       ) : view.lobby && !view.lobby.started && !view.closed ? (
-        <section className="ladder-lobby" aria-label="Class waiting room / Ruang tunggu kelas">
-          <header><div><span className="ladder-kicker">WAITING ROOM / RUANG TUNGGU</span>
-            <h2>{view.players.length} joined / sudah bergabung</h2>
-            <p>{view.lobby.readyCount} ready / siap · Names and characters appear as students join.<br />Nama dan karakter muncul saat peserta bergabung.</p></div>
+        <section className="ladder-lobby" aria-label="Class waiting room">
+          <header><div><span className="ladder-kicker">WAITING ROOM</span>
+            <h2>{view.players.length} joined</h2>
+            <p>{view.lobby.readyCount} ready</p></div>
             <button className="ladder-primary" disabled={busy || view.players.length === 0} onClick={() => act("begin")}>
-              Start game / Mulai permainan →
-            </button>
+              Start game</button>
           </header>
           <div className="ladder-lobby-grid">{view.players.map((p) => <article className="ladder-lobby-player" key={p.runId}>
             <span className="ladder-lobby-name">{p.alias}</span>
             <Avatar id={p.avatarId} paletteId={p.avatarPalette} size={112} />
-            <strong>{p.ready ? "Ready / Siap" : "Choosing a character / Memilih karakter"}</strong>
+            <strong>{p.ready ? "Ready" : "Choosing a character"}</strong>
           </article>)}</div>
-          {view.players.length === 0 && <p className="ladder-lobby-empty">Share the PIN above. Your class will appear here.<br />Bagikan PIN di atas. Peserta akan muncul di sini.</p>}
-          <p>You can start while others finish setting up. They can enter when ready.<br />Kamu bisa mulai saat peserta lain masih bersiap. Mereka bisa masuk setelah siap.</p>
-          <button className="ladder-secondary" disabled={busy} onClick={() => act("close")}>End session / Akhiri sesi</button>
+          {view.players.length === 0 && <p className="ladder-lobby-empty">Share the PIN above. Your class will appear here.</p>}
+          <p>You can start while others finish setting up. They can enter when ready.</p>
+          <button className="ladder-secondary" disabled={busy} onClick={() => act("close")}>End session</button>
         </section>
       ) : (
         <div className="ladder-host-layout">
@@ -221,25 +214,23 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
             }))}
           />
           <section className="ladder-host-roster">
-            <h2>On the journey / Dalam perjalanan</h2>
+            <h2>On the journey</h2>
             <p>
               Positions are part of the game. They do not measure listening
               ability.
-              <small>
-                Posisi adalah bagian permainan, bukan ukuran kemampuan menyimak.
-              </small>
+
             </p>
             {view.players.length === 0 ? (
-              <p>Waiting for listeners / Menunggu peserta…</p>
+              <p>Waiting for listeners</p>
             ) : (
               view.players.map((p) => (
                 <div className="ladder-host-player" key={p.runId}>
                   <Avatar id={p.avatarId} paletteId={p.avatarPalette} size={64} />
                   <strong>{p.alias}</strong>
                   <span>
-                    {!p.ready ? "Setting up / Sedang bersiap" : p.finished
-                      ? "Journey complete / Perjalanan selesai"
-                      : view.passages ? `Recording ${(p.passageIndex ?? 0) + 1} / Rekaman ${(p.passageIndex ?? 0) + 1}` : "On the path / Dalam perjalanan"}
+                    {!p.ready ? "Setting up" : p.finished
+                      ? "Journey complete"
+                      : view.passages ? `Recording ${(p.passageIndex ?? 0) + 1}` : "On the path"}
                   </span>
                   {!project && p.needsHelp && (
                     <button
@@ -247,9 +238,7 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
                       disabled={busy || reason.trim().length < 3}
                       onClick={() => act("assist", p.runId)}
                     >
-                      Close next repair with guidance / Tutup bagian berikutnya
-                      dengan panduan
-                    </button>
+                      Close next repair with guidance</button>
                   )}
                 </div>
               ))
@@ -257,8 +246,7 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
             {!project && (
               <div className="ladder-teacher-controls">
                 <label>
-                  Note for assisted closure / Catatan pendampingan
-                  <input
+                  Note for assisted closure<input
                     maxLength={200}
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
@@ -268,18 +256,14 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
                 <p>
                   Help requests are private to this view. Closure is available
                   after the learner finishes the passage.
-                  <small>
-                    Permintaan bantuan hanya terlihat di sini. Penutupan
-                    tersedia setelah peserta menyelesaikan audio.
-                  </small>
+
                 </p>
                 <button
                   className="ladder-secondary"
                   disabled={busy || view.closed}
                   onClick={() => act("close")}
                 >
-                  End this session / Akhiri sesi ini
-                </button>
+                  End this session</button>
               </div>
             )}
           </section>

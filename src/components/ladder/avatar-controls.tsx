@@ -66,18 +66,17 @@ export function AvatarControls({
 
   return (
     <div>
-      <label className="ladder-name-input">Game name / Nama permainan
-        <input value={name} minLength={2} maxLength={28} disabled={disabled || saving !== null}
+      <label className="ladder-name-input">Game name<input value={name} minLength={2} maxLength={28} disabled={disabled || saving !== null}
           onChange={(e) => setName(e.target.value)} autoComplete="off" />
       </label>
       <button className="ladder-secondary" type="button" disabled={disabled || saving !== null}
-        onClick={() => setName(anonymousAlias(crypto.randomUUID()))}>Random name / Nama acak ↻</button>
+        onClick={() => setName(anonymousAlias(crypto.randomUUID()))}>Random name</button>
       <p className="ladder-avatar-credit">Use a nickname, 2–28 letters or numbers. Your name and character lock when you confirm.
-        <br />Pakai nama panggilan, 2–28 huruf atau angka. Nama dan karakter terkunci setelah kamu konfirmasi.</p>
+        </p>
       <fieldset className="ladder-palette-picker" disabled={disabled || saving !== null}>
-        <legend>Character colour / Warna karakter</legend>
+        <legend>Character colour</legend>
         <div>{PALETTES.map((palette) => <button key={palette.id} type="button"
-          aria-label={`Colour ${palette.en} / Warna ${palette.idLabel}`}
+          aria-label={`Colour ${palette.en}`}
           aria-pressed={view.avatarPalette === palette.id}
           onClick={() => choose(view.avatarId, palette.id)}>
           <span aria-hidden="true" style={{ backgroundColor: palette.hex }} />
@@ -94,15 +93,15 @@ export function AvatarControls({
       />
       <button type="button" className="ladder-primary" disabled={disabled || saving !== null || !validGameAlias(name.trim())}
         onClick={() => choose(view.avatarId, view.avatarPalette, true)}>
-        {saving ? "Saving / Menyimpan…" : view.pin ? "Ready — join the waiting room / Siap — masuk ruang tunggu" : "Begin listening / Mulai menyimak →"}
+        {saving ? "Saving" : view.pin ? "Ready — join the waiting room" : "Begin listening"}
       </button>
       <p className="ladder-avatar-save-state" role="status" aria-live="polite">
         {saving
-          ? "Saving your companion… / Menyimpan temanmu…"
+          ? "Saving your companion…"
           : message === "saved"
-            ? "Companion saved. / Teman tersimpan."
+            ? "Companion saved."
             : message === "failed"
-              ? "Selection could not be confirmed. You can try again. / Pilihan belum dapat dipastikan. Kamu bisa mencoba lagi."
+              ? "Selection could not be confirmed. You can try again."
               : ""}
       </p>
     </div>

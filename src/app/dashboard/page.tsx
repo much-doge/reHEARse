@@ -22,9 +22,9 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   }
   const roleLabel =
     user.role === "learner"
-      ? "Learner / Peserta"
+      ? "Learner"
       : user.role === "teacher"
-        ? "Teacher / Guru"
+        ? "Teacher"
         : "Administrator";
   const activities = await listLearnerActivities(user.id);
   const active = activities.filter((activity) => activity.attempts === 0);
@@ -47,55 +47,47 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           </span>
           <form action={logoutAction}>
             <button className="text-button" type="submit">
-              Sign out / Keluar
-            </button>
+              Sign out</button>
           </form>
         </div>
       </header>
 
-      {recap && <section className="ladder-completion-recap" aria-label="Completed game / Permainan selesai">
+      {recap && <section className="ladder-completion-recap" aria-label="Completed game">
         <Avatar id={recap.avatarId} paletteId={recap.avatarPalette} size={112} />
-        <div><p className="eyebrow">JOURNEY COMPLETE / PERJALANAN SELESAI</p>
-          <h1>{recap.title}</h1><p>{recap.alias} · Your choices and replay work are saved.<br />Pilihan dan hasil dengar ulangmu sudah tersimpan.</p>
-          <p>What became clearer when you listened again?<br />Apa yang jadi lebih jelas setelah kamu dengar lagi?</p>
-          <Link href="/ladder?new=1" className="ladder-primary">Choose another game / Pilih permainan lain →</Link>
+        <div><p className="eyebrow">JOURNEY COMPLETE</p>
+          <h1>{recap.title}</h1><p>{recap.alias} · Your choices and replay work are saved.</p>
+          <p>What became clearer when you listened again?</p>
+          <Link href="/ladder?new=1" className="ladder-primary">Choose another game</Link>
         </div>
       </section>}
       <p>
         <Link href={user.role === "learner" ? "/play" : "/classroom"}>
-          Classroom sessions / Sesi kelas →
-        </Link>
+          Classroom sessions</Link>
       </p>
       <section className="ladder-dashboard-entry">
         <p className="eyebrow">ProTEFL Test Center · Supervised pilot</p>
         <h2>Listening test — Form 2000-10</h2>
-        <p>Complete the 50-item Parts A–C listening form, review your raw item outcomes, then retry only missed items. / Selesaikan 50 nomor Bagian A–C, tinjau hasil setiap nomor, lalu ulangi hanya nomor yang salah atau terlewat.</p>
+        <p>Complete the 50-item Parts A–C listening form, review your raw item outcomes, then retry only missed items.</p>
         <Link href="/test-center/listening/2000-10" className="ladder-primary">
-          Open the listening test / Buka tes menyimak →
-        </Link>
+          Open the listening test</Link>
       </section>
       <section className="ladder-dashboard-entry">
         <p className="eyebrow">TOEFL ITP Listening · Parts A–C</p>
-        <h2>TOEFL ITP listening workshop / Lokakarya menyimak TOEFL ITP</h2>
-        <p>Teacher-led practice with the original recordings and A–D choices. The teacher selects Part A or Parts B/C. / Latihan yang dipandu guru dengan rekaman asli dan pilihan A–D. Guru memilih Bagian A atau Bagian B/C.</p>
+        <h2>TOEFL ITP listening workshop</h2>
+        <p>Teacher-led practice with the original recordings and A–D choices. The teacher selects Part A or Parts B/C.</p>
         <Link href={user.role === "learner" ? "/workshop/join" : "/workshop"} className="ladder-primary">
-          {user.role === "learner" ? "Join with your teacher's PIN / Gabung dengan PIN guru" : "Open the teacher workshop / Buka lokakarya guru"} →
+          {user.role === "learner" ? "Join with your teacher's PIN" : "Open the teacher workshop"} →
         </Link>
       </section>
       <section className="ladder-dashboard-entry">
-        <p className="eyebrow">A listening journey / Perjalanan menyimak</p>
+        <p className="eyebrow">A listening journey</p>
         <h2>Listen, take a detour, find a way forward.</h2>
-        <p>
-          Dengarkan, coba lagi di bagian yang belum jelas, lalu lanjutkan
-          perjalananmu.
-        </p>
+
         <Link href={recap ? "/ladder?new=1" : "/ladder"} className="ladder-primary">
-          Play the listening ladder / Main ular tangga menyimak →
-        </Link>
+          Play the listening ladder</Link>
         {user.role !== "learner" && (
           <Link href="/ladder/host" className="ladder-secondary">
-            Open the live class board / Buka papan kelas langsung
-          </Link>
+            Open the live class board</Link>
         )}
       </section>
       <section className="dashboard-intro">
@@ -104,15 +96,12 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           <h1>Hello, {user.displayName}.</h1>
           <p>
             Listen, take notes, and use the feedback to guide your next listen.
-            <br />
-            Dengarkan, buat catatan, lalu gunakan umpan balik untuk menyimak
-            kembali.
-          </p>
+            </p>
         </div>
         <div className="quiet-stat">
-          <span>Practice sequence / Urutan latihan</span>
+          <span>Practice sequence</span>
           <strong>Listen · Summarize · Replay</strong>
-          <small>Dengarkan · Ringkas · Dengarkan ulang</small>
+
         </div>
       </section>
 
@@ -120,11 +109,10 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         <div className="section-row">
           <div>
             <p className="eyebrow">Choose an activity</p>
-            <h2>Listening activities / Aktivitas menyimak</h2>
+            <h2>Listening activities</h2>
           </div>
           <span className="plain-count">
-            {active.length} activities / aktivitas
-          </span>
+            {active.length} activities</span>
         </div>
         <div className="activity-list">
           {active.map((activity) => (
@@ -138,26 +126,20 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
               </div>
               <div className="activity-copy">
                 <span>
-                  {activity.partLabel} · Individual practice / Latihan mandiri
-                </span>
+                  {activity.partLabel} · Individual practice</span>
                 <h3>{activity.title}</h3>
                 <p>
                   Listen, explain the meaning, then replay with a specific
                   focus.
-                  <br />
-                  Dengarkan, jelaskan maknanya, lalu dengarkan ulang dengan
-                  fokus tertentu.
-                </p>
+                  </p>
                 <div className="activity-meta">
                   <span>
-                    Guidance in English and Indonesian / Panduan bahasa Inggris
-                    dan Indonesia
-                  </span>
-                  <span>Notes and replay / Catatan dan dengar ulang</span>
+                    Listening guidance</span>
+                  <span>Notes and replay</span>
                 </div>
               </div>
               <div className="activity-open">
-                Open / Buka <span aria-hidden="true">↗</span>
+                Open<span aria-hidden="true">↗</span>
               </div>
             </Link>
           ))}
@@ -173,7 +155,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         <div className="section-row">
           <div>
             <p className="eyebrow">Practice history</p>
-            <h2>Previous practice / Latihan sebelumnya</h2>
+            <h2>Previous practice</h2>
           </div>
           <span className="plain-count">{revisited.length} activities</span>
         </div>
@@ -186,18 +168,14 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
             <span className="history-date">
               {activity.attempts}
               <br />
-              RESPONSES / JAWABAN
-            </span>
+              RESPONSES</span>
             <div>
               <strong>{activity.title}</strong>
               <p>
-                Review your notes and feedback, then listen again. / Tinjau
-                catatan dan umpan balik, lalu dengarkan ulang.
-              </p>
+                Review your notes and feedback, then listen again.</p>
             </div>
             <span className="neutral-state">
-              Listen again / Dengarkan ulang
-            </span>
+              Listen again</span>
           </Link>
         ))}
       </section>

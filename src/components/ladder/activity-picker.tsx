@@ -26,13 +26,13 @@ export function ActivityPicker({ value, onChange, disabled = false }: {
   useEffect(() => {
     if (choices.length && !choices.some((choice) => choice.id === value)) onChange(choices[0].id);
   }, [choices, value, onChange]);
-  if (!choices.length) return unavailable ? <p role="status">Game choices could not load. You can still open the default activity. / Pilihan permainan belum dimuat. Kamu tetap bisa membuka aktivitas awal.</p> : null;
+  if (!choices.length) return unavailable ? <p role="status">Game choices could not load. You can still open the default activity.</p> : null;
   return <fieldset className="ladder-activity-picker" disabled={disabled}>
-    <legend>Choose a game / Pilih permainan</legend>
+    <legend>Choose a game</legend>
     {choices.map((choice, index) => <label key={choice.id} className={(value ?? choices[0].id) === choice.id ? "is-selected" : ""}>
       <input type="radio" name="ladder-conversation" checked={(value ?? choices[0].id) === choice.id} onChange={() => onChange(choice.id)} />
-      <span><strong>{choice.title.en}</strong><small lang="id">{choice.title.id}</small>
-        <small>{choice.passageCount ? `${choice.passageCount} recordings / rekaman · ` : ""}{Math.ceil(choice.durationMs / 1000)} s · {choice.questionCount} questions / pertanyaan</small></span>
+      <span><strong>{choice.title.en}</strong>
+        <small>{choice.passageCount ? `${choice.passageCount} recordings · ` : ""}{Math.ceil(choice.durationMs / 1000)} s · {choice.questionCount} questions</small></span>
       <b aria-hidden="true">{String(index + 1).padStart(2, "0")}</b>
     </label>)}
   </fieldset>;

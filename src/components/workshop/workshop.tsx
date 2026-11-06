@@ -18,29 +18,28 @@ import { acknowledgeMutation, pendingMutation } from "./pending-mutation";
 import styles from "./workshop.module.css";
 
 const id = () => crypto.randomUUID();
-const bilingual = (text: Text) => <div className={styles.bilingual}><strong>{text.en}</strong><span>{text.id}</span></div>;
+const bilingual = (text: Text) => <div className={styles.bilingual}><strong>{text.en}</strong></div>;
 const DEFAULT_ACTIVITY_VERSION = "short-conversation-workshop-v2";
 const BC_ACTIVITY_VERSION = "conversation-academic-talk-v1";
-const skillLabel = (skill:string) => skill==="long-conversation" ? "Part B · Long conversation / Bagian B · Percakapan panjang"
-  : skill==="academic-talk" ? "Part C · Academic talk / Bagian C · Pembicaraan akademik" : skill;
+const skillLabel = (skill:string) => skill==="long-conversation" ? "Part B · Long conversation"
+  : skill==="academic-talk" ? "Part C · Academic talk" : skill;
 
 function PreparationCard({ preparation }: { preparation: Preparation }) {
   return <section className={styles.card} aria-labelledby="preparation-title">
-    <p className={styles.eyebrow}>Preparation material / Materi persiapan</p>
-    <h2 id="preparation-title">Prepare for this listening skill / Persiapkan keterampilan menyimak ini</h2>
-    <h3>Skill focus / Fokus keterampilan</h3>{bilingual(preparation.questionTask)}
-    <h3>Longman skill explanation / Penjelasan keterampilan Longman</h3><div className={styles.longmanExplanation}>{bilingual(preparation.longmanReference)}</div>
-    <h3>Listening target / Fokus menyimak</h3>{bilingual(preparation.listeningTarget)}
+    <p className={styles.eyebrow}>Preparation material</p>
+    <h2 id="preparation-title">Prepare for this listening skill</h2>
+    <h3>Skill focus</h3>{bilingual(preparation.questionTask)}
+    <h3>Longman skill explanation</h3><div className={styles.longmanExplanation}>{bilingual(preparation.longmanReference)}</div>
+    <h3>Listening target</h3>{bilingual(preparation.listeningTarget)}
     <div className={styles.materialGrid}>
-      <section><h3>Decision process / Langkah menentukan jawaban</h3><ol>{preparation.procedure.map((x, i) => <li key={i}>{x.en}<br /><small>{x.id}</small></li>)}</ol></section>
-      <section><h3>Distractors to inspect / Pengecoh yang perlu diperiksa</h3><ul>{preparation.distractorPatterns.map((x, i) => <li key={i}>{x.en}<br /><small>{x.id}</small></li>)}</ul></section>
-      <section><h3>Ask yourself / Tanyakan pada diri sendiri</h3><ul>{preparation.inquiryPrompts.map((x, i) => <li key={i}>{x.en}<br /><small>{x.id}</small></li>)}</ul></section>
-      {preparation.languageNotes.length > 0 && <section><h3>Language notes / Catatan bahasa</h3><ul>{preparation.languageNotes.map((x, i) => <li key={i}>{x.en}<br /><small>{x.id}</small></li>)}</ul></section>}
+      <section><h3>Decision process</h3><ol>{preparation.procedure.map((x, i) => <li key={i}>{x.en}</li>)}</ol></section>
+      <section><h3>Distractors to inspect</h3><ul>{preparation.distractorPatterns.map((x, i) => <li key={i}>{x.en}</li>)}</ul></section>
+      <section><h3>Ask yourself</h3><ul>{preparation.inquiryPrompts.map((x, i) => <li key={i}>{x.en}</li>)}</ul></section>
+      {preparation.languageNotes.length > 0 && <section><h3>Language notes</h3><ul>{preparation.languageNotes.map((x, i) => <li key={i}>{x.en}</li>)}</ul></section>}
       <section className={styles.extensionOverview}>
-        <h3>Optional listening work / Latihan menyimak opsional</h3>
+        <h3>Optional listening work</h3>
         <p>After a clip is complete, three untimed activities unlock. They use the same real recording and original A–D choices; they do not add a score or replace your earlier response.</p>
-        <p>Setelah sebuah klip selesai, tiga kegiatan tanpa batas waktu akan terbuka. Kegiatan memakai rekaman asli dan pilihan A–D; kegiatan ini tidak memberi skor atau mengganti jawaban sebelumnya.</p>
-        <ol>{preparation.extensionActivities.map((item) => <li key={item.id}><strong>{item.title.en}</strong><br /><small>{item.title.id}</small><p>{item.instruction.en}<br /><small>{item.instruction.id}</small></p></li>)}</ol>
+        <ol>{preparation.extensionActivities.map((item) => <li key={item.id}><strong>{item.title.en}</strong><p>{item.instruction.en}</p></li>)}</ol>
       </section>
     </div>
   </section>;
@@ -56,37 +55,34 @@ function EnrichmentStudio({ clips, activities, busy, onChoose }: {
   const [passagePlayed, setPassagePlayed] = useState<Record<string, boolean>>({});
   if (clips.length === 0) return null;
   return <section className={styles.card} aria-labelledby="enrichment-studio-title">
-    <p className={styles.eyebrow}>For more practice / Untuk latihan tambahan</p>
-    <h2 id="enrichment-studio-title">Replay the clips you have completed / Putar ulang klip yang sudah selesai</h2>
+    <p className={styles.eyebrow}>For more practice</p>
+    <h2 id="enrichment-studio-title">Replay the clips you have completed</h2>
     <p className={styles.enrichmentNote}>Optional, untimed, and unscored. Each response is saved separately from your first response and is not shown in the teacher’s live view. Activities use the real recording and A–D options only; no written source question or dialogue is shown.</p>
-    <p className={styles.enrichmentNote}>Opsional, tanpa batas waktu, dan tanpa skor. Setiap jawaban disimpan terpisah dari jawaban pertamamu dan tidak ditampilkan pada tampilan langsung guru. Kegiatan memakai rekaman asli dan pilihan A–D saja; pertanyaan sumber atau dialog tidak ditampilkan secara tertulis.</p>
     <div className={styles.enrichmentClips}>{clips.map((clip) => <details className={styles.enrichmentClip} key={clip.id}>
-          <summary>{clip.questionNumber ? `Question ${clip.questionNumber}` : `Clip ${clip.number}`} · optional replay / {clip.questionNumber ? `Soal ${clip.questionNumber}` : `Klip ${clip.number}`} · dengar ulang opsional</summary>
+          <summary>{clip.questionNumber ? `Question ${clip.questionNumber}` : `Clip ${clip.number}`} · optional replay</summary>
       {activities.map((activity) => {
         const key = `${clip.id}:${activity.id}`;
         const attempts = clip.attempts[activity.id] ?? [];
         const last = attempts.at(-1);
         const complete = last?.result === "correct" || attempts.length >= 4;
         return <article className={styles.enrichmentActivity} key={activity.id}>
-          <h3>{activity.title.en}<br /><small>{activity.title.id}</small></h3>
-          <p>{activity.instruction.en}<br /><small>{activity.instruction.id}</small></p>
-          {activity.id === "delayed-replay" && played[key] && <p className={styles.enrichmentCue}>{clip.originalChoice ? `Your first response was ${clip.originalChoice}. Compare it with the choice you make after this replay.` : "You did not record a first choice for this clip. Use this replay to make a fresh choice."}<br />{clip.originalChoice ? `Jawaban pertamamu adalah ${clip.originalChoice}. Bandingkan dengan pilihan setelah mendengarkan ulang.` : "Kamu belum mencatat pilihan pertama untuk klip ini. Gunakan pemutaran ulang untuk menentukan pilihan baru."}</p>}
-          {clip.passageAudioUrl && <label className={styles.enrichmentCue}>Replay the conversation or talk / Putar ulang percakapan atau pembicaraan
-            <audio className={styles.audio} src={clip.passageAudioUrl} preload="none" controls aria-label={`Shared passage recording, question ${clip.questionNumber} / Rekaman bagian bersama, soal ${clip.questionNumber}`} onPlay={() => { setPlayed((state) => ({ ...state, [key]: false })); setPassagePlayed((state) => ({ ...state, [key]: false })); }} onEnded={() => setPassagePlayed((state) => ({ ...state, [key]: true }))} />
+          <h3>{activity.title.en}</h3>
+          <p>{activity.instruction.en}</p>
+          {activity.id === "delayed-replay" && played[key] && <p className={styles.enrichmentCue}>{clip.originalChoice ? `Your first response was ${clip.originalChoice}. Compare it with the choice you make after this replay.` : "You did not record a first choice for this clip. Use this replay to make a fresh choice."}</p>}
+          {clip.passageAudioUrl && <label className={styles.enrichmentCue}>Replay the conversation or talk<audio className={styles.audio} src={clip.passageAudioUrl} preload="none" controls aria-label={`Shared passage recording, question ${clip.questionNumber}`} onPlay={() => { setPlayed((state) => ({ ...state, [key]: false })); setPassagePlayed((state) => ({ ...state, [key]: false })); }} onEnded={() => setPassagePlayed((state) => ({ ...state, [key]: true }))} />
           </label>}
-          <label className={styles.enrichmentCue}>Replay the spoken question / Putar ulang pertanyaan lisan
-            <audio className={styles.audio} src={clip.audioUrl} preload="none" controls aria-label={`Spoken question recording, question ${clip.questionNumber ?? clip.number} / Rekaman pertanyaan lisan, soal ${clip.questionNumber ?? clip.number}`} onPlay={() => setPlayed((state) => ({ ...state, [key]: false }))} onEnded={() => setPlayed((state) => ({ ...state, [key]: true }))} />
+          <label className={styles.enrichmentCue}>Replay the spoken question<audio className={styles.audio} src={clip.audioUrl} preload="none" controls aria-label={`Spoken question recording, question ${clip.questionNumber ?? clip.number}`} onPlay={() => setPlayed((state) => ({ ...state, [key]: false }))} onEnded={() => setPlayed((state) => ({ ...state, [key]: true }))} />
           </label>
-          {last?.result === "correct" && <p className={styles.result} role="status">That choice fits the recording. Notice the spoken detail that supports it.<br />Pilihan itu sesuai dengan rekaman. Perhatikan detail lisan yang mendukungnya.</p>}
+          {last?.result === "correct" && <p className={styles.result} role="status">That choice fits the recording. Notice the spoken detail that supports it.</p>}
           {last?.result === "incorrect" && <>
-            <p className={styles.notice} role="status">This choice is not yet supported by the recording. You can listen again without a timer.<br />Pilihan ini belum didukung oleh rekaman. Kamu dapat mendengarkan lagi tanpa batas waktu.</p>
+            <p className={styles.notice} role="status">This choice is not yet supported by the recording. You can listen again without a timer.</p>
             {attempts.length >= 3 ? bilingual(clip.comparison) : bilingual(clip.tips[Math.min(attempts.length - 1, 1)])}
           </>}
           {!complete && <>
-            <p className={styles.enrichmentCue}>{played[key] ? "Choose the option that fits what you heard. / Pilih opsi yang sesuai dengan yang kamu dengar." : "Listen to the full recording before opening the choices. / Dengarkan seluruh rekaman sebelum membuka pilihan."}</p>
+            <p className={styles.enrichmentCue}>{played[key] ? "Choose the option that fits what you heard." : "Listen to the full recording before opening the choices."}</p>
             {played[key] && (!clip.passageAudioUrl || passagePlayed[key]) && <div className={styles.options}>{(Object.entries(clip.options) as [Option, string][]).map(([option, text]) => <button key={option} className={styles.option} disabled={busy} onClick={() => { setPlayed((state) => ({ ...state, [key]: false })); setPassagePlayed((state) => ({ ...state, [key]: false })); onChoose(clip.id, activity.id, option); }}><b>{option}</b><span>{text}</span></button>)}</div>}
           </>}
-          {complete && last?.result === "incorrect" && <p className={styles.enrichmentCue}>This activity is complete. Take the skill focus into another finished clip.<br />Kegiatan ini selesai. Gunakan fokus keterampilan pada klip lain yang sudah selesai.</p>}
+          {complete && last?.result === "incorrect" && <p className={styles.enrichmentCue}>This activity is complete. Take the skill focus into another finished clip.</p>}
         </article>;
       })}
     </details>)}</div>
@@ -141,24 +137,24 @@ export function WorkshopHost({ initialPin = "" }: { initialPin?: string }) {
   if (!view) return <WorkshopWelcome teacher pin={pin} setPin={setPin} busy={busy} message={message} onPrimary={() => void create()} onResume={() => void refresh()} selectedVersion={selectedVersion} setSelectedVersion={setSelectedVersion} />;
   const active = view.groups[view.activeGroup] ?? view.groups[0];
   return <WorkshopFrame teacher>
-    <div className={styles.status}><span className={styles.pin}>{view.pin}</span><span>{view.phase}</span><span>Section {view.activeGroup + 1} of {view.groups.length} / Bagian {view.activeGroup + 1} dari {view.groups.length}</span></div>
+    <div className={styles.status}><span className={styles.pin}>{view.pin}</span><span>{view.phase}</span><span>Section {view.activeGroup + 1} of {view.groups.length}</span></div>
     {message && <p className={styles.notice} role="alert">{message}</p>}
     <div className={styles.layout}>
       <div>
-        <header className={styles.heading}><p className={styles.eyebrow}>{skillLabel(active.skill)}</p><h1>{active.title.en}</h1><p>{active.title.id}</p></header>
+        <header className={styles.heading}><p className={styles.eyebrow}>{skillLabel(active.skill)}</p><h1>{active.title.en}</h1></header>
         <PreparationCard preparation={view.preparation} />
         {view.phase === "practice" && <section className={styles.card}>
-          <h2>Listening signals / Sinyal kegiatan menyimak</h2>
-          <p className={styles.enrichmentNote}>Only activity signals are shown: whether a first listen has started and whether a replay has been used. There are no correctness totals, participant counts, or unfinished indicators.<br />Yang ditampilkan hanya sinyal aktivitas: apakah sesi menyimak pertama telah dimulai dan apakah rekaman telah diputar ulang. Tidak ada jumlah jawaban benar, jumlah peserta, atau indikator peserta yang belum selesai.</p>
-          <div className={styles.tableWrap}><table className={styles.table}><thead><tr><th>{view.items[0]?.questionNumber ? "Question / Soal" : "Clip / Klip"}</th><th>First listen / Sesi pertama</th><th>Replay / Dengar ulang</th></tr></thead><tbody>{view.items.map((item, index) => item.firstListenStarted || item.replayUsed ? <tr key={item.id}><td>{item.questionNumber ?? index + 1}. {item.title.en}</td><td>{item.firstListenStarted ? "Started / Dimulai" : "—"}</td><td>{item.replayUsed ? "Used / Digunakan" : "—"}</td></tr> : null)}</tbody></table>{!view.items.some(item => item.firstListenStarted || item.replayUsed) && <p className={styles.enrichmentNote}>No activity signal yet. / Belum ada sinyal aktivitas.</p>}</div>
+          <h2>Listening signals</h2>
+          <p className={styles.enrichmentNote}>Only activity signals are shown: whether a first listen has started and whether a replay has been used. There are no correctness totals, participant counts, or unfinished indicators.</p>
+          <div className={styles.tableWrap}><table className={styles.table}><thead><tr><th>{view.items[0]?.questionNumber ? "Question" : "Clip"}</th><th>First listen</th><th>Replay</th></tr></thead><tbody>{view.items.map((item, index) => item.firstListenStarted || item.replayUsed ? <tr key={item.id}><td>{item.questionNumber ?? index + 1}. {item.title.en}</td><td>{item.firstListenStarted ? "Started" : "—"}</td><td>{item.replayUsed ? "Used" : "—"}</td></tr> : null)}</tbody></table>{!view.items.some(item => item.firstListenStarted || item.replayUsed) && <p className={styles.enrichmentNote}>No activity signal yet.</p>}</div>
         </section>}
       </div>
       <aside>
-        <section className={styles.card}><h2>Select a section / Pilih bagian</h2><div className={styles.groups}>{view.groups.map((group, index) => <div key={group.id} className={`${styles.group} ${index === view.activeGroup ? styles.groupActive : ""}`}><strong>{index + 1}. {group.title.en}</strong><br /><small>{group.title.id}</small><br /><span>{group.questionStart ? `Questions ${group.questionStart}–${group.questionStart + group.itemCount - 1} / Soal ${group.questionStart}–${group.questionStart + group.itemCount - 1}` : `${group.itemCount} clips / klip`}</span><button type="button" className={`${styles.button} ${styles.groupSelect}`} aria-current={index === view.activeGroup ? "step" : undefined} disabled={busy || index === view.activeGroup || ["closed", "finished"].includes(view.phase)} onClick={() => void act({ kind: "select_group", groupIndex: index })}>{index === view.activeGroup ? "Selected / Dipilih" : "Open this section / Buka bagian ini"}</button></div>)}</div></section>
+        <section className={styles.card}><h2>Select a section</h2><div className={styles.groups}>{view.groups.map((group, index) => <div key={group.id} className={`${styles.group} ${index === view.activeGroup ? styles.groupActive : ""}`}><strong>{index + 1}. {group.title.en}</strong><br /><span>{group.questionStart ? `Questions ${group.questionStart}–${group.questionStart + group.itemCount - 1}` : `${group.itemCount} clips`}</span><button type="button" className={`${styles.button} ${styles.groupSelect}`} aria-current={index === view.activeGroup ? "step" : undefined} disabled={busy || index === view.activeGroup || ["closed", "finished"].includes(view.phase)} onClick={() => void act({ kind: "select_group", groupIndex: index })}>{index === view.activeGroup ? "Selected" : "Open this section"}</button></div>)}</div></section>
         <div className={styles.controls}>
-          {view.phase === "preparation" && <button className={styles.button} disabled={busy} onClick={() => void act({ kind: "open_practice" })}>Open practice / Mulai latihan</button>}
-          {view.phase === "practice" && <button className={styles.button} disabled={busy} onClick={() => void act({ kind: "next_group" })}>Open next section / Buka bagian berikutnya</button>}
-          {!['closed', 'finished'].includes(view.phase) && <button className={`${styles.button} ${styles.danger}`} disabled={busy} onClick={() => void act({ kind: "close" })}>Close session / Tutup sesi</button>}
+          {view.phase === "preparation" && <button className={styles.button} disabled={busy} onClick={() => void act({ kind: "open_practice" })}>Open practice</button>}
+          {view.phase === "practice" && <button className={styles.button} disabled={busy} onClick={() => void act({ kind: "next_group" })}>Open next section</button>}
+          {!['closed', 'finished'].includes(view.phase) && <button className={`${styles.button} ${styles.danger}`} disabled={busy} onClick={() => void act({ kind: "close" })}>Close session</button>}
         </div>
       </aside>
     </div>
@@ -167,24 +163,24 @@ export function WorkshopHost({ initialPin = "" }: { initialPin?: string }) {
 
 function WorkshopWelcome({ teacher, pin, setPin, busy, message, onPrimary, onResume, selectedVersion, setSelectedVersion }: { teacher: boolean; pin: string; setPin: (x: string) => void; busy: boolean; message: string; onPrimary: () => void; onResume: () => void; selectedVersion?: string; setSelectedVersion?: (value: string) => void }) {
   return <WorkshopFrame teacher={teacher}><section className={styles.welcome}>
-    <p className={styles.eyebrow}>TOEFL ITP listening workshop / Lokakarya menyimak TOEFL ITP</p>
+    <p className={styles.eyebrow}>TOEFL ITP listening workshop</p>
     <h1>{teacher ? "Prepare, listen, and examine each option." : "Join your class."}</h1>
-    <p>{teacher ? "Learners use the Longman-aligned preparation, listen on their own headphones, and compare the original choices. / Siswa menggunakan materi persiapan yang mengacu pada Longman, menyimak dengan headphone masing-masing, dan membandingkan pilihan asli." : "Enter the six-digit PIN from your teacher. / Masukkan PIN enam angka dari guru."}</p>
+    <p>{teacher ? "Learners use the Longman-aligned preparation, listen on their own headphones, and compare the original choices." : "Enter the six-digit PIN from your teacher."}</p>
     {message && <p className={styles.notice} role="alert">{message}</p>}
-    {teacher && <label>Activity / Kegiatan<select value={selectedVersion ?? DEFAULT_ACTIVITY_VERSION} onChange={(event) => setSelectedVersion?.(event.target.value)}>
-      <option value={DEFAULT_ACTIVITY_VERSION}>Part A · Short dialogues / Bagian A · Dialog singkat</option>
-      <option value={BC_ACTIVITY_VERSION}>Parts B and C · Conversations and talks / Bagian B dan C · Percakapan dan pembicaraan</option>
+    {teacher && <label>Activity<select value={selectedVersion ?? DEFAULT_ACTIVITY_VERSION} onChange={(event) => setSelectedVersion?.(event.target.value)}>
+      <option value={DEFAULT_ACTIVITY_VERSION}>Part A · Short dialogues</option>
+      <option value={BC_ACTIVITY_VERSION}>Parts B and C · Conversations and talks</option>
     </select></label>}
-    {teacher && <button className={styles.button} disabled={busy} onClick={onPrimary}>Create session / Buat sesi</button>}
+    {teacher && <button className={styles.button} disabled={busy} onClick={onPrimary}>Create session</button>}
     <form className={styles.joinForm} onSubmit={(e) => { e.preventDefault(); onResume(); }}>
-      <label>Session PIN / PIN sesi<input inputMode="numeric" pattern="[0-9]{6}" maxLength={6} value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))} required /></label>
-      <button className={`${styles.button} ${styles.secondary}`} disabled={busy}>{teacher ? "Resume / Lanjutkan" : "Join / Gabung"}</button>
+      <label>Session PIN<input inputMode="numeric" pattern="[0-9]{6}" maxLength={6} value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))} required /></label>
+      <button className={`${styles.button} ${styles.secondary}`} disabled={busy}>{teacher ? "Resume" : "Join"}</button>
     </form>
   </section></WorkshopFrame>;
 }
 
 function WorkshopFrame({ teacher, children }: { teacher: boolean; children: React.ReactNode }) {
-  return <div className={styles.shell}><nav className={styles.nav}><Link href="/"><strong>reHEARse</strong></Link><span>TOEFL ITP LISTENING WORKSHOP</span><Link href={teacher ? "/workshop/join" : "/workshop"}>{teacher ? "Learner entry / Masuk siswa" : "Teacher / Guru"}</Link></nav><main className={styles.main}>{children}</main></div>;
+  return <div className={styles.shell}><nav className={styles.nav}><Link href="/"><strong>reHEARse</strong></Link><span>TOEFL ITP LISTENING WORKSHOP</span><Link href={teacher ? "/workshop/join" : "/workshop"}>{teacher ? "Learner entry" : "Teacher"}</Link></nav><main className={styles.main}>{children}</main></div>;
 }
 
 export function WorkshopLearner({ initialPin = "" }: { initialPin?: string }) {
@@ -249,7 +245,7 @@ export function WorkshopLearner({ initialPin = "" }: { initialPin?: string }) {
     const player = audio.current, source = audioSequence.current.shift();
     if (!player || !source) return;
     player.src = source; player.load();
-    try { await player.play(); } catch { setMessage("Press play in the audio control. / Tekan putar pada kontrol audio."); }
+    try { await player.play(); } catch { setMessage("Press play in the audio control."); }
   }
   if (!view) return <WorkshopWelcome teacher={false} pin={pin} setPin={setPin} busy={busy} message={message} onPrimary={() => {}} onResume={() => void join()} />;
   const current = view.current;
@@ -263,31 +259,31 @@ export function WorkshopLearner({ initialPin = "" }: { initialPin?: string }) {
     {celebrate && <div className={styles.confetti} aria-hidden>{Array.from({ length: 28 }, (_, i) => <i key={i} style={{ left: `${(i * 37) % 100}%`, animationDelay: `${(i % 7) * .06}s`, "--drift": `${(i % 2 ? 1 : -1) * (20 + i)}px` } as React.CSSProperties} />)}</div>}
     <div className={styles.status}><span className={styles.pin}>{view.pin}</span><span>{view.alias}</span><span>{view.phase}</span><span>{view.group.title.en}</span></div>
     {message && <p className={styles.notice} role="alert">{message}</p>}
-    <header className={styles.heading}><p className={styles.eyebrow}>{skillLabel(view.group.skill)}</p><h1>{view.group.title.en}</h1><p>{view.group.title.id}</p></header>
+    <header className={styles.heading}><p className={styles.eyebrow}>{skillLabel(view.group.skill)}</p><h1>{view.group.title.en}</h1></header>
     {view.phase === "preparation" && <PreparationCard preparation={view.group.preparation} />}
     {view.phase === "practice" && current && <section className={styles.card}>
-      <p className={styles.eyebrow}>{current.title.en} / {current.title.id}</p>
-      <audio ref={audio} className={styles.audio} preload="auto" controls={current.startedAt !== null} aria-label={current.passageAudioUrl ? "Shared passage, followed by the spoken question / Bagian bersama, dilanjutkan pertanyaan lisan" : "Original listening recording / Rekaman menyimak asli"} onEnded={() => void playNextAudio()} />
-      {current.phase === "ready" && <><p className={styles.enrichmentCue}>{current.questionNumber ? "Take notes on paper. Listen to the full conversation or talk, then the spoken question. Choose from A–D within 12 seconds." : "Listen to the recording, then choose from A–D."}<br />{current.questionNumber ? "Buat catatan di kertas. Dengarkan seluruh percakapan atau pembicaraan, lalu pertanyaan lisannya. Pilih A–D dalam 12 detik." : "Dengarkan rekaman, lalu pilih A–D."}</p><button className={styles.button} disabled={busy} onClick={() => void listen()}>Start listening / Mulai menyimak</button></>}
-      {["relisten_1", "relisten_2"].includes(current.phase) && <><div className={styles.hint}>{current.hint && bilingual(current.hint)}</div><button className={styles.button} disabled={busy || current.replayEndsAt !== null} onClick={() => void listen()}>Relisten with this focus / Dengarkan ulang dengan fokus ini</button>{current.replayEndsAt && <p className={styles.timer} aria-live="polite">{replay && replay > 0 ? `Listen to the end — ${replay}s / Dengarkan sampai selesai — ${replay} dtk` : "Choose again / Pilih kembali"}</p>}</>}
+      <p className={styles.eyebrow}>{current.title.en}</p>
+      <audio ref={audio} className={styles.audio} preload="auto" controls={current.startedAt !== null} aria-label={current.passageAudioUrl ? "Shared passage, followed by the spoken question" : "Original listening recording"} onEnded={() => void playNextAudio()} />
+      {current.phase === "ready" && <><p className={styles.enrichmentCue}>{current.questionNumber ? "Take notes on paper. Listen to the full conversation or talk, then the spoken question. Choose from A–D within 12 seconds." : "Listen to the recording, then choose from A–D."}</p><button className={styles.button} disabled={busy} onClick={() => void listen()}>Start listening</button></>}
+      {["relisten_1", "relisten_2"].includes(current.phase) && <><div className={styles.hint}>{current.hint && bilingual(current.hint)}</div><button className={styles.button} disabled={busy || current.replayEndsAt !== null} onClick={() => void listen()}>Relisten with this focus</button>{current.replayEndsAt && <p className={styles.timer} aria-live="polite">{replay && replay > 0 ? `Listen to the end — ${replay}s` : "Choose again"}</p>}</>}
       {current.phase === "guided_compare" && <div className={styles.hint}>{current.comparison && bilingual(current.comparison)}</div>}
-      {current.phase === "timed_choice" && <p className={styles.timer} aria-live="polite">{opens && opens > 0 ? `Listen first — options open in ${opens}s / Dengarkan dahulu — pilihan terbuka dalam ${opens} dtk` : `Choose now: ${closes}s / Pilih sekarang: ${closes} dtk`}</p>}
+      {current.phase === "timed_choice" && <p className={styles.timer} aria-live="polite">{opens && opens > 0 ? `Listen first — options open in ${opens}s` : `Choose now: ${closes}s`}</p>}
       {["timed_choice", "relisten_1", "relisten_2", "guided_compare"].includes(current.phase) && <div className={styles.options}>{(Object.entries(current.options) as [Option, string][]).map(([option, text]) => <button key={option} className={styles.option} disabled={busy || (current.phase === "timed_choice" && !timedOpen) || (current.phase.startsWith("relisten") && (current.replayEndsAt === null || replay !== 0))} onClick={() => void act({ kind: "choose", itemId: current.id, choice: option })}><b>{option}</b><span>{text}</span></button>)}</div>}
       {current.phase === "explain_distractors" && <>
-        <p className={current.result?.result === "correct" ? styles.result : styles.hint} role="status">{current.result?.result === "correct" ? "Your choice fits the reviewed answer. Now account for every distractor. / Pilihanmu sesuai dengan jawaban yang ditinjau. Sekarang jelaskan setiap pengecoh." : "Your choice still differs from the reviewed answer. Compare the options with the audio before moving on. / Pilihanmu masih berbeda dari jawaban yang ditinjau. Bandingkan pilihan dengan audio sebelum melanjutkan."}</p>
-        <div className={styles.options} aria-label="Original answer choices / Pilihan jawaban asli">{(Object.entries(current.options) as [Option, string][]).map(([option, text]) => <div key={option} className={styles.optionReadOnly}><b>{option}</b><span>{text}</span></div>)}</div>
-        <p className={styles.enrichmentCue}>Use the choices above. For each distractor, name the specific change in meaning or detail—not only that it is incorrect.<br />Gunakan pilihan di atas. Untuk setiap pengecoh, sebutkan perubahan makna atau detail yang spesifik—bukan hanya bahwa pilihan itu salah.</p>
+        <p className={current.result?.result === "correct" ? styles.result : styles.hint} role="status">{current.result?.result === "correct" ? "Your choice fits the reviewed answer. Now account for every distractor." : "Your choice still differs from the reviewed answer. Compare the options with the audio before moving on."}</p>
+        <div className={styles.options} aria-label="Original answer choices">{(Object.entries(current.options) as [Option, string][]).map(([option, text]) => <div key={option} className={styles.optionReadOnly}><b>{option}</b><span>{text}</span></div>)}</div>
+        <p className={styles.enrichmentCue}>Use the choices above. For each distractor, name the specific change in meaning or detail—not only that it is incorrect.</p>
         {current.explanationOptions.map((option) => current.explanations[option] !== undefined ? <p key={option} className={styles.result}>Option {option}: {current.explanations[option]}</p> : <form key={option} className={styles.explanation} onSubmit={(e) => { e.preventDefault(); void act({ kind: "explain", itemId: current.id, option, text: drafts[option] ?? "" }); }}>
-          <label htmlFor={`explain-${option}`}>Why option {option} does not fit / Mengapa pilihan {option} tidak sesuai</label>
-          <p className={styles.enrichmentCue}>A useful start: “This option changes ___; the recording says ___.”<br />Awal kalimat: “Pilihan ini mengubah ___; rekamannya menyebut ___.”</p>
+          <label htmlFor={`explain-${option}`}>Why option {option} does not fit</label>
+          <p className={styles.enrichmentCue}>A useful start: “This option changes ___; the recording says ___.”</p>
           <textarea id={`explain-${option}`} minLength={3} maxLength={400} value={drafts[option] ?? ""} onChange={(e) => setDrafts({ ...drafts, [option]: e.target.value })} required />
-          <div><button className={styles.button} disabled={busy}>Save explanation / Simpan penjelasan</button></div>
+          <div><button className={styles.button} disabled={busy}>Save explanation</button></div>
         </form>)}
       </>}
-      {current.phase === "item_complete" && <><p className={styles.result}>Item complete. Optional replay activities are available below. / Butir selesai. Kegiatan dengar ulang opsional tersedia di bawah.</p><button className={styles.button} disabled={busy} onClick={() => { setDrafts({}); void act({ kind: "next_item", itemId: current.id }); }}>Continue / Lanjutkan</button></>}
+      {current.phase === "item_complete" && <><p className={styles.result}>Item complete. Optional replay activities are available below.</p><button className={styles.button} disabled={busy} onClick={() => { setDrafts({}); void act({ kind: "next_item", itemId: current.id }); }}>Continue</button></>}
     </section>}
-    {view.phase === "practice" && !current && <section className={styles.card}><h2>Section complete / Bagian selesai</h2><p>Your teacher will decide when to open another section. Use the optional listening studio if you want more practice.<br />Guru akan menentukan kapan membuka bagian berikutnya. Gunakan studio menyimak opsional jika ingin berlatih lagi.</p></section>}
-    {view.phase === "finished" && <section className={styles.card}><h2>{view.activity.title.en} complete / {view.activity.title.id} selesai</h2><p>Your responses and explanations have been saved. / Jawaban dan penjelasanmu telah tersimpan.</p></section>}
+    {view.phase === "practice" && !current && <section className={styles.card}><h2>Section complete</h2><p>Your teacher will decide when to open another section. Use the optional listening studio if you want more practice.</p></section>}
+    {view.phase === "finished" && <section className={styles.card}><h2>{view.activity.title.en} complete</h2><p>Your responses and explanations have been saved.</p></section>}
     {showEnrichment && <EnrichmentStudio clips={view.enrichment} activities={view.group.preparation.extensionActivities} busy={busy} onChoose={(itemId, activityId, choice) => void act({ kind: "enrichment_choose", itemId, activityId, choice })} />}
   </WorkshopFrame>;
 }

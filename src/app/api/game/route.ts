@@ -18,7 +18,7 @@ function error(e: unknown) {
       error:
         e instanceof GameError
           ? e.message
-          : "Request unavailable / Permintaan tidak tersedia",
+          : "Request unavailable",
     },
     {
       status: e instanceof GameError ? e.status : 400,
@@ -74,7 +74,7 @@ export async function POST(req: Request) {
       if (!u || !["teacher", "admin"].includes(u.role))
         throw new GameError(
           403,
-          "Teacher sign-in required / Masuk sebagai guru",
+          "Teacher sign-in required",
         );
       return Response.json({ pin: await rooms.create(u.id) });
     }

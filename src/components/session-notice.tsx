@@ -41,17 +41,13 @@ export function SessionNotice() {
     <aside className="auth-error" role="alert">
       <p>
         Your session has ended. Keep this tab open; your unsaved text is still
-        here. / Sesi kamu berakhir. Biarkan tab ini terbuka; teks yang belum
-        tersimpan tetap ada.
-      </p>
+        here.</p>
       <a
         href={signInUrl(`${path}${search.size ? `?${search}` : ""}`, true)}
         target="_blank"
         rel="noopener"
       >
-        Sign in in another tab, then return here / Masuk di tab lain, lalu
-        kembali ke sini ↗
-      </a>
+        Sign in in another tab, then return here</a>
     </aside>
   );
 }

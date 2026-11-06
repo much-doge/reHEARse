@@ -17,11 +17,11 @@ import type {
 import type { ListeningFeedback, ObservationKind } from "@/domain/feedback";
 
 const labels: Record<ObservationKind, string> = {
-  captured: "Meaning identified / Makna yang dikenali",
-  unclear: "Needs clarification / Perlu diperjelas",
-  reconsider: "Check on replay / Periksa saat mendengar ulang",
-  newly_noticed: "New detail / Detail baru",
-  insufficient_evidence: "More detail needed / Perlu detail tambahan",
+  captured: "Meaning identified",
+  unclear: "Needs clarification",
+  reconsider: "Check on replay",
+  newly_noticed: "New detail",
+  insufficient_evidence: "More detail needed",
 };
 
 export function PersistentLearningWorkspace({
@@ -150,8 +150,7 @@ export function PersistentLearningWorkspace({
           <h1>{activity.title}</h1>
           <p>
             Listen for the situation, the problem, and the speakers’ intentions.
-            / Dengarkan situasi, masalah, dan maksud para pembicara.
-          </p>
+           </p>
         </div>
 
         <div className="audio-deck real-audio">
@@ -165,13 +164,11 @@ export function PersistentLearningWorkspace({
             </audio>
           ) : (
             <p>
-              Audio is temporarily unavailable. Please return later. / Audio
-              sementara tidak tersedia. Silakan kembali nanti.
-            </p>
+              Audio is temporarily unavailable. Please return later.</p>
           )}
           <div className="listen-count">
             <strong>{listenCount}</strong>
-            <span>plays / pemutaran</span>
+            <span>plays</span>
           </div>
         </div>
 
@@ -179,25 +176,20 @@ export function PersistentLearningWorkspace({
           <p role="note" className="auth-error">
             Teacher and administrator preview. Listen to the audio and review
             the prompts here. To save responses and receive feedback, sign in
-            with a learner account. / Pratinjau guru dan administrator.
-            Dengarkan audio dan tinjau pertanyaan di sini. Untuk menyimpan
-            jawaban dan memperoleh umpan balik, masuk dengan akun peserta.
-          </p>
+            with a learner account.</p>
         )}
 
         {canSubmit && !activity.pseudonym && (
           <label className="pseudonym-field">
-            <span>Activity name / Nama untuk aktivitas ini</span>
+            <span>Activity name</span>
             <input
               value={pseudonym}
               onChange={(event) => setPseudonym(event.target.value)}
               maxLength={40}
-              placeholder="Choose a nickname / Pilih nama panggilan"
+              placeholder="Choose a nickname"
             />
             <small>
-              This nickname appears only in this activity. / Nama panggilan
-              hanya digunakan dalam aktivitas ini.
-            </small>
+              This nickname appears only in this activity.</small>
           </label>
         )}
 
@@ -205,12 +197,12 @@ export function PersistentLearningWorkspace({
           <label className="notebook-field">
             <span>
               <strong>Listening notes</strong>
-              <small>Catatan saat mendengarkan</small>
+
             </span>
             <textarea
               value={notes}
               onChange={(event) => setNotes(event.target.value)}
-              placeholder="Note key ideas in English or Indonesian. / Catat gagasan utama dalam bahasa Inggris atau Indonesia."
+              placeholder="Note the key ideas in your own words."
               disabled={submitting || !canSubmit}
               maxLength={12_000}
             />
@@ -223,7 +215,7 @@ export function PersistentLearningWorkspace({
             <textarea
               value={reconstruction}
               onChange={(event) => setReconstruction(event.target.value)}
-              placeholder="Explain the conversation in your own words. / Jelaskan percakapan dengan kata-katamu sendiri."
+              placeholder="Explain the conversation in your own words."
               disabled={submitting || !canSubmit}
               maxLength={12_000}
             />
@@ -239,9 +231,7 @@ export function PersistentLearningWorkspace({
           <div className="workspace-actions">
             <p>
               <span className="privacy-dot" /> Each response is saved so you can
-              compare it with earlier practice. / Setiap jawaban disimpan agar
-              dapat dibandingkan dengan latihan sebelumnya.
-            </p>
+              compare it with earlier practice.</p>
             <button
               className="button button-primary"
               type="button"
@@ -255,8 +245,8 @@ export function PersistentLearningWorkspace({
               }
             >
               {submitting
-                ? "Saving… / Menyimpan…"
-                : "Save and get feedback / Simpan dan lihat umpan balik"}{" "}
+                ? "Saving…"
+                : "Save and get feedback"}{" "}
               <span aria-hidden="true">→</span>
             </button>
           </div>
@@ -264,12 +254,12 @@ export function PersistentLearningWorkspace({
 
         {attempts.length > 0 && (
           <section className="attempt-notebook">
-            <p className="eyebrow">Practice history / Riwayat latihan</p>
-            <h2>Previous responses / Jawaban sebelumnya</h2>
+            <p className="eyebrow">Practice history</p>
+            <h2>Previous responses</h2>
             {attempts.map((attempt) => (
               <details key={attempt.id}>
                 <summary>
-                  Response / Jawaban {attempt.attemptNumber}{" "}
+                  Response {attempt.attemptNumber}{" "}
                   <span>{new Date(attempt.createdAt).toLocaleString()}</span>
                 </summary>
                 <p>{attempt.reconstruction}</p>
@@ -291,13 +281,11 @@ export function PersistentLearningWorkspace({
           />
         ) : feedbackStatus === "pending" ? (
           <div className="feedback-empty">
-            <p className="eyebrow">Response saved / Jawaban tersimpan</p>
-            <h2>Your response is safe. / Jawabanmu sudah tersimpan.</h2>
+            <p className="eyebrow">Response saved</p>
+            <h2>Your response is safe.</h2>
             <p>
               Feedback isn’t available yet. You can replay the audio and check
-              again. / Umpan balik belum tersedia. Kamu bisa memutar audio lagi
-              lalu memeriksa kembali.
-            </p>
+              again.</p>
             <button
               className="button button-primary"
               type="button"
@@ -305,8 +293,8 @@ export function PersistentLearningWorkspace({
               disabled={checking}
             >
               {checking
-                ? "Checking… / Memeriksa…"
-                : "Check feedback / Periksa umpan balik"}
+                ? "Checking…"
+                : "Check feedback"}
             </button>
           </div>
         ) : feedbackStatus === "failed" ? (
@@ -316,30 +304,23 @@ export function PersistentLearningWorkspace({
               <span />
               <span />
             </div>
-            <p className="eyebrow">Response saved / Jawaban tersimpan</p>
+            <p className="eyebrow">Response saved</p>
             <h2>
-              Feedback is temporarily unavailable. / Umpan balik sementara tidak
-              tersedia.
-            </h2>
+              Feedback is temporarily unavailable.</h2>
             <p>
               Your notes and response have been saved. You can return to them
               while feedback is unavailable.
             </p>
-            <p className="translation">
-              Catatan dan jawabanmu telah disimpan. Kamu dapat membukanya
-              kembali selama umpan balik belum tersedia.
-            </p>
+
             <p>
               Replay the conversation and check one detail you are unsure about.
-              <br />
-              Dengarkan ulang dan periksa satu detail yang belum kamu yakini.
-            </p>
+              </p>
             <button
               className="button relisten-button"
               type="button"
               onClick={startRevision}
             >
-              Write a new response / Tulis jawaban baru{" "}
+              Write a new response{" "}
               <span aria-hidden="true">↻</span>
             </button>
           </div>
@@ -350,16 +331,16 @@ export function PersistentLearningWorkspace({
               <span />
               <span />
             </div>
-            <p className="eyebrow">Listening feedback / Umpan balik menyimak</p>
+            <p className="eyebrow">Listening feedback</p>
             <h2>
               {submitting
-                ? "Saving your response… / Menyimpan jawaban…"
-                : "Review your understanding. / Tinjau pemahamanmu."}
+                ? "Saving your response…"
+                : "Review your understanding."}
             </h2>
             <p>
               {canSubmit
-                ? "Save your response to receive feedback and a specific focus for replay. / Simpan jawaban untuk memperoleh umpan balik dan fokus dengar ulang."
-                : "Learners receive feedback on their saved responses and a focus for the next listen. / Peserta memperoleh umpan balik atas jawaban yang disimpan dan fokus untuk menyimak kembali."}
+                ? "Save your response to receive feedback and a specific focus for replay."
+                : "Learners receive feedback on their saved responses and a focus for the next listen."}
             </p>
           </div>
         )}
@@ -384,12 +365,11 @@ function FeedbackView({
       <div className="feedback-kicker">
         <span className="signal-icon">↗</span>
         <span>
-          <small>Response / Jawaban {attemptNumber}</small>
-          <strong>Listening feedback / Umpan balik menyimak</strong>
+          <small>Response {attemptNumber}</small>
+          <strong>Listening feedback</strong>
         </span>
       </div>
       <h2>{feedback.summary.en}</h2>
-      <p className="translation">{feedback.summary.id}</p>
       <div className="observations">
         {feedback.observations.map((observation, index) => (
           <article
@@ -398,27 +378,25 @@ function FeedbackView({
           >
             <span>{labels[observation.kind]}</span>
             <p>{observation.message.en}</p>
-            <small>{observation.message.id}</small>
           </article>
         ))}
       </div>
       <div className="next-target">
-        <span>Replay focus / Fokus dengar ulang</span>
+        <span>Replay focus</span>
         <strong>{feedback.nextListeningTarget.en}</strong>
-        <p>{feedback.nextListeningTarget.id}</p>
       </div>
       <button
         className="button relisten-button"
         type="button"
         onClick={onRevise}
       >
-        Write a new response / Tulis jawaban baru{" "}
+        Write a new response{" "}
         <span aria-hidden="true">↻</span>
       </button>
       <p className="provider-note">
         {provider === "openai"
-          ? "AI-assisted listening feedback. Check the suggestions against the audio. / Umpan balik menyimak berbantuan AI. Periksa saran dengan mendengarkan audio."
-          : "Teacher-prepared listening guidance. / Panduan menyimak yang disiapkan guru."}
+          ? "AI-assisted listening feedback. Check the suggestions against the audio."
+          : "Teacher-prepared listening guidance."}
       </p>
     </div>
   );

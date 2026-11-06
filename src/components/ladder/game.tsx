@@ -16,12 +16,7 @@ import { ladderTaskKey, reconcileLadderView } from "./view-reconciliation";
 import { AnswerEffect } from "./answer-effect";
 import { confirmedAnswerEffect, type AnswerEffect as AnswerEffectState } from "./answer-effect-state";
 function Words({ text }: { text: BilingualText }) {
-  return (
-    <>
-      <span>{text.en}</span>
-      <small lang="id">{text.id}</small>
-    </>
-  );
+  return <span>{text.en}</span>;
 }
 function message(code: string) {
   const messages: Record<string, BilingualText> = {
@@ -327,9 +322,8 @@ export function LadderGame({
           reHEARse
         </Link>
         <span className="ladder-mode">
-          LISTENING JOURNEY / PERJALANAN MENYIMAK
-        </span>
-        <Link href="/ladder/host">Teacher board / Papan guru ↗</Link>
+          LISTENING JOURNEY</span>
+        <Link href="/ladder/host">Teacher board</Link>
       </header>
       <div className="ladder-heading">
         <div>
@@ -339,7 +333,7 @@ export function LadderGame({
             <br />
             <em>A new way forward.</em>
           </h1>
-          <p>Dengar lagi. Temukan hubungan yang belum kamu tangkap.</p>
+
         </div>
         <div className="ladder-badge">
           <Image
@@ -349,11 +343,11 @@ export function LadderGame({
             alt=""
           />
           <span>
-            {view?.title ?? "Choose a game / Pilih permainan"}
+            {view?.title ?? "Choose a game"}
             <small>
               {view?.passage ? `Recording ${view.passage.index + 1} of ${view.passage.total} · Individual play` : "Individual play"}
               <br />
-              {view?.passage ? `Rekaman ${view.passage.index + 1} dari ${view.passage.total} · Main mandiri` : "Main mandiri"}
+              {view?.passage ? `Recording ${view.passage.index + 1} of ${view.passage.total} · Solo play` : "Solo play"}
             </small>
           </span>
         </div>
@@ -361,9 +355,9 @@ export function LadderGame({
       <div className="ladder-layout">
         <aside className="ladder-map">
           <div className="ladder-map-top">
-            <span>Your journey / Perjalananmu</span>
+            <span>Your journey</span>
             <span className="ladder-alias">
-              {view?.alias ?? "Your token / Tokenmu"}
+              {view?.alias ?? "Your token"}
             </span>
           </div>
           <LadderBoard
@@ -376,7 +370,7 @@ export function LadderGame({
             ownId={view?.runId}
             animate={!listening}
           />
-          {journey && <p className="ladder-board-chapter-key">Snakes lead to replay. Ladders lead to camp.<br />Ular menuju dengar ulang. Tangga menuju pos singgah.</p>}
+          {journey && <p className="ladder-board-chapter-key">Snakes lead to replay. Ladders lead to camp.</p>}
           <div className="ladder-map-rule">
             <Image
               src="/art/kenney/campfire.svg"
@@ -386,10 +380,7 @@ export function LadderGame({
             />
             <p>
               A detour is a chance to listen again.
-              <small>
-                Putar ulang, coba jelaskan, lalu lanjut. Bantuan selalu
-                tersedia.
-              </small>
+
             </p>
           </div>
           <p className="ladder-art-credit">
@@ -406,7 +397,7 @@ export function LadderGame({
         </aside>
         <section
           className="ladder-desk"
-          aria-label="Listening activity / Aktivitas menyimak"
+          aria-label="Listening activity"
         >
           {error && (
             <p className="ladder-error" role="alert">
@@ -422,37 +413,31 @@ export function LadderGame({
               <p>
                 Choose what you think is happening. If a part is unclear, replay
                 it and explain it in your own words.
-                <small>
-                  Pilih makna yang kamu tangkap. Kalau belum jelas, dengarkan
-                  bagiannya lagi dan jelaskan dengan kata-katamu sendiri.
-                </small>
+
               </p>
               <ul>
                 <li>
                   No countdown. Take time to listen.
-                  <small>Tanpa hitung mundur. Dengarkan dengan tenang.</small>
+
                 </li>
                 <li>
                   Replays give you another route forward.
-                  <small>
-                    Dengar ulang membuka jalan untuk lanjut.
-                  </small>
+
                 </li>
                 <li>
                   Your saved progress stays safe.
-                  <small>Progres yang tersimpan tetap aman.</small>
+
                 </li>
               </ul>
               {!pin && <ActivityPicker value={activityId} onChange={setActivityId} disabled={busy} />}
               {canJoin && (
                 <label className="ladder-pin">
-                  Class PIN, if you have one / PIN kelas jika ada
-                  <input
+                  Class PIN, if you have one<input
                     inputMode="numeric"
                     maxLength={6}
                     value={pin}
                     onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
-                    placeholder="Optional / Opsional"
+                    placeholder="Optional"
                   />
                 </label>
               )}
@@ -462,8 +447,8 @@ export function LadderGame({
                 onClick={() => send(undefined, true)}
               >
                 {busy
-                  ? "Opening / Membuka…"
-                  : pin ? "Join class / Gabung kelas →" : "Set up your player / Siapkan pemainmu →"}
+                  ? "Opening"
+                  : pin ? "Join class" : "Set up your player"}
               </button>
             </div>
           ) : (
@@ -471,7 +456,7 @@ export function LadderGame({
               {view.sessionClosed ? (
                 <div className="ladder-finish">
                   <h2>The class session has ended.</h2>
-                  <p>Sesi kelas sudah selesai. Progresmu tersimpan.</p>
+
                   <button
                     className="ladder-primary"
                     onClick={() => {
@@ -480,50 +465,46 @@ export function LadderGame({
                       setView(null);
                     }}
                   >
-                    Start a new solo journey / Mulai perjalanan mandiri
-                  </button>
+                    Start a new solo journey</button>
                 </div>
               ) : pregame ? (
                 <div className="ladder-pregame">
-                  <span className="ladder-kicker">{view.lobby?.phase === "setup" ? "BEFORE WE BEGIN / SEBELUM MULAI" : "WAITING ROOM / RUANG TUNGGU"}</span>
+                  <span className="ladder-kicker">{view.lobby?.phase === "setup" ? "BEFORE WE BEGIN" : "WAITING ROOM"}</span>
                   <h2>{view.lobby?.phase === "setup" ? "Choose your name and character." : "You’re ready. Your teacher starts the game."}
-                    <small>{view.lobby?.phase === "setup" ? "Pilih nama dan karaktermu." : "Kamu sudah siap. Tunggu gurumu memulai permainan."}</small></h2>
+                    <small>{view.lobby?.phase === "setup" ? "Choose your name and character." : "You are ready. Wait for your teacher to start the game."}</small></h2>
                   {view.pin && <p className="ladder-lobby-pin">PIN {view.pin}</p>}
                   {view.lobby?.phase === "setup" ? <AvatarControls view={view} disabled={busy} onView={receive} /> : <>
                     <Avatar id={view.avatarId} paletteId={view.avatarPalette} size={112} />
                     <div className="ladder-waiting-pulse" aria-hidden="true"><i /><i /><i /></div>
-                    <p>{view.alias}<small>Keep this page open. The game opens here automatically.<br />Biarkan halaman ini terbuka. Permainan akan terbuka otomatis di sini.</small></p>
-                    <Link href="/dashboard" className="ladder-secondary">Activities dashboard / Dasbor aktivitas</Link>
+                    <p>{view.alias}<small>Keep this page open. The game opens here automatically.</small></p>
+                    <Link href="/dashboard" className="ladder-secondary">Activities dashboard</Link>
                   </>}
                 </div>
               ) : view.passage?.checkpoint ? (
                 <div className="ladder-finish ladder-passage-checkpoint">
                   <div className="ladder-finish-icon" aria-hidden="true">⚑</div>
-                  <span className="ladder-kicker">PASSAGE CHECKPOINT / POS ANTARREKAMAN</span>
-                  <h2>One recording complete.<small>Satu rekaman selesai.</small></h2>
+                  <span className="ladder-kicker">PASSAGE CHECKPOINT</span>
+                  <h2>One recording complete.</h2>
                   <p><Words text={view.passage.title} /></p>
                   <p>Take a breath. Your choices and revisions are saved. The next recording opens when you are ready.
-                    <small>Istirahat sebentar. Pilihan dan revisimu tersimpan. Buka rekaman berikutnya saat kamu siap.</small></p>
+                    </p>
                   <button className="ladder-primary" disabled={busy} onClick={() => send({ kind: "continue" })}>
-                    {busy ? "Opening / Membuka…" : `Continue to recording ${view.passage.index + 2} / Lanjut ke rekaman ${view.passage.index + 2} →`}
+                    {busy ? "Opening" : `Continue to recording ${view.passage.index + 2} →`}
                   </button>
                 </div>
               ) : finished ? (
                 <div className="ladder-finish">
                   <div className="ladder-finish-icon">✦</div>
                   <span className="ladder-kicker">
-                    JOURNEY COMPLETE / PERJALANAN SELESAI
-                  </span>
+                    JOURNEY COMPLETE</span>
                   <h2>You found a way through.</h2>
                   <p>
                     Every part is now completed or explored with guidance.
-                    <small>
-                      Semua bagian sudah selesai atau dibahas dengan panduan.
-                    </small>
+
                   </p>
                   <p>
                     What changed after you listened again?
-                    <small>Apa yang berubah setelah kamu dengar lagi?</small>
+
                   </p>
                   <button
                     className="ladder-primary"
@@ -534,39 +515,37 @@ export function LadderGame({
                       setNotice(null);
                     }}
                   >
-                    Choose a new game / Pilih permainan baru
-                  </button>
+                    Choose a new game</button>
                   <Link href="/dashboard" className="ladder-secondary">
-                    Back to activities / Kembali ke aktivitas
-                  </Link>
+                    Back to activities</Link>
                 </div>
               ) : (
                 <>
                   {view.passage && <div className="ladder-passage-heading">
-                    <span className="ladder-kicker">RECORDING {view.passage.index + 1} / {view.passage.total} · REKAMAN {view.passage.index + 1} / {view.passage.total}</span>
+                    <span className="ladder-kicker">RECORDING {view.passage.index + 1} OF {view.passage.total}</span>
                     <h2><Words text={view.passage.title} /></h2>
                   </div>}
-                  <ol className="ladder-listening-checkpoints" aria-label="Listening checkpoints / Titik perjalanan menyimak">
+                  <ol className="ladder-listening-checkpoints" aria-label="Listening checkpoints">
                     {view.items.slice(view.passage?.fromItem ?? 0, view.passage?.toItem ?? total).map((chapter, localIndex) => {
                       const chapterIndex = localIndex + (view.passage?.fromItem ?? 0);
                       return <li key={chapter.id} aria-current={index === chapterIndex ? "step" : undefined}>
-                      Question {chapterIndex + 1} / Pertanyaan {chapterIndex + 1}
-                      <small>{!view.state.choices[chapterIndex] ? "Listen / Simak" : view.state.choices[chapterIndex].outcome === "repair" ? "Replay ahead / Dengar lagi" : "At camp / Di pos"}</small>
+                      Question {chapterIndex + 1}
+                      <small>{!view.state.choices[chapterIndex] ? "Listen" : view.state.choices[chapterIndex].outcome === "repair" ? "Replay ahead" : "At camp"}</small>
                     </li>; })}
                   </ol>
                   <div className="ladder-step-heading">
                     <span className="ladder-kicker">
                       {repairing
-                        ? "REPLAY CHECKPOINT / TITIK DENGAR ULANG"
-                        : "GUIDED LISTEN / SIMAK DENGAN PANDUAN"}
+                        ? "REPLAY CHECKPOINT"
+                        : "GUIDED LISTEN"}
                     </span>
                     <h2>
                       <Words text={item!.title} />
                     </h2>
                     <p className="ladder-task-count">
                       {repairing
-                        ? "One part to revisit / Satu bagian untuk didengar lagi"
-                        : `Question ${index + 1} of ${total} / Pertanyaan ${index + 1} dari ${total}`}
+                        ? "One part to revisit"
+                        : `Question ${index + 1} of ${total}`}
                     </p>
                   </div>
                   <div className="ladder-audio">
@@ -576,8 +555,8 @@ export function LadderGame({
                       onClick={() => (listening ? pause() : play())}
                       aria-label={
                         listening
-                          ? "Pause / Jeda"
-                          : "Play this part / Putar bagian ini"
+                          ? "Pause"
+                          : "Play this part"
                       }
                     >
                       {listening ? "Ⅱ" : "▶"}
@@ -585,16 +564,14 @@ export function LadderGame({
                     <div>
                       <strong>
                         {gist
-                          ? "Whole recording / Rekaman lengkap"
+                          ? "Whole recording"
                           : repairing
-                            ? "Replay this part / Dengar ulang bagian ini"
-                            : "Listen to this part / Dengarkan bagian ini"}
+                            ? "Replay this part"
+                            : "Listen to this part"}
                       </strong>
                       <small>
                         {formatAudioTime(gist ? 0 : item!.startMs)}–
-                        {formatAudioTime(gist && audioDurationMs !== null ? audioDurationMs : item!.endMs)} · No rush / Santai
-                        saja
-                      </small>
+                        {formatAudioTime(gist && audioDurationMs !== null ? audioDurationMs : item!.endMs)} · No rush</small>
                     </div>
                     <span
                       className={`ladder-signal ${listening ? "is-playing" : ""}`}
@@ -635,11 +612,9 @@ export function LadderGame({
                   />
                   <div className="ladder-audio-tools">
                     <button disabled={busy} onClick={() => play(true)}>
-                      Hear the whole recording / Dengar lengkap
-                    </button>
+                      Hear the whole recording</button>
                     <label>
-                      Speed / Kecepatan
-                      <select
+                      Speed<select
                         defaultValue="1"
                         onChange={(e) => {
                           if (audio.current)
@@ -668,12 +643,12 @@ export function LadderGame({
                     />
                   </h3>
                   <p className="ladder-question-help">{repairing ? "Listen for the connection, then explain it in your words." : `Choose ${item!.options.length === 4 ? "A, B, C or D" : "A, B or C"} as you listen. Save when this part ends.`}
-                    <small>{repairing ? "Dengarkan hubungan maknanya, lalu jelaskan dengan kata-katamu sendiri." : "Pilih jawaban sambil menyimak. Simpan setelah bagian ini selesai."}</small>
+                    <small>{repairing ? "Listen for the meaning relationship, then explain it in your own words." : "Choose an answer while listening. Save it after this section ends."}</small>
                   </p>
                   <div
                     className="ladder-options"
                     role="group"
-                    aria-label="Choose an interpretation / Pilih penafsiran"
+                    aria-label="Choose an interpretation"
                   >
                     {(repairing ? item!.repair!.options : item!.options).map(
                       (option, i) => (
@@ -707,22 +682,18 @@ export function LadderGame({
                         setSelection(null);
                       }}
                     >
-                      I’m not sure yet / Aku belum yakin
-                    </button>
+                      I’m not sure yet</button>
                   ) : (
                     <label className="ladder-explanation">
-                      Explain what is happening / Jelaskan apa yang terjadi
-                      <textarea
+                      Explain what is happening<textarea
                         value={explanation}
                         maxLength={1200}
                         disabled={busy}
                         onChange={(e) => setExplanation(e.target.value)}
-                        placeholder="A short explanation is enough. Indonesian, English, or both. / Penjelasan singkat saja. Boleh bahasa Indonesia, Inggris, atau campuran."
+                        placeholder="A short explanation is enough."
                       />
                       <small>
-                        This is about the meaning, not your grammar. / Fokus
-                        pada makna, bukan tata bahasa.
-                      </small>
+                        This is about the meaning, not your grammar.</small>
                     </label>
                   )}
                   {!repairing ? (
@@ -740,10 +711,10 @@ export function LadderGame({
                       }
                     >
                       {busy
-                        ? "Saving / Menyimpan…"
+                        ? "Saving"
                         : !played
-                          ? "Listen to the end of this part / Dengarkan bagian ini sampai selesai"
-                          : "Save choice and continue / Simpan pilihan dan lanjut →"}
+                          ? "Listen to the end of this part"
+                          : "Save choice and continue"}
                     </button>
                   ) : (
                     <>
@@ -766,24 +737,21 @@ export function LadderGame({
                         }
                       >
                         {busy
-                          ? "Saving / Menyimpan…"
+                          ? "Saving"
                           : !played
-                            ? "Replay this part first / Dengar ulang bagian ini dulu"
-                            : "Save my revision / Simpan revisiku ↗"}
+                            ? "Replay this part first"
+                            : "Save my revision"}
                       </button>
                       {task!.tries > 0 && (
                         <details className="ladder-support">
-                          <summary>Open guided review / Buka panduan</summary>
+                          <summary>Open guided review</summary>
                           <p>
                             <Words text={item!.repair!.supportedMeaning!} />
                           </p>
                           <p>
                             Explain this connection in your own words in the box
                             above, then continue.
-                            <small>
-                              Jelaskan hubungan ini dengan kata-katamu di kotak
-                              tadi, lalu lanjut.
-                            </small>
+
                           </p>
                           <button
                             className="ladder-secondary"
@@ -798,8 +766,7 @@ export function LadderGame({
                               })
                             }
                           >
-                            Complete with guidance / Selesaikan dengan panduan
-                          </button>
+                            Complete with guidance</button>
                         </details>
                       )}
                     </>
@@ -811,8 +778,8 @@ export function LadderGame({
                       onClick={() => send({ kind: "help" })}
                     >
                       {view.state.helpRequested
-                        ? "Help requested / Bantuan diminta"
-                        : "Ask my teacher for help / Minta bantuan guru"}
+                        ? "Help requested"
+                        : "Ask my teacher for help"}
                     </button>
                   )}
                 </>
@@ -824,15 +791,13 @@ export function LadderGame({
               )}
               {noteBusy ? (
                 <p className="ladder-note-status" role="status">
-                  Your explanation is saved. A listening nudge is on its way. /
-                  Penjelasanmu tersimpan. Petunjuk menyimak sedang disiapkan.
+                  Your explanation is saved. A listening nudge is on its way.
                 </p>
               ) : (
                 view.latestNote && (
                   <div className="ladder-feedback">
                     <span className="ladder-kicker">
-                      FROM YOUR LAST REPLAY / DARI DENGAR ULANG TERAKHIR
-                    </span>
+                      FROM YOUR LAST REPLAY</span>
                     <p>
                       <Words text={view.latestNote} />
                     </p>

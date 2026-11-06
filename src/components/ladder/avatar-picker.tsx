@@ -14,19 +14,19 @@ export function AvatarPicker({ value, onChange, disabled = false, animate = true
     onChange(alternatives[roll[0] % alternatives.length].id);
   }
   return (
-    <section className="ladder-avatar-picker" aria-label="Choose your character / Pilih karaktermu">
+    <section className="ladder-avatar-picker" aria-label="Choose your character">
       <div className="ladder-avatar-picker-heading">
         <div>
-          <h3>Your companion / Teman perjalananmu</h3>
-          <p>Pick your character before you begin. / Pilih karaktermu sebelum mulai.</p>
+          <h3>Your companion</h3>
+          <p>Pick your character before you begin.</p>
         </div>
-        <button type="button" className="ladder-avatar-surprise" disabled={disabled} onClick={surprise}>Surprise me / Acak</button>
+        <button type="button" className="ladder-avatar-surprise" disabled={disabled} onClick={surprise}>Surprise me</button>
       </div>
-      <p className="ladder-avatar-selected" aria-live="polite">Selected / Pilihan: <strong>{selected.name}</strong></p>
+      <p className="ladder-avatar-selected" aria-live="polite">Selected: <strong>{selected.name}</strong></p>
       <div className="ladder-avatar-grid">
         {AVATARS.map((avatar) => (
           <button key={avatar.id} type="button" aria-pressed={selected.id === avatar.id}
-            aria-label={`Choose ${avatar.name} / Pilih ${avatar.name}`} disabled={disabled}
+            aria-label={`Choose ${avatar.name}`} disabled={disabled}
             className="ladder-avatar-choice" onClick={() => onChange(avatar.id)}>
             <Avatar id={avatar.id} size={88} animate={animate} paletteId={paletteId} />
             <span>{avatar.name}</span>
@@ -34,7 +34,7 @@ export function AvatarPicker({ value, onChange, disabled = false, animate = true
           </button>
         ))}
       </div>
-      <p className="ladder-avatar-credit">Character parts by Kenney · CC0 / Bagian karakter oleh Kenney · CC0</p>
+      <p className="ladder-avatar-credit">Character parts by Kenney · CC0</p>
     </section>
   );
 }

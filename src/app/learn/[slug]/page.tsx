@@ -21,7 +21,7 @@ export default async function LearnerActivityPage({
     <main className="workspace-shell">
       <header className="app-header workspace-header">
         <Link href="/dashboard" className="back-link">
-          ← <span>Listening practice / Latihan menyimak</span>
+          ← <span>Listening practice</span>
         </Link>
         <div className="activity-title-mini">
           <span>{activity.partLabel}</span>
@@ -29,8 +29,8 @@ export default async function LearnerActivityPage({
         </div>
         <span className="prototype-chip">
           {user.role === "learner"
-            ? "Individual practice / Latihan mandiri"
-            : "Activity preview / Pratinjau aktivitas"}
+            ? "Individual practice"
+            : "Activity preview"}
         </span>
       </header>
       <PersistentLearningWorkspace

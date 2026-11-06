@@ -17,20 +17,18 @@ export default async function HomePage() {
             href={user && user.role !== "learner" ? "/classroom" : "/play"}
             className="text-button"
           >
-            Classroom / Kelas
-          </Link>
+            Classroom</Link>
           <Link href={user ? "/dashboard" : "/login"} className="text-button">
-            {user ? "My activities / Aktivitasku" : "Sign in / Masuk"}
+            {user ? "My activities" : "Sign in"}
           </Link>
           <span className="prototype-chip">
-            Listening practice / Latihan menyimak
-          </span>
+            Listening practice</span>
         </div>
       </nav>
 
       <section className="hero">
         <div className="hero-copy">
-          <p className="eyebrow">Listening practice / Latihan menyimak</p>
+          <p className="eyebrow">Listening practice</p>
           <h1>
             Listen for meaning.
             <br />
@@ -39,21 +37,18 @@ export default async function HomePage() {
           <p className="hero-lede">
             Listen to a conversation, record what you understood, and replay
             with a clear focus.
-            <br />
-            Dengarkan percakapan, catat pemahamanmu, lalu dengarkan ulang dengan
-            fokus yang jelas.
-          </p>
+            </p>
           <div className="hero-actions">
             <Link href="/dashboard" className="button button-primary">
-              Open practice / Buka latihan <span aria-hidden="true">→</span>
+              Open practice<span aria-hidden="true">→</span>
             </Link>
             <Link
               href={user ? "/ladder" : "/register"}
               className="button button-quiet"
             >
               {user
-                ? "Play the listening ladder / Main ular tangga menyimak"
-                : "Create account / Buat akun"}
+                ? "Play the listening ladder"
+                : "Create account"}
             </Link>
           </div>
         </div>
@@ -66,8 +61,7 @@ export default async function HomePage() {
           <div className="signal-orbit orbit-two" />
           <div className="signal-card">
             <span className="signal-label">
-              Listening focus / Fokus menyimak
-            </span>
+              Listening focus</span>
             <div className="wave-bars" aria-hidden="true">
               {[18, 38, 62, 28, 76, 46, 88, 34, 58, 22, 68, 42].map(
                 (height, index) => (
@@ -78,54 +72,43 @@ export default async function HomePage() {
             <p>
               Listen for what <em>however</em> changes in the speaker’s idea.
             </p>
-            <small>
-              Dengarkan perubahan gagasan setelah kata <em>however</em>.
-            </small>
           </div>
         </div>
       </section>
 
       <section className="loop-section" id="loop">
         <div className="section-heading">
-          <p className="eyebrow">Practice sequence / Urutan latihan</p>
+          <p className="eyebrow">Practice sequence</p>
           <h2>Listen, reflect, and listen again.</h2>
         </div>
         <ol className="loop-grid">
           <li>
             <span>01</span>
-            <strong>Listen / Dengarkan</strong>
+            <strong>Listen</strong>
             <p>
               Identify the situation and the speakers’ purpose.
-              <br />
-              Kenali situasi dan tujuan pembicara.
             </p>
           </li>
           <li>
             <span>02</span>
-            <strong>Take notes / Catat</strong>
+            <strong>Take notes</strong>
             <p>
               Record key ideas in words or a simple diagram.
-              <br />
-              Catat gagasan utama dengan kata atau diagram sederhana.
             </p>
           </li>
           <li>
             <span>03</span>
-            <strong>Reflect / Tinjau</strong>
+            <strong>Reflect</strong>
             <p>
               Compare your interpretation with the feedback.
-              <br />
-              Bandingkan pemahamanmu dengan umpan balik.
-            </p>
+              </p>
           </li>
           <li>
             <span>04</span>
-            <strong>Replay / Dengarkan ulang</strong>
+            <strong>Replay</strong>
             <p>
               Listen for a specific detail, then revise your explanation.
-              <br />
-              Dengarkan detail tertentu, lalu perbaiki penjelasanmu.
-            </p>
+              </p>
           </li>
         </ol>
       </section>

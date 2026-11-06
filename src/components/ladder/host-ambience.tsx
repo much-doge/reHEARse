@@ -41,13 +41,13 @@ export function HostAmbience({ quiet }: { quiet: boolean }) {
       />
       <button disabled={quiet} onClick={toggle} aria-pressed={playing}>
         {quiet
-          ? "Listening time · music paused / Waktu menyimak · musik dijeda"
+          ? "Listening time · music paused"
           : playing
-            ? "Pause music / Jeda musik"
-            : "Play gentle music / Putar musik pelan"}
+            ? "Pause music"
+            : "Play gentle music"}
       </button>
       <label>
-        Volume / Volume{" "}
+        Volume{" "}
         <input
           type="range"
           min="0"
@@ -62,7 +62,7 @@ export function HostAmbience({ quiet }: { quiet: boolean }) {
         />
       </label>
       <details>
-        <summary>Music & art credits / Kredit musik dan gambar</summary>
+        <summary>Music & art credits</summary>
         <p>
           “Carefree” by{" "}
           <a
@@ -94,9 +94,7 @@ export function HostAmbience({ quiet }: { quiet: boolean }) {
       </details>
       {error && (
         <p role="alert">
-          Music could not play. Try again when connected. / Musik belum bisa
-          diputar. Coba lagi saat terhubung.
-        </p>
+          Music could not play. Try again when connected.</p>
       )}
     </footer>
   );

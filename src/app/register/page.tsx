@@ -15,9 +15,9 @@ export default async function RegisterPage({
   if (await currentUser()) redirect(destination);
   const message =
     error === "exists"
-      ? "That email is already registered. Please sign in. / Email sudah terdaftar. Silakan masuk."
+      ? "That email is already registered. Please sign in."
       : error === "invalid"
-        ? "Check your name and email. Use a password of at least 10 characters. / Periksa nama dan email. Gunakan kata sandi minimal 10 karakter."
+        ? "Check your name and email. Use a password of at least 10 characters."
         : null;
 
   return (
@@ -27,27 +27,22 @@ export default async function RegisterPage({
         <span>reHEARse</span>
       </Link>
       <section className="auth-card">
-        <p className="eyebrow">Learner account / Akun peserta</p>
-        <h1>Create your account. / Buat akunmu.</h1>
+        <p className="eyebrow">Learner account</p>
+        <h1>Create your account.</h1>
         <p>
-          Choose a nickname for each activity. / Pilih nama panggilan untuk
-          setiap aktivitas.
-        </p>
+          Choose a nickname for each activity.</p>
         {message && (
           <div className="auth-error" role="alert">
             {message}
           </div>
         )}
         {reason === "expired" && (
-          <p role="status">
-            Your session has ended. Sign in to continue where you left off. /
-            Sesi kamu berakhir. Masuk untuk melanjutkan aktivitasmu.
-          </p>
+          <p role="status">Your session ended. Create an account or sign in to continue.</p>
         )}
         <form action={registerAction} className="auth-form">
           <input type="hidden" name="next" value={destination} />
           <label>
-            <span>Name / Nama</span>
+            <span>Name</span>
             <input
               name="displayName"
               autoComplete="name"
@@ -60,7 +55,7 @@ export default async function RegisterPage({
             <input name="email" type="email" autoComplete="email" required />
           </label>
           <label>
-            <span>Password / Kata sandi</span>
+            <span>Password</span>
             <input
               name="password"
               type="password"
@@ -70,18 +65,16 @@ export default async function RegisterPage({
               required
             />
             <small>
-              Use at least 10 characters. / Gunakan minimal 10 karakter.
-            </small>
+              Use at least 10 characters.</small>
           </label>
           <button className="button button-primary" type="submit">
-            Create account / Buat akun <span aria-hidden="true">→</span>
+            Create account<span aria-hidden="true">→</span>
           </button>
         </form>
         <p className="auth-switch">
-          Already registered? / Sudah terdaftar?{" "}
+          Already registered?{" "}
           <Link href={`/login?${new URLSearchParams({ next: destination })}`}>
-            Sign in / Masuk
-          </Link>
+            Sign in</Link>
         </p>
       </section>
     </main>

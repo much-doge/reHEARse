@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, it, expect } from "vitest";
 import { FeedbackWait, waitingFocuses } from "./feedback-wait";
 describe("optional listening reflection during feedback", () => {
-  it("provides bilingual keyboard controls and an honest pending state", () => {
+  it("provides English keyboard controls and an honest pending state", () => {
     const html = renderToStaticMarkup(createElement(FeedbackWait));
     expect(html).toContain('aria-pressed="true"');
     expect(html).toContain('role="status"');
@@ -15,7 +15,7 @@ describe("optional listening reflection during feedback", () => {
     expect(waitingFocuses).toHaveLength(3);
     for (const focus of waitingFocuses) {
       expect(focus.en).toContain("?");
-      expect(focus.id).toContain("?");
+      expect(focus.en).not.toMatch(/Dengarkan|Kamu|Apa/);
     }
   });
 });
