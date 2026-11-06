@@ -23,6 +23,20 @@ Exit: the boundary is committed and no runtime or deployment is claimed.
 Exit: the synthetic end-to-end journey passes without any ConTEFL source,
 answer key or real candidate data.
 
+## Pilot exception — LFL-028 supervised listening form
+
+The owner authorized a closed course-internal pilot before the general-purpose
+synthetic skeleton is complete. D-028 bounds this exception to one immutable
+listening form, existing reHEARse sign-in/registration, separately named Test
+Center tables, durable item responses, immutable submission, raw item review
+and separate missed-item remedial runs. It does not authorize direct assessment
+writes into reHEARse learning history, official score claims, generic authoring,
+open publication or unreviewed reuse for later forms.
+
+Exit: a named form is container-verified with synthetic and private-source
+checks. Deployment, proctor verification and classroom verification remain
+separate gates.
+
 ## Slice 2 — Full diagnostic source preparation
 
 - record source-use authorization and private source receipt;

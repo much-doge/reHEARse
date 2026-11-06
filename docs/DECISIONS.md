@@ -359,3 +359,27 @@ identity, shared tables, Zoom automation, asynchronous jobs, payment, marketing
 CMS or deployment infrastructure until a concrete journey requires it. Links
 between the companion and reHEARse may be added later through narrow public
 routes; direct cross-product database reads are not authorized.
+
+## D028 — Closed supervised Test Center pilot through reHEARse identity (LFL-028)
+
+Accepted for the first course pilot. An authenticated reHEARse learner may open
+one explicitly assigned ProTEFL listening test through a protected route. The
+route adapter may pass the already authenticated actor identifier into the Test
+Center application boundary; Test Center domain and persistence code must not
+query reHEARse identity, attempts, feedback, games or learner-history tables.
+
+For this transitional same-origin pilot, Test Center records use separately
+named `protefl_*` tables in the existing PostgreSQL service. This is operational
+co-location, not shared product state. Test forms, keys, responses, submissions,
+raw results and remedial attempts remain owned by the Test Center and have no
+foreign keys or write paths into reHEARse learning records. A future separate
+runtime or database must be able to replace the route and persistence adapters
+without changing the assessment domain.
+
+The pilot is closed and supervised. It may report raw correct/incorrect item
+outcomes only after immutable submission and may create a separate remedial run
+containing missed items. It must not claim an official TOEFL score, validated
+placement interpretation, source-complete status or classroom verification.
+The source owner authorized closed course-internal digitization in the LFL-028
+request; protected source details, transcripts and keys remain in the ignored
+Test Center private workspace.
