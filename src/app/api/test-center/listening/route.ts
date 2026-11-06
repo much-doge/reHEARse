@@ -1,35 +1,13 @@
-import { z } from "zod";
-
 import { listeningPilotRepository } from "@protefl/adapters/postgres-listening";
 import { ListeningPilotError } from "@protefl/domain/listening";
 import { isSameOriginRequest } from "@/lib/same-origin";
 import { currentUser } from "@/lib/session";
+import { listeningActionSchema } from "./schema";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 const headers = { "Cache-Control": "private, no-store" };
-const common = {
-  key: z.uuid(),
-  attemptId: z.uuid(),
-  revision: z.number().int().nonnegative(),
-  itemId: z.uuid(),
-};
-const actionSchema = z.discriminatedUnion("kind", [
-  z.object({ kind: z.literal("start"), key: z.uuid(), mode: z.literal("full") }).strict(),
-  z
-    .object({
-      kind: z.literal("start"),
-      key: z.uuid(),
-      mode: z.literal("remedial"),
-      parentAttemptId: z.uuid(),
-    })
-    .strict(),
-  z.object({ kind: z.literal("listen_start"), ...common }).strict(),
-  z.object({ kind: z.literal("choose"), ...common, choice: z.enum(["A", "B", "C", "D"]) }).strict(),
-  z.object({ kind: z.literal("timeout"), ...common }).strict(),
-]);
-
 function failure(error: unknown) {
   if (error instanceof ListeningPilotError)
     return Response.json({ error: error.code }, { status: error.status, headers });
@@ -62,7 +40,7 @@ export async function POST(request: Request) {
     } catch {
       throw new ListeningPilotError("invalid_request", 400);
     }
-    const parsed = actionSchema.safeParse(json);
+    const parsed = listeningActionSchema.safeParse(json);
     if (!parsed.success) throw new ListeningPilotError("invalid_request", 400);
     return Response.json({ view: await listeningPilotRepository.act(user.id, parsed.data) }, { headers });
   } catch (error) {
