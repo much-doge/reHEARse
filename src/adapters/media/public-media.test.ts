@@ -10,10 +10,10 @@ describe("confined public media", () => {
     expect(await new S3CompatibleMediaStore(config).createDownloadUrl(key)).toEqual({ kind: "redirect", url: createPublicMediaUrl(config, key), expiresAt: null });
   });
   it("constructs the isolated Test Center public-media URL", () => {
-    const testCenterKey = "rehearse/media/test-center/ptc-listening-2000-10-v1/001.mp3";
+    const testCenterKey = "rehearse/media/test-center/ptc-listening-2000-10-v2/001.mp3";
     const config = readS3MediaConfig(env);
     expect(createPublicMediaUrl(config, testCenterKey)).toBe(
-      `${env.PUBLIC_MEDIA_BASE_URL}/test-center/ptc-listening-2000-10-v1/001.mp3`,
+      `${env.PUBLIC_MEDIA_BASE_URL}/test-center/ptc-listening-2000-10-v2/001.mp3`,
     );
   });
   it.each(["activities/a/v1/a.mp3", "rehearse/media-other/activities/a/v1/a.mp3", "rehearse/media/activities/../a.mp3", "rehearse/media/activities/%2e%2e/a.mp3", "rehearse/media/activities/a//x.mp3", "rehearse/media/activities/a/x.mp3?other=1", "rehearse/media/activities/a/x.mp3#fragment", "rehearse/media/activities/a/\\x.mp3"])("rejects escaped object key %s", (bad) => {

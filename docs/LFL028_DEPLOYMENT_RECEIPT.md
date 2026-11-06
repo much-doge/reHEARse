@@ -90,3 +90,27 @@ Restore the prior `rehearse-app` image tag and recreate only the app service.
 Migration 017 is additive and may remain unused. If the form must be withdrawn,
 retire its `protefl_test_form` row; do not delete attempts. Backblaze objects
 are immutable and should be retained until the source owner approves removal.
+
+## v2 source-map and server-clock correction
+
+The first live audio run established that v1 Part A physical media was shifted
+by one item: its clip 001 began at 197.480 seconds, while the source video's
+timestamped English caption identifies number 2 at 197.020 seconds. The answer
+options remained on item 1 because the public DTO correctly projected the v1
+item record; the media source mapping was wrong. Part B/C grouped mappings were
+already aligned.
+
+The same run exposed a separate timing defect. The learner computer's wall
+clock is approximately seven hours ahead of the server, but the client compared
+that wall clock directly with server deadlines. The v2 client now anchors time
+to each server response and advances it only with monotonic elapsed browser
+time; timezone or wall-clock skew cannot keep choices locked or expire them
+early.
+
+The corrected private form `ptc-listening-2000-10-v2` rebuilds item 1 from
+167.000–185.497 seconds, maps items 2–30 to the former physical clips 001–029,
+and retains the already aligned Part B/C clips 031–050. All 50 v2 objects were
+uploaded to a new immutable Backblaze prefix and `rclone check` reported 50
+matches and zero differences. The v2 importer passed from an empty disposable
+database. The v1 form and objects remain unchanged for audit and must not be
+used for new attempts.

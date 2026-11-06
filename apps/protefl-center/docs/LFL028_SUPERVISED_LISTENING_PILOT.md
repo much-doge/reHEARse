@@ -10,7 +10,9 @@ account, open the assigned form, complete the timed test, submit once, review
 correct and incorrect item outcomes, and start a separate remedial run containing
 only missed items.
 
-Internal form code: `ptc-listening-2000-10-v1`.
+Active internal form code: `ptc-listening-2000-10-v2`. The first-run v1 form
+is retained only as an invalid source-mapping audit record and must not be
+assigned to a new attempt.
 
 ## Boundary
 

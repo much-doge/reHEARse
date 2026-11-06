@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { ListeningAction, ListeningView, Option } from "@protefl/domain/listening";
+import { serverNowAt } from "./server-clock";
 
 const options: Option[] = ["A", "B", "C", "D"];
 
@@ -34,18 +35,23 @@ export function ListeningTest({ initial, learnerName }: { initial: ListeningView
   const timeoutSent = useRef<string | null>(null);
   const current = view.attempt?.current;
 
+  const acceptView = useCallback((next: ListeningView) => {
+    setView(next);
+    setNow(new Date(next.serverTime).getTime());
+  }, []);
+
   const refresh = useCallback(async () => {
     const response = await fetch("/api/test-center/listening", { cache: "no-store" });
     const payload = (await response.json()) as { view?: ListeningView };
-    if (response.ok && payload.view) setView(payload.view);
-  }, []);
+    if (response.ok && payload.view) acceptView(payload.view);
+  }, [acceptView]);
 
   const act = useCallback(async (action: ListeningAction) => {
     setBusy(true);
     setMessage("");
     try {
       const next = await mutate(action);
-      setView(next);
+      acceptView(next);
       return next;
     } catch (error) {
       const code = error instanceof Error ? error.message : "test_center_unavailable";
@@ -55,13 +61,17 @@ export function ListeningTest({ initial, learnerName }: { initial: ListeningView
     } finally {
       setBusy(false);
     }
-  }, [refresh]);
+  }, [acceptView, refresh]);
 
   useEffect(() => {
     if (!current?.deadline) return;
-    const timer = window.setInterval(() => setNow(Date.now()), 100);
+    const anchor = performance.now();
+    const timer = window.setInterval(
+      () => setNow(serverNowAt(view.serverTime, anchor, performance.now())),
+      100,
+    );
     return () => window.clearInterval(timer);
-  }, [current?.deadline]);
+  }, [current?.deadline, view.serverTime]);
 
   const deadlineMs = current?.deadline ? new Date(current.deadline).getTime() : null;
   const opensMs = current?.answerOpensAt ? new Date(current.answerOpensAt).getTime() : null;
@@ -96,7 +106,7 @@ export function ListeningTest({ initial, learnerName }: { initial: ListeningView
     setMessage("");
     try {
       if (current.startedAt) {
-        const elapsedSeconds = Math.max(0, (Date.now() - new Date(current.startedAt).getTime()) / 1000);
+        const elapsedSeconds = Math.max(0, (now - new Date(current.startedAt).getTime()) / 1000);
         audioRef.current.currentTime = Math.min(elapsedSeconds, current.durationMs / 1000 - 0.1);
         await audioRef.current.play();
         setPlaying(true);
@@ -111,7 +121,7 @@ export function ListeningTest({ initial, learnerName }: { initial: ListeningView
         revision: view.attempt.revision,
         itemId: current.id,
       });
-      setView(next);
+      acceptView(next);
     } catch (error) {
       audioRef.current.pause();
       const code = error instanceof Error ? error.message : "test_center_unavailable";
@@ -225,7 +235,7 @@ export function ListeningTest({ initial, learnerName }: { initial: ListeningView
         src={current.mediaUrl}
         preload="auto"
         onPlaying={() => setPlaying(true)}
-        onEnded={() => { setPlaying(false); setNow(Date.now()); }}
+        onEnded={() => setPlaying(false)}
         onError={() => setMessage("Audio could not be loaded. Your timer has not been reset. / Audio belum dapat dimuat. Waktu tidak diulang.")}
       />
       <div className={`ptc-timer ${canChoose && (remainingMs ?? 0) < 4000 ? "urgent" : ""}`}>

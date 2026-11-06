@@ -26,7 +26,7 @@ const item = z.object({
 });
 const formSchema = z.object({
   contractVersion: z.literal("protefl-listening-form.v1"),
-  code: z.literal("ptc-listening-2000-10-v1"),
+  code: z.literal("ptc-listening-2000-10-v2"),
   title: z.string().min(1).max(200),
   responseWindowMs: z.literal(12000),
   pilot: z.literal(true),

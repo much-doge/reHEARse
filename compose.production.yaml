@@ -99,7 +99,7 @@ services:
     entrypoint: [pnpm, protefl:import, --, /imports/package/form.private.json]
     environment:
       DATABASE_URL: postgresql://rehearse:${POSTGRES_PASSWORD:?required}@postgres:5432/rehearse
-      PROTEFL_IMPORT_MEDIA_DIR: /imports/media/ptc-listening-2000-10-v1
+      PROTEFL_IMPORT_MEDIA_DIR: /imports/media/ptc-listening-2000-10-v2
       OBJECT_STORAGE_PREFIX: ${OBJECT_STORAGE_PREFIX:?required}
     volumes: ["./imports/protefl-pilot:/imports:ro"]
     networks: [rehearse]
