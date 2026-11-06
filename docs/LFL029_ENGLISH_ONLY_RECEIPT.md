@@ -21,10 +21,22 @@ learner attempt, feedback, game run or formal-test response.
 - Vitest passed: 43 files and 166 tests.
 - Next.js production build passed.
 
-## Deployment state
+## Deployment verification
 
-Not deployed at this checkpoint. PCT128 app-only deployment and public route
-checks remain required before the ledger may say `deployed`.
+- Pushed `fa93d5e` and `fd8f35d` to `origin/main`.
+- Built app image `rehearse-app:fd8f35d` and loaded it into PCT128.
+- Fast-forwarded `/opt/rehearse` and recreated only `rehearse-app-1`; no
+  migration, import or database operation ran.
+- Docker health reported `healthy` on image `rehearse-app:fd8f35d`.
+- LAN health at `192.168.8.63:3001/api/health` and public health at
+  `https://rehearse.najala.org/api/health` returned `health.v1` OK.
+- Public homepage and login HTML exposed the expected English labels and no
+  former paired Indonesian label for those checks.
+- Exact temporary image archives were removed from the workstation, Proxmox
+  host and PCT128.
+
+This verifies deployment and public routing, not an authenticated browser sweep
+of every role or a classroom trial.
 
 ## Rollback
 
