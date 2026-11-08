@@ -12,7 +12,7 @@ export function safeReturnTo(value: unknown): string {
     const url = new URL(value, "https://rehearse.invalid");
     if (
       url.origin !== "https://rehearse.invalid" ||
-      !/^(?:\/|\/dashboard|\/workshop|\/ladder(?:\/host)?|\/classroom|\/play|\/test-center\/listening\/2000-10|\/learn\/[a-z0-9]+(?:-[a-z0-9]+)*)$/.test(
+      !/^(?:\/|\/dashboard|\/workshop|\/ladder(?:\/host)?|\/classroom|\/play|\/test-center(?:\/manage|\/listening\/2000-10)?|\/learn\/[a-z0-9]+(?:-[a-z0-9]+)*)$/.test(
         url.pathname,
       )
     )
