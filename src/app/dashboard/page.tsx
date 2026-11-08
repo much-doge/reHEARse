@@ -1,5 +1,6 @@
 import Link from "next/link";
 import "@/components/ladder/board.css";
+import { getPool } from "@/adapters/db/client";
 import { logoutAction } from "@/app/auth-actions";
 import { BrandMark } from "@/components/brand-mark";
 import { LegacyVisibilityToggle } from "@/components/legacy-visibility-toggle";
@@ -10,6 +11,7 @@ export const dynamic = "force-dynamic";
 export default async function DashboardPage() {
   const user = await requireUser("/dashboard");
   const isStaff = user.role === "teacher" || user.role === "admin";
+  const legacyVisible = !isStaff && (await getPool().query("SELECT enabled FROM legacy_student_visibility WHERE singleton=true")).rows[0]?.enabled === true;
   const roleLabel = user.role === "admin" ? "Administrator" : isStaff ? "Teacher" : "Learner";
 
   return (
@@ -65,6 +67,13 @@ export default async function DashboardPage() {
             <p>Only resources your teacher has assigned to your account appear in the Test Center.</p>
             <Link href="/test-center" className="ladder-primary">Open Test Center →</Link>
           </section>
+
+          {legacyVisible && <section className="ladder-dashboard-entry">
+            <p className="eyebrow">ADDITIONAL LISTENING MATERIALS</p>
+            <h2>Earlier reHEARse resources</h2>
+            <p>Your teacher has enabled access to these archived listening activities.</p>
+            <Link href="/legacy" className="ladder-secondary">Open listening materials →</Link>
+          </section>}
 
         </>
       )}
