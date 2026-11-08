@@ -23,6 +23,10 @@ const nextConfig: NextConfig = {
         .map((source) => ({ source, headers: privateNoStore })),
       ...["/dashboard/:path*", "/test-center/:path*", "/legacy/:path*"]
         .map((source) => ({ source, headers: privateNoStore })),
+      ...["/learn", "/workshop", "/ladder", "/classroom", "/play"]
+        .map((source) => ({ source, headers: privateNoStore })),
+      ...["/learn/:path*", "/workshop/:path*", "/ladder/:path*", "/classroom/:path*", "/play/:path*"]
+        .map((source) => ({ source, headers: privateNoStore })),
       { source: "/api/:path*", headers: privateNoStore },
     ];
   },

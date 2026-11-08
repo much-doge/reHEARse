@@ -1,7 +1,7 @@
 # LFL-034 access control and role workspaces
 
-Status: source-complete; initial PCT128 deployment is live. A follow-up fix for
-safe login return paths under `/legacy/` is awaiting deployment.
+Status: source-complete; PCT128 runs `2791519`. A follow-up is adding no-store
+headers to the old route aliases before final live verification.
 
 ## Changes
 
@@ -36,7 +36,8 @@ safe login return paths under `/legacy/` is awaiting deployment.
 - Initial PCT128 deployment runs `d8f2175`; app and PostgreSQL health are green.
   No-cookie checks returned `307` to sign-in for protected pages and `401` for
   APIs and media, with private no-store response headers. The `/legacy/` return
-  target is being fixed in a follow-up commit before final live verification.
+  target is preserved by the deployed `2791519` follow-up. No-store headers
+  for the old route aliases are being added before final live verification.
 - Not classroom-verified.
 
 ## Storage visibility limitation
