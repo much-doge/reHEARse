@@ -493,15 +493,16 @@ answer key, scoring data, and related artifacts be committed in the repository
 under `apps/protefl-center/content/`. These assessment records and scores stay
 inside the Test Center and never enter reHEARse learning diagnostics/history.
 
-Candidates receive allowlisted question text and structured directions through
-authenticated, assignment-checked, private no-store routes. The complete book,
-scripts, answer keys, and scoring tables must not be sent to a candidate before
-the whole diagnostic is submitted. Listening offers a teacher-selected
+Candidates receive one structured item at a time through authenticated,
+assignment-, attempt-, section-, and question-checked private no-store routes.
+The complete book, source-page renders, scripts, answer keys, and scoring
+tables are not candidate runtime resources. Listening offers a teacher-selected
 autoplay or per-question playback mode; autoplay retains the source's roughly
 12-second answer windows. Structure is timed at 25 minutes and Reading at 55
-minutes. The source page arrangement, including Reading line breaks and
-Structure Part B underlines, is preserved in the text companion. Learner views
-render written questions and choices, not page-crop images.
+minutes. The web-native model preserves explicit Structure Part A omissions,
+the exact Part B underlined spans, and Reading source lines/line references.
+Learner views render written questions and full choices, not page crops or
+page-text dumps.
 
 Invite codes use ten Crockford-style Base32 characters, are stored only as
 hashes, remain one-use and expire after seven days. Authenticated claim attempts
@@ -510,6 +511,10 @@ but does not strand an already-started assigned candidate from resuming.
 
 The first completed attempt is the candidate's primary result. Whole-test
 retakes append a separate attempt and cannot replace or improve that result.
+After full completion, a candidate may also retake Listening, Structure, or
+Reading independently. Each focused retake is a child attempt with its own
+events, timer, result, and review; it cannot update the parent diagnostic or
+participate in the parent's score.
 Result details become visible only after completion of all three sections.
 The package's exact Practice Test A answer key and score-conversion table are
 versioned with source provenance. Deployment and candidate use remain gated on

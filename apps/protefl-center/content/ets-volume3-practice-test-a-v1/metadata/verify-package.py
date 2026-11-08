@@ -33,6 +33,31 @@ assert [(start, end, group) for start, end, group in [(31, 34, "part-b-1"), (35,
     for group in ["part-b-1", "part-b-2", "part-c-1", "part-c-2", "part-c-3"]
 ]
 
+alignment = json.loads((root / "metadata/listening-alignment-audit-v1.json").read_text())
+assert alignment["quietWindowCount"] == len(pauses) == 50
+assert all(abs(row["mappedStartMs"] - question_map[row["question"] - 1]["questionAudioStartMs"]) <= 1 for row in alignment["transcriptAnchors"])
+assert max(abs(row["differenceMs"]) for row in alignment["transcriptAnchors"]) <= 1_100
+for row in alignment["groupTransitions"]:
+    members = [item for item in question_map if item["groupId"] == row["groupId"]]
+    assert [members[0]["question"], members[-1]["question"]] == row["questions"]
+    assert all(item["contextStartMs"] == row["contextStartMs"] for item in members)
+
+items = json.loads((root / "metadata/questions-practice-test-a-v1.json").read_text())
+assert len(items["listening"]) == 50
+assert len(items["structure"]["completion"]) == 15
+assert len(items["structure"]["errorIdentification"]) == 25
+assert len(items["reading"]["passages"]) == 5
+assert len(items["reading"]["questions"]) == 50
+for item in items["listening"] + items["structure"]["completion"] + items["structure"]["errorIdentification"] + items["reading"]["questions"]:
+    assert list(item["options"]) == ["A", "B", "C", "D"], item["number"]
+for item in items["structure"]["completion"]:
+    assert item["prompt"].count("_____") == 1, item["number"]
+for item in items["structure"]["errorIdentification"]:
+    choices = [token["choice"] for token in item["tokens"] if "choice" in token]
+    assert list(dict.fromkeys(choices)) == ["A", "B", "C", "D"], item["number"]
+assert [passage["questions"] for passage in items["reading"]["passages"]] == [[1, 10], [11, 21], [22, 32], [33, 42], [43, 50]]
+assert all(any(line["line"] == 5 for line in passage["lines"]) for passage in items["reading"]["passages"])
+
 score = json.loads((root / "metadata/score-conversion-practice-test-a-v1.json").read_text())
 assert len(score["ranges"]) == 15
 # The guide's worked example: raw 28 / 30 / 39 -> 537-550.
@@ -50,4 +75,4 @@ assert converted("section2", 39) is None and converted("section2", 40) is None
 rendered = set(page_index["renderedPages"]["listening"] + page_index["renderedPages"]["structure"] + page_index["renderedPages"]["readingDirections"] + page_index["renderedPages"]["reading"])
 assert rendered == {int(path.stem.removeprefix("page-")) for path in (root / "pages").glob("*.jpg")}
 
-print("ETS package verified: hashes, 140 keys, 50 pause windows, 140 question pages, 5 reading passages, 50 audio segments, score example, and rendered-page allowlist")
+print("ETS package verified: hashes, 140 keys, 140 structured items, 5 line-marked passages, 50 quiet answer windows, transcript/group audio alignment, score example, and retained source-page allowlist")

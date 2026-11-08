@@ -1,0 +1,3993 @@
+{
+  "schemaVersion": "1.0.0",
+  "source": "ETS TOEFL ITP Level 1 Practice Tests Volume 3, Practice Test A",
+  "listening": [
+    {
+      "number": 1,
+      "prompt": "What does the woman imply?",
+      "options": {
+        "A": "She lost the man’s calculator.",
+        "B": "She will lend the man her calculator.",
+        "C": "The calculator may be under the man’s book.",
+        "D": "The man will not have time to find the calculator."
+      },
+      "sourcePage": 21,
+      "part": "A"
+    },
+    {
+      "number": 2,
+      "prompt": "What does the man suggest the woman do?",
+      "options": {
+        "A": "Work in the astronomy department",
+        "B": "Add another course next spring",
+        "C": "Find a job for the summer",
+        "D": "Take an astronomy course in the summer"
+      },
+      "sourcePage": 21,
+      "part": "A"
+    },
+    {
+      "number": 3,
+      "prompt": "What does the woman imply about the man?",
+      "options": {
+        "A": "He should work at home.",
+        "B": "He can use the lab on the weekend.",
+        "C": "He will have to repeat the experiment next week.",
+        "D": "He forgot to return the key to security."
+      },
+      "sourcePage": 21,
+      "part": "A"
+    },
+    {
+      "number": 4,
+      "prompt": "What does the man mean?",
+      "options": {
+        "A": "He and his parents plan to visit Japan.",
+        "B": "He recently returned from Japan.",
+        "C": "His sweatshirt came from Japan.",
+        "D": "The weather can be very cold in some parts of Japan."
+      },
+      "sourcePage": 21,
+      "part": "A"
+    },
+    {
+      "number": 5,
+      "prompt": "What does the woman mean?",
+      "options": {
+        "A": "She will go to the restaurant with the man.",
+        "B": "She will meet the man and his friends later in the evening.",
+        "C": "She has already had dinner.",
+        "D": "She will not change her original plans."
+      },
+      "sourcePage": 21,
+      "part": "A"
+    },
+    {
+      "number": 6,
+      "prompt": "What can be inferred about the man?",
+      "options": {
+        "A": "He will register for the conference.",
+        "B": "He has nearly completed all his research.",
+        "C": "He is not teaching any classes today.",
+        "D": "He went to the wrong Web site."
+      },
+      "sourcePage": 21,
+      "part": "A"
+    },
+    {
+      "number": 7,
+      "prompt": "What does the woman imply?",
+      "options": {
+        "A": "The bicycle is too big for her.",
+        "B": "She bought the bicycle at a good price.",
+        "C": "She did not know about the store on Harrison Street.",
+        "D": "She has not used her bike all summer."
+      },
+      "sourcePage": 22,
+      "part": "A"
+    },
+    {
+      "number": 8,
+      "prompt": "What does the woman imply?",
+      "options": {
+        "A": "She did not buy the ticket.",
+        "B": "The ticket was expensive.",
+        "C": "She does not know how much the ticket cost.",
+        "D": "There are still a few tickets left."
+      },
+      "sourcePage": 22,
+      "part": "A"
+    },
+    {
+      "number": 9,
+      "prompt": "What does the professor mean?",
+      "options": {
+        "A": "She will extend the deadline for the paper.",
+        "B": "She has already made an exception for the student.",
+        "C": "She does not accept late papers.",
+        "D": "She cannot meet with the student in the library."
+      },
+      "sourcePage": 22,
+      "part": "A"
+    },
+    {
+      "number": 10,
+      "prompt": "What can be inferred about the man?",
+      "options": {
+        "A": "He lives far from the university.",
+        "B": "He is moving next month.",
+        "C": "He prefers living on campus.",
+        "D": "He might be able to help the woman."
+      },
+      "sourcePage": 22,
+      "part": "A"
+    },
+    {
+      "number": 11,
+      "prompt": "What does the woman mean?",
+      "options": {
+        "A": "She agrees with the man.",
+        "B": "She would like to see the movie a second time.",
+        "C": "She has not seen the movie.",
+        "D": "She does not understand the man’s point."
+      },
+      "sourcePage": 22,
+      "part": "A"
+    },
+    {
+      "number": 12,
+      "prompt": "What does the man imply about his sister?",
+      "options": {
+        "A": "She delayed submitting her application.",
+        "B": "She does not know if her application will be accepted.",
+        "C": "She was glad to finally receive the letter.",
+        "D": "She started her classes several weeks ago."
+      },
+      "sourcePage": 22,
+      "part": "A"
+    },
+    {
+      "number": 13,
+      "prompt": "What does the woman imply?",
+      "options": {
+        "A": "She was also late for the meeting.",
+        "B": "She is waiting for Mark to fix her car.",
+        "C": "The meeting has not started yet.",
+        "D": "The bus did not arrive on time."
+      },
+      "sourcePage": 23,
+      "part": "A"
+    },
+    {
+      "number": 14,
+      "prompt": "What does the man mean?",
+      "options": {
+        "A": "He does not like to wake up early in the morning.",
+        "B": "The woman seems unusually sad.",
+        "C": "There is no special reason for his good mood.",
+        "D": "He was not in a good mood when he woke up."
+      },
+      "sourcePage": 23,
+      "part": "A"
+    },
+    {
+      "number": 15,
+      "prompt": "What does the woman mean?",
+      "options": {
+        "A": "She took a history class last year.",
+        "B": "She does not trust the man’s opinion.",
+        "C": "She probably will not take any history classes.",
+        "D": "She did not like her sociology professor."
+      },
+      "sourcePage": 23,
+      "part": "A"
+    },
+    {
+      "number": 16,
+      "prompt": "What does the man mean?",
+      "options": {
+        "A": "He is very busy now.",
+        "B": "He has to check his schedule.",
+        "C": "He can meet the woman at six o’clock.",
+        "D": "He prefers to meet the woman some other time."
+      },
+      "sourcePage": 23,
+      "part": "A"
+    },
+    {
+      "number": 17,
+      "prompt": "What does the man imply?",
+      "options": {
+        "A": "The course is too difficult.",
+        "B": "The professor changed his mind.",
+        "C": "The final exam was cancelled.",
+        "D": "The woman misunderstood the professor."
+      },
+      "sourcePage": 23,
+      "part": "A"
+    },
+    {
+      "number": 18,
+      "prompt": "What does the man mean?",
+      "options": {
+        "A": "The woman deserves the recognition.",
+        "B": "The woman should tell her friends how she feels.",
+        "C": "The woman’s friends do not know about the scholarship.",
+        "D": "The woman should apply for a scholarship."
+      },
+      "sourcePage": 23,
+      "part": "A"
+    },
+    {
+      "number": 19,
+      "prompt": "What will the woman probably do next?",
+      "options": {
+        "A": "Ask the man to help her figure out how to use her new computer",
+        "B": "Let the man use her computer",
+        "C": "Take her computer to a repair shop",
+        "D": "Help the man fix his computer"
+      },
+      "sourcePage": 24,
+      "part": "A"
+    },
+    {
+      "number": 20,
+      "prompt": "What does the man mean?",
+      "options": {
+        "A": "He was at the health center earlier today.",
+        "B": "He intends to get his blood pressure checked.",
+        "C": "He does not have time to wait in line today.",
+        "D": "He is not concerned about his blood pressure."
+      },
+      "sourcePage": 24,
+      "part": "A"
+    },
+    {
+      "number": 21,
+      "prompt": "What does the woman mean?",
+      "options": {
+        "A": "She plans to visit the man occasionally.",
+        "B": "She hopes the man is able to find a job.",
+        "C": "She would like to hear from the man.",
+        "D": "She wants to know when the man will return."
+      },
+      "sourcePage": 24,
+      "part": "A"
+    },
+    {
+      "number": 22,
+      "prompt": "What does the woman imply?",
+      "options": {
+        "A": "She does not know where her pen is.",
+        "B": "The man may borrow her pen.",
+        "C": "She does not buy expensive pens.",
+        "D": "The man has found her missing pen."
+      },
+      "sourcePage": 24,
+      "part": "A"
+    },
+    {
+      "number": 23,
+      "prompt": "What can be inferred from this conversation?",
+      "options": {
+        "A": "The man’s directions were not very good.",
+        "B": "The woman forgot to take the man’s directions with her.",
+        "C": "The woman was not able to drive to the conference.",
+        "D": "The conference was not very interesting."
+      },
+      "sourcePage": 24,
+      "part": "A"
+    },
+    {
+      "number": 24,
+      "prompt": "What does the woman mean?",
+      "options": {
+        "A": "She will meet the man at the café.",
+        "B": "She has not yet read the proposal.",
+        "C": "The proposal has been approved.",
+        "D": "The café does not need renovations."
+      },
+      "sourcePage": 24,
+      "part": "A"
+    },
+    {
+      "number": 25,
+      "prompt": "What does the woman suggest the man do?",
+      "options": {
+        "A": "Buy a different kind of medicine",
+        "B": "See a doctor",
+        "C": "Take a second pill",
+        "D": "Avoid taking any medication"
+      },
+      "sourcePage": 25,
+      "part": "A"
+    },
+    {
+      "number": 26,
+      "prompt": "What does the man imply about Phil?",
+      "options": {
+        "A": "He changed his plans about school.",
+        "B": "His parents are coming out to visit him.",
+        "C": "He was only out of school one semester.",
+        "D": "He is going to take next semester off."
+      },
+      "sourcePage": 25,
+      "part": "A"
+    },
+    {
+      "number": 27,
+      "prompt": "What does the woman imply?",
+      "options": {
+        "A": "The man should follow the florist’s advice.",
+        "B": "The man should go to a different florist.",
+        "C": "She bought flowers from the same florist.",
+        "D": "Cutting flowers does not make them last longer."
+      },
+      "sourcePage": 25,
+      "part": "A"
+    },
+    {
+      "number": 28,
+      "prompt": "What does the man imply?",
+      "options": {
+        "A": "There was not enough time for questions.",
+        "B": "The lecture topic was not interesting.",
+        "C": "The speaker was difficult to hear.",
+        "D": "The audience’s questions were not interesting."
+      },
+      "sourcePage": 25,
+      "part": "A"
+    },
+    {
+      "number": 29,
+      "prompt": "What does the man mean?",
+      "options": {
+        "A": "He wants to give the woman more information.",
+        "B": "He does not mind waiting to see the dentist.",
+        "C": "He does not remember where he put the dentist’s card.",
+        "D": "He will take the woman to the dentist’s office soon."
+      },
+      "sourcePage": 25,
+      "part": "A"
+    },
+    {
+      "number": 30,
+      "prompt": "What does the woman imply?",
+      "options": {
+        "A": "She also has a presentation to do.",
+        "B": "She enjoys speaking in front of other people.",
+        "C": "The man’s presentation will be a success.",
+        "D": "The man should practice his presentation."
+      },
+      "sourcePage": 25,
+      "part": "A"
+    },
+    {
+      "number": 31,
+      "prompt": "What are the students mainly discussing?",
+      "options": {
+        "A": "A swimming competition",
+        "B": "A singing contest",
+        "C": "The water temperature at the beach",
+        "D": "The woman’s schedule this semester"
+      },
+      "sourcePage": 27,
+      "part": "B"
+    },
+    {
+      "number": 32,
+      "prompt": "What does the woman say about the winners of the competition?",
+      "options": {
+        "A": "They have won for the past three years.",
+        "B": "They placed second last year.",
+        "C": "They practiced for three months prior to the competition.",
+        "D": "She thought they did not perform well."
+      },
+      "sourcePage": 27,
+      "part": "B"
+    },
+    {
+      "number": 33,
+      "prompt": "How did the man spend his weekend?",
+      "options": {
+        "A": "Studying in the library",
+        "B": "Practicing his singing",
+        "C": "Walking on the beach",
+        "D": "Swimming in the ocean"
+      },
+      "sourcePage": 27,
+      "part": "B"
+    },
+    {
+      "number": 34,
+      "prompt": "What does the woman say about her weekend schedule?",
+      "options": {
+        "A": "She spent many hours on a bus.",
+        "B": "She was too busy to enjoy the beach.",
+        "C": "She had plenty of time to study.",
+        "D": "She did not have time to watch the competition."
+      },
+      "sourcePage": 27,
+      "part": "B"
+    },
+    {
+      "number": 35,
+      "prompt": "What is the conversation mainly about?",
+      "options": {
+        "A": "The first Japanese artist to start an art school in the United States",
+        "B": "Two artists’ efforts to promote Japanese art in Europe",
+        "C": "One artist’s struggle to overcome financial difficulties",
+        "D": "Influences on one artist’s work"
+      },
+      "sourcePage": 27,
+      "part": "B"
+    },
+    {
+      "number": 36,
+      "prompt": "What kind of work did Noguchi’s father do?",
+      "options": {
+        "A": "He wrote poetry.",
+        "B": "He built houses.",
+        "C": "He designed gardens.",
+        "D": "He created modern sculptures."
+      },
+      "sourcePage": 27,
+      "part": "B"
+    },
+    {
+      "number": 37,
+      "prompt": "According to the professor, what did Noguchi learn to do when he was a child in Japan?",
+      "options": {
+        "A": "Draw the human figure",
+        "B": "See similarities between poetry and visual art",
+        "C": "Appreciate and work with natural materials",
+        "D": "Use money wisely"
+      },
+      "sourcePage": 27,
+      "part": "B"
+    },
+    {
+      "number": 38,
+      "prompt": "What is the main purpose of the lecture?",
+      "options": {
+        "A": "To analyze the importance of touch in marketing",
+        "B": "To compare marketing strategies involving touch and smell",
+        "C": "To explain why shoppers rely more on touch than on their other senses",
+        "D": "To introduce a new way to conduct market research"
+      },
+      "sourcePage": 29,
+      "part": "C"
+    },
+    {
+      "number": 39,
+      "prompt": "According to the professor, what psychological feeling do shoppers tend to have when they touch an item of merchandise?",
+      "options": {
+        "A": "That they have more time to make a purchasing decision",
+        "B": "That they are highly valued by the owner of the store",
+        "C": "That the item they are touching is already theirs",
+        "D": "That the price of the item is too high"
+      },
+      "sourcePage": 29,
+      "part": "C"
+    },
+    {
+      "number": 40,
+      "prompt": "What does the professor imply about marketers who sell items online?",
+      "options": {
+        "A": "Their customers like that the products are not touched by others.",
+        "B": "They get more returned items than traditional stores do.",
+        "C": "Their descriptions ought to help shoppers imagine how items feel.",
+        "D": "Their photographs are often ineffective."
+      },
+      "sourcePage": 29,
+      "part": "C"
+    },
+    {
+      "number": 41,
+      "prompt": "What does the professor emphasize as an important characteristic of shoppers?",
+      "options": {
+        "A": "They are usually willing to pay more for items they can touch.",
+        "B": "They are reluctant to buy items that were touched repeatedly by other shoppers.",
+        "C": "They touch only items that they intend to buy.",
+        "D": "They are less likely to touch items when the store owner is watching."
+      },
+      "sourcePage": 29,
+      "part": "C"
+    },
+    {
+      "number": 42,
+      "prompt": "What is the main purpose of the talk?",
+      "options": {
+        "A": "To summarize the history of mathematics",
+        "B": "To show how Mesopotamian science influenced Greek science",
+        "C": "To discuss a mistaken historical interpretation",
+        "D": "To explain why tablets are reliable historical records"
+      },
+      "sourcePage": 30,
+      "part": "C"
+    },
+    {
+      "number": 43,
+      "prompt": "What was on the Mesopotamian tablet mentioned in the talk?",
+      "options": {
+        "A": "Names of mathematicians",
+        "B": "Mathematical calculations",
+        "C": "Measurements of buildings",
+        "D": "Measurements of various shapes"
+      },
+      "sourcePage": 30,
+      "part": "C"
+    },
+    {
+      "number": 44,
+      "prompt": "According to the professor, what had been assumed about the Mesopotamians?",
+      "options": {
+        "A": "All records of their mathematics had been lost.",
+        "B": "They created various types of measuring devices.",
+        "C": "They did not use tablets to record information.",
+        "D": "They could calculate measurements of triangles."
+      },
+      "sourcePage": 30,
+      "part": "C"
+    },
+    {
+      "number": 45,
+      "prompt": "According to the professor, how was the tablet most likely used by the Mesopotamians?",
+      "options": {
+        "A": "As a math exercise sheet",
+        "B": "As a record of business transactions",
+        "C": "As a geometry textbook",
+        "D": "As a plan for a new building"
+      },
+      "sourcePage": 30,
+      "part": "C"
+    },
+    {
+      "number": 46,
+      "prompt": "What does the professor imply about the ancient Greeks?",
+      "options": {
+        "A": "They learned geometry from Mesopotamian tablets.",
+        "B": "They were less advanced in mathematics than the Mesopotamians.",
+        "C": "They improved the quality of stone tablets.",
+        "D": "They knew how to measure angles."
+      },
+      "sourcePage": 31,
+      "part": "C"
+    },
+    {
+      "number": 47,
+      "prompt": "What is the talk mainly about?",
+      "options": {
+        "A": "How the age of a fossil is determined",
+        "B": "How fossilized impressions were made on the seafloor",
+        "C": "Techniques for excavating fossils from the sea",
+        "D": "Recently discovered fossilized footprints"
+      },
+      "sourcePage": 31,
+      "part": "C"
+    },
+    {
+      "number": 48,
+      "prompt": "According to the professor, what question does the discovery in Canada help answer?",
+      "options": {
+        "A": "When animals first emerged from the sea",
+        "B": "Where fossils are most easily found",
+        "C": "How footprints on the seafloor are preserved",
+        "D": "Why some animals became extinct"
+      },
+      "sourcePage": 31,
+      "part": "C"
+    },
+    {
+      "number": 49,
+      "prompt": "Why does the professor mention stonecutters?",
+      "options": {
+        "A": "To illustrate the variety of stone found in Canada",
+        "B": "To show that the fossils were found by luck",
+        "C": "To explain why sandstone often contains fossils",
+        "D": "To tell why fossils are sometimes damaged"
+      },
+      "sourcePage": 31,
+      "part": "C"
+    },
+    {
+      "number": 50,
+      "prompt": "What evidence is given to show whether the footprints were made by animals on land or underwater?",
+      "options": {
+        "A": "The hardness of the sandstone",
+        "B": "The depth of the footprints",
+        "C": "The type of animal that made the footprints",
+        "D": "The location of the rock layer"
+      },
+      "sourcePage": 31,
+      "part": "C"
+    }
+  ],
+  "structure": {
+    "completion": [
+      {
+        "number": 1,
+        "prompt": "_____ of classical ballet in the United States began around 1830.",
+        "options": {
+          "A": "To teach",
+          "B": "Is teaching",
+          "C": "It was taught",
+          "D": "The teaching"
+        },
+        "sourcePage": 34
+      },
+      {
+        "number": 2,
+        "prompt": "Mason bees are solitary bees, which means _____ in colonies like honeybees or bumblebees.",
+        "options": {
+          "A": "do not live",
+          "B": "when they do not live",
+          "C": "that they do not live",
+          "D": "that do not live"
+        },
+        "sourcePage": 34
+      },
+      {
+        "number": 3,
+        "prompt": "Long before the advent of written literature, _____ their myths and stories in oral poems told by successive generations.",
+        "options": {
+          "A": "people recorded",
+          "B": "recording people",
+          "C": "people’s recordings",
+          "D": "people who recorded"
+        },
+        "sourcePage": 34
+      },
+      {
+        "number": 4,
+        "prompt": "Comparative anatomy is _____ classification of both plants and animals.",
+        "options": {
+          "A": "the basis for",
+          "B": "for basics",
+          "C": "the basis that",
+          "D": "the basically"
+        },
+        "sourcePage": 34
+      },
+      {
+        "number": 5,
+        "prompt": "Although legend has it that the Pilgrims first set foot in America on Plymouth Rock in 1620, _____ documentary evidence confirming this.",
+        "options": {
+          "A": "no",
+          "B": "still is no",
+          "C": "there is no",
+          "D": "but no"
+        },
+        "sourcePage": 34
+      },
+      {
+        "number": 6,
+        "prompt": "Despite its fishlike form, the whale is _____ and will drown if submerged too long.",
+        "options": {
+          "A": "an animal breathes air that",
+          "B": "an animal that breathes air",
+          "C": "an animal breathes air",
+          "D": "that an animal breathes air"
+        },
+        "sourcePage": 34
+      },
+      {
+        "number": 7,
+        "prompt": "Clouds _____ in warm air rises, cools, and condenses.",
+        "options": {
+          "A": "when form water vapor",
+          "B": "form when water vapor",
+          "C": "form vapor water when",
+          "D": "vapor form when water"
+        },
+        "sourcePage": 34
+      },
+      {
+        "number": 8,
+        "prompt": "Portland, _____ , is located primarily on two hilly peninsulas overlooking Casco Bay and its many islands.",
+        "options": {
+          "A": "which Maine’s largest city",
+          "B": "Maine’s largest city where",
+          "C": "is Maine’s largest city",
+          "D": "Maine’s largest city"
+        },
+        "sourcePage": 34
+      },
+      {
+        "number": 9,
+        "prompt": "Mars, the so-called red planet, is actually colored red by iron oxide and other impurities _____ the whole surface.",
+        "options": {
+          "A": "that cover",
+          "B": "in which are covered",
+          "C": "that they cover",
+          "D": "and covered"
+        },
+        "sourcePage": 35
+      },
+      {
+        "number": 10,
+        "prompt": "The 1903 film The Great Train Robbery was the first significant film in which the classic western story’s formula of crime and retribution _____ .",
+        "options": {
+          "A": "was used",
+          "B": "to be used",
+          "C": "used",
+          "D": "had used"
+        },
+        "sourcePage": 35
+      },
+      {
+        "number": 11,
+        "prompt": "When played in certain ways, the bassoon can produce comical sounds, _____ it is sometimes referred to as the clown of the orchestra.",
+        "options": {
+          "A": "or",
+          "B": "that",
+          "C": "so",
+          "D": "whether"
+        },
+        "sourcePage": 35
+      },
+      {
+        "number": 12,
+        "prompt": "In modern societies, _____ authorized body such as a legislature or a court makes the law.",
+        "options": {
+          "A": "some",
+          "B": "some of",
+          "C": "some the",
+          "D": "for some"
+        },
+        "sourcePage": 35
+      },
+      {
+        "number": 13,
+        "prompt": "The sense of smell functions chemically, _____ the sense of taste, but it is 10,000 times more sensitive.",
+        "options": {
+          "A": "as does",
+          "B": "so have",
+          "C": "which as",
+          "D": "by which"
+        },
+        "sourcePage": 35
+      },
+      {
+        "number": 14,
+        "prompt": "_____ primarily from plant oils, perfumes were used in ancient times as incense in religious rites, in medicines, and later for adornment.",
+        "options": {
+          "A": "Made them",
+          "B": "They made",
+          "C": "Made",
+          "D": "By making"
+        },
+        "sourcePage": 35
+      },
+      {
+        "number": 15,
+        "prompt": "Boise became _____ of the state of Idaho in 1864.",
+        "options": {
+          "A": "as the capital",
+          "B": "the capital",
+          "C": "to be the capital",
+          "D": "the capital was"
+        },
+        "sourcePage": 35
+      }
+    ],
+    "errorIdentification": [
+      {
+        "number": 16,
+        "tokens": [
+          {
+            "text": "Soybeans"
+          },
+          {
+            "text": "contain"
+          },
+          {
+            "text": "a"
+          },
+          {
+            "text": "rich",
+            "choice": "A"
+          },
+          {
+            "text": "concentrations",
+            "choice": "B"
+          },
+          {
+            "text": "of"
+          },
+          {
+            "text": "phytoestrogens,"
+          },
+          {
+            "text": "estrogenlike"
+          },
+          {
+            "text": "molecules"
+          },
+          {
+            "text": "derived",
+            "choice": "C"
+          },
+          {
+            "text": "from"
+          },
+          {
+            "text": "plants.",
+            "choice": "D"
+          }
+        ],
+        "options": {
+          "A": "rich",
+          "B": "concentrations",
+          "C": "derived",
+          "D": "plants."
+        },
+        "sourcePage": 37
+      },
+      {
+        "number": 17,
+        "tokens": [
+          {
+            "text": "The"
+          },
+          {
+            "text": "original"
+          },
+          {
+            "text": "Welland"
+          },
+          {
+            "text": "Canal,"
+          },
+          {
+            "text": "opened",
+            "choice": "A"
+          },
+          {
+            "text": "which",
+            "choice": "A"
+          },
+          {
+            "text": "in"
+          },
+          {
+            "text": "1829,"
+          },
+          {
+            "text": "was",
+            "choice": "B"
+          },
+          {
+            "text": "neither",
+            "choice": "B"
+          },
+          {
+            "text": "deep"
+          },
+          {
+            "text": "enough"
+          },
+          {
+            "text": "nor"
+          },
+          {
+            "text": "wide",
+            "choice": "C"
+          },
+          {
+            "text": "enough"
+          },
+          {
+            "text": "for",
+            "choice": "D"
+          },
+          {
+            "text": "modern",
+            "choice": "D"
+          },
+          {
+            "text": "ships."
+          }
+        ],
+        "options": {
+          "A": "opened which",
+          "B": "was neither",
+          "C": "wide",
+          "D": "for modern"
+        },
+        "sourcePage": 37
+      },
+      {
+        "number": 18,
+        "tokens": [
+          {
+            "text": "lubricant"
+          },
+          {
+            "text": "minimizes"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "introduction",
+            "choice": "A"
+          },
+          {
+            "text": "of"
+          },
+          {
+            "text": "dirt,"
+          },
+          {
+            "text": "moisture,"
+          },
+          {
+            "text": "or"
+          },
+          {
+            "text": "other"
+          },
+          {
+            "text": "foreign",
+            "choice": "B"
+          },
+          {
+            "text": "materials"
+          },
+          {
+            "text": "between",
+            "choice": "C"
+          },
+          {
+            "text": "sliding"
+          },
+          {
+            "text": "surfaces,"
+          },
+          {
+            "text": "eliminates"
+          },
+          {
+            "text": "wear"
+          },
+          {
+            "text": "by"
+          },
+          {
+            "text": "keeping"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "surfaces"
+          },
+          {
+            "text": "apart,"
+          },
+          {
+            "text": "and"
+          },
+          {
+            "text": "prevention",
+            "choice": "D"
+          },
+          {
+            "text": "corrosion."
+          }
+        ],
+        "options": {
+          "A": "introduction",
+          "B": "foreign",
+          "C": "between",
+          "D": "prevention"
+        },
+        "sourcePage": 37
+      },
+      {
+        "number": 19,
+        "tokens": [
+          {
+            "text": "There"
+          },
+          {
+            "text": "are"
+          },
+          {
+            "text": "thousands",
+            "choice": "A"
+          },
+          {
+            "text": "kinds",
+            "choice": "A"
+          },
+          {
+            "text": "of"
+          },
+          {
+            "text": "inks"
+          },
+          {
+            "text": "used",
+            "choice": "B"
+          },
+          {
+            "text": "both",
+            "choice": "B"
+          },
+          {
+            "text": "in"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "printing",
+            "choice": "C"
+          },
+          {
+            "text": "industry"
+          },
+          {
+            "text": "and"
+          },
+          {
+            "text": "in"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "manufacture"
+          },
+          {
+            "text": "of"
+          },
+          {
+            "text": "ballpoint"
+          },
+          {
+            "text": "and"
+          },
+          {
+            "text": "fountain"
+          },
+          {
+            "text": "pens"
+          },
+          {
+            "text": "for"
+          },
+          {
+            "text": "writing.",
+            "choice": "D"
+          }
+        ],
+        "options": {
+          "A": "thousands kinds",
+          "B": "used both",
+          "C": "printing",
+          "D": "writing."
+        },
+        "sourcePage": 37
+      },
+      {
+        "number": 20,
+        "tokens": [
+          {
+            "text": "gene"
+          },
+          {
+            "text": "is"
+          },
+          {
+            "text": "a"
+          },
+          {
+            "text": "biological",
+            "choice": "A"
+          },
+          {
+            "text": "unit"
+          },
+          {
+            "text": "of"
+          },
+          {
+            "text": "information"
+          },
+          {
+            "text": "who",
+            "choice": "B"
+          },
+          {
+            "text": "directs"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "activity"
+          },
+          {
+            "text": "of"
+          },
+          {
+            "text": "a",
+            "choice": "C"
+          },
+          {
+            "text": "cell",
+            "choice": "C"
+          },
+          {
+            "text": "or"
+          },
+          {
+            "text": "organism"
+          },
+          {
+            "text": "during"
+          },
+          {
+            "text": "its",
+            "choice": "D"
+          },
+          {
+            "text": "lifetime."
+          }
+        ],
+        "options": {
+          "A": "biological",
+          "B": "who",
+          "C": "a cell",
+          "D": "its"
+        },
+        "sourcePage": 37
+      },
+      {
+        "number": 21,
+        "tokens": [
+          {
+            "text": "Like",
+            "choice": "A"
+          },
+          {
+            "text": "landscapes",
+            "choice": "A"
+          },
+          {
+            "text": "in"
+          },
+          {
+            "text": "miniature,"
+          },
+          {
+            "text": "gardens"
+          },
+          {
+            "text": "are"
+          },
+          {
+            "text": "places"
+          },
+          {
+            "text": "to"
+          },
+          {
+            "text": "grow"
+          },
+          {
+            "text": "plants"
+          },
+          {
+            "text": "for",
+            "choice": "B"
+          },
+          {
+            "text": "pleasure"
+          },
+          {
+            "text": "and"
+          },
+          {
+            "text": "to",
+            "choice": "C"
+          },
+          {
+            "text": "provide",
+            "choice": "C"
+          },
+          {
+            "text": "beauty"
+          },
+          {
+            "text": "and"
+          },
+          {
+            "text": "relaxed.",
+            "choice": "D"
+          }
+        ],
+        "options": {
+          "A": "Like landscapes",
+          "B": "for",
+          "C": "to provide",
+          "D": "relaxed."
+        },
+        "sourcePage": 37
+      },
+      {
+        "number": 22,
+        "tokens": [
+          {
+            "text": "Hurricanes"
+          },
+          {
+            "text": "consist"
+          },
+          {
+            "text": "at",
+            "choice": "A"
+          },
+          {
+            "text": "high-velocity"
+          },
+          {
+            "text": "winds",
+            "choice": "B"
+          },
+          {
+            "text": "blowing",
+            "choice": "C"
+          },
+          {
+            "text": "circularly"
+          },
+          {
+            "text": "around"
+          },
+          {
+            "text": "a"
+          },
+          {
+            "text": "low-pressure"
+          },
+          {
+            "text": "center"
+          },
+          {
+            "text": "known",
+            "choice": "D"
+          },
+          {
+            "text": "as"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "eye"
+          },
+          {
+            "text": "of"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "storm."
+          }
+        ],
+        "options": {
+          "A": "at",
+          "B": "winds",
+          "C": "blowing",
+          "D": "known"
+        },
+        "sourcePage": 37
+      },
+      {
+        "number": 23,
+        "tokens": [
+          {
+            "text": "One"
+          },
+          {
+            "text": "of"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "most"
+          },
+          {
+            "text": "significance",
+            "choice": "A"
+          },
+          {
+            "text": "political"
+          },
+          {
+            "text": "movements"
+          },
+          {
+            "text": "since",
+            "choice": "B"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "Second"
+          },
+          {
+            "text": "World"
+          },
+          {
+            "text": "War"
+          },
+          {
+            "text": "ended"
+          },
+          {
+            "text": "has"
+          },
+          {
+            "text": "been"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "breaking",
+            "choice": "C"
+          },
+          {
+            "text": "up",
+            "choice": "C"
+          },
+          {
+            "text": "of"
+          },
+          {
+            "text": "former"
+          },
+          {
+            "text": "colonial"
+          },
+          {
+            "text": "empires"
+          },
+          {
+            "text": "into"
+          },
+          {
+            "text": "independent",
+            "choice": "D"
+          },
+          {
+            "text": "nations.",
+            "choice": "D"
+          }
+        ],
+        "options": {
+          "A": "significance",
+          "B": "since",
+          "C": "breaking up",
+          "D": "independent nations."
+        },
+        "sourcePage": 37
+      },
+      {
+        "number": 24,
+        "tokens": [
+          {
+            "text": "Radar"
+          },
+          {
+            "text": "can",
+            "choice": "A"
+          },
+          {
+            "text": "determine",
+            "choice": "A"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "direction,"
+          },
+          {
+            "text": "distance,"
+          },
+          {
+            "text": "height,",
+            "choice": "B"
+          },
+          {
+            "text": "and"
+          },
+          {
+            "text": "speed"
+          },
+          {
+            "text": "of"
+          },
+          {
+            "text": "objects"
+          },
+          {
+            "text": "that"
+          },
+          {
+            "text": "are"
+          },
+          {
+            "text": "too",
+            "choice": "C"
+          },
+          {
+            "text": "much",
+            "choice": "C"
+          },
+          {
+            "text": "far"
+          },
+          {
+            "text": "away",
+            "choice": "D"
+          },
+          {
+            "text": "for"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "human"
+          },
+          {
+            "text": "eye"
+          },
+          {
+            "text": "to"
+          },
+          {
+            "text": "see."
+          }
+        ],
+        "options": {
+          "A": "can determine",
+          "B": "height,",
+          "C": "too much",
+          "D": "away"
+        },
+        "sourcePage": 38
+      },
+      {
+        "number": 25,
+        "tokens": [
+          {
+            "text": "Establishing",
+            "choice": "A"
+          },
+          {
+            "text": "outside"
+          },
+          {
+            "text": "Minneapolis,"
+          },
+          {
+            "text": "Minnesota,"
+          },
+          {
+            "text": "in"
+          },
+          {
+            "text": "1976,"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "Minnesota"
+          },
+          {
+            "text": "Valley"
+          },
+          {
+            "text": "National"
+          },
+          {
+            "text": "Wildlife"
+          },
+          {
+            "text": "Refuge"
+          },
+          {
+            "text": "contains",
+            "choice": "B"
+          },
+          {
+            "text": "more"
+          },
+          {
+            "text": "than",
+            "choice": "C"
+          },
+          {
+            "text": "9,000"
+          },
+          {
+            "text": "acres"
+          },
+          {
+            "text": "of"
+          },
+          {
+            "text": "forests,"
+          },
+          {
+            "text": "prairies,"
+          },
+          {
+            "text": "marshes,"
+          },
+          {
+            "text": "and"
+          },
+          {
+            "text": "lakes.",
+            "choice": "D"
+          }
+        ],
+        "options": {
+          "A": "Establishing",
+          "B": "contains",
+          "C": "than",
+          "D": "lakes."
+        },
+        "sourcePage": 38
+      },
+      {
+        "number": 26,
+        "tokens": [
+          {
+            "text": "Most",
+            "choice": "A"
+          },
+          {
+            "text": "animals"
+          },
+          {
+            "text": "have",
+            "choice": "B"
+          },
+          {
+            "text": "salivary"
+          },
+          {
+            "text": "glands"
+          },
+          {
+            "text": "what",
+            "choice": "C"
+          },
+          {
+            "text": "resemble"
+          },
+          {
+            "text": "those",
+            "choice": "D"
+          },
+          {
+            "text": "in"
+          },
+          {
+            "text": "humans."
+          }
+        ],
+        "options": {
+          "A": "Most",
+          "B": "have",
+          "C": "what",
+          "D": "those"
+        },
+        "sourcePage": 38
+      },
+      {
+        "number": 27,
+        "tokens": [
+          {
+            "text": "Used"
+          },
+          {
+            "text": "for",
+            "choice": "A"
+          },
+          {
+            "text": "making",
+            "choice": "A"
+          },
+          {
+            "text": "pottery,"
+          },
+          {
+            "text": "clay"
+          },
+          {
+            "text": "has"
+          },
+          {
+            "text": "two"
+          },
+          {
+            "text": "characteristics",
+            "choice": "B"
+          },
+          {
+            "text": "distinctive:",
+            "choice": "B"
+          },
+          {
+            "text": "it"
+          },
+          {
+            "text": "can"
+          },
+          {
+            "text": "be"
+          },
+          {
+            "text": "molded"
+          },
+          {
+            "text": "and"
+          },
+          {
+            "text": "it"
+          },
+          {
+            "text": "can"
+          },
+          {
+            "text": "be"
+          },
+          {
+            "text": "baked"
+          },
+          {
+            "text": "to",
+            "choice": "C"
+          },
+          {
+            "text": "form",
+            "choice": "C"
+          },
+          {
+            "text": "a"
+          },
+          {
+            "text": "brittle"
+          },
+          {
+            "text": "but"
+          },
+          {
+            "text": "otherwise",
+            "choice": "D"
+          },
+          {
+            "text": "durable"
+          },
+          {
+            "text": "material."
+          }
+        ],
+        "options": {
+          "A": "for making",
+          "B": "characteristics distinctive:",
+          "C": "to form",
+          "D": "otherwise"
+        },
+        "sourcePage": 38
+      },
+      {
+        "number": 28,
+        "tokens": [
+          {
+            "text": "The"
+          },
+          {
+            "text": "novels"
+          },
+          {
+            "text": "of"
+          },
+          {
+            "text": "Amy"
+          },
+          {
+            "text": "Tan"
+          },
+          {
+            "text": "depict",
+            "choice": "A"
+          },
+          {
+            "text": "of",
+            "choice": "A"
+          },
+          {
+            "text": "tension"
+          },
+          {
+            "text": "between"
+          },
+          {
+            "text": "mothers"
+          },
+          {
+            "text": "and"
+          },
+          {
+            "text": "daughters"
+          },
+          {
+            "text": "as",
+            "choice": "B"
+          },
+          {
+            "text": "well",
+            "choice": "B"
+          },
+          {
+            "text": "as",
+            "choice": "B"
+          },
+          {
+            "text": "conflicts"
+          },
+          {
+            "text": "experienced",
+            "choice": "C"
+          },
+          {
+            "text": "by",
+            "choice": "C"
+          },
+          {
+            "text": "many"
+          },
+          {
+            "text": "Chinese"
+          },
+          {
+            "text": "immigrants"
+          },
+          {
+            "text": "to",
+            "choice": "D"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "United"
+          },
+          {
+            "text": "States."
+          }
+        ],
+        "options": {
+          "A": "depict of",
+          "B": "as well as",
+          "C": "experienced by",
+          "D": "to"
+        },
+        "sourcePage": 38
+      },
+      {
+        "number": 29,
+        "tokens": [
+          {
+            "text": "The"
+          },
+          {
+            "text": "symptoms"
+          },
+          {
+            "text": "of",
+            "choice": "A"
+          },
+          {
+            "text": "pneumonia,"
+          },
+          {
+            "text": "a",
+            "choice": "B"
+          },
+          {
+            "text": "lung"
+          },
+          {
+            "text": "infection,"
+          },
+          {
+            "text": "include",
+            "choice": "C"
+          },
+          {
+            "text": "high"
+          },
+          {
+            "text": "fever,"
+          },
+          {
+            "text": "chest"
+          },
+          {
+            "text": "pain,"
+          },
+          {
+            "text": "breathing"
+          },
+          {
+            "text": "difficult,",
+            "choice": "D"
+          },
+          {
+            "text": "and"
+          },
+          {
+            "text": "coughing."
+          }
+        ],
+        "options": {
+          "A": "of",
+          "B": "a",
+          "C": "include",
+          "D": "difficult,"
+        },
+        "sourcePage": 38
+      },
+      {
+        "number": 30,
+        "tokens": [
+          {
+            "text": "basic"
+          },
+          {
+            "text": "premise"
+          },
+          {
+            "text": "of"
+          },
+          {
+            "text": "humanism"
+          },
+          {
+            "text": "is"
+          },
+          {
+            "text": "that",
+            "choice": "A"
+          },
+          {
+            "text": "people"
+          },
+          {
+            "text": "are"
+          },
+          {
+            "text": "rational"
+          },
+          {
+            "text": "beings"
+          },
+          {
+            "text": "who"
+          },
+          {
+            "text": "possesses",
+            "choice": "B"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "capacity"
+          },
+          {
+            "text": "for",
+            "choice": "C"
+          },
+          {
+            "text": "truth"
+          },
+          {
+            "text": "and"
+          },
+          {
+            "text": "goodness.",
+            "choice": "D"
+          }
+        ],
+        "options": {
+          "A": "that",
+          "B": "possesses",
+          "C": "for",
+          "D": "goodness."
+        },
+        "sourcePage": 38
+      },
+      {
+        "number": 31,
+        "tokens": [
+          {
+            "text": "The"
+          },
+          {
+            "text": "long",
+            "choice": "A"
+          },
+          {
+            "text": "of"
+          },
+          {
+            "text": "time",
+            "choice": "B"
+          },
+          {
+            "text": "a"
+          },
+          {
+            "text": "battery"
+          },
+          {
+            "text": "maintains"
+          },
+          {
+            "text": "its"
+          },
+          {
+            "text": "useful"
+          },
+          {
+            "text": "life"
+          },
+          {
+            "text": "while",
+            "choice": "C"
+          },
+          {
+            "text": "idle",
+            "choice": "C"
+          },
+          {
+            "text": "depends",
+            "choice": "D"
+          },
+          {
+            "text": "on",
+            "choice": "D"
+          },
+          {
+            "text": "many"
+          },
+          {
+            "text": "factors:"
+          },
+          {
+            "text": "quality"
+          },
+          {
+            "text": "of"
+          },
+          {
+            "text": "construction,"
+          },
+          {
+            "text": "cell"
+          },
+          {
+            "text": "size,"
+          },
+          {
+            "text": "cell"
+          },
+          {
+            "text": "type,"
+          },
+          {
+            "text": "and"
+          },
+          {
+            "text": "storage"
+          },
+          {
+            "text": "temperature."
+          }
+        ],
+        "options": {
+          "A": "long",
+          "B": "time",
+          "C": "while idle",
+          "D": "depends on"
+        },
+        "sourcePage": 39
+      },
+      {
+        "number": 32,
+        "tokens": [
+          {
+            "text": "Leather"
+          },
+          {
+            "text": "is"
+          },
+          {
+            "text": "dried",
+            "choice": "A"
+          },
+          {
+            "text": "under"
+          },
+          {
+            "text": "natural",
+            "choice": "B"
+          },
+          {
+            "text": "or"
+          },
+          {
+            "text": "controlled"
+          },
+          {
+            "text": "humidity"
+          },
+          {
+            "text": "conditions,"
+          },
+          {
+            "text": "prepared",
+            "choice": "C"
+          },
+          {
+            "text": "it"
+          },
+          {
+            "text": "for"
+          },
+          {
+            "text": "subsequent",
+            "choice": "D"
+          },
+          {
+            "text": "softening"
+          },
+          {
+            "text": "and"
+          },
+          {
+            "text": "finishing"
+          },
+          {
+            "text": "operations."
+          }
+        ],
+        "options": {
+          "A": "dried",
+          "B": "natural",
+          "C": "prepared",
+          "D": "subsequent"
+        },
+        "sourcePage": 39
+      },
+      {
+        "number": 33,
+        "tokens": [
+          {
+            "text": "Of",
+            "choice": "A"
+          },
+          {
+            "text": "all"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "organized,"
+          },
+          {
+            "text": "independent"
+          },
+          {
+            "text": "city",
+            "choice": "B"
+          },
+          {
+            "text": "in"
+          },
+          {
+            "text": "Texas,"
+          },
+          {
+            "text": "Laredo,"
+          },
+          {
+            "text": "founded",
+            "choice": "C"
+          },
+          {
+            "text": "in"
+          },
+          {
+            "text": "1755,"
+          },
+          {
+            "text": "is"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "oldest.",
+            "choice": "D"
+          }
+        ],
+        "options": {
+          "A": "Of",
+          "B": "city",
+          "C": "founded",
+          "D": "oldest."
+        },
+        "sourcePage": 39
+      },
+      {
+        "number": 34,
+        "tokens": [
+          {
+            "text": "There",
+            "choice": "A"
+          },
+          {
+            "text": "was"
+          },
+          {
+            "text": "in"
+          },
+          {
+            "text": "Kitty"
+          },
+          {
+            "text": "Hawk,"
+          },
+          {
+            "text": "North"
+          },
+          {
+            "text": "Carolina,"
+          },
+          {
+            "text": "on"
+          },
+          {
+            "text": "December"
+          },
+          {
+            "text": "17,"
+          },
+          {
+            "text": "1903,"
+          },
+          {
+            "text": "that"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "first"
+          },
+          {
+            "text": "controlled"
+          },
+          {
+            "text": "flight",
+            "choice": "B"
+          },
+          {
+            "text": "of"
+          },
+          {
+            "text": "a"
+          },
+          {
+            "text": "powered,",
+            "choice": "C"
+          },
+          {
+            "text": "heavier-than-air"
+          },
+          {
+            "text": "craft"
+          },
+          {
+            "text": "took",
+            "choice": "D"
+          },
+          {
+            "text": "place."
+          }
+        ],
+        "options": {
+          "A": "There",
+          "B": "flight",
+          "C": "powered,",
+          "D": "took"
+        },
+        "sourcePage": 39
+      },
+      {
+        "number": 35,
+        "tokens": [
+          {
+            "text": "The"
+          },
+          {
+            "text": "favored",
+            "choice": "A"
+          },
+          {
+            "text": "habitat",
+            "choice": "A"
+          },
+          {
+            "text": "of"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "junco,"
+          },
+          {
+            "text": "a"
+          },
+          {
+            "text": "small"
+          },
+          {
+            "text": "sparrow,"
+          },
+          {
+            "text": "is"
+          },
+          {
+            "text": "a"
+          },
+          {
+            "text": "mixed",
+            "choice": "B"
+          },
+          {
+            "text": "or"
+          },
+          {
+            "text": "coniferous"
+          },
+          {
+            "text": "forest,"
+          },
+          {
+            "text": "despite",
+            "choice": "C"
+          },
+          {
+            "text": "it"
+          },
+          {
+            "text": "is"
+          },
+          {
+            "text": "often",
+            "choice": "D"
+          },
+          {
+            "text": "noted",
+            "choice": "D"
+          },
+          {
+            "text": "in"
+          },
+          {
+            "text": "fields,"
+          },
+          {
+            "text": "thickets,"
+          },
+          {
+            "text": "and"
+          },
+          {
+            "text": "city"
+          },
+          {
+            "text": "parks."
+          }
+        ],
+        "options": {
+          "A": "favored habitat",
+          "B": "mixed",
+          "C": "despite",
+          "D": "often noted"
+        },
+        "sourcePage": 39
+      },
+      {
+        "number": 36,
+        "tokens": [
+          {
+            "text": "By",
+            "choice": "A"
+          },
+          {
+            "text": "studying"
+          },
+          {
+            "text": "modern"
+          },
+          {
+            "text": "coral"
+          },
+          {
+            "text": "reefs,"
+          },
+          {
+            "text": "geologists"
+          },
+          {
+            "text": "and"
+          },
+          {
+            "text": "biologists"
+          },
+          {
+            "text": "hope",
+            "choice": "B"
+          },
+          {
+            "text": "to"
+          },
+          {
+            "text": "understand",
+            "choice": "C"
+          },
+          {
+            "text": "mechanism",
+            "choice": "C"
+          },
+          {
+            "text": "of"
+          },
+          {
+            "text": "formation,",
+            "choice": "D"
+          },
+          {
+            "text": "migration,"
+          },
+          {
+            "text": "and"
+          },
+          {
+            "text": "entrapment"
+          },
+          {
+            "text": "of"
+          },
+          {
+            "text": "petroleum"
+          },
+          {
+            "text": "in"
+          },
+          {
+            "text": "ancient"
+          },
+          {
+            "text": "reefs."
+          }
+        ],
+        "options": {
+          "A": "By",
+          "B": "hope",
+          "C": "understand mechanism",
+          "D": "formation,"
+        },
+        "sourcePage": 39
+      },
+      {
+        "number": 37,
+        "tokens": [
+          {
+            "text": "Searching"
+          },
+          {
+            "text": "for"
+          },
+          {
+            "text": "alternate",
+            "choice": "A"
+          },
+          {
+            "text": "forms"
+          },
+          {
+            "text": "of"
+          },
+          {
+            "text": "energy"
+          },
+          {
+            "text": "does"
+          },
+          {
+            "text": "not"
+          },
+          {
+            "text": "necessary",
+            "choice": "B"
+          },
+          {
+            "text": "mean"
+          },
+          {
+            "text": "the",
+            "choice": "C"
+          },
+          {
+            "text": "abandonment",
+            "choice": "C"
+          },
+          {
+            "text": "of"
+          },
+          {
+            "text": "fossil"
+          },
+          {
+            "text": "fuels"
+          },
+          {
+            "text": "as"
+          },
+          {
+            "text": "an"
+          },
+          {
+            "text": "energy"
+          },
+          {
+            "text": "source.",
+            "choice": "D"
+          }
+        ],
+        "options": {
+          "A": "alternate",
+          "B": "necessary",
+          "C": "the abandonment",
+          "D": "source."
+        },
+        "sourcePage": 39
+      },
+      {
+        "number": 38,
+        "tokens": [
+          {
+            "text": "United"
+          },
+          {
+            "text": "States"
+          },
+          {
+            "text": "civil"
+          },
+          {
+            "text": "rights"
+          },
+          {
+            "text": "activist",
+            "choice": "A"
+          },
+          {
+            "text": "Medgar"
+          },
+          {
+            "text": "Evers"
+          },
+          {
+            "text": "was"
+          },
+          {
+            "text": "a"
+          },
+          {
+            "text": "leader"
+          },
+          {
+            "text": "in",
+            "choice": "B"
+          },
+          {
+            "text": "the",
+            "choice": "B"
+          },
+          {
+            "text": "struggle"
+          },
+          {
+            "text": "to"
+          },
+          {
+            "text": "gain"
+          },
+          {
+            "text": "equal"
+          },
+          {
+            "text": "rights"
+          },
+          {
+            "text": "to",
+            "choice": "C"
+          },
+          {
+            "text": "African"
+          },
+          {
+            "text": "Americans"
+          },
+          {
+            "text": "in"
+          },
+          {
+            "text": "his"
+          },
+          {
+            "text": "home",
+            "choice": "D"
+          },
+          {
+            "text": "state,",
+            "choice": "D"
+          },
+          {
+            "text": "Mississippi."
+          }
+        ],
+        "options": {
+          "A": "activist",
+          "B": "in the",
+          "C": "to",
+          "D": "home state,"
+        },
+        "sourcePage": 39
+      },
+      {
+        "number": 39,
+        "tokens": [
+          {
+            "text": "The",
+            "choice": "A"
+          },
+          {
+            "text": "element",
+            "choice": "A"
+          },
+          {
+            "text": "potassium"
+          },
+          {
+            "text": "makes",
+            "choice": "B"
+          },
+          {
+            "text": "up",
+            "choice": "B"
+          },
+          {
+            "text": "less",
+            "choice": "C"
+          },
+          {
+            "text": "than"
+          },
+          {
+            "text": "one"
+          },
+          {
+            "text": "half"
+          },
+          {
+            "text": "percentage",
+            "choice": "D"
+          },
+          {
+            "text": "of"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "human"
+          },
+          {
+            "text": "body."
+          }
+        ],
+        "options": {
+          "A": "The element",
+          "B": "makes up",
+          "C": "less",
+          "D": "percentage"
+        },
+        "sourcePage": 40
+      },
+      {
+        "number": 40,
+        "tokens": [
+          {
+            "text": "The"
+          },
+          {
+            "text": "canoe",
+            "choice": "A"
+          },
+          {
+            "text": "designed",
+            "choice": "A"
+          },
+          {
+            "text": "by"
+          },
+          {
+            "text": "North"
+          },
+          {
+            "text": "American"
+          },
+          {
+            "text": "Indians"
+          },
+          {
+            "text": "was"
+          },
+          {
+            "text": "very"
+          },
+          {
+            "text": "suitable"
+          },
+          {
+            "text": "for"
+          },
+          {
+            "text": "use"
+          },
+          {
+            "text": "on"
+          },
+          {
+            "text": "inland"
+          },
+          {
+            "text": "waters,"
+          },
+          {
+            "text": "for",
+            "choice": "B"
+          },
+          {
+            "text": "it"
+          },
+          {
+            "text": "was"
+          },
+          {
+            "text": "easily"
+          },
+          {
+            "text": "portable"
+          },
+          {
+            "text": "and"
+          },
+          {
+            "text": "had"
+          },
+          {
+            "text": "amply",
+            "choice": "C"
+          },
+          {
+            "text": "storage"
+          },
+          {
+            "text": "space.",
+            "choice": "D"
+          }
+        ],
+        "options": {
+          "A": "canoe designed",
+          "B": "for",
+          "C": "amply",
+          "D": "space."
+        },
+        "sourcePage": 40
+      }
+    ]
+  },
+  "reading": {
+    "passages": [
+      {
+        "id": "reading-1-10",
+        "questions": [
+          1,
+          10
+        ],
+        "sourcePage": 44,
+        "lines": [
+          {
+            "text": "In the later part of the nineteenth century, the direction of expansion in the",
+            "line": null,
+            "paragraphStart": true
+          },
+          {
+            "text": "United States shifted from the countryside to the city. During the crises of the 1870s",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "and the 1890s, tens of thousands of families abandoned their farms and ranches and",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "headed for urban areas. Even prosperity produced migration from the countryside to",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "the city. As pioneers settled rural districts, eventually the number of farms or ranches",
+            "line": 5,
+            "paragraphStart": false
+          },
+          {
+            "text": "approached the maximum number the land would support. Landowners sought to",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "increase their productivity through mechanization, and those who were successful",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "invested their returns in the purchase of additional land and equipment, expanding their",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "holdings by buying the farms of less fortunate neighbors, who moved on. Compare this",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "pattern of economic development with that of the city, where innovations in",
+            "line": 10,
+            "paragraphStart": false
+          },
+          {
+            "text": "manufacturing led to the creation of new opportunities and new jobs. But in the",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "countryside, economic development inevitably meant depopulation. Rural areas in the",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "central part of the country had begun to lose population by the 1880s, and over the next",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "half century most of the rural West was overtaken by this trend. For every industrial",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "worker who became a farmer, 20 young men from farms rushed to the city to compete",
+            "line": 15,
+            "paragraphStart": false
+          },
+          {
+            "text": "for his job.",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "Less well-known is the fact that for every 20 young farm men, as many as 25 or",
+            "line": null,
+            "paragraphStart": true
+          },
+          {
+            "text": "30 young farm women moved from the rural West to the cities. As a government report",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "noted in 1920, young farm women were more likely to leave the farm and move to a",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "western city than were young farm men. This amounted to a stunning reversal of the",
+            "line": 20,
+            "paragraphStart": false
+          },
+          {
+            "text": "traditional pattern of western urban settlement, which featured the presence of many",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "young, unattached men among the migrants but almost no single women.",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "What explains the greater rates of female migration to the cities? In the opinion of",
+            "line": null,
+            "paragraphStart": true
+          },
+          {
+            "text": "many contemporaries, young women were pushed out of the countryside by constricted",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "opportunities, particularly limited educational and vocational options.",
+            "line": null,
+            "paragraphStart": false
+          }
+        ]
+      },
+      {
+        "id": "reading-11-21",
+        "questions": [
+          11,
+          21
+        ],
+        "sourcePage": 48,
+        "lines": [
+          {
+            "text": "The deepest that any person can get below the surface of Earth is to the bottom of",
+            "line": null,
+            "paragraphStart": true
+          },
+          {
+            "text": "the deepest mine, a mere 4 kilometers; the deepest hole ever drilled into Earth’s crust",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "reached less than 20 kilometers below the surface. Although the details of Earth’s",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "gravitational and magnetic fields give some extra information about what is going on",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "inside Earth, for the most part our understanding of Earth’s interior is still dependent",
+            "line": 5,
+            "paragraphStart": false
+          },
+          {
+            "text": "on the detection of seismic waves, the vibrations caused by earthquakes. These waves",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "travel through Earth and are reflected and refracted by boundaries between different",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "layers of rock.",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "What the analysis of seismic waves shows is a layered structure built around a solid",
+            "line": null,
+            "paragraphStart": true
+          },
+          {
+            "text": "inner core, which has a radius of about 1,600 kilometers. This inner core is surrounded",
+            "line": 10,
+            "paragraphStart": false
+          },
+          {
+            "text": "by a liquid outer core, which has a thickness of just over 1,800 kilometers. The whole",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "core is very dense, probably rich in iron, and has a temperature of nearly 5,000 degrees",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "Celsius. The circulation of this electrically conducting material in the liquid outer core",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "is clearly responsible for the generation of Earth’s magnetic field, but nobody has ever",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "been able to work out a thoroughly satisfactory model of how this process works.",
+            "line": 15,
+            "paragraphStart": false
+          },
+          {
+            "text": "The high temperature in the core is in part a result of the fact that the Earth formed",
+            "line": null,
+            "paragraphStart": true
+          },
+          {
+            "text": "as a ball of molten rock. Once a cool crust had formed around the molten ball of rock,",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "it functioned as an insulating blanket. Even so, without some continuing injection of",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "heat, the interior of Earth could not still be as hot as it is today, more than four billion",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "years later. The extra heat comes from radioactive isotopes (originally manufactured by",
+            "line": 20,
+            "paragraphStart": false
+          },
+          {
+            "text": "stars), which decay into stable elements and give out energy as they do so. In about",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "ten billion years, even this source of heat will be used up, and Earth will gradually cool",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "down.",
+            "line": null,
+            "paragraphStart": false
+          }
+        ]
+      },
+      {
+        "id": "reading-22-32",
+        "questions": [
+          22,
+          32
+        ],
+        "sourcePage": 52,
+        "lines": [
+          {
+            "text": "Amber is not a mineral but is used as, and called, a semiprecious stone. The oldest",
+            "line": null,
+            "paragraphStart": true
+          },
+          {
+            "text": "and most continuous use of it is for decoration. Although it is ancient tree resin, amber",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "is not fossilized in the most commonly understood sense of the word. We often think of",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "fossils as the remains of extinct organisms, like dinosaur bones, and impressions of",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "ferns, leaves, and insect wings in rocks. Unlike these kinds of fossils, which are usually",
+            "line": 5,
+            "paragraphStart": false
+          },
+          {
+            "text": "mineral replacements of the original structure, amber is entirely organic; its",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "composition from the original tree resin has changed little over millions of years. Even",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "the inclusions of tiny organisms in amber are strikingly intact. Exquisite preservation is",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "a natural property of certain kinds of resins, although the process is not completely",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "understood.",
+            "line": 10,
+            "paragraphStart": false
+          },
+          {
+            "text": "Hundreds of deposits of amber occur around the world, most of them in trace",
+            "line": null,
+            "paragraphStart": true
+          },
+          {
+            "text": "quantities. Amber is found in places where the hardened resin of various extinct plants",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "is preserved, but special conditions are required to preserve this substance over",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "millions of years, and only occasionally has amber survived in quantities large enough",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "to be mined. Only about 20 such rich deposits of amber exist in the world, and the",
+            "line": 15,
+            "paragraphStart": false
+          },
+          {
+            "text": "deposits vary greatly in age. It is a common misconception that amber is derived",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "exclusively from pine trees; in fact, amber was formed by various conifer trees (only a few",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "of them apparently related to pines), as well as by some tropical broad-leaved",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "trees.",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "Amber is almost always preserved in a sediment that collected at the bottom of an",
+            "line": 20,
+            "paragraphStart": true
+          },
+          {
+            "text": "ancient lagoon or river delta at the edge of an ocean or sea. The specific gravity of solid",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "amber is only slightly higher than that of water; although it does not float, it is buoyant",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "and easily carried by water (amber with bubbles is even more buoyant). Thus, amber",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "would be carried downriver with logs from fallen amber-producing trees and cast up as",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "beach drift on the shores or in the shallows of a delta into which the river empties.",
+            "line": 25,
+            "paragraphStart": false
+          },
+          {
+            "text": "Over time, sediments would gradually bury the wood and resin. The resin would",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "become amber, and the wood a blackened, charcoal-like substance called lignite.",
+            "line": null,
+            "paragraphStart": false
+          }
+        ]
+      },
+      {
+        "id": "reading-33-42",
+        "questions": [
+          33,
+          42
+        ],
+        "sourcePage": 56,
+        "lines": [
+          {
+            "text": "Native Americans probably arrived from Asia in successive waves over several",
+            "line": null,
+            "paragraphStart": true
+          },
+          {
+            "text": "millennia, crossing a plain hundreds of miles wide that now lies inundated by 160 feet",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "of water released by melting glaciers. For several periods of time, the first beginning",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "around 60,000 B.C. and the last ending around 7000 B.C., this land bridge was open.",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "The first people traveled in the dusty trails of the animals they hunted. They brought",
+            "line": 5,
+            "paragraphStart": false
+          },
+          {
+            "text": "with them not only their families, weapons, and tools but also a broad metaphysical",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "understanding, sprung from dreams and visions and articulated in myth and song,",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "which complemented their scientific and historical knowledge of the lives of animals",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "and of people. All this they shaped in a variety of languages, bringing into being oral",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "literatures of power and beauty.",
+            "line": 10,
+            "paragraphStart": false
+          },
+          {
+            "text": "Contemporary readers, forgetting the origins of Western epic, lyric, and dramatic",
+            "line": null,
+            "paragraphStart": true
+          },
+          {
+            "text": "forms, are easily disposed to think of “literature” only as something written. But on",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "reflection it becomes clear that the more critically useful as well as the more frequently",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "employed sense of the term concerns the artfulness of the verbal creation, not its mode",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "of presentation. Ultimately, literature is aesthetically valued, regardless of language,",
+            "line": 15,
+            "paragraphStart": false
+          },
+          {
+            "text": "culture, or mode of presentation, because some significant verbal achievement results",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "from the struggle in words between tradition and talent. Verbal art has the ability to",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "shape out a compelling inner vision in some skillfully crafted public verbal form.",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "Of course, the differences between the written and oral modes of expression are not",
+            "line": null,
+            "paragraphStart": true
+          },
+          {
+            "text": "without consequences for an understanding of Native American literature. The",
+            "line": 20,
+            "paragraphStart": false
+          },
+          {
+            "text": "essential difference is that a speech event is an evolving communication, an “emergent",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "form,” the shape, functions, and aesthetic values of which become more clearly",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "realized over the course of the performance. In performing verbal art, the performer",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "assumes responsibility for the manner as well as the content of the performance, while",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "the audience assumes the responsibility for evaluating the performer’s competence in",
+            "line": 25,
+            "paragraphStart": false
+          },
+          {
+            "text": "both areas. It is this intense mutual engagement that elicits the display of skill and",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "shapes the emerging performance. Where written literature provides us with a tradition",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "of texts, oral literature offers a tradition of performances.",
+            "line": null,
+            "paragraphStart": false
+          }
+        ]
+      },
+      {
+        "id": "reading-43-50",
+        "questions": [
+          43,
+          50
+        ],
+        "sourcePage": 60,
+        "lines": [
+          {
+            "text": "Color in textiles is produced by dyeing, by printing, or by painting. Until the",
+            "line": null,
+            "paragraphStart": true
+          },
+          {
+            "text": "nineteenth century, all dyes were derived from vegetable or, more rarely, animal or",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "mineral sources.",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "Since madder plants could be grown practically everywhere, the roots of some",
+            "line": null,
+            "paragraphStart": true
+          },
+          {
+            "text": "species of the madder plant family were used from the earliest period to produce a",
+            "line": 5,
+            "paragraphStart": false
+          },
+          {
+            "text": "whole range of reds. Red animal dyes, derived from certain species of scale insects,",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "were also highly valued from ancient times through the Middle Ages. Blues were",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "obtained from indigo, which was widely cultivated in India and exported from there,",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "and from woad, a plant common in Europe and also used in the Near East from the",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "beginning of the Christian era. Before the first, nonfading “solid” green was invented",
+            "line": 10,
+            "paragraphStart": false
+          },
+          {
+            "text": "in the early nineteenth century, greens were achieved by the overdyeing or overprinting",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "of yellow and blue. However, yellow dyes, whether from weld or some other plant",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "source such as saffron or turmeric, invariably fade or disappear. This accounts for the",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "bluish tinge of what were once bright greens in, for example, woven tapestry.",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "The range of natural colors was hugely expanded and, indeed, superseded by the",
+            "line": 15,
+            "paragraphStart": true
+          },
+          {
+            "text": "chemical dyes developed during the eighteen hundreds. By 1900 a complete range of",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "synthetic colors had been evolved, many of them reaching a standard of resistance to",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "fading from exposure to light and to washing that greatly exceeded that of natural",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "dyestuffs. Since then, the petroleum industry has added many new chemicals, and from",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "these other types of dyestuffs have been developed. Much of the research in dyes was",
+            "line": 20,
+            "paragraphStart": false
+          },
+          {
+            "text": "stimulated by the peculiarities of some of the new synthetic fibers. Acetate rayon, for",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "example, seemed at first to have no affinity for dyes and a new range of dyes had to be",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "developed; nylon and Terylene presented similar problems.",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "The printing of textiles has involved a number of distinct methods. With the",
+            "line": null,
+            "paragraphStart": true
+          },
+          {
+            "text": "exception of printing patterns directly onto the cloth, whether by block, roller, or",
+            "line": 25,
+            "paragraphStart": false
+          },
+          {
+            "text": "screen, all of these are based on dyeing; that is, the immersion of the fabric in a dye",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "bath.",
+            "line": null,
+            "paragraphStart": false
+          }
+        ]
+      }
+    ],
+    "questions": [
+      {
+        "number": 1,
+        "prompt": "What aspect of the United States in the late nineteenth and early twentieth centuries does the passage mainly discuss?",
+        "options": {
+          "A": "Why young women chose to move from farms to cities",
+          "B": "The number and types of manufacturing jobs created in cities",
+          "C": "Changes in settlement patterns between farms and cities",
+          "D": "The effects of mechanization on western migration"
+        },
+        "sourcePage": 45
+      },
+      {
+        "number": 2,
+        "prompt": "The word “expansion” in line 1 is closest in meaning to",
+        "options": {
+          "A": "change",
+          "B": "growth",
+          "C": "population",
+          "D": "labor"
+        },
+        "sourcePage": 45
+      },
+      {
+        "number": 3,
+        "prompt": "The word “abandoned” in line 3 is closest in meaning to",
+        "options": {
+          "A": "left behind",
+          "B": "sold",
+          "C": "gave away",
+          "D": "gradually reduced the size of"
+        },
+        "sourcePage": 45
+      },
+      {
+        "number": 4,
+        "prompt": "Why does the author discuss “prosperity” in line 4 ?",
+        "options": {
+          "A": "To indicate that more than one factor contributed to the movement from rural to urban settlement",
+          "B": "To support the idea that many families were able to stop farming and migrate to the cities",
+          "C": "To suggest that the migration would have happened despite the economic situation",
+          "D": "To argue against economics as the primary factor in migration"
+        },
+        "sourcePage": 45
+      },
+      {
+        "number": 5,
+        "prompt": "According to the first paragraph, in the late 1800s, farmland was most likely to be purchased by",
+        "options": {
+          "A": "city businessmen seeking new investments",
+          "B": "successful landowners who had mechanized farms",
+          "C": "young farm men starting to work",
+          "D": "people who had few opportunities in cities"
+        },
+        "sourcePage": 45
+      },
+      {
+        "number": 6,
+        "prompt": "The word “inevitably” in line 12 is closest in meaning to",
+        "options": {
+          "A": "unexpectedly",
+          "B": "usually",
+          "C": "unavoidably",
+          "D": "possibly"
+        },
+        "sourcePage": 46
+      },
+      {
+        "number": 7,
+        "prompt": "The phrase “this trend” in line 14 refers to",
+        "options": {
+          "A": "industrial workers becoming farmers",
+          "B": "the economic development of the countryside",
+          "C": "the loss of rural population",
+          "D": "innovations in manufacturing"
+        },
+        "sourcePage": 46
+      },
+      {
+        "number": 8,
+        "prompt": "According to the first paragraph, which of the following is true about the population of the United States after the 1880s?",
+        "options": {
+          "A": "Fewer people lived on farms.",
+          "B": "The central part of the United States lost much of its population to rural areas in the West.",
+          "C": "Rural areas of the West became more populated than those in the central part of the country.",
+          "D": "Work opportunities in urban areas began to decline."
+        },
+        "sourcePage": 46
+      },
+      {
+        "number": 9,
+        "prompt": "According to the second paragraph, how did migration among young women in the rural West differ from that of young men?",
+        "options": {
+          "A": "Young women were more likely to leave rural areas to go to urban areas.",
+          "B": "Young women were more likely to take jobs on farms.",
+          "C": "Young women who migrated generally had more education.",
+          "D": "Young women generally moved more frequently from one rural area to another."
+        },
+        "sourcePage": 46
+      },
+      {
+        "number": 10,
+        "prompt": "The word “constricted” in line 24 is closest in meaning to",
+        "options": {
+          "A": "unappealing",
+          "B": "reduced",
+          "C": "low-paying",
+          "D": "disappearing"
+        },
+        "sourcePage": 46
+      },
+      {
+        "number": 11,
+        "prompt": "What does the passage mainly discuss?",
+        "options": {
+          "A": "The similarities between Earth’s inner core and outer core",
+          "B": "The structure and temperature of Earth’s interior",
+          "C": "When seismic waves were first used to study Earth’s interior",
+          "D": "Why Earth’s solid inner core is surrounded by a molten outer core"
+        },
+        "sourcePage": 48
+      },
+      {
+        "number": 12,
+        "prompt": "The word “mere” in line 2 is closest in meaning to",
+        "options": {
+          "A": "approximate",
+          "B": "insignificant",
+          "C": "measured",
+          "D": "lengthy"
+        },
+        "sourcePage": 48
+      },
+      {
+        "number": 13,
+        "prompt": "According to the first paragraph, most knowledge of Earth’s interior has been gained by studying",
+        "options": {
+          "A": "Earth’s gravitational field",
+          "B": "Earth’s magnetic field",
+          "C": "vibrations caused by earthquakes",
+          "D": "material taken from holes drilled into Earth’s crust"
+        },
+        "sourcePage": 49
+      },
+      {
+        "number": 14,
+        "prompt": "According to the second paragraph, which of the following statements regarding Earth’s inner core and outer core is true?",
+        "options": {
+          "A": "Neither the inner core nor the outer core can be studied using seismic waves.",
+          "B": "The outer core is more solid than the inner core.",
+          "C": "The inner core and the outer core have greatly different temperatures.",
+          "D": "Both the inner core and the outer core probably contain iron."
+        },
+        "sourcePage": 49
+      },
+      {
+        "number": 15,
+        "prompt": "The word “thoroughly” in line 15 is closest in meaning to",
+        "options": {
+          "A": "basically",
+          "B": "similarly",
+          "C": "potentially",
+          "D": "completely"
+        },
+        "sourcePage": 49
+      },
+      {
+        "number": 16,
+        "prompt": "The word “it” in line 18 refers to",
+        "options": {
+          "A": "Earth",
+          "B": "a cool crust",
+          "C": "the molten ball of rock",
+          "D": "the heat"
+        },
+        "sourcePage": 49
+      },
+      {
+        "number": 17,
+        "prompt": "The word “functioned” in line 18 is closest in meaning to",
+        "options": {
+          "A": "acted",
+          "B": "moved",
+          "C": "appeared",
+          "D": "grew"
+        },
+        "sourcePage": 49
+      },
+      {
+        "number": 18,
+        "prompt": "The word “manufactured” in line 20 is closest in meaning to",
+        "options": {
+          "A": "changed",
+          "B": "combined",
+          "C": "utilized",
+          "D": "made"
+        },
+        "sourcePage": 49
+      },
+      {
+        "number": 19,
+        "prompt": "The third paragraph mentions which of the following as one cause of the current high temperature of Earth’s interior?",
+        "options": {
+          "A": "The decay of radioactive isotopes",
+          "B": "The movement of elements from Earth’s crust to its interior",
+          "C": "The vibrations that result from movement of Earth’s crust",
+          "D": "The injection of certain organic elements into Earth’s inner core"
+        },
+        "sourcePage": 50
+      },
+      {
+        "number": 20,
+        "prompt": "Look at the terms “seismic waves” (line 6), “earthquakes” (line 6), “magnetic field” (line 14), and “stable elements” (line 21). Which of these terms is defined in the passage?",
+        "options": {
+          "A": "seismic waves",
+          "B": "earthquakes",
+          "C": "magnetic field",
+          "D": "stable elements"
+        },
+        "sourcePage": 50
+      },
+      {
+        "number": 21,
+        "prompt": "According to the passage, scientists do not understand in detail how",
+        "options": {
+          "A": "the crust affects Earth’s internal temperature",
+          "B": "radioactive isotopes cause heat",
+          "C": "Earth’s magnetic field is created",
+          "D": "seismic waves originate"
+        },
+        "sourcePage": 50
+      },
+      {
+        "number": 22,
+        "prompt": "The passage mainly discusses the",
+        "options": {
+          "A": "difference between amber and mineral fossils",
+          "B": "places where amber can be found",
+          "C": "various characteristics of amber",
+          "D": "types of trees that produced amber"
+        },
+        "sourcePage": 53
+      },
+      {
+        "number": 23,
+        "prompt": "Why does the author mention dinosaur bones in the first paragraph?",
+        "options": {
+          "A": "To emphasize the age of fossils",
+          "B": "To explain why there are more mineral replacement fossils than organic fossils",
+          "C": "To compare them with amber as a different type of fossil",
+          "D": "To give an example of an object in which amber is commonly found"
+        },
+        "sourcePage": 53
+      },
+      {
+        "number": 24,
+        "prompt": "The word “intact” in line 8 is closest in meaning to",
+        "options": {
+          "A": "beautiful",
+          "B": "unusual",
+          "C": "obvious",
+          "D": "unchanged"
+        },
+        "sourcePage": 53
+      },
+      {
+        "number": 25,
+        "prompt": "The word “trace” in line 11 is closest in meaning to",
+        "options": {
+          "A": "unknown",
+          "B": "decreasing",
+          "C": "very small",
+          "D": "somewhat similar"
+        },
+        "sourcePage": 53
+      },
+      {
+        "number": 26,
+        "prompt": "According to the second paragraph, which of the following is true about deposits of amber?",
+        "options": {
+          "A": "There is a limited number of large deposits of amber in the world.",
+          "B": "Most deposits contain large quantities of amber specimens.",
+          "C": "The major amber deposits were formed at approximately the same time.",
+          "D": "The deposits were formed primarily by tropical broad-leaved trees."
+        },
+        "sourcePage": 53
+      },
+      {
+        "number": 27,
+        "prompt": "The word “misconception” in line 16 is closest in meaning to",
+        "options": {
+          "A": "false belief",
+          "B": "known fact",
+          "C": "scientific theory",
+          "D": "subject of debate"
+        },
+        "sourcePage": 53
+      },
+      {
+        "number": 28,
+        "prompt": "The word “them” in line 18 refers to",
+        "options": {
+          "A": "deposits",
+          "B": "pine trees",
+          "C": "conifer trees",
+          "D": "broad-leaved trees"
+        },
+        "sourcePage": 54
+      },
+      {
+        "number": 29,
+        "prompt": "The word “Thus” in line 23 is closest in meaning to",
+        "options": {
+          "A": "consequently",
+          "B": "instead",
+          "C": "moreover",
+          "D": "initially"
+        },
+        "sourcePage": 54
+      },
+      {
+        "number": 30,
+        "prompt": "The word “bury” in line 26 is closest in meaning to",
+        "options": {
+          "A": "cover",
+          "B": "color",
+          "C": "fill",
+          "D": "damage"
+        },
+        "sourcePage": 54
+      },
+      {
+        "number": 31,
+        "prompt": "It can be inferred from the passage that amber is most commonly used",
+        "options": {
+          "A": "to determine the age of other ancient materials that are found with it",
+          "B": "as jewelry",
+          "C": "to compare the characteristics of living trees to those of ancient trees",
+          "D": "to preserve fossil impressions"
+        },
+        "sourcePage": 54
+      },
+      {
+        "number": 32,
+        "prompt": "Which of the following is NOT true of amber?",
+        "options": {
+          "A": "It is composed of an organic material.",
+          "B": "It is basically the same as it was millions of years ago.",
+          "C": "It may contain the remains of tiny animals.",
+          "D": "It is made by a process of mineral replacement."
+        },
+        "sourcePage": 54
+      },
+      {
+        "number": 33,
+        "prompt": "According to the passage, why did the first people who came to North America leave their homeland?",
+        "options": {
+          "A": "They were hoping to find a better climate.",
+          "B": "They were seeking freedom.",
+          "C": "They were following instructions given in a dream.",
+          "D": "They were looking for food."
+        },
+        "sourcePage": 57
+      },
+      {
+        "number": 34,
+        "prompt": "The phrase “are easily disposed” in line 12 is closest in meaning to",
+        "options": {
+          "A": "demonstrate reluctance",
+          "B": "readily encourage others",
+          "C": "have a tendency",
+          "D": "often fail"
+        },
+        "sourcePage": 57
+      },
+      {
+        "number": 35,
+        "prompt": "The word “Ultimately” in line 15 is closest in meaning to",
+        "options": {
+          "A": "frequently",
+          "B": "normally",
+          "C": "whenever possible",
+          "D": "in the end"
+        },
+        "sourcePage": 57
+      },
+      {
+        "number": 36,
+        "prompt": "The word “compelling” in line 18 is closest in meaning to",
+        "options": {
+          "A": "joyous",
+          "B": "intricate",
+          "C": "competing",
+          "D": "forceful"
+        },
+        "sourcePage": 57
+      },
+      {
+        "number": 37,
+        "prompt": "What is the main point of the second paragraph?",
+        "options": {
+          "A": "Public performance is essential to verbal art.",
+          "B": "Oral narratives are a valid form of literature.",
+          "C": "Native Americans have a strong oral tradition in art.",
+          "D": "The production of literature provides employment for many artists."
+        },
+        "sourcePage": 57
+      },
+      {
+        "number": 38,
+        "prompt": "According to the passage, what responsibility does the audience of a verbal art performance have?",
+        "options": {
+          "A": "They provide financial support for performances.",
+          "B": "They judge the quality of the content and presentation.",
+          "C": "They participate in the performance by chanting responses.",
+          "D": "They determine the length of the performance by requesting a continuation."
+        },
+        "sourcePage": 58
+      },
+      {
+        "number": 39,
+        "prompt": "What can be inferred about the nature of the Native American literature discussed in the passage?",
+        "options": {
+          "A": "It reflects historical and contemporary life in Asia.",
+          "B": "Its main focus is on daily activities.",
+          "C": "It is based primarily on scientific knowledge.",
+          "D": "It is reshaped each time it is experienced."
+        },
+        "sourcePage": 58
+      },
+      {
+        "number": 40,
+        "prompt": "Which of the following is NOT true of the Native American literature discussed in the passage?",
+        "options": {
+          "A": "It involves acting.",
+          "B": "It has ancient origins.",
+          "C": "It has a set form.",
+          "D": "It expresses an inner vision."
+        },
+        "sourcePage": 58
+      },
+      {
+        "number": 41,
+        "prompt": "What can be inferred from the passage about the difference between written and oral literature?",
+        "options": {
+          "A": "Written literature reflects social values better than oral literature does.",
+          "B": "Written literature involves less interaction between audience and creator during the creative process than oral literature does.",
+          "C": "Written literature usually is not based on historical events, whereas oral literature is.",
+          "D": "Written literature is not as highly respected as oral literature is."
+        },
+        "sourcePage": 58
+      },
+      {
+        "number": 42,
+        "prompt": "What is the author’s attitude toward Native American literature?",
+        "options": {
+          "A": "Admiring of its form",
+          "B": "Critical of the cost of its production",
+          "C": "Amused by its content",
+          "D": "Skeptical about its origins"
+        },
+        "sourcePage": 58
+      },
+      {
+        "number": 43,
+        "prompt": "The passage mainly discusses the",
+        "options": {
+          "A": "development of synthetic colors for textiles during the nineteenth century",
+          "B": "advantages of chemical dyes over dyes derived from plants and animals",
+          "C": "differences between dyeing textiles and printing them",
+          "D": "history of the use of natural and chemical dyes to color textiles"
+        },
+        "sourcePage": 61
+      },
+      {
+        "number": 44,
+        "prompt": "According to the passage, what was the source of most textile dyes that were used before the nineteenth century?",
+        "options": {
+          "A": "Animals",
+          "B": "Minerals",
+          "C": "Plants",
+          "D": "Chemicals"
+        },
+        "sourcePage": 61
+      },
+      {
+        "number": 45,
+        "prompt": "What was the advantage of using madder plants for different shades of red?",
+        "options": {
+          "A": "It was possible to cultivate madder plants in almost every location.",
+          "B": "Madder plants produced brighter colors than other plant sources.",
+          "C": "Plant sources produced more lasting colors than animal sources.",
+          "D": "Dyes derived from the madder plants were easier to work with than other dyes."
+        },
+        "sourcePage": 61
+      },
+      {
+        "number": 46,
+        "prompt": "The word “invariably” in line 13 is closest in meaning to",
+        "options": {
+          "A": "without exception",
+          "B": "steadily",
+          "C": "after some time",
+          "D": "noticeably"
+        },
+        "sourcePage": 61
+      },
+      {
+        "number": 47,
+        "prompt": "It can be inferred from the passage that the green areas in woven tapestries developed a bluish tinge because",
+        "options": {
+          "A": "a darker color, like blue, dominates a light color, like yellow",
+          "B": "light changed some of the green dye used in the tapestries to blue",
+          "C": "the yellow dye that was used in the tapestries had faded",
+          "D": "the dyes used to color woven tapestries were made from minerals"
+        },
+        "sourcePage": 62
+      },
+      {
+        "number": 48,
+        "prompt": "The word “superseded” in line 15 is closest in meaning to",
+        "options": {
+          "A": "strengthened",
+          "B": "improved",
+          "C": "replaced",
+          "D": "complemented"
+        },
+        "sourcePage": 62
+      },
+      {
+        "number": 49,
+        "prompt": "According to the passage, how did chemical dyes compare to natural dyes?",
+        "options": {
+          "A": "The chemical dyes had less attractive colors.",
+          "B": "The chemical dyes were less easy to use.",
+          "C": "The chemical dyes lost their brightness more quickly when exposed to light.",
+          "D": "The chemical dyes held up better after washing."
+        },
+        "sourcePage": 62
+      },
+      {
+        "number": 50,
+        "prompt": "According to the passage, what problem led to the development of new dyes after 1900 ?",
+        "options": {
+          "A": "Previously developed dyes did not work on new types of fibers.",
+          "B": "Dyes derived from petroleum caused damage to new synthetic fibers.",
+          "C": "New synthetic fibers required brighter colors than natural fibers did.",
+          "D": "New fabrics easily lost their colors when washed."
+        },
+        "sourcePage": 62
+      }
+    ]
+  }
+}

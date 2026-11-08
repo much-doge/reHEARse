@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "method": "Apply a single transcript-to-audio offset, then align each answer window to the following long quiet interval detected by ffmpeg silencedetect at -42 dB for at least 4 seconds. Validate the sequence with transcript anchors and Part B/C group transitions.",
+  "quietWindowCount": 50,
+  "answerWindowTargetMs": 12000,
+  "transcriptAnchors": [
+    { "question": 2, "transcriptApproxMs": 167000, "mappedStartMs": 167234, "differenceMs": 234 },
+    { "question": 3, "transcriptApproxMs": 194000, "mappedStartMs": 194272, "differenceMs": 272 },
+    { "question": 4, "transcriptApproxMs": 224000, "mappedStartMs": 225043, "differenceMs": 1043 },
+    { "question": 5, "transcriptApproxMs": 252000, "mappedStartMs": 252105, "differenceMs": 105 }
+  ],
+  "groupTransitions": [
+    { "groupId": "part-b-1", "type": "conversation", "questions": [31, 34], "contextStartMs": 992850 },
+    { "groupId": "part-b-2", "type": "conversation", "questions": [35, 37], "contextStartMs": 1191062 },
+    { "groupId": "part-c-1", "type": "talk", "questions": [38, 41], "contextStartMs": 1349884 },
+    { "groupId": "part-c-2", "type": "talk", "questions": [42, 46], "contextStartMs": 1711908 },
+    { "groupId": "part-c-3", "type": "talk", "questions": [47, 50], "contextStartMs": 1899522 }
+  ],
+  "status": "sequence_aligned",
+  "scope": "Structural alignment from source transcript anchors, detected quiet windows, and group boundaries; not a classroom playback observation."
+}

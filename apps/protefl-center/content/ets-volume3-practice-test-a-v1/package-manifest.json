@@ -8,8 +8,8 @@
   "sourceFiles": [
     {
       "path": "README.md",
-      "bytes": 3246,
-      "sha256": "43f447bcf4e957dd3e4932344a1e6b32718cedc4f3a14cba72d7dc791c740dc9"
+      "bytes": 3505,
+      "sha256": "7d21c782be0b5588c58db579b819f8222fa3eb97fa3cb412be8d14e3737b5687"
     },
     {
       "path": "metadata/answer-key-practice-test-a-v1.json",
@@ -20,6 +20,11 @@
       "path": "metadata/instructions-practice-test-a-v1.json",
       "bytes": 2646,
       "sha256": "4acee4be3b4715a5a413d5f9268f7a7b64e51b5fb9839c79c755d858044c7e4e"
+    },
+    {
+      "path": "metadata/listening-alignment-audit-v1.json",
+      "bytes": 1485,
+      "sha256": "06002065f27476b507f17a709c062b2ee00aa2389930f3c29bf4f0f8a585fab1"
     },
     {
       "path": "metadata/listening-pauses-v1.json",
@@ -42,14 +47,19 @@
       "sha256": "7a8fa2f9caeb9a032611e029c5ee1b508d77af318004b81fbb6be5319eebc08d"
     },
     {
+      "path": "metadata/questions-practice-test-a-v1.json",
+      "bytes": 107000,
+      "sha256": "aa37b7515b8ed1c870558a492450e72271a349a06ff40c9a53ea9d16ff30600b"
+    },
+    {
       "path": "metadata/score-conversion-practice-test-a-v1.json",
       "bytes": 3538,
       "sha256": "11775bbb911d5df22dd50aba877840c5e2ceb0fae420c3b4479e95d2a8ab7adb"
     },
     {
       "path": "metadata/verify-package.py",
-      "bytes": 3176,
-      "sha256": "ee191aab06cbfcef5fb56347476c5d34511bae81847ece6258e0b16e0ca8d871"
+      "bytes": 4987,
+      "sha256": "c3adf98a962f237ba76a1d4a2f9b17935447b260edb1a36e0f8f94fb0a4b3c8e"
     },
     {
       "path": "pages/page-020.jpg",
@@ -267,5 +277,5 @@
       "sha256": "dbb8c9d81cd76e02f1c99a29d29101fdb5afab55680032376063ed722df11aa7"
     }
   ],
-  "status": "source-ingested; protected interactive delivery and human timing review pending"
+  "status": "structured web-native content complete; local application and browser verification pending"
 }

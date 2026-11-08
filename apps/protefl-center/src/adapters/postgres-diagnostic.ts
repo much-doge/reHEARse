@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
+import type { PoolClient } from "pg";
 
 import { getPool } from "@/adapters/db/client";
 import { convertedSectionRange, convertedTotalRange, type ScoreRangeRow } from "../application/diagnostic-scoring";
@@ -10,6 +11,10 @@ const packageCode = "ets-volume3-practice-test-a";
 type Section = "listening" | "structure" | "reading";
 type Choice = "A" | "B" | "C" | "D";
 type Keys = Record<Section, Choice[]>;
+type StandardItem = { number: number; prompt: string; options: Record<Choice, string>; sourcePage: number; part?: "A" | "B" | "C" };
+type ErrorItem = { number: number; tokens: Array<{ text: string; choice?: Choice }>; options: Record<Choice, string>; sourcePage: number };
+type Passage = { id: string; questions: [number, number]; sourcePage: number; lines: Array<{ text: string; line: number | null; paragraphStart: boolean }> };
+type ItemPackage = { listening: StandardItem[]; structure: { completion: StandardItem[]; errorIdentification: ErrorItem[] }; reading: { passages: Passage[]; questions: StandardItem[] } };
 
 export type DiagnosticInstructions = {
   listening: { overview: string; partA: string; partB: string; partC: string };
@@ -37,6 +42,33 @@ function validQuestion(section: Section, number: number) {
 }
 const answerQuery = "SELECT DISTINCT ON(section,question_number) section,question_number,answer_choice FROM protefl_diagnostic_event WHERE attempt_id=$1 AND event_type='answer' ORDER BY section,question_number,id DESC";
 
+async function calculateSectionResult(client: PoolClient, attemptId: string, section: Section) {
+  const [keyFile, scoreFile, rows] = await Promise.all([
+    json<{ sections: Keys }>("metadata/answer-key-practice-test-a-v1.json"),
+    json<{ ranges: ScoreRangeRow[] }>("metadata/score-conversion-practice-test-a-v1.json"),
+    client.query(answerQuery, [attemptId]),
+  ]);
+  const answers = new Map<number, Choice>();
+  for (const row of rows.rows) if (row.section === section) answers.set(Number(row.question_number), row.answer_choice);
+  let correct = 0;
+  for (const [index, key] of keyFile.sections[section].entries()) if (answers.get(index + 1) === key) correct += 1;
+  const answered = answers.size;
+  const total = keyFile.sections[section].length;
+  const summary = {
+    correct,
+    incorrect: answered - correct,
+    omitted: total - answered,
+    total,
+    converted: convertedSectionRange(scoreFile.ranges, section, correct) as [number, number] | null,
+  };
+  const review = keyFile.sections[section].map((correctAnswer, index) => {
+    const question = index + 1;
+    const selected = answers.get(question) ?? null;
+    return { section, question, selected, correctAnswer, correct: selected === correctAnswer };
+  });
+  return { section, summary, review, answers: Object.fromEntries(answers) };
+}
+
 export async function diagnosticAssignment(actorId: string) {
   const result = await getPool().query(
     "SELECT r.id,r.code,r.version,r.title,r.status,a.listening_mode,EXISTS(SELECT 1 FROM protefl_diagnostic_attempt d WHERE d.resource_id=r.id AND d.actor_id=a.actor_id) AS has_attempt FROM protefl_resource_assignment a JOIN protefl_resource r ON r.id=a.resource_id WHERE a.actor_id=$1 AND r.code=$2 AND r.kind='diagnostic_package' AND a.revoked_at IS NULL AND a.starts_at<=now() AND (a.ends_at IS NULL OR a.ends_at>now()) AND (r.status='published' OR EXISTS(SELECT 1 FROM protefl_diagnostic_attempt d WHERE d.resource_id=r.id AND d.actor_id=a.actor_id)) LIMIT 1",
@@ -44,10 +76,6 @@ export async function diagnosticAssignment(actorId: string) {
   );
   const row = result.rows[0];
   return row ? { id: String(row.id), code: row.code as string, version: Number(row.version), title: row.title as string, status: row.status as string, listeningMode: row.listening_mode as "autoplay" | "question_click", hasAttempt: row.has_attempt === true } : null;
-}
-
-export async function diagnosticPageIndex() {
-  return json<{ questionPages: Record<Section, Record<string, number>>; readingPassages: Array<{ questions: [number, number]; page: number }>; renderedPages: Record<string, number[]> }>("metadata/page-index-v1.json");
 }
 
 export async function diagnosticInstructions() {
@@ -62,37 +90,17 @@ export async function diagnosticListeningTiming() {
   return { ...timing, questions: questionMap.questions };
 }
 
-export async function protectedDiagnosticPage(actorId: string, attemptId: string, pageValue: string) {
-  const page = Number(pageValue);
-  const index = await diagnosticPageIndex();
-  const allowed = new Set([...Object.values(index.questionPages).flatMap(Object.values), 20, 33, 36, 41, ...index.readingPassages.map((row) => row.page)]);
+export async function protectedDiagnosticItem(actorId: string, attemptId: string, sectionValue: string, questionValue: string) {
+  if (!(sectionValue === "listening" || sectionValue === "structure" || sectionValue === "reading")) return null;
+  const section = sectionValue as Section;
+  const question = Number(questionValue);
   const attempt = await diagnosticAttempt(actorId, attemptId);
-  if (!Number.isInteger(page) || !allowed.has(page) || !attempt) return null;
-  const permitted = attempt.status === "completed" ||
-    (attempt.current_section === "listening" && [20, ...Object.values(index.questionPages.listening)].includes(page)) ||
-    (attempt.current_section === "structure" && [33, 36, ...Object.values(index.questionPages.structure)].includes(page)) ||
-    (attempt.current_section === "reading" && [41, ...Object.values(index.questionPages.reading), ...index.readingPassages.map((row) => row.page)].includes(page));
-  if (!permitted) return null;
-  try {
-    return await readFile(join(root, "pages", "page-" + String(page).padStart(3, "0") + ".jpg"));
-  } catch {
-    return null;
-  }
-}
-
-export async function protectedDiagnosticPageText(actorId: string, attemptId: string, pageValue: string) {
-  const page = Number(pageValue);
-  const index = await diagnosticPageIndex();
-  const allowed = new Set([...Object.values(index.questionPages).flatMap(Object.values), 20, 33, 36, 41, ...index.readingPassages.map((row) => row.page)]);
-  const attempt = await diagnosticAttempt(actorId, attemptId);
-  if (!Number.isInteger(page) || !allowed.has(page) || !attempt) return null;
-  const permitted = attempt.status === "completed" ||
-    (attempt.current_section === "listening" && [20, ...Object.values(index.questionPages.listening)].includes(page)) ||
-    (attempt.current_section === "structure" && [33, 36, ...Object.values(index.questionPages.structure)].includes(page)) ||
-    (attempt.current_section === "reading" && [41, ...Object.values(index.questionPages.reading), ...index.readingPassages.map((row) => row.page)].includes(page));
-  if (!permitted) return null;
-  const texts = await json<{ pageText: Record<string, string> }>("metadata/page-texts-v1.json");
-  return texts.pageText[String(page)] ?? null;
+  if (!attempt || !validQuestion(section, question) || (attempt.status !== "completed" && attempt.current_section !== section)) return null;
+  const content = await json<ItemPackage>("metadata/questions-practice-test-a-v1.json");
+  if (section === "listening") return { section, item: content.listening[question - 1] };
+  if (section === "structure") return { section, part: question <= 15 ? "completion" : "errorIdentification", item: question <= 15 ? content.structure.completion[question - 1] : content.structure.errorIdentification[question - 16] };
+  const passage = content.reading.passages.find((candidate) => question >= candidate.questions[0] && question <= candidate.questions[1]);
+  return { section, item: content.reading.questions[question - 1], passage };
 }
 
 export async function diagnosticAudio(actorId: string, id: string) {
@@ -106,11 +114,16 @@ export async function diagnosticAudio(actorId: string, id: string) {
 }
 
 export async function latestDiagnosticAttemptState(actorId: string) {
-  const row = await getPool().query(
-    "SELECT d.id FROM protefl_diagnostic_attempt d JOIN protefl_resource r ON r.id=d.resource_id WHERE d.actor_id=$1 AND r.code=$2 ORDER BY d.attempt_number DESC LIMIT 1",
+  const active = await getPool().query(
+    "SELECT d.id FROM protefl_diagnostic_attempt d JOIN protefl_resource r ON r.id=d.resource_id WHERE d.actor_id=$1 AND r.code=$2 AND d.status='in_progress' ORDER BY d.attempt_number DESC LIMIT 1",
     [actorId, packageCode],
   );
-  return row.rows[0] ? diagnosticAttemptState(actorId, String(row.rows[0].id)) : null;
+  if (active.rows[0]) return diagnosticAttemptState(actorId, String(active.rows[0].id));
+  const full = await getPool().query(
+    "SELECT d.id FROM protefl_diagnostic_attempt d JOIN protefl_resource r ON r.id=d.resource_id WHERE d.actor_id=$1 AND r.code=$2 AND d.scope='full' ORDER BY d.attempt_number DESC LIMIT 1",
+    [actorId, packageCode],
+  );
+  return full.rows[0] ? diagnosticAttemptState(actorId, String(full.rows[0].id)) : null;
 }
 
 export async function diagnosticAttempt(actorId: string, id: string) {
@@ -136,12 +149,13 @@ export async function startOrResumeDiagnostic(actorId: string, retake = false) {
       await client.query("COMMIT");
       return { attemptId: String(active.id), resumed: true };
     }
-    const latest = (await client.query("SELECT id,attempt_number,status FROM protefl_diagnostic_attempt WHERE resource_id=$1 AND actor_id=$2 ORDER BY attempt_number DESC LIMIT 1 FOR UPDATE", [access.id, actorId])).rows[0];
+    const latest = (await client.query("SELECT id,attempt_number,status FROM protefl_diagnostic_attempt WHERE resource_id=$1 AND actor_id=$2 AND scope='full' ORDER BY attempt_number DESC LIMIT 1 FOR UPDATE", [access.id, actorId])).rows[0];
     // Hiding a resource stops new starts and retakes, but does not strand an
     // already assigned candidate who needs to resume an interrupted attempt.
     if (access.status !== "published") throw new Error("resource_unavailable");
     if ((latest && (!retake || latest.status !== "completed")) || (!latest && retake)) throw new Error("attempt_unavailable");
-    const number = latest ? Number(latest.attempt_number) + 1 : 1;
+    const sequence = (await client.query("SELECT coalesce(max(attempt_number),0)::int AS number FROM protefl_diagnostic_attempt WHERE resource_id=$1 AND actor_id=$2", [access.id, actorId])).rows[0];
+    const number = Number(sequence.number) + 1;
     const hashes = await pinnedPackageHashes();
     if (hashes.version !== Number(access.version)) throw new Error("resource_unavailable");
     const inserted = (await client.query(
@@ -153,6 +167,39 @@ export async function startOrResumeDiagnostic(actorId: string, retake = false) {
   } catch (error) {
     await client.query("ROLLBACK");
     if (error instanceof Error && error.message === "resource_unavailable") throw error;
+    throw new Error("attempt_unavailable");
+  } finally {
+    client.release();
+  }
+}
+
+export async function startSectionRetake(actorId: string, parentAttemptId: string, section: Section) {
+  const client = await getPool().connect();
+  try {
+    await client.query("BEGIN");
+    const parent = (await client.query(
+      "SELECT d.*,r.status AS resource_status,r.version AS resource_version,a.listening_mode AS assigned_listening_mode FROM protefl_diagnostic_attempt d JOIN protefl_resource_assignment a ON a.resource_id=d.resource_id AND a.actor_id=d.actor_id JOIN protefl_resource r ON r.id=d.resource_id WHERE d.id=$1 AND d.actor_id=$2 AND d.scope='full' AND d.status='completed' AND a.revoked_at IS NULL AND a.starts_at<=now() AND (a.ends_at IS NULL OR a.ends_at>now()) FOR UPDATE OF d,a,r",
+      [parentAttemptId, actorId],
+    )).rows[0];
+    if (!parent || parent.resource_status !== "published") throw new Error("attempt_unavailable");
+    const active = (await client.query("SELECT id FROM protefl_diagnostic_attempt WHERE resource_id=$1 AND actor_id=$2 AND status='in_progress' ORDER BY attempt_number DESC LIMIT 1 FOR UPDATE", [parent.resource_id, actorId])).rows[0];
+    if (active) {
+      await client.query("COMMIT");
+      return { attemptId: String(active.id), resumed: true };
+    }
+    const sequence = (await client.query("SELECT coalesce(max(attempt_number),0)::int AS number FROM protefl_diagnostic_attempt WHERE resource_id=$1 AND actor_id=$2", [parent.resource_id, actorId])).rows[0];
+    const retake = (await client.query("SELECT coalesce(max(section_retake_number),0)::int AS number FROM protefl_diagnostic_attempt WHERE parent_attempt_id=$1 AND scope=$2", [parentAttemptId, section])).rows[0];
+    const hashes = await pinnedPackageHashes();
+    if (hashes.version !== Number(parent.resource_version)) throw new Error("attempt_unavailable");
+    const inserted = (await client.query(
+      "INSERT INTO protefl_diagnostic_attempt(resource_id,actor_id,attempt_number,is_primary,package_version,content_hash,answer_key_hash,score_table_hash,timing_map_hash,listening_mode,scope,parent_attempt_id,section_retake_number,current_section) VALUES($1,$2,$3,false,$4,$5,$6,$7,$8,$9,$10,$11,$12,$10) RETURNING id",
+      [parent.resource_id, actorId, Number(sequence.number) + 1, parent.package_version, hashes.contentHash, hashes.answerKeyHash, hashes.scoreTableHash, hashes.timingMapHash, parent.assigned_listening_mode, section, parentAttemptId, Number(retake.number) + 1],
+    )).rows[0];
+    await client.query("COMMIT");
+    return { attemptId: String(inserted.id), resumed: false };
+  } catch (error) {
+    await client.query("ROLLBACK");
+    if (error instanceof Error && error.message === "attempt_unavailable") throw error;
     throw new Error("attempt_unavailable");
   } finally {
     client.release();
@@ -237,13 +284,36 @@ export async function applyDiagnosticAction(actorId: string, attemptId: string, 
           const elapsed = new Date(attempt.server_now).getTime() - new Date(attempt.listening_started_at).getTime();
           if (audioPosition < 2_101_073 || elapsed < 2_101_073) throw new Error("listening_incomplete");
         }
-        await client.query("UPDATE protefl_diagnostic_attempt SET current_section='structure' WHERE id=$1", [attemptId]); section = "listening";
+        section = "listening";
+        if (attempt.scope === "listening") {
+          const resultData = await calculateSectionResult(client, attemptId, "listening");
+          await client.query("INSERT INTO protefl_diagnostic_result(attempt_id,is_primary,result_version,package_version,result_data) VALUES($1,false,'ets-volume3-practice-test-a.section-retake.v1',$2,$3)", [attemptId, attempt.package_version, JSON.stringify(resultData)]);
+          await client.query("UPDATE protefl_diagnostic_attempt SET status='completed',current_section='completed',completed_at=now() WHERE id=$1", [attemptId]);
+          eventType = "diagnostic_submitted";
+        } else {
+          await client.query("UPDATE protefl_diagnostic_attempt SET current_section='structure' WHERE id=$1", [attemptId]);
+          eventType = "section_finished";
+        }
       } else if (attempt.current_section === "structure" && attempt.structure_started_at) {
-        await client.query("UPDATE protefl_diagnostic_attempt SET current_section='reading' WHERE id=$1", [attemptId]); section = "structure";
+        section = "structure";
+        if (attempt.scope === "structure") {
+          const resultData = await calculateSectionResult(client, attemptId, "structure");
+          await client.query("INSERT INTO protefl_diagnostic_result(attempt_id,is_primary,result_version,package_version,result_data) VALUES($1,false,'ets-volume3-practice-test-a.section-retake.v1',$2,$3)", [attemptId, attempt.package_version, JSON.stringify(resultData)]);
+          await client.query("UPDATE protefl_diagnostic_attempt SET status='completed',current_section='completed',completed_at=now() WHERE id=$1", [attemptId]);
+          eventType = "diagnostic_submitted";
+        } else {
+          await client.query("UPDATE protefl_diagnostic_attempt SET current_section='reading' WHERE id=$1", [attemptId]);
+          eventType = "section_finished";
+        }
       } else throw new Error("action_unavailable");
-      eventType = "section_finished";
     } else {
       if (attempt.current_section !== "reading" || !attempt.reading_started_at) throw new Error("action_unavailable");
+      if (attempt.scope === "reading") {
+        const resultData = await calculateSectionResult(client, attemptId, "reading");
+        await client.query("INSERT INTO protefl_diagnostic_result(attempt_id,is_primary,result_version,package_version,result_data) VALUES($1,false,'ets-volume3-practice-test-a.section-retake.v1',$2,$3)", [attemptId, attempt.package_version, JSON.stringify(resultData)]);
+        await client.query("UPDATE protefl_diagnostic_attempt SET status='completed',current_section='completed',completed_at=now() WHERE id=$1", [attemptId]);
+        eventType = "diagnostic_submitted"; section = "reading";
+      } else {
       const [keyFile, scoreFile] = await Promise.all([
         json<{ sections: Keys }>("metadata/answer-key-practice-test-a-v1.json"),
         json<{ ranges: ScoreRangeRow[] }>("metadata/score-conversion-practice-test-a-v1.json"),
@@ -275,6 +345,7 @@ export async function applyDiagnosticAction(actorId: string, attemptId: string, 
       await client.query("INSERT INTO protefl_diagnostic_result(attempt_id,is_primary,result_version,package_version,result_data) VALUES($1,$2,'ets-volume3-practice-test-a.result.v1',$3,$4)", [attemptId, attempt.is_primary, attempt.package_version, JSON.stringify(resultData)]);
       await client.query("UPDATE protefl_diagnostic_attempt SET status='completed',current_section='completed',completed_at=now() WHERE id=$1", [attemptId]);
       eventType = "diagnostic_submitted"; section = "reading";
+      }
     }
     await client.query(
       "INSERT INTO protefl_diagnostic_event(attempt_id,idempotency_key,event_type,section,question_number,answer_choice,event_data) VALUES($1,$2,$3,$4,$5,$6,$7)",
@@ -305,6 +376,9 @@ export async function diagnosticAttemptState(actorId: string, attemptId: string)
   }
   const state: Record<string, unknown> = {
     id: String(attempt.id), attemptNumber: Number(attempt.attempt_number), isPrimary: attempt.is_primary === true,
+    scope: attempt.scope as "full" | Section,
+    parentAttemptId: attempt.parent_attempt_id ? String(attempt.parent_attempt_id) : null,
+    sectionRetakeNumber: attempt.section_retake_number ? Number(attempt.section_retake_number) : null,
     packageVersion: Number(attempt.package_version),
     status: attempt.status, currentSection: attempt.current_section, listeningMode: attempt.listening_mode,
     listeningStartedAt: attempt.listening_started_at ? new Date(attempt.listening_started_at).toISOString() : null,
@@ -317,14 +391,27 @@ export async function diagnosticAttemptState(actorId: string, attemptId: string)
   };
   if (attempt.status === "completed") {
     const result = await getPool().query("SELECT result_data FROM protefl_diagnostic_result WHERE attempt_id=$1", [attemptId]);
-    if (result.rows[0]) state.result = result.rows[0].result_data;
+    if (result.rows[0]) {
+      if (attempt.scope === "full") state.result = result.rows[0].result_data;
+      else state.sectionRetakeResult = result.rows[0].result_data;
+    }
   }
-  if (attempt.is_primary !== true) {
-    const primary = await getPool().query(
-      "SELECT result_data FROM protefl_diagnostic_result WHERE is_primary=true AND attempt_id IN (SELECT id FROM protefl_diagnostic_attempt WHERE resource_id=$1 AND actor_id=$2)",
+  const primary = await getPool().query(
+      "SELECT d.id,r.result_data FROM protefl_diagnostic_attempt d JOIN protefl_diagnostic_result r ON r.attempt_id=d.id WHERE d.resource_id=$1 AND d.actor_id=$2 AND d.is_primary=true",
       [attempt.resource_id, actorId],
+  );
+  if (primary.rows[0]) {
+    state.primaryAttemptId = String(primary.rows[0].id);
+    if (attempt.is_primary !== true) state.primaryResult = primary.rows[0].result_data;
+  }
+  if (attempt.scope === "full" && attempt.status === "completed") {
+    const retakes = await getPool().query(
+      "SELECT d.id,d.scope,d.section_retake_number,d.completed_at,r.result_data FROM protefl_diagnostic_attempt d JOIN protefl_diagnostic_result r ON r.attempt_id=d.id WHERE d.parent_attempt_id=$1 AND d.status='completed' ORDER BY d.completed_at,d.attempt_number",
+      [attemptId],
     );
-    if (primary.rows[0]) state.primaryResult = primary.rows[0].result_data;
+    state.sectionRetakes = retakes.rows.map((row) => ({
+      id: String(row.id), section: row.scope as Section, number: Number(row.section_retake_number), completedAt: new Date(row.completed_at).toISOString(), result: row.result_data,
+    }));
   }
   return state;
 }

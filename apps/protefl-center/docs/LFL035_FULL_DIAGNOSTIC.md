@@ -1,6 +1,6 @@
 # LFL-035 full diagnostic package
 
-Status: deployed to PCT128; authenticated candidate and teacher journeys remain unverified
+Status: original diagnostic deployed to PCT128; LFL-037 web-native rebuild is locally container-verified and intentionally not deployed
 
 ## Objective
 
@@ -28,8 +28,9 @@ substitute its questions or audio for Practice Test A.
 4. Accepted answers autosave. Refresh/reconnect uses server-owned timing and
    restores the same attempt. Section results are not exposed during the test.
 5. Results and item review become available only after all three sections are
-   submitted. A retake starts a new whole-test attempt; it never replaces,
-   improves, or changes the displayed result of the first attempt.
+   submitted. A whole-test retake starts a new full attempt. A focused section
+   retake starts a separate child attempt after full completion. Neither can
+   replace, improve, or change the completed parent result.
 
 ## Section contract
 
@@ -63,7 +64,9 @@ delivery.
 - Do not expose answer keys before whole-test submission.
 - Retakes are separate immutable attempts. Keep the first completed result as
   the primary result shown in summaries; show later attempts separately and
-  never replace or add them to the first score.
+  never replace or add them to the first score. Focused Listening, Structure,
+  and Reading retakes point to the completed full attempt and have their own
+  result/review lineage.
 - Result page should be a polished, accessible summary with clear section
   breakdown, visual progress, question-review and whole-test retake actions.
 
@@ -101,16 +104,20 @@ delivery.
 - [x] Owner-authorized Practice Test A source PDF, layout-preserving text,
   full audio, question-page renders, keys, score table and provenance are
   tracked with a SHA-256 inventory in the package manifest.
-- [ ] Listening item order, Parts A-C, audio/question grouping, 12-second
+- [x] Listening item order, Parts A-C, audio/question grouping, 12-second
   autoplay answer pauses, click mode and direct Part B/C question playback are
-  verified against the book/audio.
-- [ ] Structure has all 40 items and exact A/B visual distinctions, omissions,
+  structurally verified against the source transcript anchors, a fresh 50-window
+  silence scan, and all conversation/talk transitions. Classroom playback
+  observation remains pending.
+- [x] Structure has all 40 items and exact A/B visual distinctions, omissions,
   directions, 25-minute server timer, grid and navigation.
-- [ ] Reading has all 50 items and source line/paragraph arrangement verified.
-- [ ] Conversion values and formula are cross-checked against the book's
+- [x] Reading has all 50 items and five source-line/paragraph passage models;
+  the first passage and question were visually inspected at desktop width.
+- [x] Conversion values and formula are cross-checked against the book's
   Practice Test A scoring pages and independently rechecked.
-- [ ] Complete submission gates all results/review; a whole-test retake creates
-  a separate attempt and leaves the primary result unchanged.
+- [x] Complete submission gates all results/review; local full completion and
+  focused Reading retake created separate immutable results and the parent
+  result remained unchanged. Full-retake production behavior is unchanged.
 - [ ] Short-code format, hash-only storage, expiry, one-use claim, rate limiting
   and teacher playback-mode selection are verified.
 - [x] The protected diagnostic URL survives sign-in using a narrow, test-covered
@@ -118,24 +125,28 @@ delivery.
 - [ ] No-score reHEARse invariant, Test Center storage boundary, access checks,
   no-store headers, role views, mobile layout and recovery behavior remain
   intact.
-- [ ] `pnpm check` and a production-shaped database/media journey pass; exact
-  command results and any remaining classroom gates are recorded.
+- [x] ESLint, TypeScript, 47 test files/175 tests, production build, package
+  verifier, additive local migrations, container render, logged-out guards,
+  full completion, focused Reading retake, and return-to-parent journey pass.
 
-The initial deployed candidate screen used page crops and is superseded by the
-text-rendered revision: question/passage pages are delivered as readable text
-through a protected no-store route, while section directions render from the
-structured directions file. The text route applies the same signed-in
-ownership, assignment, and current-section checks as the media route.
-Migrations 019 and 020 are applied in PCT128. The authenticated
-candidate/teacher journey and classroom verification remain outstanding; see
+The initial deployed candidate screen used page crops and its interim
+page-text implementation is now superseded locally by the LFL-037 structured
+item model. The learner receives one question with full A-D choices, explicit
+Structure blanks/underlines, or the relevant line-marked Reading passage.
+Legacy page-image and page-text routes have been removed. Migration 022 adds
+focused retake lineage without altering completed results. Migrations 019 and
+020 are applied in PCT128; migration 022 and the LFL-037 application are not.
+The production candidate journey and classroom verification remain outstanding; see
 [`docs/LFL035_DEPLOYMENT_RECEIPT.md`](../../../docs/LFL035_DEPLOYMENT_RECEIPT.md).
 
 ## Current gaps
 
-The source package is ingested and structurally validated. The full 35:02 audio
-has 50 detected answer pauses of about 12 seconds; question windows and
-conversation/talk groups are mapped, while the first question start is based
-on the supplied video transcript timestamp. A complete human audio spot-check,
-signed-in candidate journey and classroom verification remain outstanding.
-PCT128 deployment and migration evidence are recorded in
+The source package is ingested and structurally validated. A fresh full-track
+scan detected exactly 50 answer-sized quiet intervals (12.031-12.246 seconds),
+with zero difference from the stored window starts. Known Q2-Q5 transcript
+anchors differ from mapped starts by at most 1.043 seconds, and all five Part
+B/C context transitions are checked. This is structural sequence alignment,
+not a classroom audibility observation. Production deployment, a real
+candidate journey, and classroom verification remain outstanding. PCT128
+evidence for the superseded deployed build is recorded in
 [`docs/LFL035_DEPLOYMENT_RECEIPT.md`](../../../docs/LFL035_DEPLOYMENT_RECEIPT.md).
