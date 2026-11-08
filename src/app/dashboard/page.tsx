@@ -2,6 +2,7 @@ import Link from "next/link";
 import "@/components/ladder/board.css";
 import { logoutAction } from "@/app/auth-actions";
 import { BrandMark } from "@/components/brand-mark";
+import { LegacyVisibilityToggle } from "@/components/legacy-visibility-toggle";
 import { requireUser } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
@@ -43,8 +44,9 @@ export default async function DashboardPage() {
           <section className="ladder-dashboard-entry">
             <p className="eyebrow">ARCHIVED LEARNING TOOLS</p>
             <h2>Legacy reHEARse resources</h2>
-            <p>Open the earlier listening activities, workshop, classroom tools, and listening ladder.</p>
-            <Link href="/legacy" className="ladder-secondary">Browse legacy resources →</Link>
+            <p>Archived listening tools stay hidden from learners until you enable access for them.</p>
+            <Link href="/legacy" className="ladder-secondary">Open staff legacy resources →</Link>
+            <LegacyVisibilityToggle />
           </section>
         </>
       ) : (
@@ -64,12 +66,6 @@ export default async function DashboardPage() {
             <Link href="/test-center" className="ladder-primary">Open Test Center →</Link>
           </section>
 
-          <section className="ladder-dashboard-entry">
-            <p className="eyebrow">ARCHIVED LEARNING TOOLS</p>
-            <h2>Earlier reHEARse activities</h2>
-            <p>Listening practice and classroom tools from the earlier reHEARse workspace are kept separately.</p>
-            <Link href="/legacy" className="ladder-secondary">Browse legacy resources →</Link>
-          </section>
         </>
       )}
     </main>
