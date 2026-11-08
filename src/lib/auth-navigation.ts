@@ -12,7 +12,7 @@ export function safeReturnTo(value: unknown): string {
     const url = new URL(value, "https://rehearse.invalid");
     if (
       url.origin !== "https://rehearse.invalid" ||
-      !/^(?:\/|\/dashboard|\/workshop|\/ladder(?:\/host)?|\/classroom|\/play|\/test-center(?:\/manage|\/listening\/2000-10)?|\/learn\/[a-z0-9]+(?:-[a-z0-9]+)*)$/.test(
+      !/^(?:\/|\/dashboard|\/workshop|\/ladder(?:\/host)?|\/classroom|\/play|\/test-center(?:\/manage|\/listening\/2000-10)?|\/learn\/[a-z0-9]+(?:-[a-z0-9]+)*|\/legacy(?:\/(?:workshop(?:\/join)?|ladder(?:\/host)?|classroom|play|learn\/[a-z0-9]+(?:-[a-z0-9]+)*))?)$/.test(
         url.pathname,
       )
     )
@@ -22,11 +22,14 @@ export function safeReturnTo(value: unknown): string {
     if (
       pin &&
       /^\d{6}$/.test(pin) &&
-      ["/workshop", "/ladder", "/ladder/host", "/classroom", "/play"].includes(url.pathname)
+      ["/workshop", "/ladder", "/ladder/host", "/classroom", "/play", "/legacy/workshop", "/legacy/workshop/join", "/legacy/ladder", "/legacy/ladder/host", "/legacy/classroom", "/legacy/play"].includes(url.pathname)
     )
       query.set("pin", pin);
-    if (url.pathname === "/ladder" && url.searchParams.get("new") === "1")
+    if (["/ladder", "/legacy/ladder"].includes(url.pathname) && url.searchParams.get("new") === "1")
       query.set("new", "1");
+    const completed = url.searchParams.get("completed");
+    if (url.pathname === "/legacy" && completed && /^[0-9a-f-]{36}$/i.test(completed))
+      query.set("completed", completed);
     return url.pathname + (query.size ? `?${query}` : "");
   } catch {
     return "/dashboard";

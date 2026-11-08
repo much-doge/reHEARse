@@ -14,6 +14,13 @@ describe("authentication destinations", () => {
     expect(safeReturnTo("/test-center/listening/2000-10")).toBe(
       "/test-center/listening/2000-10",
     );
+    expect(safeReturnTo("/legacy/learn/three-papers-one-thread")).toBe(
+      "/legacy/learn/three-papers-one-thread",
+    );
+    expect(safeReturnTo("/legacy/workshop/join?pin=632581")).toBe(
+      "/legacy/workshop/join?pin=632581",
+    );
+    expect(safeReturnTo("/legacy/ladder?new=1")).toBe("/legacy/ladder?new=1");
     expect(safeReturnTo("/")).toBe("/");
     expect(safeReturnTo("/ladder?pin=bad&unknown=secret#fragment")).toBe(
       "/ladder",

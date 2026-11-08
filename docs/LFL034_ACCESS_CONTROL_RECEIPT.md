@@ -1,6 +1,7 @@
 # LFL-034 access control and role workspaces
 
-Status: source-complete; PCT128 deployment pending.
+Status: source-complete; initial PCT128 deployment is live. A follow-up fix for
+safe login return paths under `/legacy/` is awaiting deployment.
 
 ## Changes
 
@@ -19,17 +20,23 @@ Status: source-complete; PCT128 deployment pending.
 - Set protected pages, APIs and app-served media to private no-store caching.
   The session notice locks protected content when the session expires or cannot
   be revalidated, including when a tab is restored or revisited.
+- Extended the safe login-return allowlist to `/legacy/` routes. Without this,
+  the protected page correctly redirected to sign-in but the return target
+  fell back to `/dashboard`.
 
 ## Verification
 
 - ESLint passed.
 - TypeScript passed after removing stale `.next/dev/types` generated for the
   old route locations.
-- Vitest: 44 files, 168 tests passed.
+- Vitest: 44 files, 168 tests passed, including legacy return-path coverage.
 - Next.js production build passed and listed all `/legacy/*`, Test Center and
   authenticated media routes as dynamically rendered.
 - `git diff --check` passed.
-- Live unauthenticated route checks and deployment are pending.
+- Initial PCT128 deployment runs `d8f2175`; app and PostgreSQL health are green.
+  No-cookie checks returned `307` to sign-in for protected pages and `401` for
+  APIs and media, with private no-store response headers. The `/legacy/` return
+  target is being fixed in a follow-up commit before final live verification.
 - Not classroom-verified.
 
 ## Storage visibility limitation
