@@ -80,7 +80,7 @@ INSERT INTO protefl_resource_assignment(resource_id, actor_id, assignment_kind)
 SELECT DISTINCT r.id, a.actor_id, 'historical'
 FROM protefl_attempt a
 JOIN protefl_resource r ON r.listening_form_id = a.form_id
-ON CONFLICT (resource_id, actor_id) DO NOTHING;
+ON CONFLICT (resource_id, actor_id) WHERE revoked_at IS NULL DO NOTHING;
 
 COMMENT ON TABLE protefl_resource IS 'D-031 Test Center-only resource catalogue; learner visibility requires an assignment.';
 COMMENT ON TABLE protefl_resource_invite IS 'One-use invite codes are stored only as SHA-256 hashes and are never logged.';
