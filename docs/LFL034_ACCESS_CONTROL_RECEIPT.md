@@ -1,8 +1,6 @@
 # LFL-034 access control and role workspaces
 
-Status: source-complete; PCT128 runs `2791519`. A follow-up moves archived
-route redirects into an explicit proxy response so the redirect itself has
-no-store headers; deployment and verification are pending.
+Status: deployed to PCT128 on 2026-11-08 (Asia/Jakarta), image `8c9d7f5`.
 
 ## Changes
 
@@ -35,13 +33,19 @@ no-store headers; deployment and verification are pending.
   authenticated media routes as dynamically rendered; the archived route
   redirect proxy was included.
 - `git diff --check` passed.
-- Initial PCT128 deployment ran `d8f2175`; app and PostgreSQL health are green.
-  No-cookie checks returned `307` to sign-in for protected pages and `401` for
-  APIs and media, with private no-store response headers. The `/legacy/` return
-  target is preserved by the deployed `2791519` follow-up. No-store headers
-  for old route aliases are pending deployment and live verification; their
-  current temporary redirects contain no protected page content.
-- Not classroom-verified.
+- PCT128 fast-forwarded through `d8f2175`, `2791519`, `44b27a6`, and
+  `8c9d7f5`. The app reports healthy on `rehearse-app:8c9d7f5`; PostgreSQL
+  remains healthy with its prior container ID unchanged. No database migration
+  or learner record changed.
+- Live LAN no-cookie requests returned `307` with private no-store headers for
+  `/dashboard`, `/test-center`, `/test-center/manage`, `/legacy`, and nested
+  legacy pages. Old route aliases (`/learn`, `/workshop`, `/ladder`,
+  `/classroom`, `/play`) returned `307` to `/legacy/...`, also with private
+  no-store headers and preserved query strings.
+- No-cookie requests to `/api/game`, classroom/workshop media, listening media,
+  and Test Center media returned `401` with private no-store headers.
+- `/api/health` returned `health.v1` OK. No authenticated teacher/learner
+  browser journey was performed; not classroom-verified.
 
 ## Storage visibility limitation
 
