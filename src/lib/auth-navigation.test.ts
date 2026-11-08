@@ -14,6 +14,9 @@ describe("authentication destinations", () => {
     expect(safeReturnTo("/test-center/listening/2000-10")).toBe(
       "/test-center/listening/2000-10",
     );
+    expect(safeReturnTo("/test-center/diagnostic/ets-volume3-practice-test-a")).toBe(
+      "/test-center/diagnostic/ets-volume3-practice-test-a",
+    );
     expect(safeReturnTo("/legacy/learn/three-papers-one-thread")).toBe(
       "/legacy/learn/three-papers-one-thread",
     );

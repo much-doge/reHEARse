@@ -80,6 +80,8 @@ delivery.
   throttling and retain one-use and seven-day expiration rules.
 - Assignment, role, ownership, content, media, answer, submission and result
   authorization are server-enforced. Keep content private/no-store.
+- Preserve the diagnostic URL through the allowlisted sign-in return path; do
+  not silently send candidates to the dashboard after authentication.
 
 ## Durable data and evidence
 
@@ -111,6 +113,8 @@ delivery.
   a separate attempt and leaves the primary result unchanged.
 - [ ] Short-code format, hash-only storage, expiry, one-use claim, rate limiting
   and teacher playback-mode selection are verified.
+- [x] The protected diagnostic URL survives sign-in using a narrow, test-covered
+  authentication return-path allowlist.
 - [ ] No-score reHEARse invariant, Test Center storage boundary, access checks,
   no-store headers, role views, mobile layout and recovery behavior remain
   intact.
