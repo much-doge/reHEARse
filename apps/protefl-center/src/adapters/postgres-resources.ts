@@ -15,6 +15,7 @@ export type TestCenterResource = {
   endsAt: string | null;
   hasAttempt: boolean;
   listeningMode: "autoplay" | "question_click";
+  deliveryScope: "full" | "listening" | "structure" | "reading";
 };
 
 const publicStatus = (status: string) => ["draft", "published", "hidden", "retired"].includes(status);
@@ -22,7 +23,7 @@ const publicStatus = (status: string) => ["draft", "published", "hidden", "retir
 export async function assignedResources(actorId: string): Promise<TestCenterResource[]> {
   const result = await getPool().query(
     `SELECT r.id,r.code,r.version,r.kind,r.title,r.status,
-       a.assigned_at,a.starts_at,a.ends_at,a.listening_mode,
+       a.assigned_at,a.starts_at,a.ends_at,a.listening_mode,a.delivery_scope,
             (EXISTS(SELECT 1 FROM protefl_attempt t WHERE t.actor_id=a.actor_id AND t.form_id=r.listening_form_id AND t.status<>'invalidated') OR EXISTS(SELECT 1 FROM protefl_diagnostic_attempt d WHERE d.actor_id=a.actor_id AND d.resource_id=r.id)) AS has_attempt
      FROM protefl_resource_assignment a
      JOIN protefl_resource r ON r.id=a.resource_id
@@ -37,7 +38,7 @@ export async function assignedResources(actorId: string): Promise<TestCenterReso
     id: String(row.id), code: row.code, version: Number(row.version), kind: row.kind,
     title: row.title, status: row.status, assignedAt: new Date(row.assigned_at).toISOString(),
     startsAt: new Date(row.starts_at).toISOString(), endsAt: row.ends_at ? new Date(row.ends_at).toISOString() : null,
-      hasAttempt: row.has_attempt === true, listeningMode: row.listening_mode,
+    hasAttempt: row.has_attempt === true, listeningMode: row.listening_mode, deliveryScope: row.delivery_scope,
   }));
 }
 
@@ -79,8 +80,12 @@ export async function claimResource(actorId: string, rawCode: string): Promise<v
     if (!invite || invite.status !== "published" || invite.claimed_at || invite.revoked_at || !invite.not_expired)
       throw new Error("invite_unavailable");
     await client.query(
-      `INSERT INTO protefl_resource_assignment(resource_id,actor_id,assigned_by,invite_id,assignment_kind,listening_mode,show_listening_question_text)
-       VALUES($1,$2,$3,$4,'invite',$5,$6)`, [invite.resource_id, actorId, invite.created_by, invite.id, invite.listening_mode, invite.show_listening_question_text],
+      `INSERT INTO protefl_resource_assignment(resource_id,actor_id,assigned_by,invite_id,assignment_kind,listening_mode,show_listening_question_text,delivery_scope)
+       VALUES($1,$2,$3,$4,'invite',$5,$6,$7)
+       ON CONFLICT(resource_id,actor_id) WHERE revoked_at IS NULL DO UPDATE SET
+         assigned_by=excluded.assigned_by,invite_id=excluded.invite_id,assignment_kind='invite',listening_mode=excluded.listening_mode,
+         show_listening_question_text=excluded.show_listening_question_text,delivery_scope=excluded.delivery_scope,starts_at=now(),ends_at=NULL`,
+      [invite.resource_id, actorId, invite.created_by, invite.id, invite.listening_mode, invite.show_listening_question_text, invite.delivery_scope],
     );
     await client.query("UPDATE protefl_resource_invite SET claimed_at=now(),claimed_by=$2 WHERE id=$1", [invite.id, actorId]);
     await client.query("INSERT INTO protefl_resource_event(resource_id,actor_id,invite_id,event_type) VALUES($1,$2,$3,'invite_claimed')", [invite.resource_id, actorId, invite.id]);
@@ -101,7 +106,7 @@ export async function listManagedResources() {
      FROM protefl_resource r ORDER BY r.created_at DESC`,
   );
   const candidates = await getPool().query(
-    `SELECT a.resource_id,u.display_name,u.email,d.id,d.attempt_number,d.scope,d.status,d.completed_at,
+    `SELECT a.resource_id,coalesce(d.delivery_scope,a.delivery_scope) AS delivery_scope,u.display_name,u.email,d.id,d.attempt_number,d.scope,d.status,d.completed_at,
       r.result_data,
       (SELECT count(*)::int FROM protefl_diagnostic_attempt retake WHERE retake.parent_attempt_id=d.id) AS retake_count,
       (SELECT coalesce(jsonb_agg(jsonb_build_object('section',retake.scope,'number',retake.section_retake_number,'status',retake.status,'result',rr.result_data) ORDER BY retake.attempt_number), '[]'::jsonb)
@@ -116,7 +121,7 @@ export async function listManagedResources() {
     title: row.title, status: row.status, createdAt: new Date(row.created_at).toISOString(),
     assignedCount: Number(row.assigned_count),
     candidates: candidates.rows.filter((candidate) => String(candidate.resource_id) === String(row.id)).map((candidate) => ({
-      name: candidate.display_name as string, email: candidate.email as string, status: candidate.status as string | null,
+      name: candidate.display_name as string, email: candidate.email as string, status: candidate.status as string | null, deliveryScope: candidate.delivery_scope as "full" | "listening" | "structure" | "reading",
       attempt: candidate.attempt_number ? Number(candidate.attempt_number) : null,
       completedAt: candidate.completed_at ? new Date(candidate.completed_at).toISOString() : null,
       result: candidate.result_data ?? null, retakes: Number(candidate.retake_count ?? 0),
@@ -130,6 +135,7 @@ export async function issueResourceInvite(
   actorId: string,
   listeningMode: "autoplay" | "question_click" = "question_click",
   showListeningQuestionText = true,
+  deliveryScope: "full" | "listening" | "structure" | "reading" = "full",
 ) {
   const code = generateResourceCode();
   const client = await getPool().connect();
@@ -140,13 +146,13 @@ export async function issueResourceInvite(
     if (!(listeningMode === "autoplay" || listeningMode === "question_click")) throw new Error("invalid_listening_mode");
     const pinnedMode = resource.kind === "diagnostic_package" ? listeningMode : "question_click";
     const invite = (await client.query(
-      `INSERT INTO protefl_resource_invite(resource_id,code_hash,created_by,expires_at,listening_mode,show_listening_question_text)
-       VALUES($1,$2,$3,now()+interval '7 days',$4,$5) RETURNING id`,
-      [resourceId, hashResourceCode(code), actorId, pinnedMode, showListeningQuestionText],
+      `INSERT INTO protefl_resource_invite(resource_id,code_hash,created_by,expires_at,listening_mode,show_listening_question_text,delivery_scope)
+       VALUES($1,$2,$3,now()+interval '7 days',$4,$5,$6) RETURNING id`,
+      [resourceId, hashResourceCode(code), actorId, pinnedMode, showListeningQuestionText, deliveryScope],
     )).rows[0];
     await client.query("INSERT INTO protefl_resource_event(resource_id,actor_id,invite_id,event_type) VALUES($1,$2,$3,'invite_created')", [resourceId, actorId, invite.id]);
     await client.query("COMMIT");
-    return { code, listeningMode: pinnedMode, showListeningQuestionText, expiresInDays: 7 };
+    return { code, listeningMode: pinnedMode, showListeningQuestionText, deliveryScope, expiresInDays: 7 };
   } catch (error) {
     await client.query("ROLLBACK");
     throw error;

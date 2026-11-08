@@ -1,11 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { serverNowAt } from "./server-clock";
 
 type Section = "listening" | "structure" | "reading";
-type Assignment = { id: string; code: string; version: number; title: string; listeningMode: "autoplay" | "question_click"; hasAttempt: boolean };
+type DeliveryScope = "full" | Section;
+type Assignment = { id: string; code: string; version: number; title: string; listeningMode: "autoplay" | "question_click"; deliveryScope: DeliveryScope; hasAttempt: boolean };
 type Timing = {
   audioDurationMs: number;
   pauses: Array<{ question: number; answerWindowStartMs: number; answerWindowEndMs: number; durationMs: number }>;
@@ -18,13 +20,13 @@ type SectionRetakeResult = { section: Section; summary: SectionResult; review: R
 type SectionRetakeHistory = { id: string; section: Section; number: number; completedAt: string; result: SectionRetakeResult };
 type DiagnosticState = {
   id: string; attemptNumber: number; isPrimary: boolean; status: "in_progress" | "completed";
-  scope: "full" | Section; parentAttemptId: string | null; primaryAttemptId?: string; sectionRetakeNumber: number | null;
+  scope: "full" | Section; deliveryScope: DeliveryScope; parentAttemptId: string | null; primaryAttemptId?: string; sectionRetakeNumber: number | null;
   currentSection: "listening" | "structure" | "reading" | "completed"; listeningMode: "autoplay" | "question_click";
   listeningStartedAt: string | null; structureStartedAt: string | null; structureDeadlineAt: string | null;
   readingStartedAt: string | null; readingDeadlineAt: string | null; serverTime: string;
   answers: Record<string, string>; heardListeningQuestions: number[]; lastListeningPositionMs: number;
   selectedQuestions?: number[] | null; showListeningQuestionText?: boolean;
-  result?: Result; primaryResult?: Result; sectionRetakeResult?: SectionRetakeResult; sectionRetakes?: SectionRetakeHistory[];
+  result?: Result; primaryResult?: Result; sectionAssignmentResult?: SectionRetakeResult; sectionRetakeResult?: SectionRetakeResult; sectionRetakes?: SectionRetakeHistory[];
 };
 type Directions = {
   listening: { overview: string; partA: string; partB: string; partC: string };
@@ -36,7 +38,7 @@ type Props = {
   instructions: Directions;
   timing: Timing;
   initial: Record<string, unknown> | null;
-  history: Array<{ id: string; attemptNumber: number; status: string; scope: string; createdAt: string; completedAt: string | null; result: { total?: { correct: number; questions: number }; summary?: { correct: number; total: number } } | null }>;
+  history: Array<{ id: string; attemptNumber: number; status: string; scope: string; deliveryScope: DeliveryScope; createdAt: string; completedAt: string | null; result: { total?: { correct: number; questions: number }; summary?: { correct: number; total: number } } | null }>;
 };
 type StandardItem = { number: number; prompt: string; options: Record<"A" | "B" | "C" | "D", string>; part?: "A" | "B" | "C" };
 type ErrorItem = { number: number; tokens: Array<{ text: string; choice?: "A" | "B" | "C" | "D" }>; options: Record<"A" | "B" | "C" | "D", string> };
@@ -70,6 +72,7 @@ async function parsePayload<T>(response: Response): Promise<T & { error?: string
 }
 
 export function DiagnosticTest({ assignment, instructions, timing, initial, history }: Props) {
+  const router = useRouter();
   const initialState = initial as DiagnosticState | null;
   const [state, setState] = useState<DiagnosticState | null>(initialState);
   const [busy, setBusy] = useState(false);
@@ -191,7 +194,7 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, hist
 
   async function beginSection() {
     await act({ type: "begin_section" });
-    setQuestion(1);
+    setQuestion(state?.selectedQuestions?.[0] ?? 1);
     if (audioRef.current && state?.currentSection === "listening" && state.lastListeningPositionMs > 0)
       audioRef.current.currentTime = state.lastListeningPositionMs / 1000;
   }
@@ -297,20 +300,33 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, hist
     </div>;
   }
 
-  if (!state) return <><section className="ptd-welcome">
-    <p className="ptd-kicker">FULL TOEFL ITP DIAGNOSTIC</p><h1>{assignment.title}</h1>
-    <p className="ptd-lead">Work through all three sections in order. Your answers are saved as you go, and the complete result appears after you submit the Reading section.</p>
+  if (!state) {
+    const assignedSections = assignment.deliveryScope === "full" ? (["listening", "structure", "reading"] as Section[]) : [assignment.deliveryScope];
+    return <><section className="ptd-welcome">
+    <p className="ptd-kicker">{assignment.deliveryScope === "full" ? "FULL TOEFL ITP DIAGNOSTIC" : `${labels[assignment.deliveryScope].toUpperCase()} · ASSIGNED SECTION`}</p><h1>{assignment.title}</h1>
+    <p className="ptd-lead">{assignment.deliveryScope === "full" ? "Work through all three sections in order. Your answers are saved as you go, and the complete result appears after you submit the Reading section." : `Complete the assigned ${labels[assignment.deliveryScope]} section. Your result, answer review, and a focused retry of missed questions will be available when you finish.`}</p>
     <div className="ptd-section-cards">
-      <article><span>01</span><h2>Listening</h2><p>50 questions · follows the complete audio sequence</p><small>{assignment.listeningMode === "autoplay" ? "Autoplay with answer pauses" : "Play each question when ready"}</small></article>
-      <article><span>02</span><h2>Structure and Written Expression</h2><p>40 questions · 25 minutes</p><small>Complete sentences, then identify underlined errors</small></article>
-      <article><span>03</span><h2>Reading</h2><p>50 questions · 55 minutes</p><small>Five passages with the original page arrangement</small></article>
+      {assignedSections.includes("listening") && <article><span>01</span><h2>Listening</h2><p>50 questions · follows the complete audio sequence</p><small>{assignment.listeningMode === "autoplay" ? "Autoplay with answer pauses" : "Play each question when ready"}</small></article>}
+      {assignedSections.includes("structure") && <article><span>02</span><h2>Structure and Written Expression</h2><p>40 questions · 25 minutes</p><small>Complete sentences, then identify underlined errors</small></article>}
+      {assignedSections.includes("reading") && <article><span>03</span><h2>Reading</h2><p>50 questions · 55 minutes</p><small>Five passages with preserved line references</small></article>}
     </div>
     {message && <p className="ptd-error" role="alert">{message}</p>}
-    <button className="ptd-primary" disabled={busy} onClick={() => void createAttempt("start")}>{busy ? "Opening…" : "Begin diagnostic"}</button>
+    <button className="ptd-primary" disabled={busy} onClick={() => void createAttempt("start")}>{busy ? "Opening…" : assignment.deliveryScope === "full" ? "Begin diagnostic" : `Begin ${labels[assignment.deliveryScope]}`}</button>
   </section>{history.length > 0 && <section className="ptd-history"><p className="ptd-kicker">YOUR RECORD</p><h2>Previous attempts</h2>{history.map((attempt) => <article key={attempt.id}><div><strong>Attempt {attempt.attemptNumber}</strong><span>{attempt.status === "completed" ? "Completed" : "In progress"} · {new Date(attempt.createdAt).toLocaleDateString()}</span></div><span>{attempt.result?.total ? `${attempt.result.total.correct}/${attempt.result.total.questions} correct` : attempt.result?.summary ? `${attempt.result.summary.correct}/${attempt.result.summary.total} correct` : "Not completed"}</span><button className="ptd-secondary" onClick={() => void refresh(attempt.id)}>Open record</button></article>)}</section>}</>;
+  }
+
+  if (state.status === "completed" && state.scope === "full" && state.deliveryScope !== "full" && state.sectionAssignmentResult) return <><SectionRetakeResults
+    state={state}
+    result={state.sectionAssignmentResult}
+    standalone
+    busy={busy}
+    onAgain={() => void createAttempt("retake_section", state.deliveryScope as Section, state.id)}
+    onBack={() => router.push("/test-center")}
+  /><AttemptHistoryPanel history={history} currentId={state.id} onOpen={(id) => void refresh(id)} /></>;
 
   if (state.status === "completed" && state.scope !== "full" && state.sectionRetakeResult) return <><SectionRetakeResults
     state={state}
+    result={state.sectionRetakeResult}
     busy={busy}
     onAgain={() => void createAttempt("retake_section", state.scope as Section, state.id)}
     onBack={() => { if (state.parentAttemptId) { void refresh(state.parentAttemptId); setQuestion(1); setReviewOpen(false); } }}
@@ -329,7 +345,7 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, hist
   />;
 
   if (section && section !== "completed" && !sectionStarted && sectionInstruction) return <section className="ptd-section-intro">
-    <p className="ptd-kicker">{state.scope === "full" ? `SECTION ${section === "listening" ? "1" : section === "structure" ? "2" : "3"}` : `SECTION RETAKE ${state.sectionRetakeNumber}`} · {labels[section]}</p>
+    <p className="ptd-kicker">{state.scope !== "full" ? `SECTION RETAKE ${state.sectionRetakeNumber}` : state.deliveryScope === "full" ? `SECTION ${section === "listening" ? "1" : section === "structure" ? "2" : "3"}` : "ASSIGNED SECTION"} · {labels[section]}</p>
     <h1>{section === "listening" ? "Listen carefully and answer as you go." : section === "structure" ? "Read the directions, then begin when ready." : "Read each passage and answer its questions."}</h1>
     {section === "listening" ? <div className="ptd-directions">
       <p>{instructions.listening.overview}</p>{(state.scope === "listening" && state.selectedQuestions?.length ? [...new Set(state.selectedQuestions.map((number) => number <= 30 ? "A" : number <= 37 ? "B" : "C"))] : ["A"]).map((part) => <article key={part}><span>PART {part} · QUESTIONS {part === "A" ? "1–30" : part === "B" ? "31–37" : "38–50"}</span><p>{part === "A" ? instructions.listening.partA : part === "B" ? instructions.listening.partB : instructions.listening.partC}</p></article>)}
@@ -344,7 +360,7 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, hist
   </section>;
 
   if (section === "listening") return <section className="ptd-test-section">
-    <div className="ptd-section-bar"><div><p className="ptd-kicker">{state.scope === "full" ? "SECTION 1 OF 3" : `LISTENING RETAKE ${state.sectionRetakeNumber}`}</p><h1>Listening Comprehension</h1></div><span className="ptd-mode-pill">{state.listeningMode === "autoplay" ? "Autoplay" : "Question-by-question audio"}</span></div>
+    <div className="ptd-section-bar"><div><p className="ptd-kicker">{state.scope !== "full" ? `LISTENING RETAKE ${state.sectionRetakeNumber}` : state.deliveryScope === "full" ? "SECTION 1 OF 3" : "ASSIGNED SECTION"}</p><h1>Listening Comprehension</h1></div><span className="ptd-mode-pill">{state.listeningMode === "autoplay" ? "Autoplay" : "Question-by-question audio"}</span></div>
     <AttemptHistoryPanel history={history} currentId={state.id} onOpen={(id) => void refresh(id)} />
     <audio ref={audioRef} src={"/api/test-center/diagnostic/run/" + state.id + "/audio"} preload="auto" onTimeUpdate={state.listeningMode === "autoplay" ? onAutoplayTime : onSegmentTime} onLoadedMetadata={() => { if (state.listeningMode === "autoplay" && state.lastListeningPositionMs > 0 && audioRef.current) audioRef.current.currentTime = state.lastListeningPositionMs / 1000; }} onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onEnded={() => { setPlaying(false); if (state.listeningMode === "autoplay") void finishListening(); }} />
     {state.listeningMode === "autoplay" && <div className="ptd-player-bar"><button className="ptd-primary" disabled={busy} onClick={() => {
@@ -352,14 +368,14 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, hist
       if (playing) audioRef.current.pause();
       else { void audioRef.current.play().then(() => setPlaying(true)); }
     }}>{playing ? "Pause audio" : "Play / resume audio"}</button><span>{Math.floor(audioNow / 60_000)}:{String(Math.floor(audioNow / 1000) % 60).padStart(2, "0")}</span><span>Question {activeListeningWindow?.question ?? question} of 50</span></div>}
-    {state.listeningMode === "question_click" && <div className="ptd-player-bar"><span>Audio heard · {state.heardListeningQuestions.filter((number) => !state.selectedQuestions?.length || state.selectedQuestions.includes(number)).length} of {state.selectedQuestions?.length ?? 50} questions</span>{state.heardListeningQuestions.filter((number) => !state.selectedQuestions?.length || state.selectedQuestions.includes(number)).length >= (state.selectedQuestions?.length ?? 50) && <button className="ptd-primary" disabled={busy} onClick={() => void act({ type: "finish_section" })}>{state.scope === "full" ? "Continue to Structure" : "Finish Listening retake"}</button>}</div>}
+    {state.listeningMode === "question_click" && <div className="ptd-player-bar"><span>Audio heard · {state.heardListeningQuestions.filter((number) => !state.selectedQuestions?.length || state.selectedQuestions.includes(number)).length} of {state.selectedQuestions?.length ?? 50} questions</span>{state.heardListeningQuestions.filter((number) => !state.selectedQuestions?.length || state.selectedQuestions.includes(number)).length >= (state.selectedQuestions?.length ?? 50) && <button className="ptd-primary" disabled={busy} onClick={() => void act({ type: "finish_section" })}>{state.scope !== "full" ? "Finish Listening retake" : state.deliveryScope === "full" ? "Continue to Structure" : "Finish Listening"}</button>}</div>}
     {listeningDirectionStarts(state).includes(question) && <div className="ptd-part-direction"><span>PART {question <= 30 ? "A" : question <= 37 ? "B" : "C"} · DIRECTIONS</span><p>{question <= 30 ? instructions.listening.partA : question <= 37 ? instructions.listening.partB : instructions.listening.partC}</p></div>}
     {message && <p className="ptd-error" role="alert">{message}</p>}
     {renderQuestionPanel("listening")}
   </section>;
 
   if (section === "structure" || section === "reading") return <section className="ptd-test-section">
-    <div className="ptd-section-bar"><div><p className="ptd-kicker">{state.scope === "full" ? `SECTION ${section === "structure" ? "2" : "3"} OF 3` : `${labels[section].toUpperCase()} RETAKE ${state.sectionRetakeNumber}`}</p><h1>{labels[section]}</h1></div>
+    <div className="ptd-section-bar"><div><p className="ptd-kicker">{state.scope !== "full" ? `${labels[section].toUpperCase()} RETAKE ${state.sectionRetakeNumber}` : state.deliveryScope === "full" ? `SECTION ${section === "structure" ? "2" : "3"} OF 3` : "ASSIGNED SECTION"}</p><h1>{labels[section]}</h1></div>
       <div className={"ptd-countdown" + ((remaining ?? 0) < 60_000 ? " urgent" : "")}><span>TIME REMAINING</span><strong>{formatRemaining(remaining ?? 0)}</strong></div>
     </div>
     <AttemptHistoryPanel history={history} currentId={state.id} onOpen={(id) => void refresh(id)} />
@@ -374,8 +390,8 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, hist
         const index = sequence.indexOf(question);
         if (index < sequence.length - 1) { const next = sequence[index + 1]; setQuestion(next); if (section === "structure") setActivePart(next <= 15 ? "A" : "B"); return; }
         if (section === "structure") { setQuestion(1); setActivePart("A"); void act({ type: "finish_section" }); }
-        else if (window.confirm("Finish the diagnostic and open your results? You can review answers and retry missed items afterward.")) void act({ type: "submit" });
-      }}>{question < (state.scope === section && state.selectedQuestions?.length ? state.selectedQuestions.at(-1)! : section === "structure" ? 40 : 50) ? "Next question" : section === "structure" ? "Continue to Reading · Question 1" : "Finish diagnostic"}</button>
+        else if (window.confirm(state.deliveryScope === "full" ? "Finish the diagnostic and open your results? You can review answers and retry missed items afterward." : "Finish this section and open your results? You can review answers and retry missed items afterward.")) void act({ type: "submit" });
+      }}>{question < (state.scope === section && state.selectedQuestions?.length ? state.selectedQuestions.at(-1)! : section === "structure" ? 40 : 50) ? "Next question" : section === "structure" ? state.deliveryScope === "full" ? "Continue to Reading · Question 1" : "Finish section" : state.deliveryScope === "full" ? "Finish diagnostic" : "Finish section"}</button>
     </div>
   </section>;
 
@@ -488,24 +504,23 @@ function DiagnosticResults({ state, busy, reviewOpen, setReviewOpen, reviewFilte
   </section>;
 }
 
-function SectionRetakeResults({ state, busy, onAgain, onBack }: { state: DiagnosticState; busy: boolean; onAgain: () => void; onBack: () => void }) {
+function SectionRetakeResults({ state, result, standalone = false, busy, onAgain, onBack }: { state: DiagnosticState; result: SectionRetakeResult; standalone?: boolean; busy: boolean; onAgain: () => void; onBack: () => void }) {
   const [filter, setFilter] = useState<"incorrect" | "all">("incorrect");
   const [selected, setSelected] = useState<ReviewItem | null>(null);
-  const result = state.sectionRetakeResult!;
   const summary = result.summary;
   const review = filter === "incorrect" ? result.review.filter((item) => !item.correct) : result.review;
   const accuracy = Math.round(summary.correct / summary.total * 100);
   return <section className="ptd-results">
-    <p className="ptd-kicker">{labels[result.section].toUpperCase()} · RETAKE {state.sectionRetakeNumber}</p>
-    <h1>Section retake complete</h1>
+    <p className="ptd-kicker">{labels[result.section].toUpperCase()} · {standalone ? `ATTEMPT ${state.attemptNumber}` : `RETAKE ${state.sectionRetakeNumber}`}</p>
+    <h1>{standalone ? "Assigned section complete" : "Section retake complete"}</h1>
     <section className="ptd-section-retake-score">
-      <div><span>Correct answers</span><strong>{summary.correct}<small>/{summary.total}</small></strong><p>{accuracy}% accuracy on this retake</p></div>
+      <div><span>Correct answers</span><strong>{summary.correct}<small>/{summary.total}</small></strong><p>{accuracy}% accuracy {standalone ? "on this section" : "on this retake"}</p></div>
       <div className="ptd-retake-stat-grid"><span><strong>{summary.incorrect}</strong> Incorrect</span><span><strong>{summary.omitted}</strong> Omitted</span><span><strong>{summary.converted ? `${summary.converted[0]}–${summary.converted[1]}` : "—"}</strong> Converted range</span></div>
     </section>
-    <p className="ptd-score-note">This retake is recorded separately. Your completed full diagnostic result has not changed.</p>
-    <div className="ptd-result-actions"><button className="ptd-primary" onClick={onBack}>Back to complete diagnostic</button><button className="ptd-secondary" disabled={busy} onClick={onAgain}>{busy ? "Starting…" : `Retake ${labels[result.section]} again`}</button></div>
+    <p className="ptd-score-note">{standalone ? "This result is saved in your attempt history. A retry includes only questions you missed or omitted and does not replace this result." : "This retake is recorded separately. Your completed assigned result has not changed."}</p>
+    <div className="ptd-result-actions"><button className="ptd-primary" onClick={onBack}>{standalone ? "Back to Test Center" : "Back to complete result"}</button><button className="ptd-secondary" disabled={busy || summary.incorrect + summary.omitted === 0} onClick={onAgain}>{busy ? "Starting…" : summary.incorrect + summary.omitted === 0 ? "No missed questions" : "Retry missed questions"}</button></div>
     <div className="ptd-review">
-      <div className="ptd-review-toolbar"><div><h2>Retake answer review</h2><p>Open any question to compare your response with the answer key.</p></div><label>Show <select value={filter} onChange={(event) => setFilter(event.target.value as "incorrect" | "all")}><option value="incorrect">Incorrect and omitted</option><option value="all">All questions</option></select></label></div>
+      <div className="ptd-review-toolbar"><div><h2>Answer review</h2><p>Open any question to compare your response with the answer key.</p></div><label>Show <select value={filter} onChange={(event) => setFilter(event.target.value as "incorrect" | "all")}><option value="incorrect">Incorrect and omitted</option><option value="all">All questions</option></select></label></div>
       <div className="ptd-review-list">{review.map((item) => <button key={item.question} className={selected?.question === item.question ? "active" : ""} onClick={() => setSelected(item)}><span>Question {item.question}</span><strong>{item.correct ? "Correct" : item.selected ? "Incorrect" : "Omitted"}</strong></button>)}</div>
       {selected && <article className="ptd-review-detail"><StructuredQuestionCard attemptId={state.id} section={result.section} question={selected.question} selected={selected.selected ?? undefined} disabled={true} onChoose={() => undefined} /><p>Your answer: <strong>{selected.selected ?? "No answer"}</strong> · Correct answer: <strong>{selected.correctAnswer}</strong></p></article>}
     </div>

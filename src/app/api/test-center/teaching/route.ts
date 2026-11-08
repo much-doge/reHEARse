@@ -17,7 +17,7 @@ export async function POST(request: Request) {
   try {
     const raw = await request.text();
     if (raw.length > 1024) return Response.json({ error: "invalid_request" }, { status: 400, headers });
-    const body = JSON.parse(raw) as { action?: unknown; resourceId?: unknown; status?: unknown; listeningMode?: unknown; showListeningQuestionText?: unknown };
+    const body = JSON.parse(raw) as { action?: unknown; resourceId?: unknown; status?: unknown; listeningMode?: unknown; showListeningQuestionText?: unknown; deliveryScope?: unknown };
     if (typeof body.resourceId !== "string" || !/^[0-9a-f-]{36}$/i.test(body.resourceId))
       return Response.json({ error: "invalid_request" }, { status: 400, headers });
     if (body.action === "issue_invite") {
@@ -26,7 +26,10 @@ export async function POST(request: Request) {
       const listeningMode = body.listeningMode === "autoplay" ? "autoplay" : "question_click";
       if (body.showListeningQuestionText !== undefined && typeof body.showListeningQuestionText !== "boolean")
         return Response.json({ error: "invalid_request" }, { status: 400, headers });
-      const invite = await issueResourceInvite(body.resourceId, user.id, listeningMode, body.showListeningQuestionText !== false);
+      if (body.deliveryScope !== undefined && !["full", "listening", "structure", "reading"].includes(String(body.deliveryScope)))
+        return Response.json({ error: "invalid_request" }, { status: 400, headers });
+      const deliveryScope = body.deliveryScope === "listening" || body.deliveryScope === "structure" || body.deliveryScope === "reading" ? body.deliveryScope : "full";
+      const invite = await issueResourceInvite(body.resourceId, user.id, listeningMode, body.showListeningQuestionText !== false, deliveryScope);
       return Response.json({ invite }, { headers });
     }
     if (body.action === "set_status" && (body.status === "published" || body.status === "hidden")) {
