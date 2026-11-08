@@ -26,9 +26,11 @@ Use neutral states: Captured, Unclear, Reconsider, Newly noticed, and Not enough
 evidence. Never Strong/Weak, Pass/Fail, percentage-complete, or traffic-light
 mastery.
 
-All rendered interface and feedback copy is English-only. Historical paired
-language fields may remain in stored contracts for compatibility, but the UI
-must not render the Indonesian field. See D029.
+Authenticated learner, teacher, administrator and Test Center interfaces and
+feedback remain English-only. The public root marketing landing page is a
+narrow Indonesian-language exception under D030. Historical paired language
+fields may remain in stored contracts for compatibility; the landing-page
+language change does not alter stored content.
 
 ## Primary screen
 

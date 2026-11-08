@@ -3,10 +3,11 @@ import { Suspense } from "react";
 import { SessionNotice } from "@/components/session-notice";
 
 import "./globals.css";
+import "./marketing.css";
 
 export const metadata: Metadata = {
   title: "reHEARse",
-  description: "Listening practice with notes, discussion and guided replay.",
+  description: "A focused TOEFL ITP and ProTEFL preparation platform.",
 };
 
 export default function RootLayout({

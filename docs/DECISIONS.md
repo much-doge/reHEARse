@@ -399,3 +399,19 @@ test records merely to change presentation language. UI adapters select the
 English field, and new public-facing copy is authored in English. Removing the
 legacy Indonesian storage shape requires a separate additive migration and
 contract-version decision; it is not part of this display-only change.
+## D030 — Indonesian preparation landing page (LFL-031)
+
+Accepted at the operator's request. Keep the product name **reHEARse** and
+retain the Quiet Signal color palette and calm, editorial design philosophy.
+The public root homepage is a promotional landing page for TOEFL ITP and
+ProTEFL preparation, written in Indonesian. This is a narrow exception to
+D029: all authenticated learner, teacher, administrator and Test Center
+interfaces remain English-only. The Indonesian language is marked on the
+landing-page content region; stored learning and assessment contracts are not
+changed. Public copy may describe preparation features without promising a
+specific score, pass result, official status or guaranteed outcome.
+
+Archive the superseded root homepage presentation under `legacy/homepage/`.
+Keep active routes, game assets, listening media, Test Center sources and
+learner/assessment data in their existing boundaries; a marketing refresh does
+not justify moving runtime dependencies or private material.

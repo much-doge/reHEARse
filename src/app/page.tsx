@@ -1,117 +1,242 @@
+import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 
 import { currentUser } from "@/lib/session";
+import { BrandMark } from "@/components/brand-mark";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Persiapan TOEFL ITP & ProTEFL | reHEARse",
+  description:
+    "Latihan Listening, Structure, dan Reading, paket soal terarah, serta simulasi diagnostik TOEFL ITP dan ProTEFL dalam satu ruang belajar.",
+  openGraph: {
+    title: "Persiapan TOEFL ITP & ProTEFL | reHEARse",
+    description:
+      "Persiapkan diri melalui latihan tiga bagian tes, paket soal, dan simulasi diagnostik yang terarah.",
+    locale: "id_ID",
+    type: "website",
+  },
+};
+
 export default async function HomePage() {
   const user = await currentUser();
+  const signInHref = user ? "/dashboard" : "/login";
+
   return (
-    <main className="landing-shell">
-      <nav className="topbar landing-nav" aria-label="Primary navigation">
-        <Link href="/" className="brand-mark" aria-label="reHEARse home">
-          <span className="brand-pulse" />
-          <span>reHEARse</span>
-        </Link>
-        <div className="landing-account">
-          <Link
-            href={user && user.role !== "learner" ? "/classroom" : "/play"}
-            className="text-button"
-          >
-            Classroom</Link>
-          <Link href={user ? "/dashboard" : "/login"} className="text-button">
-            {user ? "My activities" : "Sign in"}
-          </Link>
-          <span className="prototype-chip">
-            Listening practice</span>
-        </div>
-      </nav>
-
-      <section className="hero">
-        <div className="hero-copy">
-          <p className="eyebrow">Listening practice</p>
-          <h1>
-            Listen for meaning.
-            <br />
-            Build your understanding.
-          </h1>
-          <p className="hero-lede">
-            Listen to a conversation, record what you understood, and replay
-            with a clear focus.
-            </p>
-          <div className="hero-actions">
-            <Link href="/dashboard" className="button button-primary">
-              Open practice<span aria-hidden="true">→</span>
-            </Link>
-            <Link
-              href={user ? "/ladder" : "/register"}
-              className="button button-quiet"
-            >
-              {user
-                ? "Play the listening ladder"
-                : "Create account"}
-            </Link>
+    <main className="marketing-shell" lang="id">
+      <div className="marketing-wrap">
+        <nav className="marketing-nav" aria-label="Navigasi utama">
+          <BrandMark />
+          <div className="marketing-nav-links">
+            <a href="#program">Program</a>
+            <a href="#skills">Tiga bagian tes</a>
+            <a href="#akses">Akses belajar</a>
           </div>
-        </div>
+          <div className="marketing-nav-actions">
+            <Link href={signInHref} className="marketing-signin">
+              {user ? "Ruang belajarku" : "Masuk"}
+            </Link>
+            {!user && (
+              <Link href="/register" className="button button-primary">
+                Buat akun <span aria-hidden="true">→</span>
+              </Link>
+            )}
+          </div>
+        </nav>
 
-        <div
-          className="signal-art"
-          aria-label="Abstract sound and note visualization"
-        >
-          <div className="signal-orbit orbit-one" />
-          <div className="signal-orbit orbit-two" />
-          <div className="signal-card">
-            <span className="signal-label">
-              Listening focus</span>
-            <div className="wave-bars" aria-hidden="true">
-              {[18, 38, 62, 28, 76, 46, 88, 34, 58, 22, 68, 42].map(
-                (height, index) => (
-                  <i key={index} style={{ height }} />
-                ),
-              )}
+        <section className="marketing-hero" aria-labelledby="hero-title">
+          <div className="marketing-hero-copy">
+            <p className="marketing-eyebrow">Persiapan TOEFL ITP &amp; ProTEFL</p>
+            <h1 id="hero-title">
+              Persiapan terarah.
+              <br />
+              Hadapi tes dengan lebih <span>siap.</span>
+            </h1>
+            <p className="marketing-lede">
+              Latih Listening, Structure, dan Reading lewat soal per bagian,
+              paket latihan terpilih, hingga simulasi diagnostik lengkap—dalam
+              satu ruang belajar yang tertata.
+            </p>
+            <div className="marketing-actions">
+              <Link href={signInHref} className="button button-primary">
+                Masuk ke ruang belajar <span aria-hidden="true">→</span>
+              </Link>
+              <a href="#program" className="marketing-secondary">
+                Lihat program
+              </a>
             </div>
-            <p>
-              Listen for what <em>however</em> changes in the speaker’s idea.
-            </p>
+            <div className="marketing-trustline" aria-label="Cakupan persiapan">
+              <span>Latihan bertahap</span>
+              <span>Tiga bagian tes</span>
+              <span>Belajar lebih terarah</span>
+            </div>
+          </div>
+
+          <div className="marketing-art">
+            <Image
+              src="/art/rehearse/toefl-preparation-still-life.webp"
+              alt="Buku latihan, headphone, pensil, dan catatan belajar"
+              width={1600}
+              height={800}
+              sizes="(max-width: 720px) 100vw, 55vw"
+              className="marketing-art-image"
+              loading="eager"
+            />
+            <div className="marketing-image-note">
+              <strong>Belajar dengan fokus</strong>
+              Dari memahami pola soal sampai mengenali bagian yang perlu dilatih.
+            </div>
+          </div>
+        </section>
+
+        <div className="marketing-skills" aria-label="Tiga bagian tes">
+          <div className="marketing-skill">
+            <span className="marketing-skill-index">01</span>
+            <div>
+              <strong>Listening</strong>
+              <small>Memahami percakapan dan informasi lisan</small>
+            </div>
+          </div>
+          <div className="marketing-skill">
+            <span className="marketing-skill-index">02</span>
+            <div>
+              <strong>Structure</strong>
+              <small>Memahami tata bahasa dalam konteks</small>
+            </div>
+          </div>
+          <div className="marketing-skill">
+            <span className="marketing-skill-index">03</span>
+            <div>
+              <strong>Reading</strong>
+              <small>Membaca teks akademik dengan cermat</small>
+            </div>
           </div>
         </div>
-      </section>
 
-      <section className="loop-section" id="loop">
-        <div className="section-heading">
-          <p className="eyebrow">Practice sequence</p>
-          <h2>Listen, reflect, and listen again.</h2>
-        </div>
-        <ol className="loop-grid">
-          <li>
-            <span>01</span>
-            <strong>Listen</strong>
+        <section className="marketing-section" id="skills" aria-labelledby="skills-title">
+          <div className="marketing-section-heading">
+            <p className="marketing-eyebrow">Belajar tiga bagian tes</p>
+            <h2 id="skills-title">Persiapan yang lebih utuh, dimulai dari tiap bagian.</h2>
             <p>
-              Identify the situation and the speakers’ purpose.
+              Kenali bentuk soal dan latih strategi yang sesuai untuk Listening,
+              Structure, serta Reading pada TOEFL ITP dan ProTEFL.
             </p>
-          </li>
-          <li>
-            <span>02</span>
-            <strong>Take notes</strong>
+          </div>
+          <div className="marketing-skill-grid">
+            <article className="marketing-skill-card">
+              <span className="marketing-card-icon" aria-hidden="true">♪</span>
+              <h3>Listening</h3>
+              <p>
+                Berlatih menangkap maksud pembicara, detail penting, dan perubahan
+                gagasan dalam percakapan maupun penjelasan singkat.
+              </p>
+            </article>
+            <article className="marketing-skill-card">
+              <span className="marketing-card-icon" aria-hidden="true">Aa</span>
+              <h3>Structure</h3>
+              <p>
+                Perkuat pemahaman pola kalimat, bentuk kata, dan tata bahasa yang
+                sering muncul dalam soal.
+              </p>
+            </article>
+            <article className="marketing-skill-card">
+              <span className="marketing-card-icon" aria-hidden="true">¶</span>
+              <h3>Reading</h3>
+              <p>
+                Latih pemahaman gagasan utama, detail, kosakata, dan hubungan
+                antargagasan di dalam teks.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section className="marketing-section" id="program" aria-labelledby="program-title">
+          <div className="marketing-section-heading">
+            <p className="marketing-eyebrow">Cara berlatih</p>
+            <h2 id="program-title">Dari latihan singkat sampai simulasi lengkap.</h2>
             <p>
-              Record key ideas in words or a simple diagram.
+              Gunakan latihan sesuai kebutuhanmu, lalu lanjutkan ke paket soal
+              dan simulasi diagnostik untuk memetakan persiapan berikutnya.
             </p>
-          </li>
-          <li>
-            <span>03</span>
-            <strong>Reflect</strong>
-            <p>
-              Compare your interpretation with the feedback.
+          </div>
+          <div className="marketing-program-grid">
+            <article className="marketing-program-card">
+              <span>Latihan per bagian</span>
+              <h3>Fokus pada satu skill</h3>
+              <p>
+                Kerjakan latihan Listening, Structure, atau Reading untuk
+                membiasakan diri dengan bentuk dan strategi soal.
               </p>
-          </li>
-          <li>
-            <span>04</span>
-            <strong>Replay</strong>
-            <p>
-              Listen for a specific detail, then revise your explanation.
+            </article>
+            <article className="marketing-program-card">
+              <span>Paket latihan</span>
+              <h3>Latihan yang lebih terarah</h3>
+              <p>
+                Selesaikan paket soal yang disusun untuk membantu belajar secara
+                bertahap dan mandiri.
               </p>
-          </li>
-        </ol>
-      </section>
+            </article>
+            <article className="marketing-program-card">
+              <span>Simulasi diagnostik</span>
+              <h3>Kenali kesiapanmu</h3>
+              <p>
+                Coba simulasi tes lengkap sebagai bahan untuk menentukan fokus
+                belajar dan berdiskusi dengan pengajar.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section className="marketing-section" id="akses" aria-labelledby="access-title">
+          <div className="marketing-access">
+            <div>
+              <p className="marketing-eyebrow">Ruang belajar personal</p>
+              <h2 id="access-title">Materi yang relevan. Langkah belajar yang jelas.</h2>
+            </div>
+            <div className="marketing-access-copy">
+              Pengajar mengatur materi dan latihan yang tersedia untuk setiap
+              peserta. Setelah masuk, kamu akan melihat materi yang memang
+              ditugaskan untukmu—supaya ruang belajar tetap rapi dan fokus.
+              <div className="marketing-access-points">
+                <span>Materi dibuka sesuai program dan tahap belajar</span>
+                <span>Latihan dan simulasi tersusun dalam satu tempat</span>
+                <span>Hasil diagnostik bersifat pribadi dan aksesnya dibatasi</span>
+                <span>Langkah persiapan berikutnya lebih mudah dikenali</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="marketing-final" aria-labelledby="final-title">
+          <p className="marketing-eyebrow">Mulai persiapanmu</p>
+          <h2 id="final-title">Satu langkah latihan hari ini, bekal lebih baik untuk hari tes.</h2>
+          <p>
+            Masuk ke reHEARse untuk membuka materi yang telah disiapkan bagi
+            program belajarmu.
+          </p>
+          <div className="marketing-actions">
+            <Link href={signInHref} className="button button-primary">
+              {user ? "Buka ruang belajar" : "Masuk ke ruang belajar"}
+              <span aria-hidden="true">→</span>
+            </Link>
+            {!user && (
+              <Link href="/register" className="marketing-secondary">
+                Buat akun
+              </Link>
+            )}
+          </div>
+        </section>
+
+        <footer className="marketing-footer">
+          <BrandMark />
+          <p>
+            reHEARse adalah platform persiapan. Pendaftaran dan ketentuan tes
+            resmi mengikuti informasi dari penyelenggara masing-masing.
+          </p>
+        </footer>
+      </div>
     </main>
   );
 }

@@ -6,6 +6,7 @@ import type { LadderView } from "@/domain/ladder/model";
 
 import { listLearnerActivities } from "@/adapters/db/listening-repository";
 import { logoutAction } from "@/app/auth-actions";
+import { BrandMark } from "@/components/brand-mark";
 import { requireUser } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
@@ -33,10 +34,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   return (
     <main className="app-shell">
       <header className="app-header">
-        <Link href="/" className="brand-mark">
-          <span className="brand-pulse" />
-          <span>reHEARse</span>
-        </Link>
+        <BrandMark />
         <div className="header-person">
           <span className="avatar">
             {user.displayName.slice(0, 2).toUpperCase()}

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { currentUser } from "@/lib/session";
 import { safeReturnTo } from "@/lib/auth-navigation";
+import { BrandMark } from "@/components/brand-mark";
 
 import { loginAction } from "@/app/auth-actions";
 
@@ -22,10 +23,7 @@ export default async function LoginPage({
 
   return (
     <main className="auth-shell">
-      <Link href="/" className="brand-mark">
-        <span className="brand-pulse" />
-        <span>reHEARse</span>
-      </Link>
+      <BrandMark />
       <section className="auth-card">
         <p className="eyebrow">Sign in</p>
         <h1>Continue your listening practice.</h1>

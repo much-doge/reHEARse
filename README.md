@@ -1,7 +1,10 @@
 # reHEARse
 
-A bilingual, no-score listening-learning environment for building the
-foundations beneath TOEFL Listening Part B and Part C.
+reHEARse is a digital TOEFL ITP and ProTEFL preparation platform. The public
+homepage introduces the preparation offering in Indonesian; the authenticated
+learning and Test Center experiences remain English-only. Listening practice
+continues to use the focused learning loop below, while formal diagnostic
+attempts and results stay inside the separately bounded ProTEFL Test Center.
 
 The first loop is:
 

@@ -14,6 +14,7 @@ import { Avatar } from "./avatar";
 import { AvatarControls } from "./avatar-controls";
 import { ladderTaskKey, reconcileLadderView } from "./view-reconciliation";
 import { AnswerEffect } from "./answer-effect";
+import { BrandSymbol } from "@/components/brand-mark";
 import { confirmedAnswerEffect, type AnswerEffect as AnswerEffectState } from "./answer-effect-state";
 function Words({ text }: { text: BilingualText }) {
   return <span>{text.en}</span>;
@@ -318,7 +319,7 @@ export function LadderGame({
       )}
       <header className="ladder-header">
         <Link href="/" className="ladder-brand" aria-label="reHEARse home">
-          <span className="brand-pulse" />
+          <BrandSymbol />
           reHEARse
         </Link>
         <span className="ladder-mode">
