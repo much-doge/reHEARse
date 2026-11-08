@@ -84,6 +84,7 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, hist
   const [activePart, setActivePart] = useState<"A" | "B">("A");
   const audioRef = useRef<HTMLAudioElement>(null);
   const segmentRef = useRef<{ endMs: number; question: number } | null>(null);
+  const snappedListeningQuestion = useRef(0);
   const heardRef = useRef(new Set(state?.heardListeningQuestions ?? []));
   const timeoutSent = useRef<string | null>(null);
   const clockAnchor = useRef({ server: new Date(serverTime).getTime(), monotonic: 0 });
@@ -180,6 +181,10 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, hist
     () => timing.pauses.find((pause) => audioNow >= pause.answerWindowStartMs && audioNow < pause.answerWindowEndMs),
     [audioNow, timing.pauses],
   );
+  const passedListeningQuestion = useMemo(
+    () => timing.pauses.reduce((last, pause) => audioNow >= pause.answerWindowEndMs ? pause.question : last, 0),
+    [audioNow, timing.pauses],
+  );
   const canAnswerListening = state?.listeningMode === "autoplay"
     ? activeListeningWindow?.question === question && !!activeListeningWindow && activeListeningWindow.answerWindowEndMs > audioNow
     : !!state?.heardListeningQuestions.includes(question);
@@ -218,8 +223,14 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, hist
     if (!element) return;
     const current = Math.round(element.currentTime * 1000);
     setAudioNow(current);
-    const active = timing.questions.find((item) => current >= item.questionAudioStartMs && current < item.answerWindowEndMs);
-    if (active) setQuestion(active.question);
+    const active = timing.questions.find((item) => {
+      const spokenQuestionCue = Math.max(item.questionAudioStartMs, item.answerWindowStartMs - 7_000);
+      return current >= spokenQuestionCue && current < item.answerWindowEndMs;
+    });
+    if (active && snappedListeningQuestion.current !== active.question) {
+      snappedListeningQuestion.current = active.question;
+      setQuestion(active.question);
+    }
     const answerWindow = timing.pauses.find((pause) => current >= pause.answerWindowStartMs && current < pause.answerWindowEndMs);
     if (answerWindow) void reportAudio(answerWindow.question, answerWindow.answerWindowStartMs);
   }
@@ -277,7 +288,7 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, hist
         <div className="ptd-question-grid-wrap">{name === "structure" && <div className="ptd-part-tabs"><button className={activePart === "A" ? "active" : ""} disabled={!numbers.some((n) => n <= 15)} onClick={() => { const first = numbers.find((n) => n <= 15); if (first) { setActivePart("A"); setQuestion(first); } }}>Part A · Questions 1–15</button><button className={activePart === "B" ? "active" : ""} disabled={!numbers.some((n) => n >= 16)} onClick={() => { const first = numbers.find((n) => n >= 16); if (first) { setActivePart("B"); setQuestion(first); } }}>Part B · Questions 16–40</button></div>}<strong>Question navigator</strong><div className="ptd-question-grid">{numbers.filter((number) => name !== "structure" || (activePart === "A" ? number <= 15 : number >= 16)).map((number) => {
           const answered = !!answers[answerKey(name, number)];
           const heard = name === "listening" && state?.heardListeningQuestions.includes(number);
-          const locked = name === "listening" && number < question;
+          const locked = name === "listening" && (state?.listeningMode === "autoplay" ? number <= passedListeningQuestion : answered);
           return <button key={number} disabled={locked} className={[number === question ? "current" : "", answered ? "answered" : "", heard ? "heard" : ""].filter(Boolean).join(" ")} aria-label={"Question " + number + (answered ? ", answered" : ", unanswered")} onClick={() => setQuestion(number)}>{number}</button>;
         })}</div>
           <div className="ptd-grid-key"><span>Answered</span><span>Unanswered</span>{name === "listening" && <span>Audio heard</span>}</div>
