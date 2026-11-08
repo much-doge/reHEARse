@@ -3,15 +3,6 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   output: "standalone",
   poweredByHeader: false,
-  async redirects() {
-    return [
-      { source: "/learn/:path*", destination: "/legacy/learn/:path*", permanent: false },
-      { source: "/workshop/:path*", destination: "/legacy/workshop/:path*", permanent: false },
-      { source: "/ladder/:path*", destination: "/legacy/ladder/:path*", permanent: false },
-      { source: "/classroom/:path*", destination: "/legacy/classroom/:path*", permanent: false },
-      { source: "/play/:path*", destination: "/legacy/play/:path*", permanent: false },
-    ];
-  },
   async headers() {
     const privateNoStore = [
       { key: "Cache-Control", value: "private, no-store, max-age=0, must-revalidate" },
@@ -22,10 +13,6 @@ const nextConfig: NextConfig = {
       ...["/dashboard", "/test-center", "/legacy"]
         .map((source) => ({ source, headers: privateNoStore })),
       ...["/dashboard/:path*", "/test-center/:path*", "/legacy/:path*"]
-        .map((source) => ({ source, headers: privateNoStore })),
-      ...["/learn", "/workshop", "/ladder", "/classroom", "/play"]
-        .map((source) => ({ source, headers: privateNoStore })),
-      ...["/learn/:path*", "/workshop/:path*", "/ladder/:path*", "/classroom/:path*", "/play/:path*"]
         .map((source) => ({ source, headers: privateNoStore })),
       { source: "/api/:path*", headers: privateNoStore },
     ];

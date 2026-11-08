@@ -1,7 +1,8 @@
 # LFL-034 access control and role workspaces
 
-Status: source-complete; PCT128 runs `2791519`. A follow-up is adding no-store
-headers to the old route aliases before final live verification.
+Status: source-complete; PCT128 runs `2791519`. A follow-up moves archived
+route redirects into an explicit proxy response so the redirect itself has
+no-store headers; deployment and verification are pending.
 
 ## Changes
 
@@ -29,15 +30,17 @@ headers to the old route aliases before final live verification.
 - ESLint passed.
 - TypeScript passed after removing stale `.next/dev/types` generated for the
   old route locations.
-- Vitest: 44 files, 168 tests passed, including legacy return-path coverage.
+- Vitest: 45 files, 170 tests passed, including legacy route mapping and return-path coverage.
 - Next.js production build passed and listed all `/legacy/*`, Test Center and
-  authenticated media routes as dynamically rendered.
+  authenticated media routes as dynamically rendered; the archived route
+  redirect proxy was included.
 - `git diff --check` passed.
-- Initial PCT128 deployment runs `d8f2175`; app and PostgreSQL health are green.
+- Initial PCT128 deployment ran `d8f2175`; app and PostgreSQL health are green.
   No-cookie checks returned `307` to sign-in for protected pages and `401` for
   APIs and media, with private no-store response headers. The `/legacy/` return
   target is preserved by the deployed `2791519` follow-up. No-store headers
-  for the old route aliases are being added before final live verification.
+  for old route aliases are pending deployment and live verification; their
+  current temporary redirects contain no protected page content.
 - Not classroom-verified.
 
 ## Storage visibility limitation
