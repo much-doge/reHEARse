@@ -1,0 +1,37 @@
+.ptc-resources-shell { width: min(1040px, calc(100% - 40px)); margin: 0 auto; padding: 26px 0 80px; color: var(--ink, #192d32); }
+.ptc-resources-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-bottom: 22px; border-bottom: 1px solid var(--line, #dce5e3); font-size: 13px; }
+.ptc-resources-header a { color: var(--muted, #667775); text-decoration: none; }
+.ptc-resources-header strong { font-size: 15px; }
+.ptc-resources-intro { padding: 54px 0 28px; }
+.ptc-resources-intro .eyebrow, .ptc-resource-card .eyebrow { color: #187c74; font-size: 10px; font-weight: 800; letter-spacing: .12em; }
+.ptc-resources-intro h1 { margin: 8px 0 10px; font-family: var(--font-display), Georgia, serif; font-size: clamp(34px, 5vw, 54px); letter-spacing: -.04em; }
+.ptc-resources-intro p:last-child { max-width: 580px; color: var(--muted, #667775); line-height: 1.7; }
+.ptc-resource-claim { margin: 8px 0 26px; padding: 20px; border: 1px solid var(--line, #dce5e3); border-radius: 16px; background: #f8fbfa; }
+.ptc-resource-claim label { display: block; margin-bottom: 10px; font-size: 13px; font-weight: 700; }
+.ptc-resource-claim div { display: flex; gap: 10px; }
+.ptc-resource-claim input { flex: 1; min-width: 0; padding: 12px 14px; border: 1px solid #cbd8d5; border-radius: 9px; font: inherit; }
+.ptc-resource-claim button, .ptc-resource-actions button, .ptc-issued-code button { border: 0; border-radius: 9px; padding: 11px 16px; background: #173f4b; color: white; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
+.ptc-resource-claim button:disabled, .ptc-resource-actions button:disabled { opacity: .55; cursor: wait; }
+.ptc-resource-claim p, .ptc-resource-notice { margin: 10px 0 0; color: #8a3c31; font-size: 12px; }
+.ptc-resource-list { display: grid; gap: 12px; }
+.ptc-resource-card { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 22px; border: 1px solid var(--line, #dce5e3); border-radius: 16px; background: white; }
+.ptc-resource-card h2 { margin: 7px 0; font-size: 19px; }
+.ptc-resource-card p { margin: 0; color: var(--muted, #667775); font-size: 12px; line-height: 1.65; }
+.ptc-resource-open { flex: 0 0 auto; padding: 11px 14px; border-radius: 9px; background: #e5f4f1; color: #14655e; font-size: 12px; font-weight: 750; text-decoration: none; }
+.ptc-resource-empty { padding: 36px; border: 1px dashed #bacbc7; border-radius: 16px; text-align: center; }
+.ptc-resource-empty p { max-width: 420px; margin: 8px auto 0; color: var(--muted, #667775); font-size: 13px; line-height: 1.7; }
+.ptc-resource-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+.ptc-resource-actions .secondary { background: #e5f4f1; color: #14655e; }
+.ptc-issued-code { margin-bottom: 14px; padding: 18px; border: 1px solid #b7d9ce; border-radius: 14px; background: #effaf5; }
+.ptc-issued-code strong, .ptc-issued-code code { display: block; }
+.ptc-issued-code code { width: fit-content; margin: 12px 0; padding: 12px; border-radius: 8px; background: white; font-size: 17px; user-select: all; }
+.ptc-issued-code p { color: #596b65; font-size: 12px; }
+@media (max-width: 640px) {
+  .ptc-resources-shell { width: min(100% - 28px, 1040px); }
+  .ptc-resources-header { flex-wrap: wrap; font-size: 11px; }
+  .ptc-resources-header strong { order: -1; flex-basis: 100%; }
+  .ptc-resources-intro { padding-top: 38px; }
+  .ptc-resource-claim div, .ptc-resource-card { align-items: stretch; flex-direction: column; }
+  .ptc-resource-claim button, .ptc-resource-open { text-align: center; }
+  .ptc-resource-actions { justify-content: flex-start; }
+}

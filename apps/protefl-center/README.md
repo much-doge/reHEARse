@@ -1,6 +1,6 @@
 # ProTEFL Course Companion and Test Center
 
-Status: planning under `LFL-027`
+Status: active companion boundary under `LFL-027`; assigned-resource access implemented under `LFL-032`
 
 This directory is the boundary for a companion web application for the
 small-class/semi-private ProTEFL TOEFL ITP preparation course. It can grow to
@@ -16,8 +16,15 @@ under D-027.
 
 - a product charter with users, boundaries and safety rules;
 - a phased delivery plan with the first decisions we must make;
-- an owner-only ignored location for future source material;
-- no runtime app, real test content, candidate records or deployment claim.
+- an owner-only ignored location for private source material;
+- a versioned resource catalogue, one-use candidate access codes, assigned-only learner listing, and teacher/admin visibility controls;
+- the supervised Listening pilot gated by assignment checks at page, API, attempt and media boundaries.
+
+The resource workflow does not yet upload or compose a full diagnostic package.
+Real Structure and Reading content, answer keys, scoring provenance, and a
+published full-test journey remain separate gated work. The local implementation
+does not imply that production migrations have been applied or that a classroom
+journey has been verified.
 
 ## Proposed source layout
 
@@ -29,9 +36,10 @@ apps/protefl-center/
   private/              Ignored owner-only source workspace
 ```
 
-We will add a package manifest and application framework only in the walking
-skeleton slice. That keeps this planning milestone reversible and avoids
-changing the production reHEARse build before the first user journey is chosen.
+The Test Center currently shares the repository build and authenticated session
+adapter while keeping assessment records and content in its own persistence
+boundary. Future full-package work must preserve the separate product and
+runtime boundary recorded in D-027.
 
 ## Before real diagnostic content
 

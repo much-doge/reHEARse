@@ -412,6 +412,13 @@ must not be discoverable by guessing an identifier. Hiding a resource prevents
 new starts; an already-started attempt remains resumable unless an authorized
 teacher explicitly invalidates it with an audit record.
 
+The first runtime slice uses single-use, resource-scoped invite codes because
+the Test Center must not query the reHEARse user directory. It stores only a
+hash of each invite and the authenticated opaque actor identifier on claim.
+Existing supervised Listening attempts are backfilled as assignments to
+preserve pilot access; new starts require an active assignment and a published
+resource. This slice does not yet create or publish a composed diagnostic.
+
 The full diagnostic is a new immutable, versioned package in the ProTEFL Test
 Center. It may pin the existing supervised Listening form as one section and
 add separately reviewed Structure and Reading sections. Reuse the pilot's

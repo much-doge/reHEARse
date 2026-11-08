@@ -1,6 +1,22 @@
 # LFL-032 assigned resource and diagnostic workflow
 
-Status: planning
+Status: first access-control slice implemented; full diagnostic package pending
+
+## Active implementation slice
+
+The first implementation gates the existing supervised Listening resource so
+authentication alone no longer reveals or starts it. Teachers/admins can
+control resource visibility and issue scoped, one-time access codes; candidates
+see only their assigned resources and can claim a code after signing in. The
+same assignment boundary will be used by future composed diagnostic packages.
+Historical pilot attempts are backfilled as assignments. Hiding a resource
+removes it from the ordinary list, blocks new starts, and keeps an existing
+assigned attempt resumable/reviewable. Invite codes are stored as hashes and
+shown to staff only once when created.
+
+This slice does not import or expose new Structure/Reading source material.
+Those sections and the full diagnostic package remain gated on their source,
+answer-key, timing, review and scoring-provenance receipts below.
 
 ## Goal
 
@@ -102,18 +118,23 @@ placement interpretation requires its source, version, uncertainty statement,
 independent review, retention rule and explicit publication gate before it is
 implemented or shown to candidates.
 
-## Implementation sequence
+## Implementation sequence and current state
 
-1. Define the new composed package contract with synthetic Listening,
-   Structure and Reading fixtures; write the source and answer-key receipt
-   template without importing protected item text.
-2. Add additive persistence for immutable diagnostic package versions,
-   publication state, explicit candidate assignments and parent attempts.
-3. Build the teacher/admin draft, review, publish, assign and hide workflow.
-4. Build the candidate assigned-resource home and enforce assignment checks
-   across every read and write route.
-5. Compose the pinned Listening v2 section with new Structure/Reading sections;
-   retain each section's own timing and interaction rules.
+1. **Implemented in this slice:** add resource publication, one-use invite,
+   assignment and audit persistence; backfill existing Listening pilot
+   attempts without changing them.
+2. **Implemented in this slice:** provide teacher/admin publish/hide and invite
+   creation controls, plus the signed-in candidate's assigned-resource list and
+   invite claim.
+3. **Implemented in this slice:** enforce assignment at the Listening page,
+   API actions and private media boundary; keep existing assigned attempts
+   resumable while hidden and block new starts until publication returns.
+4. Define the composed package contract and receipt template using synthetic
+   Listening, Structure and Reading fixtures, without importing protected item
+   text.
+5. Add immutable diagnostic package versions and parent attempts. Compose the
+   pinned Listening v2 section with separately prepared Structure/Reading
+   sections, retaining each section's own timing and interaction rules.
 6. Complete authorized content review, scoring provenance, retention and
    interruption policy before real candidate use or deployment.
 
@@ -128,5 +149,7 @@ implemented or shown to candidates.
 - answer/review visibility and candidate-data retention/deletion policy;
 - role-scoped teacher access and a complete authenticated end-to-end journey.
 
-No assessment runtime, new content or deployment is claimed by this planning
-document.
+The assigned-resource runtime is a source implementation only until the
+migration is applied and authenticated teacher/candidate journeys are verified
+in the target environment. No full diagnostic package, new Structure/Reading
+content or deployment is claimed by this work item.

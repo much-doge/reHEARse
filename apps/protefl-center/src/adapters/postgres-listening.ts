@@ -34,6 +34,16 @@ async function databaseNow(client: PoolClient): Promise<Date> {
   return (await client.query("SELECT clock_timestamp() AS now")).rows[0].now;
 }
 
+async function resourceAccess(client: PoolClient, actorId: string, formId: string) {
+  return (await client.query(
+    `SELECT r.status,
+       EXISTS(SELECT 1 FROM protefl_resource_assignment a WHERE a.resource_id=r.id AND a.actor_id=$1
+         AND a.revoked_at IS NULL AND a.starts_at<=now() AND (a.ends_at IS NULL OR a.ends_at>now())) AS assigned,
+       EXISTS(SELECT 1 FROM protefl_attempt t WHERE t.actor_id=$1 AND t.form_id=r.listening_form_id AND t.status<>'invalidated') AS has_attempt
+     FROM protefl_resource r WHERE r.listening_form_id=$2`, [actorId, formId],
+  )).rows[0];
+}
+
 async function form(client: PoolClient) {
   const row = (
     await client.query(
@@ -165,7 +175,13 @@ async function project(client: PoolClient, actorId: string, selectedAttempt?: Re
 
 export class PostgresListeningPilotRepository implements ListeningPilotRepository {
   async view(actorId: string) {
-    return transaction((client) => project(client, actorId));
+    return transaction(async (client) => {
+      const currentForm = await form(client);
+      const access = await resourceAccess(client, actorId, String(currentForm.id));
+      if (!access?.assigned || (access.status !== "published" && !access.has_attempt))
+        throw new ListeningPilotError("attempt_not_found", 404);
+      return project(client, actorId);
+    });
   }
 
   async act(actorId: string, action: ListeningAction) {
@@ -180,8 +196,13 @@ export class PostgresListeningPilotRepository implements ListeningPilotRepositor
         ).rows[0];
         if (existing) {
           if (existing.actor_id !== actorId) throw new ListeningPilotError("attempt_not_found", 404);
+          const access = await resourceAccess(client, actorId, String(currentForm.id));
+          if (!access?.assigned) throw new ListeningPilotError("attempt_not_found", 404);
           return project(client, actorId, existing);
         }
+        const access = await resourceAccess(client, actorId, String(currentForm.id));
+        if (!access?.assigned || access.status !== "published")
+          throw new ListeningPilotError("attempt_not_found", 404);
         const inProgress = (
           await client.query(
             `SELECT * FROM protefl_attempt WHERE actor_id=$1 AND form_id=$2 AND status='in_progress'
@@ -242,6 +263,8 @@ export class PostgresListeningPilotRepository implements ListeningPilotRepositor
         )
       ).rows[0];
       if (!attempt) throw new ListeningPilotError("attempt_not_found", 404);
+      const access = await resourceAccess(client, actorId, String(currentForm.id));
+      if (!access?.assigned) throw new ListeningPilotError("attempt_not_found", 404);
       const requestDigest = digest({ revision: action.revision, action });
       const prior = (
         await client.query(
@@ -327,7 +350,10 @@ export class PostgresListeningPilotRepository implements ListeningPilotRepositor
         `SELECT i.media_storage_key FROM protefl_attempt a
          JOIN protefl_attempt_item ai ON ai.attempt_id=a.id
          JOIN protefl_test_item i ON i.id=ai.item_id
-         WHERE a.id=$1 AND a.actor_id=$2 AND i.id=$3 AND a.status<>'invalidated'`,
+         JOIN protefl_resource r ON r.listening_form_id=a.form_id
+         JOIN protefl_resource_assignment ra ON ra.resource_id=r.id AND ra.actor_id=a.actor_id
+         WHERE a.id=$1 AND a.actor_id=$2 AND i.id=$3 AND a.status<>'invalidated'
+           AND ra.revoked_at IS NULL AND ra.starts_at<=now() AND (ra.ends_at IS NULL OR ra.ends_at>now())`,
         [attemptId, actorId, itemId],
       )
     ).rows[0];

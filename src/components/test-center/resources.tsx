@@ -1,0 +1,89 @@
+"use client";
+
+import Link from "next/link";
+import { useState } from "react";
+
+import type { TestCenterResource } from "@protefl/adapters/postgres-resources";
+
+export function ResourceClaim({ onClaimed }: { onClaimed: () => void }) {
+  const [code, setCode] = useState("");
+  const [message, setMessage] = useState("");
+  const [busy, setBusy] = useState(false);
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setBusy(true);
+    setMessage("");
+    try {
+      const response = await fetch("/api/test-center/resources", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
+      if (!response.ok) throw new Error("Kode tidak tersedia. Periksa kembali atau hubungi pengajar.");
+      setCode("");
+      setMessage("Akses berhasil ditambahkan.");
+      onClaimed();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Akses belum dapat ditambahkan.");
+    } finally { setBusy(false); }
+  }
+  return <form className="ptc-resource-claim" onSubmit={submit}>
+    <label htmlFor="resource-code">Punya kode akses dari pengajar?</label>
+    <div><input id="resource-code" value={code} onChange={(event) => setCode(event.target.value)} autoComplete="off" required maxLength={80} />
+      <button type="submit" disabled={busy}>{busy ? "Memeriksa…" : "Tambahkan akses"}</button></div>
+    {message && <p role="status">{message}</p>}
+  </form>;
+}
+
+export function AssignedResources({ resources, canManage }: { resources: TestCenterResource[]; canManage: boolean }) {
+  const [items, setItems] = useState(resources);
+  return <main className="ptc-resources-shell">
+    <header className="ptc-resources-header"><Link href="/dashboard">← Dashboard</Link><strong>ProTEFL Test Center</strong>
+      {canManage && <Link href="/test-center/manage">Manage resources</Link>}</header>
+    <section className="ptc-resources-intro"><p className="eyebrow">YOUR COURSE MATERIALS</p><h1>My assigned resources</h1>
+      <p>Resources become available here when your teacher assigns access to your account.</p></section>
+    <ResourceClaim onClaimed={async () => {
+      const response = await fetch("/api/test-center/resources", { cache: "no-store" });
+      if (response.ok) { const data = await response.json() as { resources: TestCenterResource[] }; setItems(data.resources); }
+    }} />
+    <section className="ptc-resource-list" aria-live="polite">
+      {items.length ? items.map((resource) => <article className="ptc-resource-card" key={resource.id}>
+        <div><span className="eyebrow">{resource.kind === "listening_form" ? "LISTENING PILOT" : "DIAGNOSTIC PACKAGE"} · VERSION {resource.version}</span>
+          <h2>{resource.title}</h2><p>{resource.hasAttempt ? "Your previous attempt is available to continue or review." : "Assigned to your account"}</p></div>
+        {resource.kind === "listening_form" && <Link className="ptc-resource-open" href="/test-center/listening/2000-10">Open resource →</Link>}
+      </article>) : <div className="ptc-resource-empty"><h2>No resources assigned yet</h2><p>When your teacher shares an access code, enter it above. Assigned resources will appear here.</p></div>}
+    </section>
+  </main>;
+}
+
+type ManagedResource = { id: string; code: string; version: number; kind: string; title: string; status: string; assignedCount: number };
+export function ResourceManager({ resources: initial }: { resources: ManagedResource[] }) {
+  const [resources, setResources] = useState(initial);
+  const [message, setMessage] = useState("");
+  const [busy, setBusy] = useState<string | null>(null);
+  const [issuedCode, setIssuedCode] = useState<{ title: string; code: string } | null>(null);
+  async function mutate(resource: ManagedResource, action: "issue_invite" | "set_status") {
+    setBusy(resource.id); setMessage(""); setIssuedCode(null);
+    const status = resource.status === "published" ? "hidden" : "published";
+    try {
+      const response = await fetch("/api/test-center/manage", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, resourceId: resource.id, status }) });
+      const data = await response.json() as { invite?: { code: string }; resource?: { status: string }; error?: string };
+      if (!response.ok) throw new Error("Perubahan belum berhasil disimpan.");
+      if (data.invite) setIssuedCode({ title: resource.title, code: data.invite.code });
+      if (data.resource) setResources((current) => current.map((item) => item.id === resource.id ? { ...item, status: data.resource!.status } : item));
+    } catch (error) { setMessage(error instanceof Error ? error.message : "Terjadi kendala."); }
+    finally { setBusy(null); }
+  }
+  return <main className="ptc-resources-shell">
+    <header className="ptc-resources-header"><Link href="/test-center">← Candidate view</Link><strong>ProTEFL Test Center</strong><Link href="/dashboard">Dashboard</Link></header>
+    <section className="ptc-resources-intro"><p className="eyebrow">TEACHER / ADMIN</p><h1>Manage resources</h1><p>Publish or hide resources and create one-use access codes for candidates.</p></section>
+    {message && <p role="alert" className="ptc-resource-notice">{message}</p>}
+    {issuedCode && <section className="ptc-issued-code" role="status"><strong>Share this code once · {issuedCode.title}</strong><code>{issuedCode.code}</code><p>This code expires in 7 days. It is shown only now; create another if it is lost.</p><button onClick={() => { navigator.clipboard?.writeText(issuedCode.code); setMessage("Code copied."); }}>Copy code</button></section>}
+    <section className="ptc-resource-list">{resources.map((resource) => <article className="ptc-resource-card" key={resource.id}>
+      <div><span className="eyebrow">{resource.kind.replaceAll("_", " ").toUpperCase()} · VERSION {resource.version}</span><h2>{resource.title}</h2><p>Status: <strong>{resource.status}</strong> · {resource.assignedCount} active assignments</p></div>
+      <div className="ptc-resource-actions">
+        <button disabled={busy !== null || resource.status !== "published"} onClick={() => mutate(resource, "issue_invite")}>{busy === resource.id ? "Working…" : "Create access code"}</button>
+        {(resource.status === "published" || resource.status === "hidden" || resource.status === "draft") && <button className="secondary" disabled={busy !== null} onClick={() => mutate(resource, "set_status")}>{resource.status === "published" ? "Hide resource" : "Publish resource"}</button>}
+      </div>
+    </article>)}</section>
+  </main>;
+}

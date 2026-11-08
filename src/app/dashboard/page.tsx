@@ -63,11 +63,11 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           Classroom sessions</Link>
       </p>
       <section className="ladder-dashboard-entry">
-        <p className="eyebrow">ProTEFL Test Center · Supervised pilot</p>
-        <h2>Listening test — Form 2000-10</h2>
-        <p>Complete the 50-item Parts A–C listening form, review your raw item outcomes, then retry only missed items.</p>
-        <Link href="/test-center/listening/2000-10" className="ladder-primary">
-          Open the listening test</Link>
+        <p className="eyebrow">ProTEFL Test Center</p>
+        <h2>My assigned resources</h2>
+        <p>Open tests and course resources your teacher has assigned to your account.</p>
+        <Link href="/test-center" className="ladder-primary">Open Test Center →</Link>
+        {user.role !== "learner" && <Link href="/test-center/manage" className="ladder-secondary">Manage assigned resources</Link>}
       </section>
       <section className="ladder-dashboard-entry">
         <p className="eyebrow">TOEFL ITP Listening · Parts A–C</p>
