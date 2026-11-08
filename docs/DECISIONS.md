@@ -429,6 +429,14 @@ responses and results stay in the Test Center boundary, never in reHEARse
 learning attempts, feedback, games or history. No official-score conversion or
 placement interpretation is claimed without documented source and scoring
 provenance and independent review.
+
+## D032 — Najala footer affiliation (LFL-033)
+
+Accepted at the operator's request. The public landing-page footer identifies
+reHEARse as part of Najala.org and uses the owner-supplied Najala wordmark and
+symbol, linking the organization name/logo to `https://najala.org`. Do not
+expand this into unprovided claims about legal ownership, accreditation or
+official test-provider status.
 ## D030 — Indonesian preparation landing page (LFL-031)
 
 Accepted at the operator's request. Keep the product name **reHEARse** and

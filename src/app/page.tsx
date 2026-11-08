@@ -230,11 +230,50 @@ export default async function HomePage() {
         </section>
 
         <footer className="marketing-footer">
-          <BrandMark />
-          <p>
-            reHEARse adalah platform persiapan. Pendaftaran dan ketentuan tes
-            resmi mengikuti informasi dari penyelenggara masing-masing.
-          </p>
+          <div className="marketing-footer-top">
+            <div className="marketing-footer-brands">
+              <BrandMark />
+              <span className="marketing-footer-divider" aria-hidden="true" />
+              <span className="marketing-footer-affiliation">Bagian dari</span>
+              <a
+                href="https://najala.org"
+                className="marketing-najala-link"
+                aria-label="Najala.org — kunjungi situs Najala"
+              >
+                <Image
+                  src="/art/najala/najala-wordmark.png"
+                  alt="Najala.org"
+                  width={250}
+                  height={76}
+                  className="marketing-najala-wordmark"
+                />
+                <Image
+                  src="/art/najala/najala-symbol.png"
+                  alt=""
+                  width={48}
+                  height={48}
+                  className="marketing-najala-symbol"
+                />
+                <span className="marketing-najala-mobile-name">Najala.org</span>
+              </a>
+            </div>
+            <p className="marketing-footer-description">
+              reHEARse adalah bagian dari Najala.org, platform persiapan TOEFL ITP
+              dan ProTEFL untuk latihan Listening, Structure, dan Reading.
+            </p>
+          </div>
+          <div className="marketing-footer-bottom">
+            <nav aria-label="Navigasi footer">
+              <a href="#program">Program latihan</a>
+              <a href="#skills">Tiga bagian tes</a>
+              <Link href={signInHref}>{user ? "Ruang belajarku" : "Masuk"}</Link>
+            </nav>
+            <p>
+              Ketentuan pendaftaran dan pelaksanaan tes resmi mengikuti
+              informasi dari penyelenggara masing-masing.
+            </p>
+            <small>© 2026 reHEARse · Bagian dari Najala.org</small>
+          </div>
         </footer>
       </div>
     </main>
