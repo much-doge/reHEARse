@@ -1,6 +1,6 @@
 # LFL-035 full diagnostic package
 
-Status: implementation in progress; source package and runtime slice implemented, local automated checks pass
+Status: deployed to PCT128; authenticated candidate and teacher journeys remain unverified
 
 ## Objective
 
@@ -126,8 +126,10 @@ Vitest files / 175 tests, `next build`, `git diff --check`, and the package
 manifest/structure verifier. `pnpm` is unavailable in this environment, so the
 equivalent installed binaries were called directly. The standalone build was
 inspected: candidate page renders, audio, and JSON metadata are present, while
-the complete source PDF and layout-text file are absent. Database migrations,
-an authenticated candidate journey, and deployment have not been run.
+the complete source PDF and layout-text file are absent. Migrations 019 and 020
+are now applied in PCT128. The authenticated candidate/teacher journey and
+classroom verification remain outstanding; see
+[`docs/LFL035_DEPLOYMENT_RECEIPT.md`](../../../docs/LFL035_DEPLOYMENT_RECEIPT.md).
 
 ## Current gaps
 
@@ -135,6 +137,6 @@ The source package is ingested and structurally validated. The full 35:02 audio
 has 50 detected answer pauses of about 12 seconds; question windows and
 conversation/talk groups are mapped, while the first question start is based
 on the supplied video transcript timestamp. A complete human audio spot-check,
-database migration run, signed-in candidate journey and classroom verification
-remain outstanding. All local source checks and the production build pass; no
-deployment is claimed.
+signed-in candidate journey and classroom verification remain outstanding.
+PCT128 deployment and migration evidence are recorded in
+[`docs/LFL035_DEPLOYMENT_RECEIPT.md`](../../../docs/LFL035_DEPLOYMENT_RECEIPT.md).
