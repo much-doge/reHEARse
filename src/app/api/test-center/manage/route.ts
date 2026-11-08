@@ -17,11 +17,14 @@ export async function POST(request: Request) {
   try {
     const raw = await request.text();
     if (raw.length > 1024) return Response.json({ error: "invalid_request" }, { status: 400, headers });
-    const body = JSON.parse(raw) as { action?: unknown; resourceId?: unknown; status?: unknown };
+    const body = JSON.parse(raw) as { action?: unknown; resourceId?: unknown; status?: unknown; listeningMode?: unknown };
     if (typeof body.resourceId !== "string" || !/^[0-9a-f-]{36}$/i.test(body.resourceId))
       return Response.json({ error: "invalid_request" }, { status: 400, headers });
     if (body.action === "issue_invite") {
-      const invite = await issueResourceInvite(body.resourceId, user.id);
+      if (body.listeningMode !== undefined && body.listeningMode !== "autoplay" && body.listeningMode !== "question_click")
+        return Response.json({ error: "invalid_request" }, { status: 400, headers });
+      const listeningMode = body.listeningMode === "autoplay" ? "autoplay" : "question_click";
+      const invite = await issueResourceInvite(body.resourceId, user.id, listeningMode);
       return Response.json({ invite }, { headers });
     }
     if (body.action === "set_status" && (body.status === "published" || body.status === "hidden")) {

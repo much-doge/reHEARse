@@ -35,3 +35,6 @@
   .ptc-resource-claim button, .ptc-resource-open { text-align: center; }
   .ptc-resource-actions { justify-content: flex-start; }
 }
+
+.ptc-listening-mode { display: grid; gap: .4rem; color: var(--ptc-ink, #263b34); font-size: .82rem; font-weight: 700; }
+.ptc-listening-mode select { min-height: 2.6rem; padding: .55rem .75rem; border: 1px solid #cad8cf; border-radius: .7rem; background: #fff; color: inherit; font: inherit; }

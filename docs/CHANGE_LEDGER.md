@@ -1,6 +1,6 @@
 # Change ledger
 
-| LFL-035 | in_progress | Ingest owner-authorized ETS TOEFL ITP Level 1 Volume 3 Practice Test A source package and implement assigned full diagnostic with short codes, teacher-selected Listening mode, timed Structure/Reading, whole-test results and immutable retakes | Source package hashes, 140 answer keys, 50 detected audio windows, 140 page references, 5 Reading passage groups, 15 score ranges validated; page render spot-check passed; protected routes, migration, candidate journey, full check and deployment not yet done | `apps/protefl-center/content/ets-volume3-practice-test-a-v1/`; `apps/protefl-center/docs/LFL035_FULL_DIAGNOSTIC.md`; D035 |
+| LFL-035 | in_progress | Ingest the owner-authorized ETS TOEFL ITP Level 1 Volume 3 Practice Test A package and implement an assigned three-section diagnostic with short access codes, teacher-selected Listening playback, timed Structure/Reading, whole-test results and immutable retakes | Package manifest and structural verifier pass; ESLint, TypeScript, 47 Vitest files / 175 tests, Next production build and `git diff --check` pass using installed binaries; standalone artifact contains allowlisted pages/audio/metadata and excludes the complete source PDF/layout text; migrations not applied, signed-in database journey and audio alignment review remain unverified; no deployment | `apps/protefl-center/content/ets-volume3-practice-test-a-v1/`; `apps/protefl-center/docs/LFL035_FULL_DIAGNOSTIC.md`; D035 |
 
 | Work ID | Status | Outcome | Verification | Implementation |
 |---|---|---|---|---|

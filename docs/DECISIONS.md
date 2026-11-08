@@ -502,6 +502,11 @@ autoplay or per-question playback mode; autoplay retains the source's roughly
 minutes. The existing source page arrangement, including Reading line breaks
 and Structure Part B underlines, is preserved.
 
+Invite codes use ten Crockford-style Base32 characters, are stored only as
+hashes, remain one-use and expire after seven days. Authenticated claim attempts
+are rate-limited per actor. Hiding a resource prevents new starts and retakes
+but does not strand an already-started assigned candidate from resuming.
+
 The first completed attempt is the candidate's primary result. Whole-test
 retakes append a separate attempt and cannot replace or improve that result.
 Result details become visible only after completion of all three sections.
@@ -509,3 +514,8 @@ The package's exact Practice Test A answer key and score-conversion table are
 versioned with source provenance. Deployment and candidate use remain gated on
 protected delivery, attempt persistence, timing/audio alignment review, and
 end-to-end verification.
+
+Every attempt pins the package version/content digest plus answer-key, score
+table, and timing-map digests. Where the source score table omits Structure raw
+counts 39–40, the application leaves the converted result unavailable instead
+of extrapolating.

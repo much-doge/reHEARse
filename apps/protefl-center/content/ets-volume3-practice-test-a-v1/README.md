@@ -9,9 +9,12 @@ This is the source-backed content package for the ProTEFL Test Center diagnostic
 - `source/practice-test-a-listening.m4a`: complete Practice Test A listening recording, 35:02, mono AAC.
 - `pages/`: page-faithful renders of only Practice Test A question and direction pages. The reading passage layout and Structure Part B underlines remain intact.
 - `metadata/answer-key-practice-test-a-v1.json`: Practice Test A answer key, transcribed from the answer key page.
-- `metadata/score-conversion-practice-test-a-v1.json`: section conversion ranges and combined-score method from the scoring pages.
+- `metadata/score-conversion-practice-test-a-v1.json`: section conversion ranges and combined-score method from the scoring pages. Raw Structure counts 39–40 have no value in the source table; the application leaves those conversions unavailable rather than filling in a value.
 - `metadata/listening-pauses-v1.json`: detected answer-window boundaries in the full audio.
+- `metadata/listening-question-map-v1.json`: question-only and Part B/C context playback boundaries.
 - `metadata/page-index-v1.json`: section/question-to-source-page map and reading passage groups.
+- `metadata/page-texts-v1.json`: layout-retaining text companion extracted from the allowlisted question pages; tracked for accessible presentation work, but not currently served to candidates.
+- `metadata/instructions-practice-test-a-v1.json`: source directions for each section and Structure part.
 - `package-manifest.json`: versions, source provenance, and SHA-256 inventory.
 
 ## Source provenance

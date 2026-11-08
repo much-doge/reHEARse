@@ -1,17 +1,19 @@
 # LFL-035 full diagnostic package
 
-Status: implementation in progress; source assets ingested and tracked
+Status: implementation in progress; source package and runtime slice implemented, local automated checks pass
 
 ## Objective
 
 Create an assigned, three-section diagnostic in the ProTEFL Test Center from
 ETS's *TOEFL ITP Level 1 Practice Tests, Volume 3, Practice Test A*. The owner
-confirmed in chat that they have rights to digitize and deliver the book's
-content to their students. ETS's official Volume 3 eBook and two Listening
-audio players were located at `https://www.ets.org/s/toefl-itp/l1v3_ebook/`.
-Source files, question content, answer keys, audio, and score-conversion data
-must remain in the ignored private source workspace and private runtime object
-storage; they must not enter Git or reHEARse learning records.
+confirmed in chat that they have full rights to digitize and deliver the
+book's content to their students and explicitly instructed that the artifacts
+be committed. ETS's official Volume 3 eBook and Listening audio were located
+at `https://www.ets.org/s/toefl-itp/l1v3_ebook/`. The owner-authorized source
+book, audio, page renders, keys, scoring data and versioned maps are tracked
+under `apps/protefl-center/content/ets-volume3-practice-test-a-v1/`. Candidate
+attempts and results remain private Test Center data and never enter reHEARse
+learning records.
 
 The existing Form 2000-10 listening pilot is a workflow/reference only. Do not
 substitute its questions or audio for Practice Test A.
@@ -41,7 +43,9 @@ substitute its questions or audio for Practice Test A.
 - **Structure and Written Expression:** 40 items, 25 minutes. Preserve the
   book's two part directions, Part A sentence completion/omissions, and Part B
   underlined error segments. Provide an answered/unanswered number grid and
-  in-section navigation.
+  in-section navigation. The source conversion table does not provide
+  converted ranges for raw counts 39–40 in this section; preserve the raw
+  count and leave that conversion unavailable rather than extrapolating.
 - **Reading Comprehension:** 50 items, 55 minutes. Preserve source paragraph
   order, line arrangement, and line references through responsive rendering.
 
@@ -81,20 +85,20 @@ delivery.
 
 - Add a new versioned diagnostic package/section/attempt contract; do not
   mutate the listening pilot schema or existing attempts.
-- Pin package, section, scoring-table, timing, playback-mode and content hashes
-  at attempt creation.
+- Pin the immutable resource version, listening mode, package content hash,
+  answer-key hash, score-table hash and timing-map hash at attempt creation.
 - Candidate answers are private append-only attempt evidence. A completed
   retake is a new attempt and cannot update an earlier result.
 - Keep item text, options, passage/line layout, keys, audio, and conversion
   tables out of browser payloads until the attempt's authorized review state.
-- Record source provenance and owner authorization in the private source
-  receipt. Record public code contracts and synthetic coverage in Git.
+- Record source provenance and owner authorization in the tracked package
+  receipt. Keep all candidate records separate from the source artifacts.
 
 ## Acceptance checklist
 
-- [ ] Owner-authorized Practice Test A content and audio are present in the
-  ignored private source directory; provenance, completeness, and hashes are
-  recorded without exposing contents in Git.
+- [x] Owner-authorized Practice Test A source PDF, layout-preserving text,
+  full audio, question-page renders, keys, score table and provenance are
+  tracked with a SHA-256 inventory in the package manifest.
 - [ ] Listening item order, Parts A-C, audio/question grouping, 12-second
   autoplay answer pauses, click mode and direct Part B/C question playback are
   verified against the book/audio.
@@ -113,9 +117,20 @@ delivery.
 - [ ] `pnpm check` and a production-shaped database/media journey pass; exact
   command results and any remaining classroom gates are recorded.
 
+Local verification completed for this checkpoint: ESLint, TypeScript, all 47
+Vitest files / 175 tests, `next build`, `git diff --check`, and the package
+manifest/structure verifier. `pnpm` is unavailable in this environment, so the
+equivalent installed binaries were called directly. The standalone build was
+inspected: candidate page renders, audio, and JSON metadata are present, while
+the complete source PDF and layout-text file are absent. Database migrations,
+an authenticated candidate journey, and deployment have not been run.
+
 ## Current gaps
 
-The source has not been ingested. ETS's page embeds two complete recordings;
-question-level playback segmentation and an exact 12-second autoplay sequence
-still need source-level verification. No migration, real package, result
-calculation, runtime, deployment or classroom verification is claimed.
+The source package is ingested and structurally validated. The full 35:02 audio
+has 50 detected answer pauses of about 12 seconds; question windows and
+conversation/talk groups are mapped, while the first question start is based
+on the supplied video transcript timestamp. A complete human audio spot-check,
+database migration run, signed-in candidate journey and classroom verification
+remain outstanding. All local source checks and the production build pass; no
+deployment is claimed.

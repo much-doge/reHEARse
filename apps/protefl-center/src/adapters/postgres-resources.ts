@@ -1,6 +1,7 @@
-import { createHash, randomBytes } from "node:crypto";
+import { createHash } from "node:crypto";
 
 import { getPool } from "@/adapters/db/client";
+import { generateResourceCode, hashResourceCode, isValidResourceCode, normalizeResourceCode } from "../application/resource-code";
 
 export type TestCenterResource = {
   id: string;
@@ -13,23 +14,21 @@ export type TestCenterResource = {
   startsAt: string;
   endsAt: string | null;
   hasAttempt: boolean;
+  listeningMode: "autoplay" | "question_click";
 };
 
-const hashCode = (code: string) => createHash("sha256").update(code).digest("hex");
 const publicStatus = (status: string) => ["draft", "published", "hidden", "retired"].includes(status);
 
 export async function assignedResources(actorId: string): Promise<TestCenterResource[]> {
   const result = await getPool().query(
     `SELECT r.id,r.code,r.version,r.kind,r.title,r.status,
-            a.assigned_at,a.starts_at,a.ends_at,
-            EXISTS(SELECT 1 FROM protefl_attempt t WHERE t.actor_id=a.actor_id AND t.form_id=r.listening_form_id AND t.status<>'invalidated') AS has_attempt
+            a.assigned_at,a.starts_at,a.ends_at,a.listening_mode,
+            (EXISTS(SELECT 1 FROM protefl_attempt t WHERE t.actor_id=a.actor_id AND t.form_id=r.listening_form_id AND t.status<>'invalidated') OR EXISTS(SELECT 1 FROM protefl_diagnostic_attempt d WHERE d.actor_id=a.actor_id AND d.resource_id=r.id)) AS has_attempt
      FROM protefl_resource_assignment a
      JOIN protefl_resource r ON r.id=a.resource_id
      WHERE a.actor_id=$1 AND a.revoked_at IS NULL
        AND (a.ends_at IS NULL OR a.ends_at>now())
-       AND (r.status='published' OR (r.status='hidden' AND EXISTS(
-         SELECT 1 FROM protefl_attempt t WHERE t.actor_id=a.actor_id AND t.form_id=r.listening_form_id AND t.status<>'invalidated'
-       )))
+       AND (r.status='published' OR (r.status='hidden' AND (EXISTS(SELECT 1 FROM protefl_attempt t WHERE t.actor_id=a.actor_id AND t.form_id=r.listening_form_id AND t.status<>'invalidated') OR EXISTS(SELECT 1 FROM protefl_diagnostic_attempt d WHERE d.actor_id=a.actor_id AND d.resource_id=r.id))))
        AND (a.starts_at<=now())
      ORDER BY r.created_at DESC`,
     [actorId],
@@ -38,26 +37,50 @@ export async function assignedResources(actorId: string): Promise<TestCenterReso
     id: String(row.id), code: row.code, version: Number(row.version), kind: row.kind,
     title: row.title, status: row.status, assignedAt: new Date(row.assigned_at).toISOString(),
     startsAt: new Date(row.starts_at).toISOString(), endsAt: row.ends_at ? new Date(row.ends_at).toISOString() : null,
-    hasAttempt: row.has_attempt === true,
+    hasAttempt: row.has_attempt === true, listeningMode: row.listening_mode,
   }));
 }
 
 export async function claimResource(actorId: string, rawCode: string): Promise<void> {
-  const code = rawCode.trim();
-  if (code.length < 12 || code.length > 80) throw new Error("invite_unavailable");
-  const client = await getPool().connect();
+  const code = normalizeResourceCode(rawCode);
+  // Keep still-valid 24-character invites issued before migration 019 usable;
+  // new invites always use the shorter normalized format.
+  const legacyCode = rawCode.trim();
+  const codeHash = isValidResourceCode(code)
+    ? hashResourceCode(code)
+    : legacyCode.length >= 12 && legacyCode.length <= 80
+      ? createHash("sha256").update(legacyCode).digest("hex")
+      : null;
+  if (!codeHash) throw new Error("invite_unavailable");
+  const pool = getPool();
+  const rateLimit = await pool.query(
+    `INSERT INTO protefl_resource_claim_rate_limit(actor_id,window_started_at,attempt_count)
+     VALUES($1,date_trunc('hour',now()),1)
+     ON CONFLICT(actor_id) DO UPDATE SET
+       window_started_at=CASE
+         WHEN protefl_resource_claim_rate_limit.window_started_at<date_trunc('hour',now()) THEN date_trunc('hour',now())
+         ELSE protefl_resource_claim_rate_limit.window_started_at END,
+       attempt_count=CASE
+         WHEN protefl_resource_claim_rate_limit.window_started_at<date_trunc('hour',now()) THEN 1
+         ELSE protefl_resource_claim_rate_limit.attempt_count+1 END
+     WHERE protefl_resource_claim_rate_limit.window_started_at<date_trunc('hour',now())
+        OR protefl_resource_claim_rate_limit.attempt_count<10
+     RETURNING attempt_count`, [actorId],
+  );
+  if (!rateLimit.rowCount) throw new Error("invite_rate_limited");
+  const client = await pool.connect();
   try {
     await client.query("BEGIN");
     const invite = (await client.query(
       `SELECT i.*,r.status,(i.expires_at>now()) AS not_expired FROM protefl_resource_invite i
        JOIN protefl_resource r ON r.id=i.resource_id
-       WHERE i.code_hash=$1 FOR UPDATE OF i`, [hashCode(code)],
+       WHERE i.code_hash=$1 FOR UPDATE OF i`, [codeHash],
     )).rows[0];
     if (!invite || invite.status !== "published" || invite.claimed_at || invite.revoked_at || !invite.not_expired)
       throw new Error("invite_unavailable");
     await client.query(
-      `INSERT INTO protefl_resource_assignment(resource_id,actor_id,assigned_by,invite_id,assignment_kind)
-       VALUES($1,$2,$3,$4,'invite')`, [invite.resource_id, actorId, invite.created_by, invite.id],
+      `INSERT INTO protefl_resource_assignment(resource_id,actor_id,assigned_by,invite_id,assignment_kind,listening_mode)
+       VALUES($1,$2,$3,$4,'invite',$5)`, [invite.resource_id, actorId, invite.created_by, invite.id, invite.listening_mode],
     );
     await client.query("UPDATE protefl_resource_invite SET claimed_at=now(),claimed_by=$2 WHERE id=$1", [invite.id, actorId]);
     await client.query("INSERT INTO protefl_resource_event(resource_id,actor_id,invite_id,event_type) VALUES($1,$2,$3,'invite_claimed')", [invite.resource_id, actorId, invite.id]);
@@ -84,21 +107,27 @@ export async function listManagedResources() {
   }));
 }
 
-export async function issueResourceInvite(resourceId: string, actorId: string) {
-  const code = randomBytes(18).toString("base64url");
+export async function issueResourceInvite(
+  resourceId: string,
+  actorId: string,
+  listeningMode: "autoplay" | "question_click" = "question_click",
+) {
+  const code = generateResourceCode();
   const client = await getPool().connect();
   try {
     await client.query("BEGIN");
-    const resource = (await client.query("SELECT id,status FROM protefl_resource WHERE id=$1 FOR UPDATE", [resourceId])).rows[0];
+    const resource = (await client.query("SELECT id,status,kind FROM protefl_resource WHERE id=$1 FOR UPDATE", [resourceId])).rows[0];
     if (!resource || resource.status !== "published") throw new Error("resource_unavailable");
+    if (!(listeningMode === "autoplay" || listeningMode === "question_click")) throw new Error("invalid_listening_mode");
+    const pinnedMode = resource.kind === "diagnostic_package" ? listeningMode : "question_click";
     const invite = (await client.query(
-      `INSERT INTO protefl_resource_invite(resource_id,code_hash,created_by,expires_at)
-       VALUES($1,$2,$3,now()+interval '7 days') RETURNING id`,
-      [resourceId, hashCode(code), actorId],
+      `INSERT INTO protefl_resource_invite(resource_id,code_hash,created_by,expires_at,listening_mode)
+       VALUES($1,$2,$3,now()+interval '7 days',$4) RETURNING id`,
+      [resourceId, hashResourceCode(code), actorId, pinnedMode],
     )).rows[0];
     await client.query("INSERT INTO protefl_resource_event(resource_id,actor_id,invite_id,event_type) VALUES($1,$2,$3,'invite_created')", [resourceId, actorId, invite.id]);
     await client.query("COMMIT");
-    return { code, expiresInDays: 7 };
+    return { code, listeningMode: pinnedMode, expiresInDays: 7 };
   } catch (error) {
     await client.query("ROLLBACK");
     throw error;

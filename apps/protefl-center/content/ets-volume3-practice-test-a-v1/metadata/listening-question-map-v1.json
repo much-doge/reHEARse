@@ -1,0 +1,511 @@
+{
+  "schemaVersion": "1.0.0",
+  "source": "ETS Volume 3 Practice Test A full Listening audio plus owner-provided transcript timestamp at 2:17 for the first Part A recording cue",
+  "notes": [
+    "Question boundaries use the 50 acoustic answer windows in listening-pauses-v1.json; playback starts after the previous response window.",
+    "The first Part A cue begins at 137000ms based on the supplied video transcript timestamp; this start point is approximate pending a human audio spot-check.",
+    "Part B groups: 31-34 and 35-37. Part C talks: 38-41, 42-46, and 47-50."
+  ],
+  "questions": [
+    {
+      "question": 1,
+      "groupId": "part-a",
+      "groupType": "question",
+      "questionAudioStartMs": 137000,
+      "questionAudioEndMs": 155107,
+      "contextStartMs": 137000,
+      "answerWindowStartMs": 155107,
+      "answerWindowEndMs": 167234
+    },
+    {
+      "question": 2,
+      "groupId": "part-a",
+      "groupType": "question",
+      "questionAudioStartMs": 167234,
+      "questionAudioEndMs": 182186,
+      "contextStartMs": 137000,
+      "answerWindowStartMs": 182186,
+      "answerWindowEndMs": 194272
+    },
+    {
+      "question": 3,
+      "groupId": "part-a",
+      "groupType": "question",
+      "questionAudioStartMs": 194272,
+      "questionAudioEndMs": 212969,
+      "contextStartMs": 137000,
+      "answerWindowStartMs": 212969,
+      "answerWindowEndMs": 225043
+    },
+    {
+      "question": 4,
+      "groupId": "part-a",
+      "groupType": "question",
+      "questionAudioStartMs": 225043,
+      "questionAudioEndMs": 240052,
+      "contextStartMs": 137000,
+      "answerWindowStartMs": 240052,
+      "answerWindowEndMs": 252105
+    },
+    {
+      "question": 5,
+      "groupId": "part-a",
+      "groupType": "question",
+      "questionAudioStartMs": 252105,
+      "questionAudioEndMs": 266283,
+      "contextStartMs": 137000,
+      "answerWindowStartMs": 266283,
+      "answerWindowEndMs": 278429
+    },
+    {
+      "question": 6,
+      "groupId": "part-a",
+      "groupType": "question",
+      "questionAudioStartMs": 278429,
+      "questionAudioEndMs": 297549,
+      "contextStartMs": 137000,
+      "answerWindowStartMs": 297549,
+      "answerWindowEndMs": 309653
+    },
+    {
+      "question": 7,
+      "groupId": "part-a",
+      "groupType": "question",
+      "questionAudioStartMs": 309653,
+      "questionAudioEndMs": 322732,
+      "contextStartMs": 137000,
+      "answerWindowStartMs": 322732,
+      "answerWindowEndMs": 334816
+    },
+    {
+      "question": 8,
+      "groupId": "part-a",
+      "groupType": "question",
+      "questionAudioStartMs": 334816,
+      "questionAudioEndMs": 345757,
+      "contextStartMs": 137000,
+      "answerWindowStartMs": 345757,
+      "answerWindowEndMs": 357851
+    },
+    {
+      "question": 9,
+      "groupId": "part-a",
+      "groupType": "question",
+      "questionAudioStartMs": 357851,
+      "questionAudioEndMs": 379696,
+      "contextStartMs": 137000,
+      "answerWindowStartMs": 379696,
+      "answerWindowEndMs": 391818
+    },
+    {
+      "question": 10,
+      "groupId": "part-a",
+      "groupType": "question",
+      "questionAudioStartMs": 391818,
+      "questionAudioEndMs": 416341,
+      "contextStartMs": 137000,
+      "answerWindowStartMs": 416341,
+      "answerWindowEndMs": 428424
+    },
+    {
+      "question": 11,
+      "groupId": "part-a",
+      "groupType": "question",
+      "questionAudioStartMs": 428424,
+      "questionAudioEndMs": 439236,
+      "contextStartMs": 137000,
+      "answerWindowStartMs": 439236,
+      "answerWindowEndMs": 451297
+    },
+    {
+      "question": 12,
+      "groupId": "part-a",
+      "groupType": "question",
+      "questionAudioStartMs": 451297,
+      "questionAudioEndMs": 467790,
+      "contextStartMs": 137000,
+      "answerWindowStartMs": 467790,
+      "answerWindowEndMs": 479871
+    },
+    {
+      "question": 13,
+      "groupId": "part-a",
+      "groupType": "question",
+      "questionAudioStartMs": 479871,
+      "questionAudioEndMs": 492562,
+      "contextStartMs": 137000,
+      "answerWindowStartMs": 492562,
+      "answerWindowEndMs": 504661
+    },
+    {
+      "question": 14,
+      "groupId": "part-a",
+      "groupType": "question",
+      "questionAudioStartMs": 504661,
+      "questionAudioEndMs": 519755,
+      "contextStartMs": 137000,
+      "answerWindowStartMs": 519755,
+      "answerWindowEndMs": 531863
+    },
+    {
+      "question": 15,
+      "groupId": "part-a",
+      "groupType": "question",
+      "questionAudioStartMs": 531863,
+      "questionAudioEndMs": 551081,
+      "contextStartMs": 137000,
+      "answerWindowStartMs": 551081,
+      "answerWindowEndMs": 563185
+    },
+    {
+      "question": 16,
+      "groupId": "part-a",
+      "groupType": "question",
+      "questionAudioStartMs": 563185,
+      "questionAudioEndMs": 578650,
+      "contextStartMs": 137000,
+      "answerWindowStartMs": 578650,
+      "answerWindowEndMs": 590695
+    },
+    {
+      "question": 17,
+      "groupId": "part-a",
+      "groupType": "question",
+      "questionAudioStartMs": 590695,
+      "questionAudioEndMs": 608930,
+      "contextStartMs": 137000,
+      "answerWindowStartMs": 608930,
+      "answerWindowEndMs": 620982
+    },
+    {
+      "question": 18,
+      "groupId": "part-a",
+      "groupType": "question",
+      "questionAudioStartMs": 620982,
+      "questionAudioEndMs": 636704,
+      "contextStartMs": 137000,
+      "answerWindowStartMs": 636704,
+      "answerWindowEndMs": 648753
+    },
+    {
+      "question": 19,
+      "groupId": "part-a",
+      "groupType": "question",
+      "questionAudioStartMs": 648753,
+      "questionAudioEndMs": 663764,
+      "contextStartMs": 137000,
+      "answerWindowStartMs": 663764,
+      "answerWindowEndMs": 675880
+    },
+    {
+      "question": 20,
+      "groupId": "part-a",
+      "groupType": "question",
+      "questionAudioStartMs": 675880,
+      "questionAudioEndMs": 692395,
+      "contextStartMs": 137000,
+      "answerWindowStartMs": 692395,
+      "answerWindowEndMs": 704511
+    },
+    {
+      "question": 21,
+      "groupId": "part-a",
+      "groupType": "question",
+      "questionAudioStartMs": 704511,
+      "questionAudioEndMs": 722111,
+      "contextStartMs": 137000,
+      "answerWindowStartMs": 722111,
+      "answerWindowEndMs": 734172
+    },
+    {
+      "question": 22,
+      "groupId": "part-a",
+      "groupType": "question",
+      "questionAudioStartMs": 734172,
+      "questionAudioEndMs": 746411,
+      "contextStartMs": 137000,
+      "answerWindowStartMs": 746411,
+      "answerWindowEndMs": 758513
+    },
+    {
+      "question": 23,
+      "groupId": "part-a",
+      "groupType": "question",
+      "questionAudioStartMs": 758513,
+      "questionAudioEndMs": 774977,
+      "contextStartMs": 137000,
+      "answerWindowStartMs": 774977,
+      "answerWindowEndMs": 787038
+    },
+    {
+      "question": 24,
+      "groupId": "part-a",
+      "groupType": "question",
+      "questionAudioStartMs": 787038,
+      "questionAudioEndMs": 803533,
+      "contextStartMs": 137000,
+      "answerWindowStartMs": 803533,
+      "answerWindowEndMs": 815592
+    },
+    {
+      "question": 25,
+      "groupId": "part-a",
+      "groupType": "question",
+      "questionAudioStartMs": 815592,
+      "questionAudioEndMs": 832522,
+      "contextStartMs": 137000,
+      "answerWindowStartMs": 832522,
+      "answerWindowEndMs": 844617
+    },
+    {
+      "question": 26,
+      "groupId": "part-a",
+      "groupType": "question",
+      "questionAudioStartMs": 844617,
+      "questionAudioEndMs": 857213,
+      "contextStartMs": 137000,
+      "answerWindowStartMs": 857213,
+      "answerWindowEndMs": 869301
+    },
+    {
+      "question": 27,
+      "groupId": "part-a",
+      "groupType": "question",
+      "questionAudioStartMs": 869301,
+      "questionAudioEndMs": 891042,
+      "contextStartMs": 137000,
+      "answerWindowStartMs": 891042,
+      "answerWindowEndMs": 903117
+    },
+    {
+      "question": 28,
+      "groupId": "part-a",
+      "groupType": "question",
+      "questionAudioStartMs": 903117,
+      "questionAudioEndMs": 920830,
+      "contextStartMs": 137000,
+      "answerWindowStartMs": 920830,
+      "answerWindowEndMs": 932928
+    },
+    {
+      "question": 29,
+      "groupId": "part-a",
+      "groupType": "question",
+      "questionAudioStartMs": 932928,
+      "questionAudioEndMs": 951978,
+      "contextStartMs": 137000,
+      "answerWindowStartMs": 951978,
+      "answerWindowEndMs": 964046
+    },
+    {
+      "question": 30,
+      "groupId": "part-a",
+      "groupType": "question",
+      "questionAudioStartMs": 964046,
+      "questionAudioEndMs": 980731,
+      "contextStartMs": 137000,
+      "answerWindowStartMs": 980731,
+      "answerWindowEndMs": 992850
+    },
+    {
+      "question": 31,
+      "groupId": "part-b-1",
+      "groupType": "conversation",
+      "questionAudioStartMs": 992850,
+      "questionAudioEndMs": 1128027,
+      "contextStartMs": 992850,
+      "answerWindowStartMs": 1128027,
+      "answerWindowEndMs": 1140173
+    },
+    {
+      "question": 32,
+      "groupId": "part-b-1",
+      "groupType": "conversation",
+      "questionAudioStartMs": 1140173,
+      "questionAudioEndMs": 1145596,
+      "contextStartMs": 992850,
+      "answerWindowStartMs": 1145596,
+      "answerWindowEndMs": 1157688
+    },
+    {
+      "question": 33,
+      "groupId": "part-b-1",
+      "groupType": "conversation",
+      "questionAudioStartMs": 1157688,
+      "questionAudioEndMs": 1161931,
+      "contextStartMs": 992850,
+      "answerWindowStartMs": 1161931,
+      "answerWindowEndMs": 1173989
+    },
+    {
+      "question": 34,
+      "groupId": "part-b-1",
+      "groupType": "conversation",
+      "questionAudioStartMs": 1173989,
+      "questionAudioEndMs": 1178925,
+      "contextStartMs": 992850,
+      "answerWindowStartMs": 1178925,
+      "answerWindowEndMs": 1191062
+    },
+    {
+      "question": 35,
+      "groupId": "part-b-2",
+      "groupType": "conversation",
+      "questionAudioStartMs": 1191062,
+      "questionAudioEndMs": 1301257,
+      "contextStartMs": 1191062,
+      "answerWindowStartMs": 1301257,
+      "answerWindowEndMs": 1313322
+    },
+    {
+      "question": 36,
+      "groupId": "part-b-2",
+      "groupType": "conversation",
+      "questionAudioStartMs": 1313322,
+      "questionAudioEndMs": 1318206,
+      "contextStartMs": 1191062,
+      "answerWindowStartMs": 1318206,
+      "answerWindowEndMs": 1330279
+    },
+    {
+      "question": 37,
+      "groupId": "part-b-2",
+      "groupType": "conversation",
+      "questionAudioStartMs": 1330279,
+      "questionAudioEndMs": 1337732,
+      "contextStartMs": 1191062,
+      "answerWindowStartMs": 1337732,
+      "answerWindowEndMs": 1349884
+    },
+    {
+      "question": 38,
+      "groupId": "part-c-1",
+      "groupType": "talk",
+      "questionAudioStartMs": 1349884,
+      "questionAudioEndMs": 1641612,
+      "contextStartMs": 1349884,
+      "answerWindowStartMs": 1641612,
+      "answerWindowEndMs": 1653679
+    },
+    {
+      "question": 39,
+      "groupId": "part-c-1",
+      "groupType": "talk",
+      "questionAudioStartMs": 1653679,
+      "questionAudioEndMs": 1662892,
+      "contextStartMs": 1349884,
+      "answerWindowStartMs": 1662892,
+      "answerWindowEndMs": 1675007
+    },
+    {
+      "question": 40,
+      "groupId": "part-c-1",
+      "groupType": "talk",
+      "questionAudioStartMs": 1675007,
+      "questionAudioEndMs": 1681198,
+      "contextStartMs": 1349884,
+      "answerWindowStartMs": 1681198,
+      "answerWindowEndMs": 1693269
+    },
+    {
+      "question": 41,
+      "groupId": "part-c-1",
+      "groupType": "talk",
+      "questionAudioStartMs": 1693269,
+      "questionAudioEndMs": 1699876,
+      "contextStartMs": 1349884,
+      "answerWindowStartMs": 1699876,
+      "answerWindowEndMs": 1711908
+    },
+    {
+      "question": 42,
+      "groupId": "part-c-2",
+      "groupType": "talk",
+      "questionAudioStartMs": 1711908,
+      "questionAudioEndMs": 1814559,
+      "contextStartMs": 1711908,
+      "answerWindowStartMs": 1814559,
+      "answerWindowEndMs": 1826622
+    },
+    {
+      "question": 43,
+      "groupId": "part-c-2",
+      "groupType": "talk",
+      "questionAudioStartMs": 1826622,
+      "questionAudioEndMs": 1832176,
+      "contextStartMs": 1711908,
+      "answerWindowStartMs": 1832176,
+      "answerWindowEndMs": 1844265
+    },
+    {
+      "question": 44,
+      "groupId": "part-c-2",
+      "groupType": "talk",
+      "questionAudioStartMs": 1844265,
+      "questionAudioEndMs": 1850568,
+      "contextStartMs": 1711908,
+      "answerWindowStartMs": 1850568,
+      "answerWindowEndMs": 1862617
+    },
+    {
+      "question": 45,
+      "groupId": "part-c-2",
+      "groupType": "talk",
+      "questionAudioStartMs": 1862617,
+      "questionAudioEndMs": 1870120,
+      "contextStartMs": 1711908,
+      "answerWindowStartMs": 1870120,
+      "answerWindowEndMs": 1882232
+    },
+    {
+      "question": 46,
+      "groupId": "part-c-2",
+      "groupType": "talk",
+      "questionAudioStartMs": 1882232,
+      "questionAudioEndMs": 1887464,
+      "contextStartMs": 1711908,
+      "answerWindowStartMs": 1887464,
+      "answerWindowEndMs": 1899522
+    },
+    {
+      "question": 47,
+      "groupId": "part-c-3",
+      "groupType": "talk",
+      "questionAudioStartMs": 1899522,
+      "questionAudioEndMs": 2020572,
+      "contextStartMs": 1899522,
+      "answerWindowStartMs": 2020572,
+      "answerWindowEndMs": 2032619
+    },
+    {
+      "question": 48,
+      "groupId": "part-c-3",
+      "groupType": "talk",
+      "questionAudioStartMs": 2032619,
+      "questionAudioEndMs": 2039348,
+      "contextStartMs": 1899522,
+      "answerWindowStartMs": 2039348,
+      "answerWindowEndMs": 2051441
+    },
+    {
+      "question": 49,
+      "groupId": "part-c-3",
+      "groupType": "talk",
+      "questionAudioStartMs": 2051441,
+      "questionAudioEndMs": 2056193,
+      "contextStartMs": 1899522,
+      "answerWindowStartMs": 2056193,
+      "answerWindowEndMs": 2068294
+    },
+    {
+      "question": 50,
+      "groupId": "part-c-3",
+      "groupType": "talk",
+      "questionAudioStartMs": 2068294,
+      "questionAudioEndMs": 2076173,
+      "contextStartMs": 1899522,
+      "answerWindowStartMs": 2076173,
+      "answerWindowEndMs": 2088418
+    }
+  ]
+}

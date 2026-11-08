@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "1.0.0",
+  "source": "ETS TOEFL ITP Level 1 Practice Tests Volume 3, Practice Test A, pages 16-17, 29-32, and 37",
+  "listening": {
+    "overview": "In this section of the test, you will have an opportunity to demonstrate your ability to understand conversations and talks in English. There are 3 parts to this section, with special directions for each part. Answer all the questions on the basis of what is stated or implied by the speakers in this test.",
+    "partA": "In Part A, you will hear short conversations between 2 people. After each conversation, you will hear a question about the conversation. The conversations and questions will not be repeated. After you hear a question, read the 4 possible answers in your test book and choose the best answer.",
+    "partB": "In this part of the test, you will hear longer conversations. After each conversation, you will hear several questions. The conversations and the questions will not be repeated.",
+    "partC": "In this part of the test, you will hear several short talks. After each talk, you will hear some questions. The talks and the questions will not be repeated."
+  },
+  "structure": {
+    "overview": "This section is designed to measure your ability to recognize language that is appropriate for standard written English. There are 2 types of questions in this section, with special directions for each type.",
+    "time": "25 minutes, including the reading of directions.",
+    "partA": "Questions 1–15 are incomplete sentences. Beneath each sentence you will see 4 words or phrases, marked (A), (B), (C) and (D). Choose the word or phrase that best completes the sentence. Then, on your answer sheet, find the number of the question and fill in the space that corresponds to the letter of the answer you have chosen.",
+    "partB": "In questions 16–40, each sentence has 4 underlined words or phrases. The underlined parts of the sentence are marked (A), (B), (C) and (D). Identify the underlined word or phrase that must be changed in order for the sentence to be correct. Then, on your answer sheet, find the number of the question and fill in the space that corresponds to the letter of the answer you have chosen."
+  },
+  "reading": {
+    "time": "55 minutes, including the reading of the directions.",
+    "overview": "In this section you will read several passages. Each passage is followed by several questions about it. For questions 1–50, you are to choose the best answer, (A), (B), (C) or (D), to each question.",
+    "basis": "Answer all questions following a passage on the basis of what is stated or implied in that passage."
+  }
+}

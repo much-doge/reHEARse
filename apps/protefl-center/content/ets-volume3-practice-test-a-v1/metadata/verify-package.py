@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify source package hashes and structural metadata without printing content."""
+"""Verify the tracked ETS package hashes and source-derived structural metadata."""
 import hashlib
 import json
 from pathlib import Path
@@ -11,17 +11,31 @@ for record in manifest["sourceFiles"]:
     data = path.read_bytes()
     assert len(data) == record["bytes"], f"size mismatch: {record['path']}"
     assert hashlib.sha256(data).hexdigest() == record["sha256"], f"hash mismatch: {record['path']}"
+
 keys = json.loads((root / "metadata/answer-key-practice-test-a-v1.json").read_text())["sections"]
 assert {key: len(value) for key, value in keys.items()} == {"listening": 50, "structure": 40, "reading": 50}
+
 pauses = json.loads((root / "metadata/listening-pauses-v1.json").read_text())["pauses"]
 assert len(pauses) == 50 and [row["question"] for row in pauses] == list(range(1, 51))
 assert all(10_000 <= row["durationMs"] <= 13_000 for row in pauses)
+
 page_index = json.loads((root / "metadata/page-index-v1.json").read_text())
 assert {key: len(value) for key, value in page_index["questionPages"].items()} == {"listening": 50, "structure": 40, "reading": 50}
 assert len(page_index["readingPassages"]) == 5
+
+question_map = json.loads((root / "metadata/listening-question-map-v1.json").read_text())["questions"]
+assert len(question_map) == 50
+assert [item["question"] for item in question_map] == list(range(1, 51))
+assert all(item["answerWindowStartMs"] == pauses[item["question"] - 1]["answerWindowStartMs"] for item in question_map)
+assert [(start, end, group) for start, end, group in [(31, 34, "part-b-1"), (35, 37, "part-b-2"), (38, 41, "part-c-1"), (42, 46, "part-c-2"), (47, 50, "part-c-3")]] == [
+    (next(item["question"] for item in question_map if item["groupId"] == group),
+     max(item["question"] for item in question_map if item["groupId"] == group), group)
+    for group in ["part-b-1", "part-b-2", "part-c-1", "part-c-2", "part-c-3"]
+]
+
 score = json.loads((root / "metadata/score-conversion-practice-test-a-v1.json").read_text())
 assert len(score["ranges"]) == 15
-# Check the source book's worked example: raw 28 / 30 / 39 -> 537-550.
+# The guide's worked example: raw 28 / 30 / 39 -> 537-550.
 def converted(section, raw):
     for row in score["ranges"]:
         if row["raw"][0] <= raw <= row["raw"][1]:
@@ -31,4 +45,9 @@ example = [converted("section1", 28), converted("section2", 30), converted("sect
 low = round(sum(pair[0] for pair in example) * 10 / 3)
 high = round(sum(pair[1] for pair in example) * 10 / 3)
 assert (low, high) == (537, 550), (low, high)
-print("package source hashes, 140 answer keys, 50 10-13 second audio windows, 140 page references, 5 passages, 15 score ranges, and ETS worked score example verified")
+assert converted("section2", 39) is None and converted("section2", 40) is None
+
+rendered = set(page_index["renderedPages"]["listening"] + page_index["renderedPages"]["structure"] + page_index["renderedPages"]["readingDirections"] + page_index["renderedPages"]["reading"])
+assert rendered == {int(path.stem.removeprefix("page-")) for path in (root / "pages").glob("*.jpg")}
+
+print("ETS package verified: hashes, 140 keys, 50 pause windows, 140 question pages, 5 reading passages, 50 audio segments, score example, and rendered-page allowlist")

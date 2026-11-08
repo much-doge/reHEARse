@@ -29,7 +29,9 @@ export async function POST(request: Request) {
     if (typeof body.code !== "string") return Response.json({ error: "invalid_request" }, { status: 400, headers });
     await claimResource(user.id, body.code);
     return Response.json({ ok: true }, { headers });
-  } catch {
+  } catch (error) {
+    if (error instanceof Error && error.message === "invite_rate_limited")
+      return Response.json({ error: "invite_rate_limited" }, { status: 429, headers });
     return Response.json({ error: "invite_unavailable" }, { status: 404, headers });
   }
 }

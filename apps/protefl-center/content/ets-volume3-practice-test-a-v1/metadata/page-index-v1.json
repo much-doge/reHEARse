@@ -3,6 +3,7 @@
   "source": "ETS TOEFL ITP Level 1 Practice Tests Volume 3, Practice Test A",
   "renderedPages": {
     "listening": [
+      20,
       21,
       22,
       23,
@@ -48,6 +49,10 @@
       60,
       61,
       62
+    ],
+    "structureDirections": [
+      33,
+      36
     ]
   },
   "questionPages": {
