@@ -1,6 +1,6 @@
 # ProTEFL companion delivery plan
 
-Status: planning under `LFL-027`
+Status: planning under `LFL-027`; assigned-resource workflow under `LFL-032`
 
 ## Slice 0 — Boundary and decisions (current)
 
@@ -67,6 +67,18 @@ owner approval.
 - candidate-facing result discussion and teacher notes;
 - isolated public promotion/enrolment pages;
 - integrations only after repeated manual work demonstrates their value.
+
+## Next accepted workflow — LFL-032
+
+The first full diagnostic is a new versioned package composed from a pinned
+Listening section and new Structure and Reading sections. Learners see only
+resources assigned to them by an authorized teacher/administrator; all routes
+enforce that assignment server-side. Reuse the LFL-028 listening pilot's
+ownership, timing, idempotency, recovery and immutable-submission patterns
+without merging its records into reHEARse history or prematurely generalizing
+its section-specific playback engine. See
+[`LFL032_ASSIGNED_DIAGNOSTIC_WORKFLOW.md`](LFL032_ASSIGNED_DIAGNOSTIC_WORKFLOW.md)
+for the proposed journey, controls, reuse plan and content gates.
 
 ## Decisions required before implementation
 

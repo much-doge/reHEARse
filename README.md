@@ -12,6 +12,8 @@ The first loop is:
 
 Start with [the product specification](docs/PRODUCT_SPEC.md), then read
 [the delivery plan](docs/DELIVERY_PLAN.md) and [architecture](docs/ARCHITECTURE.md).
+The upcoming assigned-resource and composed diagnostic workflow is documented
+in [LFL-032](apps/protefl-center/docs/LFL032_ASSIGNED_DIAGNOSTIC_WORKFLOW.md).
 
 ## Run the MVP
 

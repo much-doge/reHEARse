@@ -399,6 +399,29 @@ test records merely to change presentation language. UI adapters select the
 English field, and new public-facing copy is authored in English. Removing the
 legacy Indonesian storage shape requires a separate additive migration and
 contract-version decision; it is not part of this display-only change.
+
+## D031 — Assigned Test Center resources and composed diagnostic (LFL-032)
+
+Accepted for the next ProTEFL Test Center slice. Signing in does not grant a
+learner access to every published resource. A teacher or administrator
+controls which versioned resources are visible and assigned. The learner home
+lists only resources the current learner is authorized to access; start,
+resume, media, result and review routes enforce the same assignment and
+ownership rules server-side. Draft, hidden, expired and unassigned resources
+must not be discoverable by guessing an identifier. Hiding a resource prevents
+new starts; an already-started attempt remains resumable unless an authorized
+teacher explicitly invalidates it with an audit record.
+
+The full diagnostic is a new immutable, versioned package in the ProTEFL Test
+Center. It may pin the existing supervised Listening form as one section and
+add separately reviewed Structure and Reading sections. Reuse the pilot's
+server-authoritative timing, idempotent mutations, recovery, ownership checks,
+media delivery and immutable submission patterns, while keeping Listening's
+section-specific playback rules encapsulated. Diagnostic assignments,
+responses and results stay in the Test Center boundary, never in reHEARse
+learning attempts, feedback, games or history. No official-score conversion or
+placement interpretation is claimed without documented source and scoring
+provenance and independent review.
 ## D030 — Indonesian preparation landing page (LFL-031)
 
 Accepted at the operator's request. Keep the product name **reHEARse** and
