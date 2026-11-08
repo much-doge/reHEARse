@@ -10,8 +10,10 @@ teacher journey not yet verified.
 - Assigned-only ProTEFL Test Center resources, staff visibility controls,
   one-use invite codes, and Listening route/media enforcement (LFL-032).
 - Najala affiliation, supplied logos and footer navigation (LFL-033).
-- Source commits pushed to `origin/main` through `8196e28`.
-- PCT128 checkout: `/opt/rehearse`, fast-forwarded to `8196e28`.
+- Source commits pushed to `origin/main` through `f8a55a0`.
+- PCT128 checkout at app deployment: `/opt/rehearse`, fast-forwarded to
+  `8196e28`; it was later fast-forwarded to `f8a55a0` for the documentation-only
+  release receipt without recreating the app.
 - Runtime image: `rehearse-app:8196e28`, image ID
   `sha256:e66b3dbe11b4ded9f0e28f16f5f4c44356605067cab91b1a4276d057d15ae3eb`.
 - Tools image `rehearse-tools:8196e28` loaded; `REHEARSE_IMAGE_TAG` updated in
