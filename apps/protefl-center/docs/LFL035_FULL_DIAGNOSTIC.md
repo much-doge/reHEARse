@@ -121,14 +121,13 @@ delivery.
 - [ ] `pnpm check` and a production-shaped database/media journey pass; exact
   command results and any remaining classroom gates are recorded.
 
-Local verification completed for this checkpoint: ESLint, TypeScript, all 47
-Vitest files / 175 tests, `next build`, `git diff --check`, and the package
-manifest/structure verifier. `pnpm` is unavailable in this environment, so the
-equivalent installed binaries were called directly. The standalone build was
-inspected: candidate page renders, audio, and JSON metadata are present, while
-the complete source PDF and layout-text file are absent. Migrations 019 and 020
-are now applied in PCT128. The authenticated candidate/teacher journey and
-classroom verification remain outstanding; see
+The initial deployed candidate screen used page crops and is superseded by the
+text-rendered revision: question/passage pages are delivered as readable text
+through a protected no-store route, while section directions render from the
+structured directions file. The text route applies the same signed-in
+ownership, assignment, and current-section checks as the media route.
+Migrations 019 and 020 are applied in PCT128. The authenticated
+candidate/teacher journey and classroom verification remain outstanding; see
 [`docs/LFL035_DEPLOYMENT_RECEIPT.md`](../../../docs/LFL035_DEPLOYMENT_RECEIPT.md).
 
 ## Current gaps

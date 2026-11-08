@@ -13,7 +13,7 @@ This is the source-backed content package for the ProTEFL Test Center diagnostic
 - `metadata/listening-pauses-v1.json`: detected answer-window boundaries in the full audio.
 - `metadata/listening-question-map-v1.json`: question-only and Part B/C context playback boundaries.
 - `metadata/page-index-v1.json`: section/question-to-source-page map and reading passage groups.
-- `metadata/page-texts-v1.json`: layout-retaining text companion extracted from the allowlisted question pages; tracked for accessible presentation work, but not currently served to candidates.
+- `metadata/page-texts-v1.json`: layout-retaining text companion extracted from the allowlisted question pages; delivered only through the signed-in, attempt- and section-checked text route. The candidate view renders question wording and A–D choices as text instead of embedding page crops.
 - `metadata/instructions-practice-test-a-v1.json`: source directions for each section and Structure part.
 - `package-manifest.json`: versions, source provenance, and SHA-256 inventory.
 
@@ -28,4 +28,4 @@ A full-track `ffmpeg silencedetect` pass (`noise=-42dB`, minimum duration 4s) fo
 
 ## Delivery boundary
 
-The source PDF contains the answer key, scoring tables, and scripts. Never expose the PDF, source text, answer-key JSON, score-conversion JSON, or source directory through a public/static route or a pre-submission browser payload. Candidate delivery must use the protected Test Center route and allowlisted page renders only. Candidate responses/results are runtime-private and remain isolated from reHEARse learning records.
+The source PDF contains the answer key, scoring tables, and scripts. Never expose the PDF, source text, answer-key JSON, score-conversion JSON, or source directory through a public/static route or a pre-submission browser payload. Candidate delivery uses protected Test Center routes and allowlisted text pages. Section directions render from the structured instruction file. Source page images remain in the private package and are not used in learner test or review screens. Candidate responses/results are runtime-private and remain isolated from reHEARse learning records.

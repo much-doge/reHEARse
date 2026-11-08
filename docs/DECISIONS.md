@@ -493,14 +493,15 @@ answer key, scoring data, and related artifacts be committed in the repository
 under `apps/protefl-center/content/`. These assessment records and scores stay
 inside the Test Center and never enter reHEARse learning diagnostics/history.
 
-Candidates receive only allowlisted question/direction pages through
+Candidates receive allowlisted question text and structured directions through
 authenticated, assignment-checked, private no-store routes. The complete book,
 scripts, answer keys, and scoring tables must not be sent to a candidate before
 the whole diagnostic is submitted. Listening offers a teacher-selected
 autoplay or per-question playback mode; autoplay retains the source's roughly
 12-second answer windows. Structure is timed at 25 minutes and Reading at 55
-minutes. The existing source page arrangement, including Reading line breaks
-and Structure Part B underlines, is preserved.
+minutes. The source page arrangement, including Reading line breaks and
+Structure Part B underlines, is preserved in the text companion. Learner views
+render written questions and choices, not page-crop images.
 
 Invite codes use ten Crockford-style Base32 characters, are stored only as
 hashes, remain one-use and expire after seven days. Authenticated claim attempts

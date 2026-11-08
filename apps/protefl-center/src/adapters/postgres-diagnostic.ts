@@ -80,6 +80,21 @@ export async function protectedDiagnosticPage(actorId: string, attemptId: string
   }
 }
 
+export async function protectedDiagnosticPageText(actorId: string, attemptId: string, pageValue: string) {
+  const page = Number(pageValue);
+  const index = await diagnosticPageIndex();
+  const allowed = new Set([...Object.values(index.questionPages).flatMap(Object.values), 20, 33, 36, 41, ...index.readingPassages.map((row) => row.page)]);
+  const attempt = await diagnosticAttempt(actorId, attemptId);
+  if (!Number.isInteger(page) || !allowed.has(page) || !attempt) return null;
+  const permitted = attempt.status === "completed" ||
+    (attempt.current_section === "listening" && [20, ...Object.values(index.questionPages.listening)].includes(page)) ||
+    (attempt.current_section === "structure" && [33, 36, ...Object.values(index.questionPages.structure)].includes(page)) ||
+    (attempt.current_section === "reading" && [41, ...Object.values(index.questionPages.reading), ...index.readingPassages.map((row) => row.page)].includes(page));
+  if (!permitted) return null;
+  const texts = await json<{ pageText: Record<string, string> }>("metadata/page-texts-v1.json");
+  return texts.pageText[String(page)] ?? null;
+}
+
 export async function diagnosticAudio(actorId: string, id: string) {
   const attempt = await diagnosticAttempt(actorId, id);
   if (!attempt || attempt.current_section !== "listening" || !attempt.listening_started_at) return null;

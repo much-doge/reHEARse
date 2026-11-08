@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { serverNowAt } from "./server-clock";
@@ -159,7 +158,6 @@ export function DiagnosticTest({ assignment, pageIndex, instructions, timing, in
     ? activeListeningWindow?.question === question && !!activeListeningWindow && activeListeningWindow.answerWindowEndMs > audioNow
     : !!state?.heardListeningQuestions.includes(question);
   const currentQuestionPage = (name: Section, number: number) => pageIndex.questionPages[name][String(number)] ?? 0;
-  const imagePath = (page: number) => "/api/test-center/diagnostic/run/" + state?.id + "/pages/" + page;
 
   async function beginSection() {
     await act({ type: "begin_section" });
@@ -229,8 +227,8 @@ export function DiagnosticTest({ assignment, pageIndex, instructions, timing, in
   const sectionInstruction = section === "listening" ? instructions.listening : section === "structure" ? instructions.structure : section === "reading" ? instructions.reading : null;
   const sectionStarted = section === "listening" ? !!state?.listeningStartedAt : section === "structure" ? !!state?.structureStartedAt : section === "reading" ? !!state?.readingStartedAt : false;
 
-  function renderImage(page: number, label: string) {
-    return <div className="ptd-source-page" key={page}><Image src={imagePath(page)} alt={label} width={1275} height={1800} unoptimized /></div>;
+  function renderSourceText(page: number, label: string) {
+    return <SourceTextPage key={page} attemptId={state?.id ?? ""} page={page} label={label} />;
   }
 
   function renderQuestionPanel(name: Section) {
@@ -240,8 +238,8 @@ export function DiagnosticTest({ assignment, pageIndex, instructions, timing, in
     const answers = state?.answers ?? {};
     return <div className="ptd-workspace">
       <section className="ptd-question-content">
-        {passage && renderImage(passage.page, "Reading passage " + (pageIndex.readingPassages.indexOf(passage) + 1))}
-        {renderImage(questionPage, labels[name] + " page with question " + question)}
+        {passage && renderSourceText(passage.page, "Reading passage " + (pageIndex.readingPassages.indexOf(passage) + 1))}
+        {renderSourceText(questionPage, labels[name] + " questions")}
       </section>
       <aside className="ptd-answer-panel">
         <div className="ptd-current-question"><span>QUESTION</span><strong>{String(question).padStart(2, "0")}</strong><small>of {count}</small></div>
@@ -286,7 +284,6 @@ export function DiagnosticTest({ assignment, pageIndex, instructions, timing, in
     setReviewOpen={setReviewOpen}
     reviewFilter={reviewFilter}
     setReviewFilter={setReviewFilter}
-    imagePath={imagePath}
     pageIndex={pageIndex}
   />;
 
@@ -295,13 +292,11 @@ export function DiagnosticTest({ assignment, pageIndex, instructions, timing, in
     <h1>{section === "listening" ? "Listen carefully and answer as you go." : section === "structure" ? "Read the directions, then begin when ready." : "Read each passage and answer its questions."}</h1>
     {section === "listening" ? <div className="ptd-directions">
       <p>{instructions.listening.overview}</p><p>{instructions.listening.partA}</p><p>{instructions.listening.partB}</p><p>{instructions.listening.partC}</p>
-      {renderImage(20, "Practice Test A Listening directions page")}
     </div> : section === "structure" ? <div className="ptd-directions">
       <p>{instructions.structure.overview}</p><p><strong>Part A · Structure</strong><br />{instructions.structure.partA}</p>
       <p><strong>Part B · Written Expression</strong><br />{instructions.structure.partB}</p>
-      {renderImage(33, "Structure directions and Part A instructions")}{renderImage(36, "Written Expression directions")}
     </div> : <div className="ptd-directions">
-      <p>{instructions.reading.time}</p><p>{instructions.reading.overview}</p><p>{instructions.reading.basis}</p>{renderImage(41, "Reading directions")}
+      <p>{instructions.reading.time}</p><p>{instructions.reading.overview}</p><p>{instructions.reading.basis}</p>
     </div>}
     {message && <p className="ptd-error" role="alert">{message}</p>}
     <button className="ptd-primary" disabled={busy} onClick={() => void beginSection()}>{busy ? "Saving…" : "Begin " + labels[section]}</button>
@@ -349,9 +344,9 @@ function ScoreSummary({ result, title }: { result: Result; title: string }) {
   </section>;
 }
 
-function DiagnosticResults({ state, onRetake, busy, reviewOpen, setReviewOpen, reviewFilter, setReviewFilter, imagePath, pageIndex }: {
+function DiagnosticResults({ state, onRetake, busy, reviewOpen, setReviewOpen, reviewFilter, setReviewFilter, pageIndex }: {
   state: DiagnosticState; onRetake: () => void; busy: boolean; reviewOpen: boolean; setReviewOpen: (value: boolean) => void;
-  reviewFilter: "incorrect" | "all"; setReviewFilter: (value: "incorrect" | "all") => void; imagePath: (page: number) => string; pageIndex: PageIndex;
+  reviewFilter: "incorrect" | "all"; setReviewFilter: (value: "incorrect" | "all") => void; pageIndex: PageIndex;
 }) {
   const [selected, setSelected] = useState<ReviewItem | null>(null);
   const result = state.result!;
@@ -376,10 +371,23 @@ function DiagnosticResults({ state, onRetake, busy, reviewOpen, setReviewOpen, r
         <span>{labels[item.section]} · {item.question}</span><strong>{item.correct ? "Correct" : item.selected ? "Incorrect" : "Omitted"}</strong>
       </button>)}</div>
       {selected && <article className="ptd-review-detail">
-        {passageFor(selected) && <Image src={imagePath(passageFor(selected)!)} alt="Reading passage" width={1275} height={1800} unoptimized />}
-        <Image src={imagePath(pageFor(selected))} alt={labels[selected.section] + " question " + selected.question} width={1275} height={1800} unoptimized />
+        {passageFor(selected) && <SourceTextPage attemptId={state.id} page={passageFor(selected)!} label="Reading passage" />}
+        <SourceTextPage attemptId={state.id} page={pageFor(selected)} label={labels[selected.section] + " questions"} />
         <p>Your answer: <strong>{selected.selected ?? "No answer"}</strong> · Correct answer: <strong>{selected.correctAnswer}</strong></p>
       </article>}
     </div>}
   </section>;
+}
+
+function SourceTextPage({ attemptId, page, label }: { attemptId: string; page: number; label: string }) {
+  const [text, setText] = useState("");
+  useEffect(() => {
+    let active = true;
+    fetch(`/api/test-center/diagnostic/run/${attemptId}/text/${page}`, { cache: "no-store" })
+      .then((response) => response.ok ? response.json() as Promise<{ text: string }> : Promise.reject())
+      .then((data) => { if (active) setText(data.text); })
+      .catch(() => { if (active) setText("This source text could not be loaded. Refresh to try again."); });
+    return () => { active = false; };
+  }, [attemptId, page]);
+  return <article className="ptd-source-text"><h2>{label}</h2><pre>{text || "Loading question text…"}</pre></article>;
 }

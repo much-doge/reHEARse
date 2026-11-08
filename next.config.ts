@@ -13,6 +13,7 @@ const nextConfig: NextConfig = {
       "./apps/protefl-center/content/ets-volume3-practice-test-a-v1/metadata/listening-pauses-v1.json",
       "./apps/protefl-center/content/ets-volume3-practice-test-a-v1/metadata/listening-question-map-v1.json",
       "./apps/protefl-center/content/ets-volume3-practice-test-a-v1/metadata/page-index-v1.json",
+      "./apps/protefl-center/content/ets-volume3-practice-test-a-v1/metadata/page-texts-v1.json",
       "./apps/protefl-center/content/ets-volume3-practice-test-a-v1/metadata/score-conversion-practice-test-a-v1.json",
     ],
     "/api/test-center/diagnostic/**/*": [
@@ -24,6 +25,7 @@ const nextConfig: NextConfig = {
       "./apps/protefl-center/content/ets-volume3-practice-test-a-v1/metadata/listening-pauses-v1.json",
       "./apps/protefl-center/content/ets-volume3-practice-test-a-v1/metadata/listening-question-map-v1.json",
       "./apps/protefl-center/content/ets-volume3-practice-test-a-v1/metadata/page-index-v1.json",
+      "./apps/protefl-center/content/ets-volume3-practice-test-a-v1/metadata/page-texts-v1.json",
       "./apps/protefl-center/content/ets-volume3-practice-test-a-v1/metadata/score-conversion-practice-test-a-v1.json",
     ],
   },
@@ -31,12 +33,10 @@ const nextConfig: NextConfig = {
     "/test-center/diagnostic/*": [
       "./apps/protefl-center/content/ets-volume3-practice-test-a-v1/source/ets-toefl-itp-volume-3.pdf",
       "./apps/protefl-center/content/ets-volume3-practice-test-a-v1/source/ets-toefl-itp-volume-3-layout.txt",
-      "./apps/protefl-center/content/ets-volume3-practice-test-a-v1/metadata/page-texts-v1.json",
     ],
     "/api/test-center/diagnostic/**/*": [
       "./apps/protefl-center/content/ets-volume3-practice-test-a-v1/source/ets-toefl-itp-volume-3.pdf",
       "./apps/protefl-center/content/ets-volume3-practice-test-a-v1/source/ets-toefl-itp-volume-3-layout.txt",
-      "./apps/protefl-center/content/ets-volume3-practice-test-a-v1/metadata/page-texts-v1.json",
     ],
   },
   async headers() {
