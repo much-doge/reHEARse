@@ -135,8 +135,8 @@ item model. The learner receives one question with full A-D choices, explicit
 Structure blanks/underlines, or the relevant line-marked Reading passage.
 Legacy page-image and page-text routes have been removed. Migration 022 adds
 focused retake lineage without altering completed results. Migrations 019 and
-020 are applied in PCT128; migration 022 and the LFL-037 application are not.
-The production candidate journey and classroom verification remain outstanding; see
+020 are applied in PCT128; migration 022 and LFL-037 are now deployed. The
+production candidate journey and classroom verification remain outstanding; see
 [`docs/LFL035_DEPLOYMENT_RECEIPT.md`](../../../docs/LFL035_DEPLOYMENT_RECEIPT.md).
 
 ## Current gaps
@@ -146,7 +146,6 @@ scan detected exactly 50 answer-sized quiet intervals (12.031-12.246 seconds),
 with zero difference from the stored window starts. Known Q2-Q5 transcript
 anchors differ from mapped starts by at most 1.043 seconds, and all five Part
 B/C context transitions are checked. This is structural sequence alignment,
-not a classroom audibility observation. Production deployment, a real
-candidate journey, and classroom verification remain outstanding. PCT128
-evidence for the superseded deployed build is recorded in
-[`docs/LFL035_DEPLOYMENT_RECEIPT.md`](../../../docs/LFL035_DEPLOYMENT_RECEIPT.md).
+not a classroom audibility observation. A real candidate journey and classroom
+verification remain outstanding. The replacement deployment is recorded in
+[`docs/LFL037_DEPLOYMENT_RECEIPT.md`](../../../docs/LFL037_DEPLOYMENT_RECEIPT.md).
