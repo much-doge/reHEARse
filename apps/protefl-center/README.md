@@ -16,15 +16,18 @@ under D-027.
 
 - a product charter with users, boundaries and safety rules;
 - a phased delivery plan with the first decisions we must make;
-- an owner-only ignored location for private source material;
+- an ignored private staging location for work in progress; owner-authorized
+  LFL-035 source artifacts are tracked under `content/` by explicit owner
+  instruction;
 - a versioned resource catalogue, one-use candidate access codes, assigned-only learner listing, and teacher/admin visibility controls;
 - the supervised Listening pilot gated by assignment checks at page, API, attempt and media boundaries.
 
-The resource workflow does not yet upload or compose a full diagnostic package.
-Real Structure and Reading content, answer keys, scoring provenance, and a
-published full-test journey remain separate gated work. The local implementation
-does not imply that production migrations have been applied or that a classroom
-journey has been verified.
+LFL-035 is assembling a full ETS TOEFL ITP Level 1 Volume 3 Practice Test A
+diagnostic. Its source book, audio, page-faithful question renders, answer key,
+scoring tables, and provenance are committed under `content/` by explicit owner
+instruction. The runtime still needs a protected delivery and attempt workflow;
+source files in Git do not imply that content is published or accessible to
+candidates.
 
 ## Proposed source layout
 
@@ -32,8 +35,9 @@ journey has been verified.
 apps/protefl-center/
   docs/                 Product, source and delivery decisions
   src/                  Application code, when the walking skeleton begins
+  content/              Versioned, owner-authorized diagnostic package assets
   tests/                Synthetic contract and journey tests
-  private/              Ignored owner-only source workspace
+  private/              Ignored staging for unreviewed source material
 ```
 
 The Test Center currently shares the repository build and authenticated session
@@ -41,10 +45,11 @@ adapter while keeping assessment records and content in its own persistence
 boundary. Future full-package work must preserve the separate product and
 runtime boundary recorded in D-027.
 
-## Before real diagnostic content
+## Diagnostic content and access boundary
 
-The owner and implementer must resolve the gates in
-[`docs/DELIVERY_PLAN.md`](docs/DELIVERY_PLAN.md). In particular: source-use
-authorization, the exact test form, timing and interruption policy, result
-interpretation, accommodation policy, retention/deletion, and who may view or
-export results. Until then, use synthetic questions only.
+The owner authorized this specific source form and requested its artifacts be
+tracked in Git. Candidate access still requires a published Test Center
+resource and a server-enforced assignment. Never serve the complete source PDF,
+answer key, scoring data, or listening scripts to a candidate before submission.
+The remaining policy and implementation gates are recorded in
+[`docs/LFL035_FULL_DIAGNOSTIC.md`](docs/LFL035_FULL_DIAGNOSTIC.md).

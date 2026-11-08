@@ -1,0 +1,121 @@
+# LFL-035 full diagnostic package
+
+Status: implementation in progress; source assets ingested and tracked
+
+## Objective
+
+Create an assigned, three-section diagnostic in the ProTEFL Test Center from
+ETS's *TOEFL ITP Level 1 Practice Tests, Volume 3, Practice Test A*. The owner
+confirmed in chat that they have rights to digitize and deliver the book's
+content to their students. ETS's official Volume 3 eBook and two Listening
+audio players were located at `https://www.ets.org/s/toefl-itp/l1v3_ebook/`.
+Source files, question content, answer keys, audio, and score-conversion data
+must remain in the ignored private source workspace and private runtime object
+storage; they must not enter Git or reHEARse learning records.
+
+The existing Form 2000-10 listening pilot is a workflow/reference only. Do not
+substitute its questions or audio for Practice Test A.
+
+## Candidate journey
+
+1. Candidate signs in and claims a teacher-issued, one-use code.
+2. Candidate sees a welcome page describing this diagnostic and its Listening,
+   Structure and Written Expression, and Reading sections.
+3. Sections run in that order. Each has a clear instruction page and Begin
+   action. The candidate can navigate questions within the current section.
+4. Accepted answers autosave. Refresh/reconnect uses server-owned timing and
+   restores the same attempt. Section results are not exposed during the test.
+5. Results and item review become available only after all three sections are
+   submitted. A retake starts a new whole-test attempt; it never replaces,
+   improves, or changes the displayed result of the first attempt.
+
+## Section contract
+
+- **Listening:** all 50 Practice Test A items; test time follows the complete
+  audio sequence. Teacher selects one playback mode on each issued code:
+  autoplay or click-to-play by question. Autoplay uses a 12-second response
+  interval after each question. For Parts B/C, every question references its
+  full conversation/talk context and offers direct access to the relevant
+  question audio. Reuse LFL-028 server timing, idempotency, recovery and private
+  media authorization where they fit; preserve this package's own version.
+- **Structure and Written Expression:** 40 items, 25 minutes. Preserve the
+  book's two part directions, Part A sentence completion/omissions, and Part B
+  underlined error segments. Provide an answered/unanswered number grid and
+  in-section navigation.
+- **Reading Comprehension:** 50 items, 55 minutes. Preserve source paragraph
+  order, line arrangement, and line references through responsive rendering.
+
+Timer display precision is an interface choice; server time remains
+authoritative. A 100 ms display tick may show tenths of a second where useful,
+but must not change recorded deadlines or imply false precision about network
+delivery.
+
+## Result and retake contract
+
+- After the complete diagnostic only: show correct, incorrect, and omitted
+  counts by section and overall; show the book's Practice Test A converted
+  score using its exact versioned conversion method; offer a question review
+  with the candidate answer and correct answer.
+- Do not expose answer keys before whole-test submission.
+- Retakes are separate immutable attempts. Keep the first completed result as
+  the primary result shown in summaries; show later attempts separately and
+  never replace or add them to the first score.
+- Result page should be a polished, accessible summary with clear section
+  breakdown, visual progress, question-review and whole-test retake actions.
+
+## Teacher controls and access
+
+- Teacher/admin can publish or hide the immutable package and issue a one-use,
+  expiring access code.
+- Access code creation includes a Listening mode choice (autoplay or
+  click-to-play). Store the choice on the invite/assignment and pin it into the
+  candidate's first attempt; later teacher changes cannot alter an in-progress
+  attempt.
+- Replace the current 24-character invite with a shorter, case-insensitive
+  10-character Crockford-style code, stored hashed. Add server-side failed-claim
+  throttling and retain one-use and seven-day expiration rules.
+- Assignment, role, ownership, content, media, answer, submission and result
+  authorization are server-enforced. Keep content private/no-store.
+
+## Durable data and evidence
+
+- Add a new versioned diagnostic package/section/attempt contract; do not
+  mutate the listening pilot schema or existing attempts.
+- Pin package, section, scoring-table, timing, playback-mode and content hashes
+  at attempt creation.
+- Candidate answers are private append-only attempt evidence. A completed
+  retake is a new attempt and cannot update an earlier result.
+- Keep item text, options, passage/line layout, keys, audio, and conversion
+  tables out of browser payloads until the attempt's authorized review state.
+- Record source provenance and owner authorization in the private source
+  receipt. Record public code contracts and synthetic coverage in Git.
+
+## Acceptance checklist
+
+- [ ] Owner-authorized Practice Test A content and audio are present in the
+  ignored private source directory; provenance, completeness, and hashes are
+  recorded without exposing contents in Git.
+- [ ] Listening item order, Parts A-C, audio/question grouping, 12-second
+  autoplay answer pauses, click mode and direct Part B/C question playback are
+  verified against the book/audio.
+- [ ] Structure has all 40 items and exact A/B visual distinctions, omissions,
+  directions, 25-minute server timer, grid and navigation.
+- [ ] Reading has all 50 items and source line/paragraph arrangement verified.
+- [ ] Conversion values and formula are cross-checked against the book's
+  Practice Test A scoring pages and independently rechecked.
+- [ ] Complete submission gates all results/review; a whole-test retake creates
+  a separate attempt and leaves the primary result unchanged.
+- [ ] Short-code format, hash-only storage, expiry, one-use claim, rate limiting
+  and teacher playback-mode selection are verified.
+- [ ] No-score reHEARse invariant, Test Center storage boundary, access checks,
+  no-store headers, role views, mobile layout and recovery behavior remain
+  intact.
+- [ ] `pnpm check` and a production-shaped database/media journey pass; exact
+  command results and any remaining classroom gates are recorded.
+
+## Current gaps
+
+The source has not been ingested. ETS's page embeds two complete recordings;
+question-level playback segmentation and an exact 12-second autoplay sequence
+still need source-level verification. No migration, real package, result
+calculation, runtime, deployment or classroom verification is claimed.

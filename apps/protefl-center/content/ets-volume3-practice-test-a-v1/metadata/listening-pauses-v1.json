@@ -1,0 +1,309 @@
+{
+  "schemaVersion": "1.0.0",
+  "source": "Practice Test A, Section 1",
+  "detection": "ffmpeg silencedetect noise=-42dB duration=4s; acoustic boundaries require human spot-check before candidate release",
+  "audioDurationMs": 2102073,
+  "nativeAnswerWindowsPreserved": true,
+  "pauses": [
+    {
+      "question": 1,
+      "answerWindowStartMs": 155107,
+      "answerWindowEndMs": 167234,
+      "durationMs": 12126
+    },
+    {
+      "question": 2,
+      "answerWindowStartMs": 182186,
+      "answerWindowEndMs": 194272,
+      "durationMs": 12086
+    },
+    {
+      "question": 3,
+      "answerWindowStartMs": 212969,
+      "answerWindowEndMs": 225043,
+      "durationMs": 12074
+    },
+    {
+      "question": 4,
+      "answerWindowStartMs": 240052,
+      "answerWindowEndMs": 252105,
+      "durationMs": 12052
+    },
+    {
+      "question": 5,
+      "answerWindowStartMs": 266283,
+      "answerWindowEndMs": 278429,
+      "durationMs": 12145
+    },
+    {
+      "question": 6,
+      "answerWindowStartMs": 297549,
+      "answerWindowEndMs": 309653,
+      "durationMs": 12103
+    },
+    {
+      "question": 7,
+      "answerWindowStartMs": 322732,
+      "answerWindowEndMs": 334816,
+      "durationMs": 12084
+    },
+    {
+      "question": 8,
+      "answerWindowStartMs": 345757,
+      "answerWindowEndMs": 357851,
+      "durationMs": 12094
+    },
+    {
+      "question": 9,
+      "answerWindowStartMs": 379696,
+      "answerWindowEndMs": 391818,
+      "durationMs": 12122
+    },
+    {
+      "question": 10,
+      "answerWindowStartMs": 416341,
+      "answerWindowEndMs": 428424,
+      "durationMs": 12083
+    },
+    {
+      "question": 11,
+      "answerWindowStartMs": 439236,
+      "answerWindowEndMs": 451297,
+      "durationMs": 12061
+    },
+    {
+      "question": 12,
+      "answerWindowStartMs": 467790,
+      "answerWindowEndMs": 479871,
+      "durationMs": 12081
+    },
+    {
+      "question": 13,
+      "answerWindowStartMs": 492562,
+      "answerWindowEndMs": 504661,
+      "durationMs": 12100
+    },
+    {
+      "question": 14,
+      "answerWindowStartMs": 519755,
+      "answerWindowEndMs": 531863,
+      "durationMs": 12108
+    },
+    {
+      "question": 15,
+      "answerWindowStartMs": 551081,
+      "answerWindowEndMs": 563185,
+      "durationMs": 12104
+    },
+    {
+      "question": 16,
+      "answerWindowStartMs": 578650,
+      "answerWindowEndMs": 590695,
+      "durationMs": 12045
+    },
+    {
+      "question": 17,
+      "answerWindowStartMs": 608930,
+      "answerWindowEndMs": 620982,
+      "durationMs": 12051
+    },
+    {
+      "question": 18,
+      "answerWindowStartMs": 636704,
+      "answerWindowEndMs": 648753,
+      "durationMs": 12049
+    },
+    {
+      "question": 19,
+      "answerWindowStartMs": 663764,
+      "answerWindowEndMs": 675880,
+      "durationMs": 12116
+    },
+    {
+      "question": 20,
+      "answerWindowStartMs": 692395,
+      "answerWindowEndMs": 704511,
+      "durationMs": 12116
+    },
+    {
+      "question": 21,
+      "answerWindowStartMs": 722111,
+      "answerWindowEndMs": 734172,
+      "durationMs": 12060
+    },
+    {
+      "question": 22,
+      "answerWindowStartMs": 746411,
+      "answerWindowEndMs": 758513,
+      "durationMs": 12102
+    },
+    {
+      "question": 23,
+      "answerWindowStartMs": 774977,
+      "answerWindowEndMs": 787038,
+      "durationMs": 12061
+    },
+    {
+      "question": 24,
+      "answerWindowStartMs": 803533,
+      "answerWindowEndMs": 815592,
+      "durationMs": 12059
+    },
+    {
+      "question": 25,
+      "answerWindowStartMs": 832522,
+      "answerWindowEndMs": 844617,
+      "durationMs": 12094
+    },
+    {
+      "question": 26,
+      "answerWindowStartMs": 857213,
+      "answerWindowEndMs": 869301,
+      "durationMs": 12087
+    },
+    {
+      "question": 27,
+      "answerWindowStartMs": 891042,
+      "answerWindowEndMs": 903117,
+      "durationMs": 12076
+    },
+    {
+      "question": 28,
+      "answerWindowStartMs": 920830,
+      "answerWindowEndMs": 932928,
+      "durationMs": 12098
+    },
+    {
+      "question": 29,
+      "answerWindowStartMs": 951978,
+      "answerWindowEndMs": 964046,
+      "durationMs": 12067
+    },
+    {
+      "question": 30,
+      "answerWindowStartMs": 980731,
+      "answerWindowEndMs": 992850,
+      "durationMs": 12119
+    },
+    {
+      "question": 31,
+      "answerWindowStartMs": 1128027,
+      "answerWindowEndMs": 1140173,
+      "durationMs": 12146
+    },
+    {
+      "question": 32,
+      "answerWindowStartMs": 1145596,
+      "answerWindowEndMs": 1157688,
+      "durationMs": 12092
+    },
+    {
+      "question": 33,
+      "answerWindowStartMs": 1161931,
+      "answerWindowEndMs": 1173989,
+      "durationMs": 12058
+    },
+    {
+      "question": 34,
+      "answerWindowStartMs": 1178925,
+      "answerWindowEndMs": 1191062,
+      "durationMs": 12136
+    },
+    {
+      "question": 35,
+      "answerWindowStartMs": 1301257,
+      "answerWindowEndMs": 1313322,
+      "durationMs": 12065
+    },
+    {
+      "question": 36,
+      "answerWindowStartMs": 1318206,
+      "answerWindowEndMs": 1330279,
+      "durationMs": 12072
+    },
+    {
+      "question": 37,
+      "answerWindowStartMs": 1337732,
+      "answerWindowEndMs": 1349884,
+      "durationMs": 12151
+    },
+    {
+      "question": 38,
+      "answerWindowStartMs": 1641612,
+      "answerWindowEndMs": 1653679,
+      "durationMs": 12067
+    },
+    {
+      "question": 39,
+      "answerWindowStartMs": 1662892,
+      "answerWindowEndMs": 1675007,
+      "durationMs": 12115
+    },
+    {
+      "question": 40,
+      "answerWindowStartMs": 1681198,
+      "answerWindowEndMs": 1693269,
+      "durationMs": 12072
+    },
+    {
+      "question": 41,
+      "answerWindowStartMs": 1699876,
+      "answerWindowEndMs": 1711908,
+      "durationMs": 12031
+    },
+    {
+      "question": 42,
+      "answerWindowStartMs": 1814559,
+      "answerWindowEndMs": 1826622,
+      "durationMs": 12063
+    },
+    {
+      "question": 43,
+      "answerWindowStartMs": 1832176,
+      "answerWindowEndMs": 1844265,
+      "durationMs": 12089
+    },
+    {
+      "question": 44,
+      "answerWindowStartMs": 1850568,
+      "answerWindowEndMs": 1862617,
+      "durationMs": 12049
+    },
+    {
+      "question": 45,
+      "answerWindowStartMs": 1870120,
+      "answerWindowEndMs": 1882232,
+      "durationMs": 12112
+    },
+    {
+      "question": 46,
+      "answerWindowStartMs": 1887464,
+      "answerWindowEndMs": 1899522,
+      "durationMs": 12058
+    },
+    {
+      "question": 47,
+      "answerWindowStartMs": 2020572,
+      "answerWindowEndMs": 2032619,
+      "durationMs": 12047
+    },
+    {
+      "question": 48,
+      "answerWindowStartMs": 2039348,
+      "answerWindowEndMs": 2051441,
+      "durationMs": 12092
+    },
+    {
+      "question": 49,
+      "answerWindowStartMs": 2056193,
+      "answerWindowEndMs": 2068294,
+      "durationMs": 12101
+    },
+    {
+      "question": 50,
+      "answerWindowStartMs": 2076173,
+      "answerWindowEndMs": 2088418,
+      "durationMs": 12246
+    }
+  ]
+}

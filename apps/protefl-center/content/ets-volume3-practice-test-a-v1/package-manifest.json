@@ -1,0 +1,251 @@
+{
+  "package": "ets-volume3-practice-test-a",
+  "version": 1,
+  "form": "Practice Test A",
+  "rights": "Owner confirmed in chat on 2026-11-08 that they have full rights to digitize and deliver this book to their students, and explicitly instructed that all artifacts be committed.",
+  "officialSource": "https://www.ets.org/s/toefl-itp/l1v3_ebook/",
+  "audioSource": "ETS embedded Test 1 Kaltura player entry 1_x4oauw26",
+  "sourceFiles": [
+    {
+      "path": "README.md",
+      "bytes": 2445,
+      "sha256": "27ccc4047ea224dd480c9650f0e8362ac9e171b882f2cfdc084a340235da7184"
+    },
+    {
+      "path": "metadata/answer-key-practice-test-a-v1.json",
+      "bytes": 1763,
+      "sha256": "fedaf2b87226c046d23c8e21884ff36879d04856234d7b27fe28de2b9bb5e193"
+    },
+    {
+      "path": "metadata/listening-pauses-v1.json",
+      "bytes": 6976,
+      "sha256": "3a27808c81b84706b4e852f5c4c014608aa2af5a0be2bacdd773682cad2eca5c"
+    },
+    {
+      "path": "metadata/page-index-v1.json",
+      "bytes": 3662,
+      "sha256": "9dc13fcec0b1641619bc41ab58b44efa4ae5d4319aabca6437bf46eef0090517"
+    },
+    {
+      "path": "metadata/score-conversion-practice-test-a-v1.json",
+      "bytes": 3538,
+      "sha256": "11775bbb911d5df22dd50aba877840c5e2ceb0fae420c3b4479e95d2a8ab7adb"
+    },
+    {
+      "path": "metadata/verify-package.py",
+      "bytes": 2062,
+      "sha256": "177563849a9b33b407f2ad562db1828c99af340df8a5bd754e45fccf539d6d81"
+    },
+    {
+      "path": "pages/page-021.jpg",
+      "bytes": 178738,
+      "sha256": "78cfef378d9171ef98277d64d5c77e33634dbe4bd2b3722f81816ba9088a7c10"
+    },
+    {
+      "path": "pages/page-022.jpg",
+      "bytes": 176645,
+      "sha256": "3b245156e35e230ab1c0c01b28cbbce38aa3f075e1afd1427b9b96d51a5925c8"
+    },
+    {
+      "path": "pages/page-023.jpg",
+      "bytes": 173801,
+      "sha256": "591881173cf30bf7aeac9ccd72802d8a6004fa6750e824ef1a3de6d25bb9f2a7"
+    },
+    {
+      "path": "pages/page-024.jpg",
+      "bytes": 184572,
+      "sha256": "1e22746d9b530fe29a14ee5c54bb9d7c2e0eaf920e7d610fef6beb2c0d98bb61"
+    },
+    {
+      "path": "pages/page-025.jpg",
+      "bytes": 180019,
+      "sha256": "03edc8c97eb92304df1c3456e6feca29167083fa67678d9e11c591be5f45db89"
+    },
+    {
+      "path": "pages/page-026.jpg",
+      "bytes": 85752,
+      "sha256": "66989d8d08d05abe27ccaadaf21f351c9b7874a3d8a385ae18ab265fdcd883d1"
+    },
+    {
+      "path": "pages/page-027.jpg",
+      "bytes": 205324,
+      "sha256": "b2939bd365149a44e651a49e4ae8c413433113a649ced09acb6cfd98f5ca957a"
+    },
+    {
+      "path": "pages/page-028.jpg",
+      "bytes": 209926,
+      "sha256": "c8a0b0c19e8ea8067b55f7cb745959790f502b746644151928e0df9bc9251a40"
+    },
+    {
+      "path": "pages/page-029.jpg",
+      "bytes": 187014,
+      "sha256": "7b00d523b425161e98f65d11d66d0ca05f11867e6ff088fe70b80d9ed8354389"
+    },
+    {
+      "path": "pages/page-030.jpg",
+      "bytes": 148755,
+      "sha256": "91a5e3ba89bb6471656b54aea91da3ea210d0964354d117a098199c7d3b0316e"
+    },
+    {
+      "path": "pages/page-031.jpg",
+      "bytes": 183883,
+      "sha256": "326dcab4118b39946b484ffb6cad902520602a2838962924e66ff49fd54efbe8"
+    },
+    {
+      "path": "pages/page-033.jpg",
+      "bytes": 235194,
+      "sha256": "13d8e4fc356104128c786ef6121b0b8d2d8c1142cb92f819609368b5d44838d3"
+    },
+    {
+      "path": "pages/page-034.jpg",
+      "bytes": 198879,
+      "sha256": "56cff3324dd98e106226160e95cbd78f59e71965d9b8db25744483d95659aa6f"
+    },
+    {
+      "path": "pages/page-035.jpg",
+      "bytes": 168536,
+      "sha256": "4021cec8c9bf7a59d0da4d8ee725e1180115704671cbace2b64e513bee6fce54"
+    },
+    {
+      "path": "pages/page-036.jpg",
+      "bytes": 166795,
+      "sha256": "87ecbd94133708129c6b396fc229f6964a02162786f8786ead4f74a76e7970b0"
+    },
+    {
+      "path": "pages/page-037.jpg",
+      "bytes": 170489,
+      "sha256": "0d6042a817efb405454be8257f52fdb1e97f2481b750d6cd3c6c0525b5c08fd7"
+    },
+    {
+      "path": "pages/page-038.jpg",
+      "bytes": 158226,
+      "sha256": "98c1b0779fb1c0cc52f1938ff0bc4bc28269502f689fe8e6dfd9755a60497957"
+    },
+    {
+      "path": "pages/page-039.jpg",
+      "bytes": 180716,
+      "sha256": "10de90d5c5d414dee4db77358f38027786fd3e41d931f4022a73061c074f4452"
+    },
+    {
+      "path": "pages/page-040.jpg",
+      "bytes": 119737,
+      "sha256": "128be6a0c944fa775962e12dcbba92906c3c13911198ec62c4a411bc3f656f70"
+    },
+    {
+      "path": "pages/page-041.jpg",
+      "bytes": 263099,
+      "sha256": "4a69b9928d9d55348f0bc708b9717c58a1fc4ebc1059d80f4b6e155f7749274c"
+    },
+    {
+      "path": "pages/page-044.jpg",
+      "bytes": 272792,
+      "sha256": "a0a15a47bc0e0d016d75ed5adb63e1ecc098116366cdeb40fa766b7ea078e345"
+    },
+    {
+      "path": "pages/page-045.jpg",
+      "bytes": 198051,
+      "sha256": "609eeb1029d14a9471c2eeac5772c439241dc08d1db4cf4ff68907b7aa799a2d"
+    },
+    {
+      "path": "pages/page-046.jpg",
+      "bytes": 181066,
+      "sha256": "4191900ededa186e87f0e7986e177be707ca1b4b847f4652b91ff43fe45ad66a"
+    },
+    {
+      "path": "pages/page-047.jpg",
+      "bytes": 48063,
+      "sha256": "d92d960f71a84c2c07d54b02d06006c16cb792bbafa88bd78dc47734079daaba"
+    },
+    {
+      "path": "pages/page-048.jpg",
+      "bytes": 296465,
+      "sha256": "9c753bfb61a1657af91fa25e2cf17da32d40372cd6a52999f92272aadaf3020e"
+    },
+    {
+      "path": "pages/page-049.jpg",
+      "bytes": 172799,
+      "sha256": "f0d732f283af7f9178da30aeaa18ed6d1ae1ff0924f6247fdc747befcf99f0fa"
+    },
+    {
+      "path": "pages/page-050.jpg",
+      "bytes": 131437,
+      "sha256": "582687310c485d86cbda90f63f9f0ea109695a25b77406f82618aa4543e5546e"
+    },
+    {
+      "path": "pages/page-051.jpg",
+      "bytes": 49187,
+      "sha256": "05f3677be8adee771893740bb770c4ae02ba48c8ebfa6847054afcc46c5df013"
+    },
+    {
+      "path": "pages/page-052.jpg",
+      "bytes": 284693,
+      "sha256": "53d1c528fc2c0cd218452aef2725a680b208a4f1601cad76a123b39253e49049"
+    },
+    {
+      "path": "pages/page-053.jpg",
+      "bytes": 195632,
+      "sha256": "3fce113e4fb33df9ba098a6f32768aa474cc0e13c2983084fb1279a2e42fa96b"
+    },
+    {
+      "path": "pages/page-054.jpg",
+      "bytes": 130129,
+      "sha256": "bcac638a55c8f545ebeffe714577d1613bd655cb8aed9a6d495ecc434560ab8f"
+    },
+    {
+      "path": "pages/page-055.jpg",
+      "bytes": 48027,
+      "sha256": "515fbffe03bce6a9e04bd30117d2a39a9cadef473628f566f8b9e4031a86a108"
+    },
+    {
+      "path": "pages/page-056.jpg",
+      "bytes": 305911,
+      "sha256": "db2b9b60a132eff5b06f83cfc06d8ab43682d488c9d0edc28788b6196de28f3a"
+    },
+    {
+      "path": "pages/page-057.jpg",
+      "bytes": 157391,
+      "sha256": "f3db67c8b3838f0ea9cb8c5bfb13af2ee9e56d659b2f80f222d1cf04b036f106"
+    },
+    {
+      "path": "pages/page-058.jpg",
+      "bytes": 211495,
+      "sha256": "ba23133354787ddd65d70350cb7ae98102455109d40796f5b5c0b8eee3369e76"
+    },
+    {
+      "path": "pages/page-059.jpg",
+      "bytes": 48009,
+      "sha256": "c20fbbe0683946eb3b93d9cccb940e27ec92450dfb132df00e0cf076b7659a8b"
+    },
+    {
+      "path": "pages/page-060.jpg",
+      "bytes": 280626,
+      "sha256": "e24c1e7e9ade8e87ddc711ac2e3007fb68f03dd65bab70d1fab0f02b2982c2d4"
+    },
+    {
+      "path": "pages/page-061.jpg",
+      "bytes": 165560,
+      "sha256": "444dad8070b881c9d1108775315d981d0e9390bf88ba8f0f1638f025074b919c"
+    },
+    {
+      "path": "pages/page-062.jpg",
+      "bytes": 173161,
+      "sha256": "99b34de44a526437fe5a4bde8ac8f342fe354140ce4282b45e49200b0bff5847"
+    },
+    {
+      "path": "source/ets-toefl-itp-volume-3-layout.txt",
+      "bytes": 228584,
+      "sha256": "7925518fade37cb5d0ed2e5a1e07385ca93a1d007e9d2086b274cbbafcac1ffd"
+    },
+    {
+      "path": "source/ets-toefl-itp-volume-3.pdf",
+      "bytes": 1113343,
+      "sha256": "8278e39c682faecaffc5e4b55c1038fb34c29d915462b4a12eea7654d8dd9aee"
+    },
+    {
+      "path": "source/practice-test-a-listening.m4a",
+      "bytes": 17180200,
+      "sha256": "dbb8c9d81cd76e02f1c99a29d29101fdb5afab55680032376063ed722df11aa7"
+    }
+  ],
+  "status": "source-ingested; protected interactive delivery and human timing review pending"
+}

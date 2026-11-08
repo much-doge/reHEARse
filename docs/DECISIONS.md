@@ -482,3 +482,30 @@ The application must not issue raw public object-storage URLs for authenticated
 learning media. This policy governs access through the application; already
 published public media URLs must be treated as a separate object-storage
 visibility issue and must not be described as revoked by an app deployment.
+
+## D035 — Owner-authorized ETS diagnostic package and immutable retakes (LFL-035)
+
+Accepted at the operator's request. ETS TOEFL ITP Level 1 Volume 3 Practice
+Test A is a distinct, assigned ProTEFL Test Center assessment package. The
+owner confirmed full rights to digitize and deliver the source to their
+students, and explicitly requested that its source PDF, audio, page renders,
+answer key, scoring data, and related artifacts be committed in the repository
+under `apps/protefl-center/content/`. These assessment records and scores stay
+inside the Test Center and never enter reHEARse learning diagnostics/history.
+
+Candidates receive only allowlisted question/direction pages through
+authenticated, assignment-checked, private no-store routes. The complete book,
+scripts, answer keys, and scoring tables must not be sent to a candidate before
+the whole diagnostic is submitted. Listening offers a teacher-selected
+autoplay or per-question playback mode; autoplay retains the source's roughly
+12-second answer windows. Structure is timed at 25 minutes and Reading at 55
+minutes. The existing source page arrangement, including Reading line breaks
+and Structure Part B underlines, is preserved.
+
+The first completed attempt is the candidate's primary result. Whole-test
+retakes append a separate attempt and cannot replace or improve that result.
+Result details become visible only after completion of all three sections.
+The package's exact Practice Test A answer key and score-conversion table are
+versioned with source provenance. Deployment and candidate use remain gated on
+protected delivery, attempt persistence, timing/audio alignment review, and
+end-to-end verification.

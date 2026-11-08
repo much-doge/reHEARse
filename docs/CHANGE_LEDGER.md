@@ -1,5 +1,7 @@
 # Change ledger
 
+| LFL-035 | in_progress | Ingest owner-authorized ETS TOEFL ITP Level 1 Volume 3 Practice Test A source package and implement assigned full diagnostic with short codes, teacher-selected Listening mode, timed Structure/Reading, whole-test results and immutable retakes | Source package hashes, 140 answer keys, 50 detected audio windows, 140 page references, 5 Reading passage groups, 15 score ranges validated; page render spot-check passed; protected routes, migration, candidate journey, full check and deployment not yet done | `apps/protefl-center/content/ets-volume3-practice-test-a-v1/`; `apps/protefl-center/docs/LFL035_FULL_DIAGNOSTIC.md`; D035 |
+
 | Work ID | Status | Outcome | Verification | Implementation |
 |---|---|---|---|---|
 | LFL-034 | deployed | Separate teacher/admin and learner workspaces; move prior listening tools behind `/legacy`; require an active signed-in account for protected pages, APIs, and app-served media; disable caching of authenticated content and archived-route redirects | ESLint, TypeScript, 170 tests, Next production build; PCT128 image `8c9d7f5` healthy; no-cookie protected pages and legacy redirects return 307 with private no-store; game, workshop, listening and Test Center media APIs return 401 with private no-store; PostgreSQL container unchanged; direct links to previously public object-store files remain outside app authorization; authenticated role journey not observed | Commits `d8f2175`, `2791519`, `44b27a6`, `8c9d7f5`; `docs/LFL034_ACCESS_CONTROL_RECEIPT.md` |
