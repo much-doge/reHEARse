@@ -168,7 +168,7 @@ export const rooms: RoomPort = {
         round: {
           ...publicRound(round, phase),
           ...(who.host && ["listen", "comprehend", "review"].includes(phase)
-            ? { audioUrl: round.audioUrl }
+            ? { audioUrl: `/api/game/media?pin=${encodeURIComponent(pin)}&round=${r.round_index}` }
             : {}),
         },
         cloud: [...grouped.values()],
@@ -179,6 +179,19 @@ export const rooms: RoomPort = {
           : [],
         leaderboard: leaderboard?.rows ?? [],
       } as GameView;
+    });
+  },
+  async media(pin, roundIndex, actor) {
+    return transaction(async (c) => {
+      const r = await room(c, pin);
+      const who = await identity(c, r, actor);
+      if (!who.host) throw new GameError(403, "Teacher only / Khusus guru");
+      if (r.round_index !== roundIndex || !["listen", "comprehend", "review"].includes(r.phase))
+        throw new GameError(404, "Media unavailable");
+      const deck = deckSchema.parse({ version: r.version, title: r.title, rounds: r.rounds });
+      const round = deck.rounds[roundIndex];
+      if (!round) throw new GameError(404, "Media unavailable");
+      return round.audioUrl;
     });
   },
   async act(pin, actor, a) {

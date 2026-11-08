@@ -180,7 +180,7 @@ function WorkshopWelcome({ teacher, pin, setPin, busy, message, onPrimary, onRes
 }
 
 function WorkshopFrame({ teacher, children }: { teacher: boolean; children: React.ReactNode }) {
-  return <div className={styles.shell}><nav className={styles.nav}><Link href="/"><strong>reHEARse</strong></Link><span>TOEFL ITP LISTENING WORKSHOP</span><Link href={teacher ? "/workshop/join" : "/workshop"}>{teacher ? "Learner entry" : "Teacher"}</Link></nav><main className={styles.main}>{children}</main></div>;
+  return <div className={styles.shell}><nav className={styles.nav}><Link href="/legacy"><strong>reHEARse</strong></Link><span>TOEFL ITP LISTENING WORKSHOP</span><Link href={teacher ? "/legacy/workshop/join" : "/legacy/workshop"}>{teacher ? "Learner entry" : "Teacher"}</Link></nav><main className={styles.main}>{children}</main></div>;
 }
 
 export function WorkshopLearner({ initialPin = "" }: { initialPin?: string }) {

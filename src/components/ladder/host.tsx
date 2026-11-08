@@ -92,7 +92,7 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
       setView(result);
       setPin(result.pin);
       if (kind === "create") { createKey.current = null; setCreationPending(false); }
-      window.history.replaceState(null, "", `/ladder/host?pin=${result.pin}`);
+      window.history.replaceState(null, "", `/legacy/ladder/host?pin=${result.pin}`);
     } catch {
       setError(
         "That action could not be confirmed. Refresh this board before trying again.",
@@ -138,7 +138,7 @@ export function LadderHost({ initialPin }: { initialPin?: string }) {
         {view && (
           <div className="ladder-host-pin">
             <small>JOIN AT</small>
-            <strong>rehearse.najala.org/ladder</strong>
+            <strong>rehearse.najala.org/legacy/ladder</strong>
             <span>{view.pin}</span>
             <small>
               {view.closed

@@ -453,3 +453,32 @@ Archive the superseded root homepage presentation under `legacy/homepage/`.
 Keep active routes, game assets, listening media, Test Center sources and
 learner/assessment data in their existing boundaries; a marketing refresh does
 not justify moving runtime dependencies or private material.
+
+## D033 — Role-specific workspaces and legacy learning routes (LFL-034)
+
+Accepted at the operator's request. The signed-in dashboard must present a
+staff workspace to teachers and administrators, with controls appropriate to
+their role; it must not reuse learner-facing narration or learner-only course
+instructions. Learners see their own assigned ProTEFL Test Center resources.
+
+Previously existing reHEARse listening activities, workshop, classroom and
+listening-ladder experiences move under `/legacy/`. Keep their existing
+records and underlying source assets intact. The ProTEFL Test Center remains
+the active course resource area at `/test-center`; moving earlier learning
+tools does not move Test Center resources or data into the legacy boundary.
+
+## D034 — Signed-in access and private response caching (LFL-034)
+
+Accepted at the operator's request. Access to learner, teacher and Test Center
+resources requires a valid signed-in reHEARse session. This applies to direct
+page visits, route handlers, API reads and writes, and media responses; a room
+PIN, prior membership cookie, guessed URL or previously opened tab is not a
+substitute for an active account session. Role and ownership checks remain
+server-authoritative.
+
+Session-bound pages, API responses and app-served media use private no-store
+cache policy. Public marketing pages and generic brand assets remain public.
+The application must not issue raw public object-storage URLs for authenticated
+learning media. This policy governs access through the application; already
+published public media URLs must be treated as a separate object-storage
+visibility issue and must not be described as revoked by an app deployment.

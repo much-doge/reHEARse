@@ -10,7 +10,7 @@ describe("workshop privacy projection",()=>{
   const before=learnerProjection(bcRoom,participant,0);expect(before.current?.audioUrl).toBeNull();expect(before.current?.passageAudioUrl).toBeNull();
   const state=advanceParticipant(participant.state_json,content.items[0],{kind:"listen_start",itemId:content.items[0].id},0,3,{firstListenMs:1100,replayMs:1100});
   const after=learnerProjection(bcRoom,{...participant,state_json:state},0);
-  expect(after.current?.audioUrl).toContain("sample-0.mp3");expect(after.current?.passageAudioUrl).toContain("passage-0.mp3");
+  expect(after.current?.audioUrl).toBe("/api/workshop/media/question-31?pin=123456&kind=item");expect(after.current?.passageAudioUrl).toBe("/api/workshop/media/question-31?pin=123456&kind=passage");
   expect(after.current?.title).toEqual({en:"Question 31",id:"Soal 31"});
   expect(JSON.stringify(after)).not.toMatch(/What is the main topic|decisiveEvidence|optionReasons|guidedComparison|privateSourceReference|"answer"/);
  });

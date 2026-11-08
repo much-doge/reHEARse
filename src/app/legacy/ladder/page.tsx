@@ -8,9 +8,8 @@ export default async function LadderPage({
   searchParams: Promise<{ pin?: string; new?: string }>;
 }) {
   const params = await searchParams;
-  const user = await requireUser(
-    `/ladder?${new URLSearchParams({ ...params })}`,
-  );
+  const query = new URLSearchParams({ ...params });
+  const user = await requireUser(`/legacy/ladder${query.size ? `?${query}` : ""}`);
   const initial =
     params.pin || params.new ? null : await ladderRepository.view(user);
   return (

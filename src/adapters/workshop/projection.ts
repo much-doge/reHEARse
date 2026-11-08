@@ -9,6 +9,7 @@ const groupSummary=(content:WorkshopContent,index:number):GroupSummary=>{const g
   id:g.id,title:g.title,skill:g.skill,itemCount:items.length,questionStart:items.find(i=>i.questionNumber!==undefined)?.questionNumber??null,
 };};
 const summary=(item:WorkshopContent["items"][number],index:number)=>({id:item.id,title:item.questionNumber===undefined?{en:`Clip ${index+1}`,id:`Klip ${index+1}`}:{en:`Question ${item.questionNumber}`,id:`Soal ${item.questionNumber}`},skill:item.primarySkill,questionNumber:item.questionNumber??null});
+const mediaRoute=(pin:string,itemId:string,kind:"item"|"passage")=>`/api/workshop/media/${encodeURIComponent(itemId)}?pin=${encodeURIComponent(pin)}&kind=${kind}`;
 function safePreparation(content:WorkshopContent,index:number):Preparation {
   const group=content.groups[index], source=group.preparation;
   if("longmanReference" in source && "extensionActivities" in source)return {
@@ -36,7 +37,7 @@ export function learnerProjection(room:RoomRow,participant:ParticipantRow,now:nu
     const saved=participant.state_json.items[completed.id];
     if(saved?.phase!=="item_complete"||!completed.media.publicUrl)return[];
     const completedGroup=content.groups.find(candidate=>candidate.id===completed.groupId)!;
-    return [{id:completed.id,number:index+1,questionNumber:completed.questionNumber??null,audioUrl:completed.media.publicUrl,passageAudioUrl:completedGroup.passageMedia?.publicUrl??null,durationMs:completed.media.durationMs+(completedGroup.passageMedia?.durationMs??0),
+    return [{id:completed.id,number:index+1,questionNumber:completed.questionNumber??null,audioUrl:mediaRoute(room.pin,completed.id,"item"),passageAudioUrl:completedGroup.passageMedia?.publicUrl?mediaRoute(room.pin,completed.id,"passage"):null,durationMs:completed.media.durationMs+(completedGroup.passageMedia?.durationMs??0),
       originalChoice:saved.result?.choice??null,
       options:Object.fromEntries(options.map((key,optionIndex)=>[key,completed.options[optionIndex]])) as Record<Option,string>,
       tips:completed.tips,comparison:completed.guidedComparison,attempts:participant.state_json.enrichment?.[completed.id]??{}}];
@@ -45,7 +46,7 @@ export function learnerProjection(room:RoomRow,participant:ParticipantRow,now:nu
     activity:{id:content.id,version:content.version,title:content.title},group:{...groupSummary(content,groupIndex),preparation:safePreparation(content,groupIndex)},
     items:items.map(summary),groupComplete:items.every(i=>participant.state_json.items[i.id]?.phase==="item_complete"),enrichment,
     current:!visible?null:{id:item.id,title:item.questionNumber===undefined?{en:`Clip ${(items.indexOf(item))+1}`,id:`Klip ${(items.indexOf(item))+1}`}:{en:`Question ${item.questionNumber}`,id:`Soal ${item.questionNumber}`},phase:phase!,questionNumber:item.questionNumber??null,options:Object.fromEntries(options.map((key,index)=>[key,item.options[index]])) as Record<Option,string>,
-      audioUrl:state.startedAt!==null?item.media.publicUrl!:null,passageAudioUrl:passageForCurrent?group.passageMedia!.publicUrl!:null,durationMs:item.media.durationMs+passageDuration,startedAt:iso(state.startedAt),answerOpensAt:iso(state.answerOpensAt),deadline:iso(state.deadline),
+      audioUrl:state.startedAt!==null&&item.media.publicUrl?mediaRoute(room.pin,item.id,"item"):null,passageAudioUrl:passageForCurrent?mediaRoute(room.pin,item.id,"passage"):null,durationMs:item.media.durationMs+passageDuration,startedAt:iso(state.startedAt),answerOpensAt:iso(state.answerOpensAt),deadline:iso(state.deadline),
       replayStartedAt:iso(state.replayStartedAt),replayEndsAt:iso(state.replayEndsAt),result:state.result,
       hint:phase==="relisten_1"?item.tips[0]:phase==="relisten_2"?item.tips[1]:null,
       comparison:phase==="guided_compare"?item.guidedComparison:null,explanations:{...state.explanations},explanationOptions:explanation?options.filter(key=>key!==item.answer):[]},

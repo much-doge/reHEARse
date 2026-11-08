@@ -26,13 +26,19 @@ export async function GET(
       throw new ListeningPilotError("media_not_found", 404);
     const media = await listeningPilotRepository.media(user.id, attemptId!, itemId);
     if (!process.env.PROTEFL_MEDIA_ROOT) {
-      const delivery = await new S3CompatibleMediaStore(readS3MediaConfig()).createDownloadUrl(media.storageKey);
-      return new Response(null, {
-        status: 307,
+      const range = request.headers.get("range");
+      const object = await new S3CompatibleMediaStore(readS3MediaConfig()).readObject(media.storageKey, range);
+      return new Response(object.body, {
+        status: range ? 206 : 200,
         headers: {
-          "Cache-Control": "private, no-store",
-          Location: delivery.url,
+          "Accept-Ranges": "bytes",
+          "Cache-Control": "private, no-store, max-age=0, must-revalidate",
           "Referrer-Policy": "no-referrer",
+          ...(object.contentLength !== undefined ? { "Content-Length": String(object.contentLength) } : {}),
+          ...(object.contentRange ? { "Content-Range": object.contentRange } : {}),
+          "Content-Type": object.contentType ?? media.contentType,
+          "X-Content-Type-Options": "nosniff",
+          "Vary": "Cookie",
         },
       });
     }
@@ -45,17 +51,18 @@ export async function GET(
     const requestedEnd = match?.[2] ? Number(match[2]) : data.byteLength - 1;
     const end = Math.min(requestedEnd, data.byteLength - 1);
     if (match && (start > end || start >= data.byteLength))
-      return new Response(null, { status: 416, headers: { "Content-Range": `bytes */${data.byteLength}` } });
+      return new Response(null, { status: 416, headers: { "Content-Range": `bytes */${data.byteLength}`, "Cache-Control": "private, no-store" } });
     const body = match ? data.subarray(start, end + 1) : data;
     return new Response(body, {
       status: match ? 206 : 200,
       headers: {
         "Accept-Ranges": "bytes",
-        "Cache-Control": "private, max-age=300",
+        "Cache-Control": "private, no-store, max-age=0, must-revalidate",
         "Content-Length": String(body.byteLength),
         ...(match ? { "Content-Range": `bytes ${start}-${end}/${data.byteLength}` } : {}),
         "Content-Type": media.contentType,
         "X-Content-Type-Options": "nosniff",
+        "Vary": "Cookie",
       },
     });
   } catch (error) {

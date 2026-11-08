@@ -6,7 +6,6 @@ import {
 } from "@/domain/activity-presentation";
 import { getPool } from "@/adapters/db/client";
 import { readS3MediaConfig } from "@/adapters/media/s3-config";
-import { createPublicMediaUrl } from "@/adapters/media/s3-media-store";
 import { createFeedbackProvider } from "@/adapters/feedback/provider-factory";
 import { OPENAI_FEEDBACK_PROMPT_VERSION } from "@/adapters/feedback/openai-responses-provider";
 import { FeedbackProviderError } from "@/application/feedback-provider";
@@ -55,15 +54,13 @@ export type ResolvedActivityVersion = Pick<
 > & { mediaSha256: string | null };
 
 function activityAudioUrl(activity: Record<string, unknown>, versionId?: string): string | null {
-  let audioUrl = activity.media_storage_key
+  const audioUrl = activity.media_storage_key
     ? `/api/media/${String(activity.slug)}${versionId ? `?version=${encodeURIComponent(versionId)}` : ""}`
     : null;
   if (activity.media_provider === "s3" && activity.media_storage_key) {
     const config = readS3MediaConfig();
     if (activity.media_bucket && activity.media_bucket !== config.bucket)
       throw new Error("media bucket configuration mismatch");
-    if (config.deliveryMode === "public")
-      audioUrl = createPublicMediaUrl(config, String(activity.media_storage_key));
   }
   return audioUrl;
 }

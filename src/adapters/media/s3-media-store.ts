@@ -44,6 +44,22 @@ export class S3CompatibleMediaStore implements RemoteMediaStore {
     };
   }
 
+  async readObject(storageKey: string, range?: string | null) {
+    assertSafeObjectKey(storageKey, this.config.prefix);
+    const result = await this.client.send(new GetObjectCommand({
+      Bucket: this.config.bucket,
+      Key: storageKey,
+      ...(range ? { Range: range } : {}),
+    }));
+    if (!result.Body) throw new Error("media_body_unavailable");
+    return {
+      body: result.Body.transformToWebStream(),
+      contentLength: result.ContentLength,
+      contentType: result.ContentType,
+      contentRange: result.ContentRange,
+    };
+  }
+
   async uploadFile(input: {
     path: string;
     storageKey: string;
@@ -116,4 +132,20 @@ export function createPublicMediaUrl(config: S3MediaConfig, storageKey: string):
   if (base.protocol !== "https:" || base.username || base.password || base.search || base.hash || !base.pathname.replace(/\/$/, "").endsWith(`/${config.prefix}`)) throw new Error("invalid public media URL");
   const relative = storageKey.slice(config.prefix.length + 1);
   return `${base.href.replace(/\/$/, "")}/${relative.split("/").map(encodeURIComponent).join("/")}`;
+}
+
+export function publicMediaStorageKey(config: S3MediaConfig, value: string): string {
+  if (!config.prefix || !config.publicBaseUrl) throw new Error("public media configuration missing");
+  const base = new URL(config.publicBaseUrl);
+  const candidate = new URL(value);
+  const basePath = base.pathname.replace(/\/$/, "");
+  if (candidate.protocol !== "https:" || candidate.origin !== base.origin || candidate.username || candidate.password || candidate.search || candidate.hash || !candidate.pathname.startsWith(`${basePath}/`))
+    throw new Error("media URL is outside the configured public media path");
+  const encoded = candidate.pathname.slice(basePath.length + 1).split("/");
+  const segments = encoded.map((segment) => decodeURIComponent(segment));
+  if (segments.some((segment) => !segment || segment === "." || segment === ".." || segment.includes("/") || segment.includes("\\")))
+    throw new Error("invalid public media path");
+  const storageKey = `${config.prefix}/${segments.join("/")}`;
+  assertSafeObjectKey(storageKey, config.prefix);
+  return storageKey;
 }

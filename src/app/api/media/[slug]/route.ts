@@ -41,16 +41,23 @@ export async function GET(
     try {
       const config = readS3MediaConfig();
       if (result.rows[0].media_bucket && result.rows[0].media_bucket !== config.bucket) throw new Error("media bucket mismatch");
-      const delivery = await new S3CompatibleMediaStore(config).createDownloadUrl(storageKey);
-      return NextResponse.redirect(delivery.url, {
-        status: 307,
+      const range = request.headers.get("range");
+      const media = await new S3CompatibleMediaStore(config).readObject(storageKey, range);
+      return new NextResponse(media.body, {
+        status: range ? 206 : 200,
         headers: {
-          "Cache-Control": "private, no-store",
+          "Accept-Ranges": "bytes",
+          "Cache-Control": "private, no-store, max-age=0, must-revalidate",
           "Referrer-Policy": "no-referrer",
+          ...(media.contentLength !== undefined ? { "Content-Length": String(media.contentLength) } : {}),
+          ...(media.contentRange ? { "Content-Range": media.contentRange } : {}),
+          "Content-Type": media.contentType ?? result.rows[0].media_content_type ?? "audio/mpeg",
+          "X-Content-Type-Options": "nosniff",
+          "Vary": "Cookie",
         },
       });
     } catch {
-      return NextResponse.json({ error: "media_unavailable" }, { status: 503 });
+      return NextResponse.json({ error: "media_unavailable" }, { status: 503, headers: { "Cache-Control": "private, no-store" } });
     }
   }
 
@@ -69,7 +76,7 @@ export async function GET(
     if (range && (start > end || start >= data.byteLength)) {
       return new NextResponse(null, {
         status: 416,
-        headers: { "Content-Range": `bytes */${data.byteLength}` },
+        headers: { "Content-Range": `bytes */${data.byteLength}`, "Cache-Control": "private, no-store" },
       });
     }
 
@@ -78,14 +85,15 @@ export async function GET(
       status: range ? 206 : 200,
       headers: {
         "Accept-Ranges": "bytes",
-        "Cache-Control": "private, max-age=300",
+        "Cache-Control": "private, no-store, max-age=0, must-revalidate",
         "Content-Length": String(body.byteLength),
         ...(range ? { "Content-Range": `bytes ${start}-${end}/${data.byteLength}` } : {}),
         "Content-Type": result.rows[0].media_content_type ?? "audio/mpeg",
         "X-Content-Type-Options": "nosniff",
+        "Vary": "Cookie",
       },
     });
   } catch {
-    return NextResponse.json({ error: "media_not_found" }, { status: 404 });
+    return NextResponse.json({ error: "media_not_found" }, { status: 404, headers: { "Cache-Control": "private, no-store" } });
   }
 }

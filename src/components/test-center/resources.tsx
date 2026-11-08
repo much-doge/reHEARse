@@ -39,16 +39,16 @@ export function AssignedResources({ resources, canManage }: { resources: TestCen
   return <main className="ptc-resources-shell">
     <header className="ptc-resources-header"><Link href="/dashboard">← Dashboard</Link><strong>ProTEFL Test Center</strong>
       {canManage && <Link href="/test-center/manage">Manage resources</Link>}</header>
-    <section className="ptc-resources-intro"><p className="eyebrow">YOUR COURSE MATERIALS</p><h1>My assigned resources</h1>
-      <p>Resources become available here when your teacher assigns access to your account.</p></section>
-    <ResourceClaim onClaimed={async () => {
+    <section className="ptc-resources-intro"><p className="eyebrow">{canManage ? "COURSE RESOURCE OVERVIEW" : "YOUR COURSE MATERIALS"}</p><h1>{canManage ? "Resources assigned to candidates" : "My assigned resources"}</h1>
+      <p>{canManage ? "Review resources currently assigned to your account and manage availability or candidate access from the controls." : "Resources become available here when your teacher assigns access to your account."}</p></section>
+    {!canManage && <ResourceClaim onClaimed={async () => {
       const response = await fetch("/api/test-center/resources", { cache: "no-store" });
       if (response.ok) { const data = await response.json() as { resources: TestCenterResource[] }; setItems(data.resources); }
-    }} />
+    }} />}
     <section className="ptc-resource-list" aria-live="polite">
       {items.length ? items.map((resource) => <article className="ptc-resource-card" key={resource.id}>
         <div><span className="eyebrow">{resource.kind === "listening_form" ? "LISTENING PILOT" : "DIAGNOSTIC PACKAGE"} · VERSION {resource.version}</span>
-          <h2>{resource.title}</h2><p>{resource.hasAttempt ? "Your previous attempt is available to continue or review." : "Assigned to your account"}</p></div>
+          <h2>{resource.title}</h2><p>{canManage ? "This resource is assigned to your account." : resource.hasAttempt ? "Your previous attempt is available to continue or review." : "Assigned to your account"}</p></div>
         {resource.kind === "listening_form" && <Link className="ptc-resource-open" href="/test-center/listening/2000-10">Open resource →</Link>}
       </article>) : <div className="ptc-resource-empty"><h2>No resources assigned yet</h2><p>When your teacher shares an access code, enter it above. Assigned resources will appear here.</p></div>}
     </section>

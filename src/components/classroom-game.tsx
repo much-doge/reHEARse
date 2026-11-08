@@ -90,7 +90,7 @@ export function ClassroomGame({
       <header className="game-nav">
         <Link href="/" aria-label="reHEARse home">reHEARse</Link>
         <span>CLASSROOM LISTENING</span>
-        <Link href={teacher ? "/play" : "/classroom"}>
+        <Link href={teacher ? "/legacy/play" : "/legacy/classroom"}>
           {teacher ? "Join a session" : "Teacher"}
         </Link>
       </header>
@@ -149,7 +149,7 @@ export function ClassroomGame({
           <p className="game-join">
             Join{" "}
             <strong>
-              {typeof location !== "undefined" ? location.origin : ""}/play?pin=
+              {typeof location !== "undefined" ? location.origin : ""}/legacy/play?pin=
               {room.pin}
             </strong>
           </p>

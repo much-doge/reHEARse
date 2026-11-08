@@ -1,7 +1,7 @@
 import { createHash, randomInt } from "node:crypto";
 import type { PoolClient } from "pg";
 import { getPool } from "@/adapters/db/client";
-import type { WorkshopActor, WorkshopRepository } from "@/application/workshop/repository";
+import type { WorkshopActor, WorkshopMediaKind, WorkshopRepository } from "@/application/workshop/repository";
 import type { HostAction, LearnerAction } from "@/domain/workshop/contracts";
 import { advanceParticipant, itemAt, workshopPlaybackTiming, WorkshopError } from "@/domain/workshop/state";
 import { anonymousAlias } from "@/domain/ladder/anonymous-alias";
@@ -59,6 +59,24 @@ export class PostgresWorkshopRepository implements WorkshopRepository {
   async learner(pin:string,tokenHash:string){return transaction(async c=>{
     const room=await loadRoom(c,pin),now=await time(c);live(room,now);const p=(await c.query("SELECT * FROM workshop_participant WHERE room_id=$1 AND token_hash=$2",[room.id,tokenHash])).rows[0];if(!p)throw new WorkshopError("membership_required",401);return learnerProjection(room,p,now);
   });}
+  async media(actor:WorkshopActor,pin:string,tokenHash:string,itemId:string,kind:WorkshopMediaKind){
+    if(actor.role!=="learner")throw new WorkshopError("learner_role_required",403);
+    return transaction(async c=>{
+      const room=await loadRoom(c,pin),now=await time(c);live(room,now);
+      const participant=(await c.query("SELECT * FROM workshop_participant WHERE room_id=$1 AND token_hash=$2",[room.id,tokenHash])).rows[0];
+      if(!participant)throw new WorkshopError("membership_required",401);
+      const view=learnerProjection(room,participant,now);
+      const allowed=kind==="item"
+        ? view.current?.id===itemId&&view.current.audioUrl!==null||view.enrichment.some(clip=>clip.id===itemId)
+        : view.current?.id===itemId&&view.current.passageAudioUrl!==null||view.enrichment.some(clip=>clip.id===itemId&&clip.passageAudioUrl!==null);
+      if(!allowed)throw new WorkshopError("media_not_found",404);
+      const item=room.content_json.items.find(candidate=>candidate.id===itemId);
+      if(!item)throw new WorkshopError("media_not_found",404);
+      const url=kind==="item"?item.media.publicUrl:room.content_json.groups.find(group=>group.id===item.groupId)?.passageMedia?.publicUrl;
+      if(!url)throw new WorkshopError("media_not_found",404);
+      return url;
+    });
+  }
   async learnerAction(pin:string,tokenHash:string,revision:number,key:string,action:LearnerAction){return transaction(async c=>{
     const room=await loadRoom(c,pin,true),now=await time(c);live(room,now);
     const p=(await c.query("SELECT * FROM workshop_participant WHERE room_id=$1 AND token_hash=$2 FOR UPDATE",[room.id,tokenHash])).rows[0];if(!p)throw new WorkshopError("membership_required",401);

@@ -81,7 +81,7 @@ export function LadderGame({
   const pregame = !!view?.lobby && view.lobby.phase !== "playing";
   const { index, repairing, finished } = listeningStage(view?.state ?? { choices: [], helpRequested: false }, total, view?.passage);
   useEffect(() => {
-    if (view && !pregame && finished && !view.passage?.checkpoint) router.replace(`/dashboard?completed=${view.runId}`);
+    if (view && !pregame && finished && !view.passage?.checkpoint) router.replace(`/legacy?completed=${view.runId}`);
   }, [view, pregame, finished, router]);
   const item = index >= 0 ? view?.items[index] : null;
   const journey = (view as (LadderView & { journey?: LearnerJourney }) | null)?.journey;
@@ -189,7 +189,7 @@ export function LadderGame({
         celebrated.current.add(effect.id);
         setAnswerEffect(effect);
       }
-      if (start) window.history.replaceState(null, "", "/ladder");
+      if (start) window.history.replaceState(null, "", "/legacy/ladder");
       pending.current = null;
       if (action?.kind === "choice")
         setNotice(
@@ -324,7 +324,7 @@ export function LadderGame({
         </Link>
         <span className="ladder-mode">
           LISTENING JOURNEY</span>
-        <Link href="/ladder/host">Teacher board</Link>
+        <Link href="/legacy/ladder/host">Teacher board</Link>
       </header>
       <div className="ladder-heading">
         <div>
@@ -478,7 +478,7 @@ export function LadderGame({
                     <Avatar id={view.avatarId} paletteId={view.avatarPalette} size={112} />
                     <div className="ladder-waiting-pulse" aria-hidden="true"><i /><i /><i /></div>
                     <p>{view.alias}<small>Keep this page open. The game opens here automatically.</small></p>
-                    <Link href="/dashboard" className="ladder-secondary">Activities dashboard</Link>
+                    <Link href="/legacy" className="ladder-secondary">Legacy resources</Link>
                   </>}
                 </div>
               ) : view.passage?.checkpoint ? (
@@ -517,8 +517,8 @@ export function LadderGame({
                     }}
                   >
                     Choose a new game</button>
-                  <Link href="/dashboard" className="ladder-secondary">
-                    Back to activities</Link>
+                  <Link href="/legacy" className="ladder-secondary">
+                    Back to legacy resources</Link>
                 </div>
               ) : (
                 <>

@@ -4,6 +4,7 @@ export interface RoomPort {
   create(ownerId: string): Promise<string>;
   join(pin: string, tokenHash: string): Promise<void>;
   view(pin: string, actor: GameActor): Promise<GameView>;
+  media(pin: string, roundIndex: number, actor: GameActor): Promise<string>;
   act(
     pin: string,
     actor: GameActor,

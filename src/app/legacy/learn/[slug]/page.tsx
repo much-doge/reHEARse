@@ -13,15 +13,15 @@ export default async function LearnerActivityPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const user = await requireUser(`/learn/${slug}`);
+  const user = await requireUser(`/legacy/learn/${slug}`);
   const activity = await getLearnerActivity(slug, user.id);
   if (!activity) notFound();
 
   return (
     <main className="workspace-shell">
       <header className="app-header workspace-header">
-        <Link href="/dashboard" className="back-link">
-          ← <span>Listening practice</span>
+        <Link href="/legacy" className="back-link">
+          ← <span>Legacy listening practice</span>
         </Link>
         <div className="activity-title-mini">
           <span>{activity.partLabel}</span>
