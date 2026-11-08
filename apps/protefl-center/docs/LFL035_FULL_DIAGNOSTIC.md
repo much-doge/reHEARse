@@ -149,3 +149,27 @@ B/C context transitions are checked. This is structural sequence alignment,
 not a classroom audibility observation. A real candidate journey and classroom
 verification remain outstanding. The replacement deployment is recorded in
 [`docs/LFL037_DEPLOYMENT_RECEIPT.md`](../../../docs/LFL037_DEPLOYMENT_RECEIPT.md).
+
+## LFL-038 workflow revision
+
+LFL-038 adds server-enforced wrong-or-omitted-question subsets for focused
+section retries. A retry based on another retry is derived from that latest
+retry's own missed items, while every attempt remains a separate child of the
+original full result. The result history exposes previous full and section
+attempt records to the assigned learner. Teacher/admin views list each
+assigned learner, full-attempt status and section breakdown, plus child retry
+counts and retry results.
+
+New invite creation can hide Listening question text; the choice is copied to
+the assignment and then pinned to an attempt. Existing attempts receive the
+additive column defaults and keep their prior rendered content. Autoplay
+follows the active question audio and locks navigation to earlier questions;
+Part B/C directions appear at their transition. Focused Listening retries use
+the per-question playback flow and require playback for each selected item.
+Structure navigation is divided into Parts A/B and the live directions follow
+the selected part. Reading shows the full line-preserving passage before its
+questions. The staff workspace is `/test-center/teaching`; `/test-center/manage`
+only redirects to that route.
+
+These changes use additive migration 023 and do not rewrite events, scores or
+active attempts. See D036 and the LFL-038 deployment receipt for verification.

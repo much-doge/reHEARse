@@ -45,8 +45,8 @@ export default async function LegacyResourcesPage({ searchParams }: { searchPara
 
       <section className="dashboard-intro">
         <div><p className="eyebrow">LEGACY REHEARSE RESOURCES</p><h1>Earlier listening tools</h1>
-          <p>These activities are kept for continuity. Your current course resources are in the ProTEFL Test Center.</p></div>
-        <div className="quiet-stat"><span>Current course space</span><strong><Link href="/test-center">ProTEFL Test Center →</Link></strong></div>
+          <p>These activities are kept for continuity. Your current course resources are in the TOEFL-like Test Center.</p></div>
+        <div className="quiet-stat"><span>Current course space</span><strong><Link href="/test-center">TOEFL-like Test Center →</Link></strong></div>
       </section>
 
       <section className="ladder-dashboard-entry">

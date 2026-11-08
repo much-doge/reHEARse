@@ -29,17 +29,17 @@ export default async function DashboardPage() {
         <>
           <section className="dashboard-intro">
             <div>
-              <p className="eyebrow">ProTEFL Test Center</p>
+              <p className="eyebrow">TOEFL-like Test Center</p>
               <h1>{user.role === "admin" ? "Administrator workspace" : "Teacher workspace"}</h1>
-              <p>Manage course resources, control candidate access, and review the current Test Center setup.</p>
+              <p>Assign learning resources, control candidate access, and review test progress.</p>
             </div>
           </section>
 
           <section className="ladder-dashboard-entry">
             <p className="eyebrow">COURSE ACCESS</p>
-            <h2>Manage Test Center resources</h2>
-            <p>Publish or hide resources and issue one-use access codes for candidates.</p>
-            <Link href="/test-center/manage" className="ladder-primary">Open resource controls →</Link>
+            <h2>Teaching workspace</h2>
+            <p>Review candidate attempts, publish resources, and issue one-use access codes.</p>
+            <Link href="/test-center/teaching" className="ladder-primary">Open teaching workspace →</Link>
             <Link href="/test-center" className="ladder-secondary">View candidate resource page</Link>
           </section>
 
@@ -55,7 +55,7 @@ export default async function DashboardPage() {
         <>
           <section className="dashboard-intro">
             <div>
-              <p className="eyebrow">ProTEFL Test Center</p>
+              <p className="eyebrow">TOEFL-like Test Center</p>
               <h1>Your course space</h1>
               <p>Open the tests and course resources assigned to your account.</p>
             </div>
@@ -64,8 +64,8 @@ export default async function DashboardPage() {
           <section className="ladder-dashboard-entry">
             <p className="eyebrow">ASSIGNED COURSE MATERIAL</p>
             <h2>Your assigned resources</h2>
-            <p>Only resources your teacher has assigned to your account appear in the Test Center.</p>
-            <Link href="/test-center" className="ladder-primary">Open Test Center →</Link>
+            <p>Only resources your teacher has assigned to your account appear here.</p>
+            <Link href="/test-center" className="ladder-primary">Open TOEFL-like Test Center →</Link>
           </section>
 
           {legacyVisible && <section className="ladder-dashboard-entry">

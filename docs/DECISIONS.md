@@ -521,6 +521,29 @@ versioned with source provenance. Deployment and candidate use remain gated on
 protected delivery, attempt persistence, timing/audio alignment review, and
 end-to-end verification.
 
+## D036 — TOEFL-like Test Center learner and teacher workflow (LFL-038)
+
+Accepted at the operator's request. Learner-facing Test Center branding is
+**TOEFL-like Test Center**. Teachers and administrators use a dedicated
+teaching workspace with assignment visibility, candidate attempt status,
+primary section scores, and child-retake outcomes. Candidate attempt history
+and answer keys remain available only to the authenticated assigned learner
+after that attempt is complete.
+
+Focused section retries include only incorrect or omitted questions from the
+selected completed attempt. A later retry is based on the immediately previous
+retry's missed questions, while all retry attempts remain append-only children
+of the original full diagnostic. Existing active attempts retain their pinned
+settings and answer history. New teacher-issued invites may hide Listening
+question text; that setting is pinned into a newly claimed attempt and does not
+change active or historical attempts.
+
+Listening playback advances the visible item with the source audio, returns
+the view to the active item, and prevents navigation back to passed items.
+Structure navigation is separated into Parts A and B with their corresponding
+directions; Reading presents the passage before its questions. Student-visible
+routes use `/test-center/teaching` for staff controls.
+
 Every attempt pins the package version/content digest plus answer-key, score
 table, and timing-map digests. Where the source score table omits Structure raw
 counts 39–40, the application leaves the converted result unavailable instead

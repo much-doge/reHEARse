@@ -23,7 +23,7 @@ export default async function ListeningTestPage() {
     <main className="ptc-shell">
       <header className="ptc-header">
         <Link href="/dashboard" className="ptc-back">← Dashboard</Link>
-        <span className="ptc-wordmark">ProTEFL Test Center</span>
+        <span className="ptc-wordmark">TOEFL-like Test Center</span>
         <span className="ptc-pilot">Supervised pilot</span>
       </header>
       <ListeningTest initial={initial} learnerName={user.displayName} />
