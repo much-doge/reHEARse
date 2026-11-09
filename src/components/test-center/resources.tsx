@@ -48,7 +48,7 @@ export function AssignedResources({ resources, canManage }: { resources: TestCen
       if (response.ok) { const data = await response.json() as { resources: TestCenterResource[] }; setItems(data.resources); }
     }} />}
     <section className="ptc-resource-list" aria-live="polite">
-      {items.length ? items.map((resource) => <article className="ptc-resource-card" key={resource.id}>
+      {items.length ? items.map((resource) => <article className="ptc-assigned-resource-card" key={resource.id}>
         <div><span className="eyebrow">{resource.kind === "listening_form" ? "LISTENING PILOT" : "DIAGNOSTIC PACKAGE"} · VERSION {resource.version}</span>
           <h2>{resource.title}</h2><p>{canManage ? "This resource is assigned to your account." : resource.hasAttempt ? "Your previous attempt is available to continue or review." : `Assigned scope: ${resource.deliveryScope === "full" ? "Full diagnostic" : resource.deliveryScope === "structure" ? "Structure and Written Expression" : resource.deliveryScope[0].toUpperCase() + resource.deliveryScope.slice(1)}`}</p></div>
         {resource.kind === "listening_form" && <Link className="ptc-resource-open" href="/test-center/listening/2000-10">Open resource →</Link>}
