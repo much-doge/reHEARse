@@ -10,6 +10,9 @@ Cloudflare Tunnel hostname was attached during this checkpoint.
 - Target: this Debian laptop, Docker Compose project `rehearse`.
 - Runtime origin: `http://127.0.0.1:3000`; the container publishes host port
   3000 for a separately configured tunnel.
+- An emergency Compose override pins `SESSION_COOKIE_SECURE=true` for the
+  HTTPS tunnel-facing app container; the override lives beside the clean
+  temporary deployment archive rather than in the shared development file.
 - The image was built from a clean `git archive` of `e677c82`, excluding
   unrelated presentation edits and unfinished Practice Test B files.
 - Before migration 024, a private mode-600 PostgreSQL custom-format backup was
@@ -32,6 +35,8 @@ Cloudflare Tunnel hostname was attached during this checkpoint.
 - PostgreSQL records migration 024, and the new `delivery_scope` column has the
   historical-safe `full` default.
 - `rehearse-app-1` and `rehearse-db-1` report healthy.
+- Runtime inspection confirmed the app container has secure session cookies
+  enabled.
 - Local `/api/health` returned HTTP 200 with private/no-store headers.
 - Logged-out `/test-center/teaching` returned an authentication redirect.
 - No Cloudflare hostname, authenticated teacher browser journey, candidate
