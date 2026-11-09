@@ -165,8 +165,8 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "set_tags", resourceId: resource.id, tags }),
       });
-      const data = await response.json() as { resource?: { tags: string[] } };
-      if (!response.ok || !data.resource) throw new Error("The tags could not be saved.");
+      const data = await response.json() as { resource?: { tags: string[] }; error?: string };
+      if (!response.ok || !data.resource) throw new Error(data.error === "invalid_tags" ? "Use no more than 8 tags and keep each tag within 80 characters." : "The tags could not be saved.");
       setResources((current) => current.map((item) => item.id === resource.id ? { ...item, tags: data.resource!.tags } : item));
       setTagDrafts((current) => ({ ...current, [resource.id]: data.resource!.tags.join(", ") }));
       setMessage(`Tags saved for ${resource.title}.`);
@@ -184,7 +184,7 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
       return <article className={`ptc-resource-card${showDetails ? " is-open" : " is-compact"}`} key={resource.id}>
       <header className="ptc-resource-summary"><div><span className="eyebrow">{resource.kind.replaceAll("_", " ").toUpperCase()} · VERSION {resource.version}</span><h2>{resource.title}</h2>{resource.tags.length > 0 && <div className="ptc-resource-tags">{resource.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>}</div><div className="ptc-resource-status"><span className={`status-${resource.status}`}>{resource.status}</span><small>{resource.assignedCount} active assignments</small><button className="ptc-resource-toggle" onClick={() => toggleResource(resource.id, showDetails)}>{showDetails ? "Collapse" : "Expand"}</button></div></header>
       {showDetails && <>
-      <section className="ptc-tag-editor"><label htmlFor={`tags-${resource.id}`}><strong>Activity tags</strong><small>Separate multiple tags with commas.</small></label><input id={`tags-${resource.id}`} value={tagDrafts[resource.id] ?? ""} maxLength={320} placeholder="e.g. Full TOEFL Practice Test" onChange={(event) => setTagDrafts((current) => ({ ...current, [resource.id]: event.target.value }))} /><button disabled={busy !== null} onClick={() => void saveTags(resource)}>{busy === `tags:${resource.id}` ? "Saving…" : "Save tags"}</button></section>
+      <section className="ptc-tag-editor"><label htmlFor={`tags-${resource.id}`}><strong>Activity tags</strong><small>Separate tags with commas · maximum 8 tags, 80 characters each.</small></label><input id={`tags-${resource.id}`} value={tagDrafts[resource.id] ?? ""} maxLength={647} placeholder="e.g. Full TOEFL Practice Test" onChange={(event) => setTagDrafts((current) => ({ ...current, [resource.id]: event.target.value }))} /><button disabled={busy !== null} onClick={() => void saveTags(resource)}>{busy === `tags:${resource.id}` ? "Saving…" : "Save tags"}</button></section>
       <section className="ptc-assignment-builder"><div className="ptc-control-heading"><span className="eyebrow">NEW ASSIGNMENT</span><h3>Configure one access code</h3><p>These choices are pinned when the candidate claims the code.</p></div><div className="ptc-resource-actions">
         <label className="ptc-listening-mode">Access code type
           <select value={inviteKind} onChange={(event) => setInviteKind(event.target.value as "private" | "classroom")}>

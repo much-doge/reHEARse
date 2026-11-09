@@ -165,7 +165,7 @@ export async function setResourceTags(resourceId: string, rawTags: string[], act
   const seen = new Set<string>();
   for (const rawTag of rawTags) {
     const tag = rawTag.trim().replace(/\s+/g, " ");
-    if (tag.length > 40) throw new Error("invalid_tags");
+    if (tag.length > 80) throw new Error("invalid_tags");
     const key = tag.toLocaleLowerCase("en-US");
     if (!tag || seen.has(key)) continue;
     seen.add(key);

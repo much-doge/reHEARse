@@ -40,8 +40,8 @@ export async function POST(request: Request) {
       return Response.json({ resource }, { headers });
     }
     if (body.action === "set_tags") {
-      if (!Array.isArray(body.tags) || body.tags.length > 8 || body.tags.some((tag) => typeof tag !== "string" || tag.length > 80))
-        return Response.json({ error: "invalid_request" }, { status: 400, headers });
+      if (!Array.isArray(body.tags) || body.tags.length > 8 || body.tags.some((tag) => typeof tag !== "string" || tag.trim().replace(/\s+/g, " ").length > 80))
+        return Response.json({ error: "invalid_tags" }, { status: 400, headers });
       const resource = await setResourceTags(body.resourceId, body.tags, user.id);
       return Response.json({ resource }, { headers });
     }
