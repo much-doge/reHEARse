@@ -14,6 +14,11 @@
 .ptc-resource-claim button:disabled, .ptc-resource-actions button:disabled { opacity: .55; cursor: wait; }
 .ptc-resource-claim p, .ptc-resource-notice { margin: 10px 0 0; color: #8a3c31; font-size: 12px; }
 .ptc-resource-list { display: grid; gap: 12px; }
+.ptc-resource-view-controls { display:flex; align-items:center; justify-content:space-between; gap:16px; margin:0 0 12px; }
+.ptc-resource-view-controls>span { color:#718078; font-size:12px; }
+.ptc-resource-view-controls>div { display:flex; padding:3px; border:1px solid #d7e1dc; border-radius:10px; background:#f7faf8; }
+.ptc-resource-view-controls button { border:0; border-radius:7px; padding:7px 12px; background:transparent; color:#597069; font:inherit; font-size:11px; font-weight:750; cursor:pointer; }
+.ptc-resource-view-controls button.active { background:white; color:#175f55; box-shadow:0 1px 4px rgba(25,45,50,.12); }
 .ptc-assigned-resource-card { display:flex; align-items:center; justify-content:space-between; gap:20px; min-width:0; padding:22px; border:1px solid var(--line, #dce5e3); border-radius:16px; background:white; }
 .ptc-assigned-resource-card>div { min-width:0; }
 .ptc-assigned-resource-card h2 { margin:7px 0; font-size:19px; }
@@ -22,10 +27,20 @@
 .ptc-resource-card h2 { margin: 7px 0; font-size: 19px; }
 .ptc-resource-card p { margin: 0; color: var(--muted, #667775); font-size: 12px; line-height: 1.65; }
 .ptc-resource-summary { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:24px 26px; }
+.ptc-resource-card.is-compact .ptc-resource-summary { padding-block:18px; }
+.ptc-resource-tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:9px; }
+.ptc-resource-tags span { padding:4px 8px; border-radius:999px; background:#eef6f2; color:#38695c; font-size:10px; font-weight:700; }
 .ptc-resource-status { display:grid; justify-items:end; gap:7px; flex:0 0 auto; }
 .ptc-resource-status span { padding:5px 9px; border-radius:999px; background:#e8f6ef; color:#1f7058; font-size:10px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
 .ptc-resource-status .status-hidden,.ptc-resource-status .status-draft { background:#f2f0e8; color:#796b48; }
 .ptc-resource-status small { color:#718078; font-size:11px; }
+.ptc-resource-toggle { border:0; padding:2px 0; background:transparent; color:#176b5d; font:inherit; font-size:11px; font-weight:800; cursor:pointer; }
+.ptc-tag-editor { display:grid; grid-template-columns:minmax(160px,.55fr) minmax(220px,1.45fr) auto; align-items:end; gap:14px 18px; padding:16px 26px; border-top:1px solid #e5ece8; background:#fcfdfc; }
+.ptc-tag-editor label { display:grid; gap:3px; color:#263b34; font-size:12px; }
+.ptc-tag-editor label small { color:#718078; font-size:10px; font-weight:500; }
+.ptc-tag-editor input { min-width:0; padding:10px 12px; border:1px solid #cad8cf; border-radius:9px; background:white; color:#263b34; font:inherit; font-size:12px; }
+.ptc-tag-editor button { border:0; border-radius:9px; padding:11px 14px; background:#e5f4f1; color:#14655e; font:inherit; font-size:11px; font-weight:800; cursor:pointer; }
+.ptc-tag-editor button:disabled { opacity:.55; cursor:wait; }
 .ptc-assignment-builder { display:grid; grid-template-columns:minmax(190px,.52fr) minmax(0,1.48fr); gap:24px 32px; padding:24px 26px; border-top:1px solid #e5ece8; background:#f7faf8; }
 .ptc-control-heading h3 { margin:7px 0 5px; font-size:16px; }
 .ptc-resource-open { flex: 0 0 auto; padding: 11px 14px; border-radius: 9px; background: #e5f4f1; color: #14655e; font-size: 12px; font-weight: 750; text-decoration: none; }
@@ -54,6 +69,7 @@
   .ptc-resource-actions>.ptc-listening-mode,.ptc-primary-actions { grid-column:1; }
   .ptc-primary-actions { align-items:stretch; flex-direction:column; }
   .ptc-issued-code { grid-template-columns:1fr; }
+  .ptc-tag-editor { grid-template-columns:1fr; padding:16px 20px; }
 }
 
 @media(max-width:860px) {

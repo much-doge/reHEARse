@@ -71,7 +71,7 @@ type AttemptHistory = {
   createdAt: string; completedAt: string | null; archivedAt: string | null; result: AttemptResult | null;
   retakes: Array<{ section: string; number: number; status: string; createdAt: string; completedAt: string | null; archivedAt: string | null; result: AttemptResult | null }>;
 };
-type ManagedResource = { id: string; code: string; version: number; kind: string; title: string; status: string; assignedCount: number; candidates?: Array<{ actorId: string; name: string; email: string; deliveryScope: DeliveryScope; attempts: AttemptHistory[] }> };
+type ManagedResource = { id: string; code: string; version: number; kind: string; title: string; status: string; tags: string[]; assignedCount: number; candidates?: Array<{ actorId: string; name: string; email: string; deliveryScope: DeliveryScope; attempts: AttemptHistory[] }> };
 
 function resultLabel(result: AttemptResult | null) {
   const correct = result?.total?.correct ?? result?.summary?.correct;
@@ -111,6 +111,16 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
   const [showListeningQuestionText, setShowListeningQuestionText] = useState(true);
   const [deliveryScope, setDeliveryScope] = useState<DeliveryScope>("full");
   const [inviteKind, setInviteKind] = useState<"private" | "classroom">("private");
+  const [viewMode, setViewMode] = useState<"compact" | "expanded">("compact");
+  const [resourceVisibility, setResourceVisibility] = useState<Record<string, boolean>>({});
+  const [tagDrafts, setTagDrafts] = useState<Record<string, string>>(() => Object.fromEntries(initial.map((resource) => [resource.id, resource.tags.join(", ")])));
+  function changeViewMode(mode: "compact" | "expanded") {
+    setViewMode(mode);
+    setResourceVisibility({});
+  }
+  function toggleResource(resourceId: string, isOpen: boolean) {
+    setResourceVisibility((current) => ({ ...current, [resourceId]: !isOpen }));
+  }
   async function mutate(resource: ManagedResource, action: "issue_invite" | "set_status") {
     setBusy(resource.id); setMessage(""); setIssuedCode(null);
     const status = resource.status === "published" ? "hidden" : "published";
@@ -147,13 +157,34 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
     } catch (error) { setMessage(error instanceof Error ? error.message : "The attempt could not be archived."); }
     finally { setBusy(null); }
   }
+  async function saveTags(resource: ManagedResource) {
+    setBusy(`tags:${resource.id}`); setMessage("");
+    try {
+      const tags = (tagDrafts[resource.id] ?? "").split(",").map((tag) => tag.trim()).filter(Boolean);
+      const response = await fetch("/api/test-center/teaching", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "set_tags", resourceId: resource.id, tags }),
+      });
+      const data = await response.json() as { resource?: { tags: string[] } };
+      if (!response.ok || !data.resource) throw new Error("The tags could not be saved.");
+      setResources((current) => current.map((item) => item.id === resource.id ? { ...item, tags: data.resource!.tags } : item));
+      setTagDrafts((current) => ({ ...current, [resource.id]: data.resource!.tags.join(", ") }));
+      setMessage(`Tags saved for ${resource.title}.`);
+    } catch (error) { setMessage(error instanceof Error ? error.message : "The tags could not be saved."); }
+    finally { setBusy(null); }
+  }
   return <main className="ptc-resources-shell">
     <header className="ptc-resources-header"><Link href="/test-center">← Candidate view</Link><strong>TOEFL-like Test Center</strong><Link href="/dashboard">Dashboard</Link></header>
     <section className="ptc-resources-intro"><p className="eyebrow">TEACHER / ADMIN WORKSPACE</p><h1>Assignments and results</h1><p>Review candidate progress, publish resources, and issue private or classroom access codes.</p></section>
     {message && <p role="alert" className="ptc-resource-notice">{message}</p>}
     {issuedCode && <section className="ptc-issued-code" role="status"><div><span className="eyebrow">{issuedCode.inviteKind === "classroom" ? "CLASSROOM CODE CREATED" : "PRIVATE CODE CREATED"}</span><strong>{issuedCode.title}</strong></div><code>{issuedCode.code}</code><p>{issuedCode.inviteKind === "classroom" ? "May be claimed by multiple signed-in learners." : "May be claimed by one signed-in learner."} Scope: {issuedCode.scope === "full" ? "Full diagnostic" : issuedCode.scope === "structure" ? "Structure and Written Expression" : issuedCode.scope[0].toUpperCase() + issuedCode.scope.slice(1)}{issuedCode.scope === "full" || issuedCode.scope === "listening" ? ` · Listening: ${issuedCode.listeningMode === "autoplay" ? "Autoplay" : "Manual, play each question"}` : ""}. Expires in 7 days and is shown only now.</p><button onClick={() => { navigator.clipboard?.writeText(issuedCode.code); setMessage("Code copied."); }}>Copy code</button></section>}
-    <section className="ptc-resource-list">{resources.map((resource) => <article className="ptc-resource-card" key={resource.id}>
-      <header className="ptc-resource-summary"><div><span className="eyebrow">{resource.kind.replaceAll("_", " ").toUpperCase()} · VERSION {resource.version}</span><h2>{resource.title}</h2></div><div className="ptc-resource-status"><span className={`status-${resource.status}`}>{resource.status}</span><small>{resource.assignedCount} active assignments</small></div></header>
+    <div className="ptc-resource-view-controls" aria-label="Resource display"><span>{resources.length} activities</span><div><button className={viewMode === "compact" ? "active" : ""} onClick={() => changeViewMode("compact")} aria-pressed={viewMode === "compact"}>Compact</button><button className={viewMode === "expanded" ? "active" : ""} onClick={() => changeViewMode("expanded")} aria-pressed={viewMode === "expanded"}>Expanded</button></div></div>
+    <section className={`ptc-resource-list is-${viewMode}`}>{resources.map((resource) => {
+      const showDetails = resourceVisibility[resource.id] ?? viewMode === "expanded";
+      return <article className={`ptc-resource-card${showDetails ? " is-open" : " is-compact"}`} key={resource.id}>
+      <header className="ptc-resource-summary"><div><span className="eyebrow">{resource.kind.replaceAll("_", " ").toUpperCase()} · VERSION {resource.version}</span><h2>{resource.title}</h2>{resource.tags.length > 0 && <div className="ptc-resource-tags">{resource.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>}</div><div className="ptc-resource-status"><span className={`status-${resource.status}`}>{resource.status}</span><small>{resource.assignedCount} active assignments</small><button className="ptc-resource-toggle" onClick={() => toggleResource(resource.id, showDetails)}>{showDetails ? "Collapse" : "Expand"}</button></div></header>
+      {showDetails && <>
+      <section className="ptc-tag-editor"><label htmlFor={`tags-${resource.id}`}><strong>Activity tags</strong><small>Separate multiple tags with commas.</small></label><input id={`tags-${resource.id}`} value={tagDrafts[resource.id] ?? ""} maxLength={320} placeholder="e.g. Full TOEFL Practice Test" onChange={(event) => setTagDrafts((current) => ({ ...current, [resource.id]: event.target.value }))} /><button disabled={busy !== null} onClick={() => void saveTags(resource)}>{busy === `tags:${resource.id}` ? "Saving…" : "Save tags"}</button></section>
       <section className="ptc-assignment-builder"><div className="ptc-control-heading"><span className="eyebrow">NEW ASSIGNMENT</span><h3>Configure one access code</h3><p>These choices are pinned when the candidate claims the code.</p></div><div className="ptc-resource-actions">
         <label className="ptc-listening-mode">Access code type
           <select value={inviteKind} onChange={(event) => setInviteKind(event.target.value as "private" | "classroom")}>
@@ -205,6 +236,7 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
           </details>;
         })}
       </section> : null}
-    </article>)}</section>
+      </>}
+    </article>})}</section>
   </main>;
 }

@@ -116,7 +116,7 @@ export async function claimResource(actorId: string, rawCode: string): Promise<v
 
 export async function listManagedResources() {
   const result = await getPool().query(
-    `SELECT r.id,r.code,r.version,r.kind,r.title,r.status,r.created_at,
+    `SELECT r.id,r.code,r.version,r.kind,r.title,r.status,r.tags,r.created_at,
        (SELECT count(*)::int FROM protefl_resource_assignment a WHERE a.resource_id=r.id AND a.revoked_at IS NULL) AS assigned_count
      FROM protefl_resource r ORDER BY r.created_at DESC`,
   );
@@ -148,6 +148,7 @@ export async function listManagedResources() {
   return result.rows.map((row) => ({
     id: String(row.id), code: row.code, version: Number(row.version), kind: row.kind,
     title: row.title, status: row.status, createdAt: new Date(row.created_at).toISOString(),
+    tags: Array.isArray(row.tags) ? row.tags.map(String) : [],
     assignedCount: Number(row.assigned_count),
     candidates: candidates.rows.filter((candidate) => String(candidate.resource_id) === String(row.id)).map((candidate) => ({
       name: candidate.display_name as string,
@@ -157,6 +158,40 @@ export async function listManagedResources() {
       attempts: candidate.attempts ?? [],
     })),
   }));
+}
+
+export async function setResourceTags(resourceId: string, rawTags: string[], actorId: string) {
+  const tags: string[] = [];
+  const seen = new Set<string>();
+  for (const rawTag of rawTags) {
+    const tag = rawTag.trim().replace(/\s+/g, " ");
+    if (tag.length > 40) throw new Error("invalid_tags");
+    const key = tag.toLocaleLowerCase("en-US");
+    if (!tag || seen.has(key)) continue;
+    seen.add(key);
+    tags.push(tag);
+  }
+  if (tags.length > 8) throw new Error("invalid_tags");
+  const client = await getPool().connect();
+  try {
+    await client.query("BEGIN");
+    const resource = (await client.query(
+      "UPDATE protefl_resource SET tags=$2,updated_at=now() WHERE id=$1 RETURNING id,tags",
+      [resourceId, tags],
+    )).rows[0];
+    if (!resource) throw new Error("resource_unavailable");
+    await client.query(
+      "INSERT INTO protefl_resource_event(resource_id,actor_id,event_type) VALUES($1,$2,'tags_updated')",
+      [resourceId, actorId],
+    );
+    await client.query("COMMIT");
+    return { id: String(resource.id), tags: resource.tags as string[] };
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
 }
 
 export async function archiveCandidateDiagnostic(resourceId: string, candidateActorId: string, staffActorId: string) {
