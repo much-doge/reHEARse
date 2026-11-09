@@ -17,7 +17,7 @@ export async function POST(request: Request) {
   try {
     const raw = await request.text();
     if (raw.length > 1024) return Response.json({ error: "invalid_request" }, { status: 400, headers });
-    const body = JSON.parse(raw) as { action?: unknown; resourceId?: unknown; candidateActorId?: unknown; status?: unknown; listeningMode?: unknown; showListeningQuestionText?: unknown; deliveryScope?: unknown };
+    const body = JSON.parse(raw) as { action?: unknown; resourceId?: unknown; candidateActorId?: unknown; status?: unknown; listeningMode?: unknown; showListeningQuestionText?: unknown; deliveryScope?: unknown; inviteKind?: unknown };
     if (typeof body.resourceId !== "string" || !/^[0-9a-f-]{36}$/i.test(body.resourceId))
       return Response.json({ error: "invalid_request" }, { status: 400, headers });
     if (body.action === "issue_invite") {
@@ -28,8 +28,11 @@ export async function POST(request: Request) {
         return Response.json({ error: "invalid_request" }, { status: 400, headers });
       if (body.deliveryScope !== undefined && !["full", "listening", "structure", "reading"].includes(String(body.deliveryScope)))
         return Response.json({ error: "invalid_request" }, { status: 400, headers });
+      if (body.inviteKind !== undefined && body.inviteKind !== "private" && body.inviteKind !== "classroom")
+        return Response.json({ error: "invalid_request" }, { status: 400, headers });
       const deliveryScope = body.deliveryScope === "listening" || body.deliveryScope === "structure" || body.deliveryScope === "reading" ? body.deliveryScope : "full";
-      const invite = await issueResourceInvite(body.resourceId, user.id, listeningMode, body.showListeningQuestionText !== false, deliveryScope);
+      const inviteKind = body.inviteKind === "classroom" ? "classroom" : "private";
+      const invite = await issueResourceInvite(body.resourceId, user.id, listeningMode, body.showListeningQuestionText !== false, deliveryScope, inviteKind);
       return Response.json({ invite }, { headers });
     }
     if (body.action === "set_status" && (body.status === "published" || body.status === "hidden")) {

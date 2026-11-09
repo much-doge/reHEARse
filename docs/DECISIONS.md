@@ -595,3 +595,21 @@ assignment to the named resource/candidate. A confirmation in the teaching UI
 warns that an active candidate session will stop immediately. The reset does
 not issue a new code, revoke the assignment, or change its pinned scope,
 Listening mode, or question-text setting.
+
+## D040 — Private and classroom assignment codes (LFL-046)
+
+Accepted. A teacher/admin chooses an access-code kind when creating an
+assignment. A private code preserves the existing single-account claim and
+same-account recovery behavior. A classroom code may be claimed by multiple
+authenticated learner accounts until its seven-day expiry, revocation, or
+resource withdrawal. It is an assignment issuer, not a shared attempt: every
+claim creates or finds one learner/resource assignment, and all subsequent
+attempts, answers, results, retakes, archives, and history remain isolated by
+that learner's opaque actor ID.
+
+Both kinds remain hash-only at rest, rate-limited per authenticated claimant,
+same-origin checked, and pinned to the teacher-selected resource version,
+delivery scope, Listening mode, and question-text visibility. Existing codes
+are migrated as private. Re-entering a classroom code from an account that
+already holds the active assignment is idempotent and does not replace its
+pinned settings or create another assignment.

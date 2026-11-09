@@ -106,18 +106,19 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
   const [resources, setResources] = useState(initial);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
-  const [issuedCode, setIssuedCode] = useState<{ title: string; code: string; scope: DeliveryScope; listeningMode: "autoplay" | "question_click" } | null>(null);
+  const [issuedCode, setIssuedCode] = useState<{ title: string; code: string; scope: DeliveryScope; listeningMode: "autoplay" | "question_click"; inviteKind: "private" | "classroom" } | null>(null);
   const [listeningMode, setListeningMode] = useState<"autoplay" | "question_click">("autoplay");
   const [showListeningQuestionText, setShowListeningQuestionText] = useState(true);
   const [deliveryScope, setDeliveryScope] = useState<DeliveryScope>("full");
+  const [inviteKind, setInviteKind] = useState<"private" | "classroom">("private");
   async function mutate(resource: ManagedResource, action: "issue_invite" | "set_status") {
     setBusy(resource.id); setMessage(""); setIssuedCode(null);
     const status = resource.status === "published" ? "hidden" : "published";
     try {
-      const response = await fetch("/api/test-center/teaching", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, resourceId: resource.id, status, listeningMode, showListeningQuestionText, deliveryScope }) });
-      const data = await response.json() as { invite?: { code: string; deliveryScope: DeliveryScope; listeningMode: "autoplay" | "question_click" }; resource?: { status: string }; error?: string };
+      const response = await fetch("/api/test-center/teaching", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, resourceId: resource.id, status, listeningMode, showListeningQuestionText, deliveryScope, inviteKind }) });
+      const data = await response.json() as { invite?: { code: string; deliveryScope: DeliveryScope; listeningMode: "autoplay" | "question_click"; inviteKind: "private" | "classroom" }; resource?: { status: string }; error?: string };
       if (!response.ok) throw new Error("The change could not be saved.");
-      if (data.invite) setIssuedCode({ title: resource.title, code: data.invite.code, scope: data.invite.deliveryScope, listeningMode: data.invite.listeningMode });
+      if (data.invite) setIssuedCode({ title: resource.title, code: data.invite.code, scope: data.invite.deliveryScope, listeningMode: data.invite.listeningMode, inviteKind: data.invite.inviteKind });
       if (data.resource) setResources((current) => current.map((item) => item.id === resource.id ? { ...item, status: data.resource!.status } : item));
     } catch (error) { setMessage(error instanceof Error ? error.message : "Something went wrong."); }
     finally { setBusy(null); }
@@ -148,12 +149,17 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
   }
   return <main className="ptc-resources-shell">
     <header className="ptc-resources-header"><Link href="/test-center">← Candidate view</Link><strong>TOEFL-like Test Center</strong><Link href="/dashboard">Dashboard</Link></header>
-    <section className="ptc-resources-intro"><p className="eyebrow">TEACHER / ADMIN WORKSPACE</p><h1>Assignments and results</h1><p>Review candidate progress, publish resources, and issue one-use access codes.</p></section>
+    <section className="ptc-resources-intro"><p className="eyebrow">TEACHER / ADMIN WORKSPACE</p><h1>Assignments and results</h1><p>Review candidate progress, publish resources, and issue private or classroom access codes.</p></section>
     {message && <p role="alert" className="ptc-resource-notice">{message}</p>}
-    {issuedCode && <section className="ptc-issued-code" role="status"><div><span className="eyebrow">ACCESS CODE CREATED</span><strong>{issuedCode.title}</strong></div><code>{issuedCode.code}</code><p>Scope: {issuedCode.scope === "full" ? "Full diagnostic" : issuedCode.scope === "structure" ? "Structure and Written Expression" : issuedCode.scope[0].toUpperCase() + issuedCode.scope.slice(1)}{issuedCode.scope === "full" || issuedCode.scope === "listening" ? ` · Listening: ${issuedCode.listeningMode === "autoplay" ? "Autoplay" : "Manual, play each question"}` : ""}. Expires in 7 days and is shown only now.</p><button onClick={() => { navigator.clipboard?.writeText(issuedCode.code); setMessage("Code copied."); }}>Copy code</button></section>}
+    {issuedCode && <section className="ptc-issued-code" role="status"><div><span className="eyebrow">{issuedCode.inviteKind === "classroom" ? "CLASSROOM CODE CREATED" : "PRIVATE CODE CREATED"}</span><strong>{issuedCode.title}</strong></div><code>{issuedCode.code}</code><p>{issuedCode.inviteKind === "classroom" ? "May be claimed by multiple signed-in learners." : "May be claimed by one signed-in learner."} Scope: {issuedCode.scope === "full" ? "Full diagnostic" : issuedCode.scope === "structure" ? "Structure and Written Expression" : issuedCode.scope[0].toUpperCase() + issuedCode.scope.slice(1)}{issuedCode.scope === "full" || issuedCode.scope === "listening" ? ` · Listening: ${issuedCode.listeningMode === "autoplay" ? "Autoplay" : "Manual, play each question"}` : ""}. Expires in 7 days and is shown only now.</p><button onClick={() => { navigator.clipboard?.writeText(issuedCode.code); setMessage("Code copied."); }}>Copy code</button></section>}
     <section className="ptc-resource-list">{resources.map((resource) => <article className="ptc-resource-card" key={resource.id}>
       <header className="ptc-resource-summary"><div><span className="eyebrow">{resource.kind.replaceAll("_", " ").toUpperCase()} · VERSION {resource.version}</span><h2>{resource.title}</h2></div><div className="ptc-resource-status"><span className={`status-${resource.status}`}>{resource.status}</span><small>{resource.assignedCount} active assignments</small></div></header>
       <section className="ptc-assignment-builder"><div className="ptc-control-heading"><span className="eyebrow">NEW ASSIGNMENT</span><h3>Configure one access code</h3><p>These choices are pinned when the candidate claims the code.</p></div><div className="ptc-resource-actions">
+        <label className="ptc-listening-mode">Access code type
+          <select value={inviteKind} onChange={(event) => setInviteKind(event.target.value as "private" | "classroom")}>
+            <option value="private">Private · one learner</option><option value="classroom">Classroom · many learners</option>
+          </select><small>{inviteKind === "classroom" ? "Share one code with the class; every signed-in learner receives a separate assignment." : "The code binds to the first signed-in learner who claims it."}</small>
+        </label>
         {resource.kind === "diagnostic_package" && <label className="ptc-listening-mode">Assigned test scope
           <select value={deliveryScope} onChange={(event) => setDeliveryScope(event.target.value as DeliveryScope)}>
             <option value="full">Full diagnostic · all three sections</option><option value="listening">Listening only</option><option value="structure">Structure and Written Expression only</option><option value="reading">Reading only</option>
@@ -165,7 +171,7 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
           </select>
         </label>}
         {resource.kind === "diagnostic_package" && (deliveryScope === "full" || deliveryScope === "listening") && <label className="ptc-listening-mode"><span><input type="checkbox" checked={showListeningQuestionText} onChange={(event) => setShowListeningQuestionText(event.target.checked)} /> Show listening question text</span><small>This choice is pinned when each access code is issued.</small></label>}
-        <div className="ptc-primary-actions"><button disabled={busy !== null || resource.status !== "published"} onClick={() => mutate(resource, "issue_invite")}>{busy === resource.id ? "Creating…" : "Create access code"}</button>
+        <div className="ptc-primary-actions"><button disabled={busy !== null || resource.status !== "published"} onClick={() => mutate(resource, "issue_invite")}>{busy === resource.id ? "Creating…" : inviteKind === "classroom" ? "Create classroom code" : "Create private code"}</button>
         {(resource.status === "published" || resource.status === "hidden" || resource.status === "draft") && <button className="secondary" disabled={busy !== null} onClick={() => mutate(resource, "set_status")}>{resource.status === "published" ? "Hide resource" : "Publish resource"}</button>}</div>
       </div></section>
       {resource.candidates?.length ? <section className="ptc-candidate-results">

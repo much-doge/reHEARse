@@ -77,24 +77,21 @@ export async function claimResource(actorId: string, rawCode: string): Promise<v
        JOIN protefl_resource r ON r.id=i.resource_id
        WHERE i.code_hash=$1 FOR UPDATE OF i`, [codeHash],
     )).rows[0];
-    if (invite?.claimed_at && invite.claimed_by === actorId && !invite.revoked_at) {
-      const existingAssignment = await client.query(
-        `SELECT a.id FROM protefl_resource_assignment a
-         JOIN protefl_resource r ON r.id=a.resource_id
-         WHERE a.resource_id=$1 AND a.actor_id=$2 AND a.revoked_at IS NULL
-           AND a.starts_at<=now() AND (a.ends_at IS NULL OR a.ends_at>now())
-           AND (r.status='published' OR (r.status='hidden' AND (
-             EXISTS(SELECT 1 FROM protefl_attempt t WHERE t.actor_id=a.actor_id AND t.form_id=r.listening_form_id AND t.status<>'invalidated')
-             OR EXISTS(SELECT 1 FROM protefl_diagnostic_attempt d WHERE d.actor_id=a.actor_id AND d.resource_id=r.id AND d.archived_at IS NULL)
-           )))`,
-        [invite.resource_id, actorId],
-      );
-      if (existingAssignment.rowCount) {
+    if (!invite || invite.status !== "published" || invite.revoked_at || !invite.not_expired)
+      throw new Error("invite_unavailable");
+    const existingAssignment = await client.query(
+      `SELECT id FROM protefl_resource_assignment
+       WHERE resource_id=$1 AND actor_id=$2 AND revoked_at IS NULL
+         AND starts_at<=now() AND (ends_at IS NULL OR ends_at>now())`,
+      [invite.resource_id, actorId],
+    );
+    if (existingAssignment.rowCount) {
+      if (invite.invite_kind === "classroom" || (invite.claimed_at && invite.claimed_by === actorId)) {
         await client.query("COMMIT");
         return;
       }
     }
-    if (!invite || invite.status !== "published" || invite.claimed_at || invite.revoked_at || !invite.not_expired)
+    if (invite.invite_kind === "private" && invite.claimed_at)
       throw new Error("invite_unavailable");
     await client.query(
       `INSERT INTO protefl_resource_assignment(resource_id,actor_id,assigned_by,invite_id,assignment_kind,listening_mode,show_listening_question_text,delivery_scope)
@@ -104,7 +101,8 @@ export async function claimResource(actorId: string, rawCode: string): Promise<v
          show_listening_question_text=excluded.show_listening_question_text,delivery_scope=excluded.delivery_scope,starts_at=now(),ends_at=NULL`,
       [invite.resource_id, actorId, invite.created_by, invite.id, invite.listening_mode, invite.show_listening_question_text, invite.delivery_scope],
     );
-    await client.query("UPDATE protefl_resource_invite SET claimed_at=now(),claimed_by=$2 WHERE id=$1", [invite.id, actorId]);
+    if (invite.invite_kind === "private")
+      await client.query("UPDATE protefl_resource_invite SET claimed_at=now(),claimed_by=$2 WHERE id=$1", [invite.id, actorId]);
     await client.query("INSERT INTO protefl_resource_event(resource_id,actor_id,invite_id,event_type) VALUES($1,$2,$3,'invite_claimed')", [invite.resource_id, actorId, invite.id]);
     await client.query("COMMIT");
   } catch (error) {
@@ -208,6 +206,7 @@ export async function issueResourceInvite(
   listeningMode: "autoplay" | "question_click" = "question_click",
   showListeningQuestionText = true,
   deliveryScope: "full" | "listening" | "structure" | "reading" = "full",
+  inviteKind: "private" | "classroom" = "private",
 ) {
   const code = generateResourceCode();
   const client = await getPool().connect();
@@ -216,15 +215,16 @@ export async function issueResourceInvite(
     const resource = (await client.query("SELECT id,status,kind FROM protefl_resource WHERE id=$1 FOR UPDATE", [resourceId])).rows[0];
     if (!resource || resource.status !== "published") throw new Error("resource_unavailable");
     if (!(listeningMode === "autoplay" || listeningMode === "question_click")) throw new Error("invalid_listening_mode");
+    if (!(inviteKind === "private" || inviteKind === "classroom")) throw new Error("invalid_invite_kind");
     const pinnedMode = resource.kind === "diagnostic_package" ? listeningMode : "question_click";
     const invite = (await client.query(
-      `INSERT INTO protefl_resource_invite(resource_id,code_hash,created_by,expires_at,listening_mode,show_listening_question_text,delivery_scope)
-       VALUES($1,$2,$3,now()+interval '7 days',$4,$5,$6) RETURNING id`,
-      [resourceId, hashResourceCode(code), actorId, pinnedMode, showListeningQuestionText, deliveryScope],
+      `INSERT INTO protefl_resource_invite(resource_id,code_hash,created_by,expires_at,listening_mode,show_listening_question_text,delivery_scope,invite_kind)
+       VALUES($1,$2,$3,now()+interval '7 days',$4,$5,$6,$7) RETURNING id`,
+      [resourceId, hashResourceCode(code), actorId, pinnedMode, showListeningQuestionText, deliveryScope, inviteKind],
     )).rows[0];
     await client.query("INSERT INTO protefl_resource_event(resource_id,actor_id,invite_id,event_type) VALUES($1,$2,$3,'invite_created')", [resourceId, actorId, invite.id]);
     await client.query("COMMIT");
-    return { code, listeningMode: pinnedMode, showListeningQuestionText, deliveryScope, expiresInDays: 7 };
+    return { code, listeningMode: pinnedMode, showListeningQuestionText, deliveryScope, inviteKind, expiresInDays: 7 };
   } catch (error) {
     await client.query("ROLLBACK");
     throw error;
