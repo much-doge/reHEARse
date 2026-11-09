@@ -1,4 +1,4 @@
-import { issueResourceInvite, setResourceStatus } from "@protefl/adapters/postgres-resources";
+import { archiveCandidateDiagnostic, issueResourceInvite, setResourceStatus } from "@protefl/adapters/postgres-resources";
 import { currentUser } from "@/lib/session";
 import { isSameOriginRequest } from "@/lib/same-origin";
 
@@ -17,7 +17,7 @@ export async function POST(request: Request) {
   try {
     const raw = await request.text();
     if (raw.length > 1024) return Response.json({ error: "invalid_request" }, { status: 400, headers });
-    const body = JSON.parse(raw) as { action?: unknown; resourceId?: unknown; status?: unknown; listeningMode?: unknown; showListeningQuestionText?: unknown; deliveryScope?: unknown };
+    const body = JSON.parse(raw) as { action?: unknown; resourceId?: unknown; candidateActorId?: unknown; status?: unknown; listeningMode?: unknown; showListeningQuestionText?: unknown; deliveryScope?: unknown };
     if (typeof body.resourceId !== "string" || !/^[0-9a-f-]{36}$/i.test(body.resourceId))
       return Response.json({ error: "invalid_request" }, { status: 400, headers });
     if (body.action === "issue_invite") {
@@ -35,6 +35,12 @@ export async function POST(request: Request) {
     if (body.action === "set_status" && (body.status === "published" || body.status === "hidden")) {
       const resource = await setResourceStatus(body.resourceId, body.status, user.id);
       return Response.json({ resource }, { headers });
+    }
+    if (body.action === "archive_candidate_attempts") {
+      if (typeof body.candidateActorId !== "string" || !/^[0-9a-f-]{36}$/i.test(body.candidateActorId))
+        return Response.json({ error: "invalid_request" }, { status: 400, headers });
+      const archive = await archiveCandidateDiagnostic(body.resourceId, body.candidateActorId, user.id);
+      return Response.json({ archive }, { headers });
     }
     return Response.json({ error: "invalid_request" }, { status: 400, headers });
   } catch {

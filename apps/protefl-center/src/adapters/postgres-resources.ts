@@ -24,12 +24,12 @@ export async function assignedResources(actorId: string): Promise<TestCenterReso
   const result = await getPool().query(
     `SELECT r.id,r.code,r.version,r.kind,r.title,r.status,
        a.assigned_at,a.starts_at,a.ends_at,a.listening_mode,a.delivery_scope,
-            (EXISTS(SELECT 1 FROM protefl_attempt t WHERE t.actor_id=a.actor_id AND t.form_id=r.listening_form_id AND t.status<>'invalidated') OR EXISTS(SELECT 1 FROM protefl_diagnostic_attempt d WHERE d.actor_id=a.actor_id AND d.resource_id=r.id)) AS has_attempt
+            (EXISTS(SELECT 1 FROM protefl_attempt t WHERE t.actor_id=a.actor_id AND t.form_id=r.listening_form_id AND t.status<>'invalidated') OR EXISTS(SELECT 1 FROM protefl_diagnostic_attempt d WHERE d.actor_id=a.actor_id AND d.resource_id=r.id AND d.archived_at IS NULL)) AS has_attempt
      FROM protefl_resource_assignment a
      JOIN protefl_resource r ON r.id=a.resource_id
      WHERE a.actor_id=$1 AND a.revoked_at IS NULL
        AND (a.ends_at IS NULL OR a.ends_at>now())
-       AND (r.status='published' OR (r.status='hidden' AND (EXISTS(SELECT 1 FROM protefl_attempt t WHERE t.actor_id=a.actor_id AND t.form_id=r.listening_form_id AND t.status<>'invalidated') OR EXISTS(SELECT 1 FROM protefl_diagnostic_attempt d WHERE d.actor_id=a.actor_id AND d.resource_id=r.id))))
+       AND (r.status='published' OR (r.status='hidden' AND (EXISTS(SELECT 1 FROM protefl_attempt t WHERE t.actor_id=a.actor_id AND t.form_id=r.listening_form_id AND t.status<>'invalidated') OR EXISTS(SELECT 1 FROM protefl_diagnostic_attempt d WHERE d.actor_id=a.actor_id AND d.resource_id=r.id AND d.archived_at IS NULL))))
        AND (a.starts_at<=now())
      ORDER BY r.created_at DESC`,
     [actorId],
@@ -85,7 +85,7 @@ export async function claimResource(actorId: string, rawCode: string): Promise<v
            AND a.starts_at<=now() AND (a.ends_at IS NULL OR a.ends_at>now())
            AND (r.status='published' OR (r.status='hidden' AND (
              EXISTS(SELECT 1 FROM protefl_attempt t WHERE t.actor_id=a.actor_id AND t.form_id=r.listening_form_id AND t.status<>'invalidated')
-             OR EXISTS(SELECT 1 FROM protefl_diagnostic_attempt d WHERE d.actor_id=a.actor_id AND d.resource_id=r.id)
+             OR EXISTS(SELECT 1 FROM protefl_diagnostic_attempt d WHERE d.actor_id=a.actor_id AND d.resource_id=r.id AND d.archived_at IS NULL)
            )))`,
         [invite.resource_id, actorId],
       );
@@ -123,17 +123,17 @@ export async function listManagedResources() {
      FROM protefl_resource r ORDER BY r.created_at DESC`,
   );
   const candidates = await getPool().query(
-    `SELECT a.resource_id,a.delivery_scope,u.display_name,u.email,
+    `SELECT a.resource_id,a.actor_id,a.delivery_scope,u.display_name,u.email,
        COALESCE(history.attempts,'[]'::jsonb) AS attempts
      FROM protefl_resource_assignment a JOIN app_user u ON u.id=a.actor_id
      LEFT JOIN LATERAL (
        SELECT jsonb_agg(jsonb_build_object(
          'number',d.attempt_number,'status',d.status,'scope',d.scope,'deliveryScope',d.delivery_scope,
-         'createdAt',d.created_at,'completedAt',d.completed_at,'result',r.result_data,
+         'createdAt',d.created_at,'completedAt',d.completed_at,'archivedAt',d.archived_at,'result',r.result_data,
          'retakes',COALESCE((
            SELECT jsonb_agg(jsonb_build_object(
              'section',retry.scope,'number',retry.section_retake_number,'status',retry.status,
-             'createdAt',retry.created_at,'completedAt',retry.completed_at,'result',rr.result_data
+             'createdAt',retry.created_at,'completedAt',retry.completed_at,'archivedAt',retry.archived_at,'result',rr.result_data
            ) ORDER BY retry.attempt_number)
            FROM protefl_diagnostic_attempt retry
            LEFT JOIN protefl_diagnostic_result rr ON rr.attempt_id=retry.id
@@ -154,10 +154,52 @@ export async function listManagedResources() {
     candidates: candidates.rows.filter((candidate) => String(candidate.resource_id) === String(row.id)).map((candidate) => ({
       name: candidate.display_name as string,
       email: candidate.email as string,
+      actorId: String(candidate.actor_id),
       deliveryScope: candidate.delivery_scope as "full" | "listening" | "structure" | "reading",
       attempts: candidate.attempts ?? [],
     })),
   }));
+}
+
+export async function archiveCandidateDiagnostic(resourceId: string, candidateActorId: string, staffActorId: string) {
+  const client = await getPool().connect();
+  try {
+    await client.query("BEGIN");
+    const assignment = await client.query(
+      `SELECT a.id FROM protefl_resource_assignment a
+       JOIN protefl_resource r ON r.id=a.resource_id
+       WHERE a.resource_id=$1 AND a.actor_id=$2 AND a.revoked_at IS NULL
+         AND r.kind='diagnostic_package' FOR UPDATE OF a,r`,
+      [resourceId, candidateActorId],
+    );
+    if (!assignment.rowCount) throw new Error("assignment_unavailable");
+    const attempts = await client.query(
+      `SELECT id FROM protefl_diagnostic_attempt
+       WHERE resource_id=$1 AND actor_id=$2 AND archived_at IS NULL
+       ORDER BY attempt_number FOR UPDATE`,
+      [resourceId, candidateActorId],
+    );
+    if (!attempts.rowCount) throw new Error("attempt_unavailable");
+    const archive = (await client.query(
+      `INSERT INTO protefl_diagnostic_attempt_archive(resource_id,actor_id,archived_by,attempt_count)
+       VALUES($1,$2,$3,$4) RETURNING id,archived_at`,
+      [resourceId, candidateActorId, staffActorId, attempts.rowCount],
+    )).rows[0];
+    await client.query(
+      `UPDATE protefl_diagnostic_attempt
+       SET archived_at=$3,archived_by=$4,archive_batch_id=$5
+       WHERE resource_id=$1 AND actor_id=$2 AND archived_at IS NULL`,
+      [resourceId, candidateActorId, archive.archived_at, staffActorId, archive.id],
+    );
+    await client.query("COMMIT");
+    return { archivedAttempts: attempts.rowCount, archivedAt: new Date(archive.archived_at).toISOString() };
+  } catch (error) {
+    await client.query("ROLLBACK");
+    if (error instanceof Error && ["assignment_unavailable", "attempt_unavailable"].includes(error.message)) throw error;
+    throw new Error("archive_unavailable");
+  } finally {
+    client.release();
+  }
 }
 
 export async function issueResourceInvite(

@@ -538,6 +538,17 @@ settings and answer history. New teacher-issued invites may hide Listening
 question text; that setting is pinned into a newly claimed attempt and does not
 change active or historical attempts.
 
+Listening playback advances the visible item with the source audio, returns
+the view to the active item, and prevents navigation back to passed items.
+Structure navigation is separated into Parts A and B with their corresponding
+directions; Reading presents the passage before its questions. Student-visible
+routes use `/test-center/teaching` for staff controls.
+
+Every attempt pins the package version/content digest plus answer-key, score
+table, and timing-map digests. Where the source score table omits Structure raw
+counts 39–40, the application leaves the converted result unavailable instead
+of extrapolating.
+
 ## D037 — Teacher attempt review and reproducible test-package bootstrap (LFL-041)
 
 Accepted at the operator's request. The authenticated teacher/admin workspace
@@ -566,13 +577,21 @@ attempt records. Re-entry from a different account remains unavailable. This
 lets a learner recover after sign-in/session loss without creating a second
 assignment or replacing an attempt.
 
-Listening playback advances the visible item with the source audio, returns
-the view to the active item, and prevents navigation back to passed items.
-Structure navigation is separated into Parts A and B with their corresponding
-directions; Reading presents the passage before its questions. Student-visible
-routes use `/test-center/teaching` for staff controls.
+## D039 — Teacher reset as an archived attempt generation (LFL-044)
 
-Every attempt pins the package version/content digest plus answer-key, score
-table, and timing-map digests. Where the source score table omits Structure raw
-counts 39–40, the application leaves the converted result unavailable instead
-of extrapolating.
+Accepted. A teacher/admin may reset one assigned candidate for one diagnostic
+resource. Reset archives every currently unarchived attempt in that resource
+lineage as one audited batch; it never deletes or rewrites answer events,
+results, scores, or retake relationships. Candidate current-attempt, history,
+media, question, and action queries exclude archived generations, so the next
+start begins again at the assigned section's first question. The new root
+attempt becomes the current primary while archived primaries remain historical
+evidence. Staff history continues to display archived generations and the
+reset timestamp; the append-only reset audit records the responsible staff
+actor through an opaque ID.
+
+Reset is checked at the teacher/admin server boundary and requires an active
+assignment to the named resource/candidate. A confirmation in the teaching UI
+warns that an active candidate session will stop immediately. The reset does
+not issue a new code, revoke the assignment, or change its pinned scope,
+Listening mode, or question-text setting.

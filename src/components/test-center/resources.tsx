@@ -68,10 +68,10 @@ type AttemptResult = {
 };
 type AttemptHistory = {
   number: number; status: string; scope: string; deliveryScope: DeliveryScope;
-  createdAt: string; completedAt: string | null; result: AttemptResult | null;
-  retakes: Array<{ section: string; number: number; status: string; createdAt: string; completedAt: string | null; result: AttemptResult | null }>;
+  createdAt: string; completedAt: string | null; archivedAt: string | null; result: AttemptResult | null;
+  retakes: Array<{ section: string; number: number; status: string; createdAt: string; completedAt: string | null; archivedAt: string | null; result: AttemptResult | null }>;
 };
-type ManagedResource = { id: string; code: string; version: number; kind: string; title: string; status: string; assignedCount: number; candidates?: Array<{ name: string; email: string; deliveryScope: DeliveryScope; attempts: AttemptHistory[] }> };
+type ManagedResource = { id: string; code: string; version: number; kind: string; title: string; status: string; assignedCount: number; candidates?: Array<{ actorId: string; name: string; email: string; deliveryScope: DeliveryScope; attempts: AttemptHistory[] }> };
 
 function resultLabel(result: AttemptResult | null) {
   const correct = result?.total?.correct ?? result?.summary?.correct;
@@ -106,7 +106,7 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
   const [resources, setResources] = useState(initial);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
-  const [issuedCode, setIssuedCode] = useState<{ title: string; code: string; scope: DeliveryScope } | null>(null);
+  const [issuedCode, setIssuedCode] = useState<{ title: string; code: string; scope: DeliveryScope; listeningMode: "autoplay" | "question_click" } | null>(null);
   const [listeningMode, setListeningMode] = useState<"autoplay" | "question_click">("autoplay");
   const [showListeningQuestionText, setShowListeningQuestionText] = useState(true);
   const [deliveryScope, setDeliveryScope] = useState<DeliveryScope>("full");
@@ -115,21 +115,45 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
     const status = resource.status === "published" ? "hidden" : "published";
     try {
       const response = await fetch("/api/test-center/teaching", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, resourceId: resource.id, status, listeningMode, showListeningQuestionText, deliveryScope }) });
-      const data = await response.json() as { invite?: { code: string; deliveryScope: DeliveryScope }; resource?: { status: string }; error?: string };
+      const data = await response.json() as { invite?: { code: string; deliveryScope: DeliveryScope; listeningMode: "autoplay" | "question_click" }; resource?: { status: string }; error?: string };
       if (!response.ok) throw new Error("The change could not be saved.");
-      if (data.invite) setIssuedCode({ title: resource.title, code: data.invite.code, scope: data.invite.deliveryScope });
+      if (data.invite) setIssuedCode({ title: resource.title, code: data.invite.code, scope: data.invite.deliveryScope, listeningMode: data.invite.listeningMode });
       if (data.resource) setResources((current) => current.map((item) => item.id === resource.id ? { ...item, status: data.resource!.status } : item));
     } catch (error) { setMessage(error instanceof Error ? error.message : "Something went wrong."); }
+    finally { setBusy(null); }
+  }
+  async function archiveCandidate(resource: ManagedResource, candidate: NonNullable<ManagedResource["candidates"]>[number]) {
+    if (!window.confirm(`Archive ${candidate.name}'s current attempt history and let them start again from the beginning? Their answers and results will remain available here.`)) return;
+    setBusy(`archive:${candidate.actorId}`); setMessage("");
+    try {
+      const response = await fetch("/api/test-center/teaching", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "archive_candidate_attempts", resourceId: resource.id, candidateActorId: candidate.actorId }),
+      });
+      const data = await response.json() as { archive?: { archivedAttempts: number; archivedAt: string } };
+      if (!response.ok || !data.archive) throw new Error("The attempt could not be archived.");
+      setResources((current) => current.map((item) => item.id !== resource.id ? item : {
+        ...item,
+        candidates: item.candidates?.map((entry) => entry.actorId !== candidate.actorId ? entry : {
+          ...entry,
+          attempts: entry.attempts.map((attempt) => attempt.archivedAt ? attempt : {
+            ...attempt, archivedAt: data.archive!.archivedAt,
+            retakes: attempt.retakes.map((retake) => ({ ...retake, archivedAt: retake.archivedAt ?? data.archive!.archivedAt })),
+          }),
+        }),
+      }));
+      setMessage(`${candidate.name}'s current attempt was archived. They can now reopen the diagnostic and start again.`);
+    } catch (error) { setMessage(error instanceof Error ? error.message : "The attempt could not be archived."); }
     finally { setBusy(null); }
   }
   return <main className="ptc-resources-shell">
     <header className="ptc-resources-header"><Link href="/test-center">← Candidate view</Link><strong>TOEFL-like Test Center</strong><Link href="/dashboard">Dashboard</Link></header>
     <section className="ptc-resources-intro"><p className="eyebrow">TEACHER / ADMIN WORKSPACE</p><h1>Assignments and results</h1><p>Review candidate progress, publish resources, and issue one-use access codes.</p></section>
     {message && <p role="alert" className="ptc-resource-notice">{message}</p>}
-    {issuedCode && <section className="ptc-issued-code" role="status"><strong>Share this code once · {issuedCode.title}</strong><code>{issuedCode.code}</code><p>Scope: {issuedCode.scope === "full" ? "Full diagnostic" : issuedCode.scope === "structure" ? "Structure and Written Expression" : issuedCode.scope[0].toUpperCase() + issuedCode.scope.slice(1)}. This code expires in 7 days and is shown only now.</p><button onClick={() => { navigator.clipboard?.writeText(issuedCode.code); setMessage("Code copied."); }}>Copy code</button></section>}
+    {issuedCode && <section className="ptc-issued-code" role="status"><div><span className="eyebrow">ACCESS CODE CREATED</span><strong>{issuedCode.title}</strong></div><code>{issuedCode.code}</code><p>Scope: {issuedCode.scope === "full" ? "Full diagnostic" : issuedCode.scope === "structure" ? "Structure and Written Expression" : issuedCode.scope[0].toUpperCase() + issuedCode.scope.slice(1)}{issuedCode.scope === "full" || issuedCode.scope === "listening" ? ` · Listening: ${issuedCode.listeningMode === "autoplay" ? "Autoplay" : "Manual, play each question"}` : ""}. Expires in 7 days and is shown only now.</p><button onClick={() => { navigator.clipboard?.writeText(issuedCode.code); setMessage("Code copied."); }}>Copy code</button></section>}
     <section className="ptc-resource-list">{resources.map((resource) => <article className="ptc-resource-card" key={resource.id}>
-      <div><span className="eyebrow">{resource.kind.replaceAll("_", " ").toUpperCase()} · VERSION {resource.version}</span><h2>{resource.title}</h2><p>Status: <strong>{resource.status}</strong> · {resource.assignedCount} active assignments</p></div>
-      <div className="ptc-resource-actions">
+      <header className="ptc-resource-summary"><div><span className="eyebrow">{resource.kind.replaceAll("_", " ").toUpperCase()} · VERSION {resource.version}</span><h2>{resource.title}</h2></div><div className="ptc-resource-status"><span className={`status-${resource.status}`}>{resource.status}</span><small>{resource.assignedCount} active assignments</small></div></header>
+      <section className="ptc-assignment-builder"><div className="ptc-control-heading"><span className="eyebrow">NEW ASSIGNMENT</span><h3>Configure one access code</h3><p>These choices are pinned when the candidate claims the code.</p></div><div className="ptc-resource-actions">
         {resource.kind === "diagnostic_package" && <label className="ptc-listening-mode">Assigned test scope
           <select value={deliveryScope} onChange={(event) => setDeliveryScope(event.target.value as DeliveryScope)}>
             <option value="full">Full diagnostic · all three sections</option><option value="listening">Listening only</option><option value="structure">Structure and Written Expression only</option><option value="reading">Reading only</option>
@@ -141,29 +165,32 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
           </select>
         </label>}
         {resource.kind === "diagnostic_package" && (deliveryScope === "full" || deliveryScope === "listening") && <label className="ptc-listening-mode"><span><input type="checkbox" checked={showListeningQuestionText} onChange={(event) => setShowListeningQuestionText(event.target.checked)} /> Show listening question text</span><small>This choice is pinned when each access code is issued.</small></label>}
-        <button disabled={busy !== null || resource.status !== "published"} onClick={() => mutate(resource, "issue_invite")}>{busy === resource.id ? "Working…" : "Create access code"}</button>
-        {(resource.status === "published" || resource.status === "hidden" || resource.status === "draft") && <button className="secondary" disabled={busy !== null} onClick={() => mutate(resource, "set_status")}>{resource.status === "published" ? "Hide resource" : "Publish resource"}</button>}
-      </div>
+        <div className="ptc-primary-actions"><button disabled={busy !== null || resource.status !== "published"} onClick={() => mutate(resource, "issue_invite")}>{busy === resource.id ? "Creating…" : "Create access code"}</button>
+        {(resource.status === "published" || resource.status === "hidden" || resource.status === "draft") && <button className="secondary" disabled={busy !== null} onClick={() => mutate(resource, "set_status")}>{resource.status === "published" ? "Hide resource" : "Publish resource"}</button>}</div>
+      </div></section>
       {resource.candidates?.length ? <section className="ptc-candidate-results">
         <div className="ptc-candidate-heading"><div><p className="eyebrow">ASSIGNED CANDIDATES</p><h3>Attempts and answer review</h3></div><span>{resource.candidates.length} candidates</span></div>
         {resource.candidates.map((candidate) => {
-          const latest = candidate.attempts.at(-1);
+          const currentAttempts = candidate.attempts.filter((attempt) => !attempt.archivedAt);
+          const latest = currentAttempts.at(-1);
           const retryCount = candidate.attempts.reduce((count, attempt) => count + attempt.retakes.length, 0);
-          return <details className="ptc-candidate" key={candidate.email}>
+          return <details className="ptc-candidate" key={candidate.actorId}>
             <summary>
               <span className="ptc-candidate-person"><strong>{candidate.name}</strong><small>{candidate.email}</small></span>
               <span className="ptc-candidate-state">{latest ? latest.status === "completed" ? `Latest · ${resultLabel(latest.result) ?? "Completed"}` : "Attempt in progress" : "Not started"}</span>
               <span className="ptc-candidate-scope">{candidate.deliveryScope === "full" ? "Full diagnostic" : `${candidate.deliveryScope} only`}</span>
-              <span className="ptc-candidate-retries">{candidate.attempts.length} {candidate.attempts.length === 1 ? "attempt" : "attempts"} · {retryCount} section retakes</span>
+              <span className="ptc-candidate-retries">{candidate.attempts.length} historical {candidate.attempts.length === 1 ? "attempt" : "attempts"} · {retryCount} section retakes</span>
               <span className="ptc-expand-label">View history</span>
             </summary>
             <div className="ptc-candidate-history">
-              {candidate.attempts.length === 0 ? <p className="ptc-review-empty">This candidate has not started an attempt.</p> : candidate.attempts.map((attempt) => <section className="ptc-attempt-card" key={`attempt-${attempt.number}`}>
-                <header><div><p className="eyebrow">{attempt.deliveryScope === "full" ? "FULL DIAGNOSTIC" : `${attempt.deliveryScope.toUpperCase()} ASSIGNMENT`} · ATTEMPT {attempt.number}</p><strong>{attempt.status === "completed" ? "Completed" : `In progress · ${attempt.scope}`}</strong></div><time dateTime={attempt.completedAt ?? attempt.createdAt}>{new Date(attempt.completedAt ?? attempt.createdAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}</time></header>
+              {currentAttempts.length > 0 && <div className="ptc-candidate-reset"><div><strong>Restart from the beginning</strong><p>Archive the current attempt lineage. All answers and results remain visible in this history.</p></div><button className="danger" disabled={busy !== null} onClick={() => void archiveCandidate(resource, candidate)}>{busy === `archive:${candidate.actorId}` ? "Archiving…" : "Archive current attempt and restart"}</button></div>}
+              {currentAttempts.length === 0 && candidate.attempts.length > 0 && <p className="ptc-restart-ready">Current attempt archived · candidate is ready to start again.</p>}
+              {candidate.attempts.length === 0 ? <p className="ptc-review-empty">This candidate has not started an attempt.</p> : candidate.attempts.map((attempt) => <section className={`ptc-attempt-card${attempt.archivedAt ? " is-archived" : ""}`} key={`attempt-${attempt.number}`}>
+                <header><div><p className="eyebrow">{attempt.deliveryScope === "full" ? "FULL DIAGNOSTIC" : `${attempt.deliveryScope.toUpperCase()} ASSIGNMENT`} · ATTEMPT {attempt.number}</p><strong>{attempt.archivedAt ? "Archived" : attempt.status === "completed" ? "Completed" : `In progress · ${attempt.scope}`}</strong></div><div className="ptc-attempt-dates"><time dateTime={attempt.completedAt ?? attempt.createdAt}>{new Date(attempt.completedAt ?? attempt.createdAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}</time>{attempt.archivedAt && <small>Archived {new Date(attempt.archivedAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}</small>}</div></header>
                 <AttemptResultSummary result={attempt.result} />
                 {attempt.result && <details className="ptc-answer-review"><summary>Missed questions and answer key</summary><MissedQuestions result={attempt.result} /></details>}
-                {attempt.retakes.length > 0 && <div className="ptc-retake-history"><h4>Section retakes</h4>{attempt.retakes.map((retake) => <article key={`${retake.section}-${retake.number}`}>
-                  <header><strong>{retake.section} retake {retake.number}</strong><span>{retake.status === "completed" ? resultLabel(retake.result) ?? "Completed" : "In progress"}</span><time dateTime={retake.completedAt ?? retake.createdAt}>{new Date(retake.completedAt ?? retake.createdAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}</time></header>
+                {attempt.retakes.length > 0 && <div className="ptc-retake-history"><h4>Section retakes</h4>{attempt.retakes.map((retake) => <article className={retake.archivedAt ? "is-archived" : ""} key={`${retake.section}-${retake.number}`}>
+                  <header><strong>{retake.section} retake {retake.number}</strong><span>{retake.archivedAt ? "Archived" : retake.status === "completed" ? resultLabel(retake.result) ?? "Completed" : "In progress"}</span><time dateTime={retake.archivedAt ?? retake.completedAt ?? retake.createdAt}>{retake.archivedAt ? `Archived ${new Date(retake.archivedAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}` : new Date(retake.completedAt ?? retake.createdAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}</time></header>
                   <AttemptResultSummary result={retake.result} />
                   {retake.result && <details className="ptc-answer-review"><summary>Missed questions and answer key</summary><MissedQuestions result={retake.result} /></details>}
                 </article>)}</div>}
