@@ -1,0 +1,62 @@
+{
+  "package": "ets-volume3-practice-test-b-listening",
+  "version": 1,
+  "form": "Practice Test B · Listening",
+  "sourceBook": "ETS TOEFL ITP Level 1 Practice Tests, Volume 3",
+  "audioLookup": {
+    "matchedVideoId": "FGSAKtHwjXc",
+    "matchedTitle": "TOEFL ITP TEST 4 Section 1",
+    "matchEvidence": [
+      "study break/library item",
+      "baryton conversation",
+      "polarized-light conversation"
+    ]
+  },
+  "sourceFiles": [
+    {
+      "path": "README.md",
+      "bytes": 2148,
+      "sha256": "bf0156a45d0afa78b717e71440b5fa6cd4a131af42f089107b6bfec969519fbe"
+    },
+    {
+      "path": "metadata/questions-practice-test-b-listening-v1.json",
+      "bytes": 19602,
+      "sha256": "ab9f88131f1da1dee98f7896b6d789f0bdba0822f09910bec20c0215a6d0880d"
+    },
+    {
+      "path": "metadata/answer-key-practice-test-b-listening-v1.json",
+      "bytes": 716,
+      "sha256": "c1df748701b70aecdfddd855f25b0d35284a6af252ab7ec0aa7cb9cce6b3283c"
+    },
+    {
+      "path": "metadata/listening-pauses-v1.json",
+      "bytes": 6905,
+      "sha256": "ce8550ffe782e9f71a482c3d87ab9f87c10f15018d2cf8c78ece7728efb76fed"
+    },
+    {
+      "path": "metadata/listening-question-map-v1.json",
+      "bytes": 14101,
+      "sha256": "354342195a159593b07ec6b68363161cd77d3d8c50c995bc5564bc05b09f418b"
+    },
+    {
+      "path": "metadata/listening-alignment-audit-v1.json",
+      "bytes": 1726,
+      "sha256": "83cb8b0b0ebe5ada4821a58042d9807b57b835673d61f9729df9a42bc5de5b0b"
+    },
+    {
+      "path": "metadata/instructions-practice-test-b-v1.json",
+      "bytes": 2602,
+      "sha256": "47cee462870f91e3841a292cce6897eabf763d2a5b30c06d9e056b75ce71eb73"
+    },
+    {
+      "path": "metadata/score-conversion-practice-test-b-v1.json",
+      "bytes": 3538,
+      "sha256": "11775bbb911d5df22dd50aba877840c5e2ceb0fae420c3b4479e95d2a8ab7adb"
+    },
+    {
+      "path": "source/practice-test-b-listening.m4a",
+      "bytes": 33870029,
+      "sha256": "232924d9f6e6f2e3bb2f105f8fb75571eee1ff1704c1e3e8e0296608552266a8"
+    }
+  ]
+}

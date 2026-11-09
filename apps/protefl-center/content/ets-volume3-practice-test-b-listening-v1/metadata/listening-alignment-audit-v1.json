@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "method": "Matched the source script against the candidate recording transcript, then aligned each response window to the following long quiet interval detected by ffmpeg silencedetect at -42 dB for at least 4 seconds.",
+  "quietWindowCount": 50,
+  "answerWindowTargetMs": 12000,
+  "transcriptEvidence": [
+    {
+      "cue": "first Part A conversation",
+      "transcript": "Hey, you look like you could use a study break",
+      "audioStartMs": 144420
+    },
+    {
+      "cue": "Part B baryton conversation",
+      "transcript": "baryton",
+      "groupId": "part-b-1"
+    },
+    {
+      "cue": "Part B polarized-light conversation",
+      "transcript": "polarized light",
+      "groupId": "part-b-2"
+    }
+  ],
+  "groupTransitions": [
+    {
+      "groupId": "part-b-1",
+      "type": "conversation",
+      "questions": [
+        31,
+        34
+      ],
+      "contextStartMs": 983204
+    },
+    {
+      "groupId": "part-b-2",
+      "type": "conversation",
+      "questions": [
+        35,
+        37
+      ],
+      "contextStartMs": 1186209
+    },
+    {
+      "groupId": "part-c-1",
+      "type": "talk",
+      "questions": [
+        38,
+        41
+      ],
+      "contextStartMs": 1346140
+    },
+    {
+      "groupId": "part-c-2",
+      "type": "talk",
+      "questions": [
+        42,
+        46
+      ],
+      "contextStartMs": 1705167
+    },
+    {
+      "groupId": "part-c-3",
+      "type": "talk",
+      "questions": [
+        47,
+        50
+      ],
+      "contextStartMs": 1914048
+    }
+  ],
+  "status": "sequence_aligned",
+  "scope": "Structural alignment from the source script, matched recording transcript, detected quiet windows, and group boundaries; not a classroom playback observation."
+}

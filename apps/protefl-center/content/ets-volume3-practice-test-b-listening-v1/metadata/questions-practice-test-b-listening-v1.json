@@ -1,0 +1,612 @@
+{
+  "listening": [
+    {
+      "number": 1,
+      "prompt": "What does the man mean?",
+      "options": {
+        "A": "He would like to take a break.",
+        "B": "He thinks the library will close soon.",
+        "C": "He does not want to stop working.",
+        "D": "He does not like coffee."
+      },
+      "sourcePage": 63,
+      "part": "A"
+    },
+    {
+      "number": 2,
+      "prompt": "What does the woman imply?",
+      "options": {
+        "A": "Mary is not going to the concert.",
+        "B": "Mary does not know about the concert.",
+        "C": "The man should call Mary.",
+        "D": "The man should go to the concert without Mary."
+      },
+      "sourcePage": 63,
+      "part": "A"
+    },
+    {
+      "number": 3,
+      "prompt": "What can be inferred about the man?",
+      "options": {
+        "A": "He bought a new jacket.",
+        "B": "He used to have longer hair.",
+        "C": "He does not usually wear glasses.",
+        "D": "He wants to introduce the woman to his friends."
+      },
+      "sourcePage": 63,
+      "part": "A"
+    },
+    {
+      "number": 4,
+      "prompt": "What does the woman mean?",
+      "options": {
+        "A": "She did not know about the library’s summer schedule.",
+        "B": "The library has only a few employees in the summer.",
+        "C": "The library is closed in the summer.",
+        "D": "Not many people use the library in the summer."
+      },
+      "sourcePage": 63,
+      "part": "A"
+    },
+    {
+      "number": 5,
+      "prompt": "What does the man mean?",
+      "options": {
+        "A": "He read an article about Professor Monroe’s research.",
+        "B": "He does not know Professor Monroe.",
+        "C": "Professor Monroe probably will talk to the woman.",
+        "D": "Professor Monroe does not like giving interviews."
+      },
+      "sourcePage": 63,
+      "part": "A"
+    },
+    {
+      "number": 6,
+      "prompt": "What does the woman imply about the headphones?",
+      "options": {
+        "A": "She expects the man to have them repaired.",
+        "B": "She is angry with the man for forgetting them.",
+        "C": "She does not know where they are.",
+        "D": "She would like the man to return them by tonight."
+      },
+      "sourcePage": 63,
+      "part": "A"
+    },
+    {
+      "number": 7,
+      "prompt": "What does the woman imply?",
+      "options": {
+        "A": "She needs more time to get ready for the dinner.",
+        "B": "She thought the dinner was at another time.",
+        "C": "She forgot about the plans she made for dinner.",
+        "D": "She will not be able to go to dinner."
+      },
+      "sourcePage": 63,
+      "part": "A"
+    },
+    {
+      "number": 8,
+      "prompt": "What will the woman probably do next?",
+      "options": {
+        "A": "Cash her paycheck",
+        "B": "Lend the man some money",
+        "C": "Pay the man back money she borrowed from him",
+        "D": "Help the man look for his wallet"
+      },
+      "sourcePage": 63,
+      "part": "A"
+    },
+    {
+      "number": 9,
+      "prompt": "What does the man imply?",
+      "options": {
+        "A": "He will help the woman prepare her speech.",
+        "B": "The woman should prepare her speech carefully.",
+        "C": "The woman is one of the best speakers in the class.",
+        "D": "The speech does not count toward the final grade for the course."
+      },
+      "sourcePage": 64,
+      "part": "A"
+    },
+    {
+      "number": 10,
+      "prompt": "What does the woman mean?",
+      "options": {
+        "A": "She likes the view of the mountains in winter.",
+        "B": "She has never been in Montana.",
+        "C": "The man should take a winter vacation.",
+        "D": "The man would not enjoy living in Montana all year."
+      },
+      "sourcePage": 64,
+      "part": "A"
+    },
+    {
+      "number": 11,
+      "prompt": "What does the woman mean?",
+      "options": {
+        "A": "She does not agree that it is a stressful time.",
+        "B": "She does not feel as calm as she seems.",
+        "C": "She admires the man’s calmness.",
+        "D": "She will help the man to deal with his stress."
+      },
+      "sourcePage": 64,
+      "part": "A"
+    },
+    {
+      "number": 12,
+      "prompt": "What does the man imply?",
+      "options": {
+        "A": "The woman can have his old phone.",
+        "B": "The woman should not buy the phone.",
+        "C": "The woman should buy the phone at a different store.",
+        "D": "The woman should wait for the phone to go on sale."
+      },
+      "sourcePage": 64,
+      "part": "A"
+    },
+    {
+      "number": 13,
+      "prompt": "What does the man imply?",
+      "options": {
+        "A": "He went to the bookstore early.",
+        "B": "The line at the bookstore moves quickly.",
+        "C": "Books are cheaper at the bookstore than online.",
+        "D": "The woman does not have to wait in line at the bookstore."
+      },
+      "sourcePage": 64,
+      "part": "A"
+    },
+    {
+      "number": 14,
+      "prompt": "What does the woman imply the man should do?",
+      "options": {
+        "A": "Accept the job offer",
+        "B": "Discuss the job offer with a friend",
+        "C": "Apply for a job that is not so far away",
+        "D": "Keep his current job"
+      },
+      "sourcePage": 64,
+      "part": "A"
+    },
+    {
+      "number": 15,
+      "prompt": "What does the woman say about her brother?",
+      "options": {
+        "A": "He is spending too much time with his friends.",
+        "B": "He was in an accident.",
+        "C": "He is looking for his friend.",
+        "D": "He had a disagreement with his friend."
+      },
+      "sourcePage": 64,
+      "part": "A"
+    },
+    {
+      "number": 16,
+      "prompt": "What can be inferred from the conversation?",
+      "options": {
+        "A": "The man is in the wrong classroom.",
+        "B": "The man is sitting in the wrong seat.",
+        "C": "The man forgot to bring his textbook.",
+        "D": "The woman did not attend the first class."
+      },
+      "sourcePage": 64,
+      "part": "A"
+    },
+    {
+      "number": 17,
+      "prompt": "What does the woman mean?",
+      "options": {
+        "A": "She had a difficult time finding a summer job.",
+        "B": "She never had a summer job before.",
+        "C": "She began to enjoy her job as she gained experience.",
+        "D": "Her job became more stressful as she learned more about it."
+      },
+      "sourcePage": 65,
+      "part": "A"
+    },
+    {
+      "number": 18,
+      "prompt": "What does the man imply?",
+      "options": {
+        "A": "He does not know Peter.",
+        "B": "Peter does not usually eat lunch.",
+        "C": "Peter often behaves the way he did at lunch.",
+        "D": "The woman should invite Peter to lunch."
+      },
+      "sourcePage": 65,
+      "part": "A"
+    },
+    {
+      "number": 19,
+      "prompt": "What will the woman probably do?",
+      "options": {
+        "A": "Lend the man an umbrella",
+        "B": "Go to the movie by herself",
+        "C": "Wait with the man until the rain stops",
+        "D": "Help the man find his umbrella"
+      },
+      "sourcePage": 65,
+      "part": "A"
+    },
+    {
+      "number": 20,
+      "prompt": "What does the woman imply?",
+      "options": {
+        "A": "She is planning to quit her job at the bookstore.",
+        "B": "She will have lunch with the man in the cafeteria.",
+        "C": "The man can save money by eating in the cafeteria.",
+        "D": "The man might be able to get a job in the cafeteria."
+      },
+      "sourcePage": 65,
+      "part": "A"
+    },
+    {
+      "number": 21,
+      "prompt": "What does the man mean?",
+      "options": {
+        "A": "He spent a month in Mexico last year.",
+        "B": "He is ready to leave for Mexico.",
+        "C": "The woman should postpone her trip.",
+        "D": "The woman should apply for a passport soon."
+      },
+      "sourcePage": 65,
+      "part": "A"
+    },
+    {
+      "number": 22,
+      "prompt": "What will the man probably do?",
+      "options": {
+        "A": "Finish his lab report before the next class",
+        "B": "Ask the professor for help with his lab report",
+        "C": "Ask the professor for a higher grade",
+        "D": "Speak to the professor about the grading system"
+      },
+      "sourcePage": 65,
+      "part": "A"
+    },
+    {
+      "number": 23,
+      "prompt": "What does the woman imply about the bakery?",
+      "options": {
+        "A": "It lost customers to another business.",
+        "B": "It has a new owner.",
+        "C": "It opened only recently.",
+        "D": "It stopped selling coffee."
+      },
+      "sourcePage": 65,
+      "part": "A"
+    },
+    {
+      "number": 24,
+      "prompt": "What does the man imply?",
+      "options": {
+        "A": "He did not enjoy living in a small town.",
+        "B": "He is planning to visit his hometown soon.",
+        "C": "He and the woman are from the same hometown.",
+        "D": "He would like to visit the woman’s hometown."
+      },
+      "sourcePage": 65,
+      "part": "A"
+    },
+    {
+      "number": 25,
+      "prompt": "What does the woman want to know?",
+      "options": {
+        "A": "Whether the man wants money for his ticket",
+        "B": "Whether the man can see the play on a different date",
+        "C": "Whether the man needs more tickets for the play",
+        "D": "Whether the man has already given his ticket to someone else"
+      },
+      "sourcePage": 66,
+      "part": "A"
+    },
+    {
+      "number": 26,
+      "prompt": "What does the woman mean?",
+      "options": {
+        "A": "She recovered from a cold before the exam period started.",
+        "B": "She is glad she has managed to stay healthy.",
+        "C": "She is relieved she has already finished all her exams.",
+        "D": "She knows several people who are not feeling well."
+      },
+      "sourcePage": 66,
+      "part": "A"
+    },
+    {
+      "number": 27,
+      "prompt": "What does the man mean?",
+      "options": {
+        "A": "It is too windy to go on a boat ride.",
+        "B": "The woman should take the bus.",
+        "C": "The sightseeing tour is worth taking.",
+        "D": "He is not familiar with the sightseeing tour."
+      },
+      "sourcePage": 66,
+      "part": "A"
+    },
+    {
+      "number": 28,
+      "prompt": "What does the man mean?",
+      "options": {
+        "A": "He is pleased that so many people auditioned.",
+        "B": "More people would have come if the event had been better organized.",
+        "C": "The weather kept some people from participating.",
+        "D": "The snowstorm was not as severe as the weather report had predicted."
+      },
+      "sourcePage": 66,
+      "part": "A"
+    },
+    {
+      "number": 29,
+      "prompt": "What will the man probably do next Friday?",
+      "options": {
+        "A": "Get a ride to the station with the woman",
+        "B": "Take the woman to the station",
+        "C": "Borrow the woman’s car to go to the station",
+        "D": "Drive his car instead of taking the train"
+      },
+      "sourcePage": 66,
+      "part": "A"
+    },
+    {
+      "number": 30,
+      "prompt": "What does the woman imply the man should do?",
+      "options": {
+        "A": "Return the lamp to the store",
+        "B": "Have the lamp repaired",
+        "C": "Buy different lightbulbs",
+        "D": "Borrow a lamp from a colleague"
+      },
+      "sourcePage": 66,
+      "part": "A"
+    },
+    {
+      "number": 31,
+      "prompt": "What is the conversation mainly about?",
+      "options": {
+        "A": "A concert the woman attended",
+        "B": "The man’s collection of CDs",
+        "C": "A new software program",
+        "D": "An instrument the woman is learning to play"
+      },
+      "sourcePage": 68,
+      "part": "B"
+    },
+    {
+      "number": 32,
+      "prompt": "Why did the woman apologize to the man?",
+      "options": {
+        "A": "She lost one of his CDs.",
+        "B": "She did not invite him to the concert.",
+        "C": "She missed class.",
+        "D": "She forgot about a meeting."
+      },
+      "sourcePage": 68,
+      "part": "B"
+    },
+    {
+      "number": 33,
+      "prompt": "What is unusual about the baryton?",
+      "options": {
+        "A": "It does not need to be tuned.",
+        "B": "It has two sets of strings.",
+        "C": "Its pitch is exceptionally high.",
+        "D": "It is played with the hands and feet."
+      },
+      "sourcePage": 68,
+      "part": "B"
+    },
+    {
+      "number": 34,
+      "prompt": "What does the woman want to borrow from the man?",
+      "options": {
+        "A": "A baryton",
+        "B": "Some CDs",
+        "C": "A computer program",
+        "D": "His class notes"
+      },
+      "sourcePage": 68,
+      "part": "B"
+    },
+    {
+      "number": 35,
+      "prompt": "What are the speakers mainly discussing?",
+      "options": {
+        "A": "A change in sea turtle behavior",
+        "B": "A form of light pollution",
+        "C": "Various ways different animals perceive light",
+        "D": "Ecological building designs"
+      },
+      "sourcePage": 68,
+      "part": "B"
+    },
+    {
+      "number": 36,
+      "prompt": "What does the professor imply about polarized light that occurs in nature?",
+      "options": {
+        "A": "It is weakest on water surfaces.",
+        "B": "It makes it difficult for animals to see.",
+        "C": "It is needed by many animals to survive.",
+        "D": "It is similar to light from streetlights."
+      },
+      "sourcePage": 68,
+      "part": "B"
+    },
+    {
+      "number": 37,
+      "prompt": "According to the professor, how do glass buildings affect wildlife?",
+      "options": {
+        "A": "They block animals’ view in their search of food.",
+        "B": "They may mislead animals in their search for water.",
+        "C": "Most animals cannot tolerate their light reflections.",
+        "D": "Many migrating birds fly into them."
+      },
+      "sourcePage": 68,
+      "part": "B"
+    },
+    {
+      "number": 38,
+      "prompt": "What does the professor mainly discuss?",
+      "options": {
+        "A": "Differences between longitudinal studies and cross-sectional studies",
+        "B": "Advantages of cohort studies over other research approaches",
+        "C": "Differences between child psychology and adult psychology",
+        "D": "Recent improvements in research methodologies"
+      },
+      "sourcePage": 70,
+      "part": "C"
+    },
+    {
+      "number": 39,
+      "prompt": "What question is investigated by the research studies that the professor describes?",
+      "options": {
+        "A": "Whether shyness is a learned behavior",
+        "B": "Whether shyness can affect children’s learning",
+        "C": "Whether many different factors contribute to shyness",
+        "D": "Whether shyness in children is related to age"
+      },
+      "sourcePage": 70,
+      "part": "C"
+    },
+    {
+      "number": 40,
+      "prompt": "What is one of the problems with longitudinal studies that the professor mentions?",
+      "options": {
+        "A": "Their results are difficult to analyze.",
+        "B": "They can be used only in studies of young children.",
+        "C": "Participants may not be available for the entire study.",
+        "D": "Researchers do not consider the results of such studies reliable."
+      },
+      "sourcePage": 70,
+      "part": "C"
+    },
+    {
+      "number": 41,
+      "prompt": "How would a cross-sectional study observe children?",
+      "options": {
+        "A": "By observing one group of children as they grow",
+        "B": "By observing groups of different-aged children at one point in time",
+        "C": "By comparing children’s behavior at home to their behavior at school",
+        "D": "By comparing children’s behavior to their parents’ behavior"
+      },
+      "sourcePage": 70,
+      "part": "C"
+    },
+    {
+      "number": 42,
+      "prompt": "What does the professor mainly discuss?",
+      "options": {
+        "A": "Ways in which human activities affect aquifers",
+        "B": "The formation of Earth’s gravitational field",
+        "C": "The impact of Earth’s gravitational anomalies on satellites",
+        "D": "Variations in Earth’s gravitational field"
+      },
+      "sourcePage": 70,
+      "part": "C"
+    },
+    {
+      "number": 43,
+      "prompt": "What does the professor emphasize about the instruments on the satellites he mentions?",
+      "options": {
+        "A": "They were recently replaced.",
+        "B": "They are extremely precise.",
+        "C": "Their settings are changed seasonally.",
+        "D": "Their data are used to make new maps on a daily basis."
+      },
+      "sourcePage": 71,
+      "part": "C"
+    },
+    {
+      "number": 44,
+      "prompt": "According to the professor, where is Earth’s gravitational force the strongest?",
+      "options": {
+        "A": "At sea level",
+        "B": "At the equator",
+        "C": "On mountaintops",
+        "D": "Over aquifers"
+      },
+      "sourcePage": 71,
+      "part": "C"
+    },
+    {
+      "number": 45,
+      "prompt": "What do gravity anomaly maps indicate about California’s agricultural region?",
+      "options": {
+        "A": "Water levels in aquifers there are declining.",
+        "B": "The region has more aquifers than previously thought.",
+        "C": "Water-conservation efforts there are effective.",
+        "D": "The region used to be covered by glaciers."
+      },
+      "sourcePage": 71,
+      "part": "C"
+    },
+    {
+      "number": 46,
+      "prompt": "What does the professor say about climate change?",
+      "options": {
+        "A": "It is already intensifying droughts in California.",
+        "B": "Its effects are more significant in areas with stronger gravity.",
+        "C": "It can cause measurable changes in gravity in certain areas.",
+        "D": "Its impact on sea levels has not been measured."
+      },
+      "sourcePage": 71,
+      "part": "C"
+    },
+    {
+      "number": 47,
+      "prompt": "What is the talk mainly about?",
+      "options": {
+        "A": "How people in rural areas preserved food",
+        "B": "The construction of icehouses",
+        "C": "An important industry in the nineteenth century",
+        "D": "How improvements in transportation affected industry"
+      },
+      "sourcePage": 71,
+      "part": "C"
+    },
+    {
+      "number": 48,
+      "prompt": "What does the speaker imply about springhouses?",
+      "options": {
+        "A": "Only wealthy families had them.",
+        "B": "They were important to the ice industry.",
+        "C": "They were built mostly on the east coast.",
+        "D": "They are no longer in common use."
+      },
+      "sourcePage": 71,
+      "part": "C"
+    },
+    {
+      "number": 49,
+      "prompt": "According to the speaker, what made the ice industry obsolete?",
+      "options": {
+        "A": "Modern technology for the kitchen",
+        "B": "Improved transportation systems",
+        "C": "Industrial use of streams and rivers",
+        "D": "Increased temperatures in many areas"
+      },
+      "sourcePage": 72,
+      "part": "C"
+    },
+    {
+      "number": 50,
+      "prompt": "What was the purpose of an icebox?",
+      "options": {
+        "A": "To keep train engines cool",
+        "B": "To preserve perishable food",
+        "C": "To store ice while it was being transported",
+        "D": "To lift blocks of ice from frozen lakes and ponds"
+      },
+      "sourcePage": 72,
+      "part": "C"
+    }
+  ],
+  "structure": {
+    "completion": [],
+    "errorIdentification": []
+  },
+  "reading": {
+    "passages": [],
+    "questions": []
+  }
+}
