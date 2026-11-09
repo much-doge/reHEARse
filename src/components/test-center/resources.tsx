@@ -5,7 +5,7 @@ import { useState } from "react";
 
 import type { TestCenterResource } from "@protefl/adapters/postgres-resources";
 
-export function ResourceClaim({ onClaimed }: { onClaimed: () => void }) {
+export function ResourceClaim({ onClaimed }: { onClaimed: () => void | Promise<void> }) {
   const [code, setCode] = useState("");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
@@ -18,12 +18,14 @@ export function ResourceClaim({ onClaimed }: { onClaimed: () => void }) {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code }),
       });
-      if (!response.ok) throw new Error("Kode tidak tersedia. Periksa kembali atau hubungi pengajar.");
+      if (!response.ok) throw new Error(response.status === 429 ? "rate_limited" : "invite_unavailable");
       setCode("");
-      setMessage("Akses berhasil ditambahkan.");
-      onClaimed();
+      await onClaimed();
+      setMessage("Access confirmed. Your assigned resource is listed below.");
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Akses belum dapat ditambahkan.");
+      setMessage(error instanceof Error && error.message === "rate_limited"
+        ? "Too many attempts. Wait a little before trying again."
+        : "This access code may be expired, revoked, or already used by another account. If you claimed it before, sign in to that same account and reopen your assigned resource.");
     } finally { setBusy(false); }
   }
   return <form className="ptc-resource-claim" onSubmit={submit}>

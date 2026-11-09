@@ -556,6 +556,16 @@ workflow and publication gates live in
 `apps/protefl-center/docs/FULL_TEST_BOOTSTRAP.md` and are required reading for
 future package work.
 
+## D038 — Same-account invite claim recovery (LFL-042)
+
+Accepted. A one-use Test Center invite remains bound to the account that first
+claimed it. If that same authenticated account re-enters the code while its
+assignment is still active and visible, the claim operation is idempotent and
+returns the existing assignment without changing invite, assignment, or
+attempt records. Re-entry from a different account remains unavailable. This
+lets a learner recover after sign-in/session loss without creating a second
+assignment or replacing an attempt.
+
 Listening playback advances the visible item with the source audio, returns
 the view to the active item, and prevents navigation back to passed items.
 Structure navigation is separated into Parts A and B with their corresponding

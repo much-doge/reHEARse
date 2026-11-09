@@ -77,6 +77,23 @@ export async function claimResource(actorId: string, rawCode: string): Promise<v
        JOIN protefl_resource r ON r.id=i.resource_id
        WHERE i.code_hash=$1 FOR UPDATE OF i`, [codeHash],
     )).rows[0];
+    if (invite?.claimed_at && invite.claimed_by === actorId && !invite.revoked_at) {
+      const existingAssignment = await client.query(
+        `SELECT a.id FROM protefl_resource_assignment a
+         JOIN protefl_resource r ON r.id=a.resource_id
+         WHERE a.resource_id=$1 AND a.actor_id=$2 AND a.revoked_at IS NULL
+           AND a.starts_at<=now() AND (a.ends_at IS NULL OR a.ends_at>now())
+           AND (r.status='published' OR (r.status='hidden' AND (
+             EXISTS(SELECT 1 FROM protefl_attempt t WHERE t.actor_id=a.actor_id AND t.form_id=r.listening_form_id AND t.status<>'invalidated')
+             OR EXISTS(SELECT 1 FROM protefl_diagnostic_attempt d WHERE d.actor_id=a.actor_id AND d.resource_id=r.id)
+           )))`,
+        [invite.resource_id, actorId],
+      );
+      if (existingAssignment.rowCount) {
+        await client.query("COMMIT");
+        return;
+      }
+    }
     if (!invite || invite.status !== "published" || invite.claimed_at || invite.revoked_at || !invite.not_expired)
       throw new Error("invite_unavailable");
     await client.query(
