@@ -164,8 +164,12 @@ New invite creation can hide Listening question text; the choice is copied to
 the assignment and then pinned to an attempt. Existing attempts receive the
 additive column defaults and keep their prior rendered content. Autoplay
 follows the active question audio and locks navigation to earlier questions;
-Part B/C directions appear at their transition. Focused Listening retries use
-the per-question playback flow and require playback for each selected item.
+Part B/C directions appear at their transition. Focused Listening retries
+inherit the playback mode pinned to the assignment. In autoplay mode they
+sequence only the missed questions, preserve a 12-second answer window, and
+include the conversation/talk context before the first selected question in
+each Part B/C group; manual mode retains per-question playback. Both modes
+require playback for every selected item.
 Structure navigation is divided into Parts A/B and the live directions follow
 the selected part. Reading shows the full line-preserving passage before its
 questions. The staff workspace is `/test-center/teaching`; `/test-center/manage`

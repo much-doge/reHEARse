@@ -221,7 +221,7 @@ export async function startSectionRetake(actorId: string, sourceAttemptId: strin
     if (hashes.version !== Number(parent.resource_version)) throw new Error("attempt_unavailable");
     const inserted = (await client.query(
       "INSERT INTO protefl_diagnostic_attempt(resource_id,actor_id,attempt_number,is_primary,package_version,content_hash,answer_key_hash,score_table_hash,timing_map_hash,listening_mode,scope,parent_attempt_id,section_retake_number,current_section,show_listening_question_text,selected_questions,delivery_scope) VALUES($1,$2,$3,false,$4,$5,$6,$7,$8,$9,$10,$11,$12,$10,$13,$14,$15) RETURNING id",
-      [parent.resource_id, actorId, Number(sequence.number) + 1, parent.package_version, hashes.contentHash, hashes.answerKeyHash, hashes.scoreTableHash, hashes.timingMapHash, section === "listening" ? "question_click" : parent.assigned_listening_mode, section, parentAttemptId, Number(retake.number) + 1, parent.show_listening_question_text, JSON.stringify(selectedQuestions), parent.delivery_scope],
+      [parent.resource_id, actorId, Number(sequence.number) + 1, parent.package_version, hashes.contentHash, hashes.answerKeyHash, hashes.scoreTableHash, hashes.timingMapHash, parent.assigned_listening_mode, section, parentAttemptId, Number(retake.number) + 1, parent.show_listening_question_text, JSON.stringify(selectedQuestions), parent.delivery_scope],
     )).rows[0];
     await client.query("COMMIT");
     return { attemptId: String(inserted.id), resumed: false };
@@ -289,16 +289,22 @@ export async function applyDiagnosticAction(actorId: string, attemptId: string, 
       eventType = "answer"; section = action.section; question = action.question; choice = action.choice;
     } else if (action.type === "audio_played") {
       if (attempt.current_section !== "listening" || !attempt.listening_started_at || !validQuestion("listening", action.question) || !Number.isInteger(action.positionMs) || action.positionMs < 0 || action.positionMs > 2102073) throw new Error("action_unavailable");
+      const selectedQuestions = Array.isArray(attempt.selected_questions) ? attempt.selected_questions.map(Number) as number[] : null;
+      if (selectedQuestions && !selectedQuestions.includes(action.question)) throw new Error("action_unavailable");
       if (attempt.listening_mode === "autoplay") {
         const timeline = await json<{ audioDurationMs: number; pauses: Array<{ question: number; answerWindowStartMs: number }> }>("metadata/listening-pauses-v1.json");
         const expected = timeline.pauses[action.question - 1];
-        const prior = await client.query("SELECT max(question_number)::int AS question FROM protefl_diagnostic_event WHERE attempt_id=$1 AND event_type='audio_played' AND event_data->>'final' IS DISTINCT FROM 'true'", [attemptId]);
-        const lastQuestion = Number(prior.rows[0].question ?? 0);
+        const prior = await client.query("SELECT question_number FROM protefl_diagnostic_event WHERE attempt_id=$1 AND event_type='audio_played' AND event_data->>'final' IS DISTINCT FROM 'true' ORDER BY id DESC LIMIT 1", [attemptId]);
+        const lastQuestion = Number(prior.rows[0]?.question_number ?? 0);
         const finalMarker = action.question === 50 && action.positionMs >= timeline.audioDurationMs - 1000 && lastQuestion === 50;
-        const sequential = action.question === lastQuestion + 1;
+        const expectedQuestion = selectedQuestions
+          ? selectedQuestions[lastQuestion ? selectedQuestions.indexOf(lastQuestion) + 1 : 0]
+          : lastQuestion + 1;
+        const sequential = action.question === expectedQuestion;
         const positioned = expected && Math.abs(action.positionMs - expected.answerWindowStartMs) <= 500;
         const elapsed = new Date(attempt.server_now).getTime() - new Date(attempt.listening_started_at).getTime();
-        if ((!finalMarker && (!sequential || !positioned || elapsed < expected.answerWindowStartMs - 1000)) || (finalMarker && !sequential && lastQuestion !== 50)) throw new Error("action_unavailable");
+        const elapsedValid = selectedQuestions || elapsed >= expected.answerWindowStartMs - 1000;
+        if ((!finalMarker && (!sequential || !positioned || !elapsedValid)) || (finalMarker && !sequential && lastQuestion !== 50)) throw new Error("action_unavailable");
         eventData = finalMarker ? { positionMs: action.positionMs, final: true } : { positionMs: action.positionMs };
       } else eventData = { positionMs: action.positionMs };
       eventType = "audio_played"; section = "listening"; question = action.question;
@@ -309,10 +315,15 @@ export async function applyDiagnosticAction(actorId: string, attemptId: string, 
           const heard = await client.query("SELECT count(DISTINCT question_number)::int AS count FROM protefl_diagnostic_event WHERE attempt_id=$1 AND event_type='audio_played'", [attemptId]);
           if (Number(heard.rows[0].count) < selectedCount) throw new Error("listening_incomplete");
         } else {
-          const progress = await client.query("SELECT max((event_data->>'positionMs')::int) AS position FROM protefl_diagnostic_event WHERE attempt_id=$1 AND event_type='audio_played'", [attemptId]);
-          const audioPosition = Number(progress.rows[0].position ?? 0);
-          const elapsed = new Date(attempt.server_now).getTime() - new Date(attempt.listening_started_at).getTime();
-          if (audioPosition < 2_101_073 || elapsed < 2_101_073) throw new Error("listening_incomplete");
+          if (Array.isArray(attempt.selected_questions)) {
+            const heard = await client.query("SELECT count(DISTINCT question_number)::int AS count FROM protefl_diagnostic_event WHERE attempt_id=$1 AND event_type='audio_played'", [attemptId]);
+            if (Number(heard.rows[0].count) < selectedCount) throw new Error("listening_incomplete");
+          } else {
+            const progress = await client.query("SELECT max((event_data->>'positionMs')::int) AS position FROM protefl_diagnostic_event WHERE attempt_id=$1 AND event_type='audio_played'", [attemptId]);
+            const audioPosition = Number(progress.rows[0].position ?? 0);
+            const elapsed = new Date(attempt.server_now).getTime() - new Date(attempt.listening_started_at).getTime();
+            if (audioPosition < 2_101_073 || elapsed < 2_101_073) throw new Error("listening_incomplete");
+          }
         }
         section = "listening";
         if (completesAfterSection(attempt.scope, attempt.delivery_scope, "listening")) {

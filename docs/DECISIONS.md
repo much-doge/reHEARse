@@ -613,3 +613,19 @@ delivery scope, Listening mode, and question-text visibility. Existing codes
 are migrated as private. Re-entering a classroom code from an account that
 already holds the active assignment is idempotent and does not replace its
 pinned settings or create another assignment.
+
+## D041 — Focused Listening retakes preserve assigned playback (LFL-049)
+
+Accepted at the operator's request. A focused Listening retake inherits the
+autoplay or question-by-question mode pinned to its source assignment instead
+of silently forcing manual playback. This applies to newly created retake
+attempts; historical and active attempt rows remain immutable.
+
+Autoplay retakes sequence only the selected incorrect or omitted questions.
+Each selected item receives the same 12-second answer window as the original
+session. For Parts B and C, the first selected item in each conversation or
+talk group plays its context before the question; another selected item in the
+same group may begin at its own question cue. The candidate may pause and
+resume, the view returns to the active item, passed items remain locked, and
+the server accepts only the pinned selected sequence before completion.
+Question-by-question retakes retain the existing manual playback contract.

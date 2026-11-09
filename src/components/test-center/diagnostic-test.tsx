@@ -82,16 +82,25 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, hist
   const [now, setNow] = useState(() => new Date(serverTime).getTime());
   const [audioNow, setAudioNow] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [focusedSequenceRunning, setFocusedSequenceRunning] = useState(false);
+  const [focusedSequencePosition, setFocusedSequencePosition] = useState(0);
+  const [focusedAnswerQuestion, setFocusedAnswerQuestion] = useState<number | null>(null);
+  const [focusedAnswerDeadline, setFocusedAnswerDeadline] = useState<number | null>(null);
+  const [focusedPausedAnswerRemaining, setFocusedPausedAnswerRemaining] = useState(12_000);
   const [reviewOpen, setReviewOpen] = useState(false);
   const [reviewFilter, setReviewFilter] = useState<"incorrect" | "all">("incorrect");
   const [activePart, setActivePart] = useState<"A" | "B">("A");
   const audioRef = useRef<HTMLAudioElement>(null);
   const segmentRef = useRef<{ endMs: number; question: number } | null>(null);
+  const focusedSequenceIndex = useRef(0);
+  const focusedAnswerRemaining = useRef(12_000);
+  const focusedAdvanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const snappedListeningQuestion = useRef(0);
   const heardRef = useRef(new Set(state?.heardListeningQuestions ?? []));
   const timeoutSent = useRef<string | null>(null);
   const clockAnchor = useRef({ server: new Date(serverTime).getTime(), monotonic: 0 });
   const section = state?.currentSection;
+  const focusedAutoplay = state?.scope === "listening" && state.listeningMode === "autoplay" && !!state.selectedQuestions?.length;
 
   const acceptState = useCallback((next: DiagnosticState) => {
     setState(next);
@@ -141,6 +150,9 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, hist
       if (!response.ok || !data.attemptId) throw new Error(data.error ?? "attempt_unavailable");
       const opened = await refresh(data.attemptId);
       setQuestion(opened?.selectedQuestions?.[0] ?? 1); setReviewOpen(false);
+      if (focusedAdvanceTimer.current) clearTimeout(focusedAdvanceTimer.current);
+      focusedSequenceIndex.current = 0; focusedAnswerRemaining.current = 12_000;
+      setFocusedSequenceRunning(false); setFocusedSequencePosition(0); setFocusedAnswerQuestion(null); setFocusedAnswerDeadline(null); setFocusedPausedAnswerRemaining(12_000);
     } catch (error) {
       setMessage(error instanceof Error && error.message === "no_missed_questions" ? "There are no missed questions in this section to retry." : "The diagnostic could not be opened. Check your assignment and try again.");
     } finally { setBusy(false); }
@@ -165,6 +177,10 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, hist
     return () => window.clearInterval(timer);
   }, [playing]);
 
+  useEffect(() => () => {
+    if (focusedAdvanceTimer.current) clearTimeout(focusedAdvanceTimer.current);
+  }, []);
+
   const deadline = section === "structure" ? state?.structureDeadlineAt : section === "reading" ? state?.readingDeadlineAt : null;
   const remaining = deadline ? Math.max(0, new Date(deadline).getTime() - now) : null;
 
@@ -188,8 +204,11 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, hist
     () => timing.pauses.reduce((last, pause) => audioNow >= pause.answerWindowEndMs ? pause.question : last, 0),
     [audioNow, timing.pauses],
   );
+  const focusedWindowRemaining = focusedAnswerDeadline ? Math.max(0, focusedAnswerDeadline - now) : focusedAnswerQuestion ? focusedPausedAnswerRemaining : 0;
   const canAnswerListening = state?.listeningMode === "autoplay"
-    ? activeListeningWindow?.question === question && !!activeListeningWindow && activeListeningWindow.answerWindowEndMs > audioNow
+    ? focusedAutoplay
+      ? focusedAnswerQuestion === question && focusedWindowRemaining > 0
+      : activeListeningWindow?.question === question && !!activeListeningWindow && activeListeningWindow.answerWindowEndMs > audioNow
     : !!state?.heardListeningQuestions.includes(question);
 
   async function beginSection() {
@@ -210,9 +229,10 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, hist
   }
 
   async function reportAudio(number: number, positionMs: number) {
-    if (heardRef.current.has(number)) return;
+    if (heardRef.current.has(number)) return true;
     heardRef.current.add(number);
-    await act({ type: "audio_played", question: number, positionMs });
+    const saved = await act({ type: "audio_played", question: number, positionMs });
+    return !!saved;
   }
 
   async function finishListening() {
@@ -249,6 +269,102 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, hist
     audio.currentTime = startMs / 1000;
     await audio.play();
     setPlaying(true);
+  }
+
+  function focusedQuestions() {
+    return state?.selectedQuestions?.length ? state.selectedQuestions : [];
+  }
+
+  async function completeFocusedAutoplay() {
+    setFocusedSequenceRunning(false); setFocusedAnswerQuestion(null); setFocusedAnswerDeadline(null);
+    focusedAnswerRemaining.current = 12_000;
+    setFocusedPausedAnswerRemaining(12_000);
+    await act({ type: "finish_section" });
+  }
+
+  async function playFocusedQuestion(index: number) {
+    const sequence = focusedQuestions();
+    const number = sequence[index];
+    const segment = number ? timing.questions[number - 1] : null;
+    if (!segment) { await completeFocusedAutoplay(); return; }
+    focusedSequenceIndex.current = index;
+    setFocusedSequencePosition(index);
+    setQuestion(number); setFocusedAnswerQuestion(null); setFocusedAnswerDeadline(null);
+    const previous = index > 0 ? timing.questions[sequence[index - 1] - 1] : null;
+    const firstSelectedInGroup = !previous || previous.groupId !== segment.groupId;
+    const startMs = segment.groupType !== "question" && firstSelectedInGroup ? segment.contextStartMs : segment.questionAudioStartMs;
+    segmentRef.current = { endMs: segment.questionAudioEndMs, question: number };
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (audio.readyState < 1) await new Promise<void>((resolve) => audio.addEventListener("loadedmetadata", () => resolve(), { once: true }));
+    audio.currentTime = startMs / 1000;
+    await audio.play();
+    setPlaying(true); setFocusedSequenceRunning(true);
+  }
+
+  function scheduleFocusedAdvance(durationMs: number) {
+    if (focusedAdvanceTimer.current) clearTimeout(focusedAdvanceTimer.current);
+    focusedAnswerRemaining.current = durationMs;
+    setFocusedPausedAnswerRemaining(durationMs);
+    setFocusedAnswerDeadline(now + durationMs);
+    focusedAdvanceTimer.current = setTimeout(() => {
+      focusedAdvanceTimer.current = null;
+      setFocusedAnswerQuestion(null); setFocusedAnswerDeadline(null);
+      focusedAnswerRemaining.current = 12_000;
+      setFocusedPausedAnswerRemaining(12_000);
+      const nextIndex = focusedSequenceIndex.current + 1;
+      if (nextIndex >= focusedQuestions().length) void completeFocusedAutoplay();
+      else void playFocusedQuestion(nextIndex);
+    }, durationMs);
+  }
+
+  async function openFocusedAnswerWindow(number: number) {
+    const segment = timing.questions[number - 1];
+    if (!segment) return;
+    const saved = await reportAudio(number, segment.answerWindowStartMs);
+    if (!saved) { setFocusedSequenceRunning(false); return; }
+    setQuestion(number); setFocusedAnswerQuestion(number);
+    scheduleFocusedAdvance(12_000);
+  }
+
+  function finishFocusedAudioSegment() {
+    const segment = segmentRef.current;
+    if (!segment) return;
+    segmentRef.current = null;
+    audioRef.current?.pause(); setPlaying(false);
+    void openFocusedAnswerWindow(segment.question);
+  }
+
+  function onFocusedAutoplayTime() {
+    const audio = audioRef.current;
+    const segment = segmentRef.current;
+    if (!audio || !segment) return;
+    const position = audio.currentTime * 1000;
+    setAudioNow(position);
+    if (position >= segment.endMs) finishFocusedAudioSegment();
+  }
+
+  function toggleFocusedAutoplay() {
+    if (focusedSequenceRunning) {
+      if (focusedAnswerQuestion !== null) {
+        if (focusedAdvanceTimer.current) clearTimeout(focusedAdvanceTimer.current);
+        focusedAdvanceTimer.current = null;
+        focusedAnswerRemaining.current = Math.max(0, (focusedAnswerDeadline ?? now) - now);
+        setFocusedPausedAnswerRemaining(focusedAnswerRemaining.current);
+        setFocusedAnswerDeadline(null);
+      } else audioRef.current?.pause();
+      setFocusedSequenceRunning(false);
+      return;
+    }
+    setFocusedSequenceRunning(true);
+    if (focusedAnswerQuestion !== null) {
+      scheduleFocusedAdvance(focusedAnswerRemaining.current || 12_000);
+      return;
+    }
+    if (segmentRef.current && audioRef.current) { void audioRef.current.play(); return; }
+    const sequence = focusedQuestions();
+    const firstUnanswered = sequence.findIndex((number) => !state?.answers[answerKey("listening", number)]);
+    void playFocusedQuestion(firstUnanswered >= 0 ? firstUnanswered : 0);
   }
 
   async function playQuestionAudio(withContext: boolean) {
@@ -289,12 +405,18 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, hist
           {question >= 31 && timing.questions[question - 1]?.contextStartMs < timing.questions[question - 1]?.questionAudioStartMs && <button className="ptd-subtle-button" onClick={() => void playQuestionAudio(true)} disabled={busy || playing}>Replay conversation or talk + question</button>}
         </div>}
         {name === "listening" && state?.listeningMode === "autoplay" && <div className="ptd-audio-window">
-          {activeListeningWindow ? <>Answer window · <strong>{Math.max(0, (activeListeningWindow.answerWindowEndMs - audioNow) / 1000).toFixed(1)}s</strong></> : "Listen for the next question"}
+          {focusedAutoplay
+            ? focusedAnswerQuestion === question && focusedAnswerDeadline
+              ? <>Answer window · <strong>{(focusedWindowRemaining / 1000).toFixed(1)}s</strong></>
+              : "Listen for the selected question"
+            : activeListeningWindow
+              ? <>Answer window · <strong>{Math.max(0, (activeListeningWindow.answerWindowEndMs - audioNow) / 1000).toFixed(1)}s</strong></>
+              : "Listen for the next question"}
         </div>}
         <div className="ptd-question-grid-wrap">{name === "structure" && <div className="ptd-part-tabs"><button className={activePart === "A" ? "active" : ""} disabled={!numbers.some((n) => n <= 15)} onClick={() => { const first = numbers.find((n) => n <= 15); if (first) { setActivePart("A"); setQuestion(first); } }}>Part A · Questions 1–15</button><button className={activePart === "B" ? "active" : ""} disabled={!numbers.some((n) => n >= 16)} onClick={() => { const first = numbers.find((n) => n >= 16); if (first) { setActivePart("B"); setQuestion(first); } }}>Part B · Questions 16–40</button></div>}<strong>Question navigator</strong><div className="ptd-question-grid">{numbers.filter((number) => name !== "structure" || (activePart === "A" ? number <= 15 : number >= 16)).map((number) => {
           const answered = !!answers[answerKey(name, number)];
           const heard = name === "listening" && state?.heardListeningQuestions.includes(number);
-          const locked = name === "listening" && (state?.listeningMode === "autoplay" ? number <= passedListeningQuestion : answered);
+          const locked = name === "listening" && (state?.listeningMode === "autoplay" ? focusedAutoplay ? heard : number <= passedListeningQuestion : answered);
           return <button key={number} disabled={locked} className={[number === question ? "current" : "", answered ? "answered" : "", heard ? "heard" : ""].filter(Boolean).join(" ")} aria-label={"Question " + number + (answered ? ", answered" : ", unanswered")} onClick={() => setQuestion(number)}>{number}</button>;
         })}</div>
           <div className="ptd-grid-key"><span>Answered</span><span>Unanswered</span>{name === "listening" && <span>Audio heard</span>}</div>
@@ -365,8 +487,9 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, hist
   if (section === "listening") return <section className="ptd-test-section">
     <div className="ptd-section-bar"><div><p className="ptd-kicker">{state.scope !== "full" ? `LISTENING RETAKE ${state.sectionRetakeNumber}` : state.deliveryScope === "full" ? "SECTION 1 OF 3" : "ASSIGNED SECTION"}</p><h1>Listening Comprehension</h1></div><span className="ptd-mode-pill">{state.listeningMode === "autoplay" ? "Autoplay" : "Question-by-question audio"}</span></div>
     <AttemptHistoryPanel history={history} currentId={state.id} onOpen={(id) => void refresh(id)} />
-    <audio ref={audioRef} src={"/api/test-center/diagnostic/run/" + state.id + "/audio"} preload="auto" onTimeUpdate={state.listeningMode === "autoplay" ? onAutoplayTime : onSegmentTime} onLoadedMetadata={() => { if (state.listeningMode === "autoplay" && state.lastListeningPositionMs > 0 && audioRef.current) audioRef.current.currentTime = state.lastListeningPositionMs / 1000; }} onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onEnded={() => { setPlaying(false); if (state.listeningMode === "autoplay") void finishListening(); }} />
-    {state.listeningMode === "autoplay" && <div className="ptd-player-bar"><button className="ptd-primary" disabled={busy} onClick={() => {
+    <audio ref={audioRef} src={"/api/test-center/diagnostic/run/" + state.id + "/audio"} preload="auto" onTimeUpdate={focusedAutoplay ? onFocusedAutoplayTime : state.listeningMode === "autoplay" ? onAutoplayTime : onSegmentTime} onLoadedMetadata={() => { if (!focusedAutoplay && state.listeningMode === "autoplay" && state.lastListeningPositionMs > 0 && audioRef.current) audioRef.current.currentTime = state.lastListeningPositionMs / 1000; }} onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onEnded={() => { setPlaying(false); if (focusedAutoplay && segmentRef.current) finishFocusedAudioSegment(); else if (state.listeningMode === "autoplay") void finishListening(); }} />
+    {focusedAutoplay && <div className="ptd-player-bar"><button className="ptd-primary" disabled={busy} onClick={toggleFocusedAutoplay}>{focusedSequenceRunning ? "Pause sequence" : "Play / resume sequence"}</button><span>{Math.floor(audioNow / 60_000)}:{String(Math.floor(audioNow / 1000) % 60).padStart(2, "0")}</span><span>Question {focusedSequencePosition + 1} of {state.selectedQuestions?.length ?? 0} missed questions</span></div>}
+    {!focusedAutoplay && state.listeningMode === "autoplay" && <div className="ptd-player-bar"><button className="ptd-primary" disabled={busy} onClick={() => {
       if (!audioRef.current) return;
       if (playing) audioRef.current.pause();
       else { void audioRef.current.play().then(() => setPlaying(true)); }
