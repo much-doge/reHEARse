@@ -57,7 +57,49 @@ export function AssignedResources({ resources, canManage }: { resources: TestCen
 }
 
 type DeliveryScope = "full" | "listening" | "structure" | "reading";
-type ManagedResource = { id: string; code: string; version: number; kind: string; title: string; status: string; assignedCount: number; candidates?: Array<{ name: string; email: string; deliveryScope: DeliveryScope; status: string | null; attempt: number | null; completedAt: string | null; result: { total?: { correct: number; questions: number }; sections?: Record<string, { correct: number; total: number }>; summary?: { correct: number; total: number } } | null; retakes: number; retakeResults?: Array<{ section: string; number: number; status: string; result?: { summary?: { correct: number; total: number } } }> }> };
+type ReviewItem = { section: string; question: number; selected: string | null; correctAnswer: string; correct: boolean };
+type AttemptResult = {
+  total?: { correct: number; incorrect: number; omitted: number; questions: number };
+  sections?: Record<string, { correct: number; incorrect: number; omitted: number; total: number }>;
+  summary?: { correct: number; incorrect: number; omitted: number; total: number };
+  review?: ReviewItem[];
+};
+type AttemptHistory = {
+  number: number; status: string; scope: string; deliveryScope: DeliveryScope;
+  createdAt: string; completedAt: string | null; result: AttemptResult | null;
+  retakes: Array<{ section: string; number: number; status: string; createdAt: string; completedAt: string | null; result: AttemptResult | null }>;
+};
+type ManagedResource = { id: string; code: string; version: number; kind: string; title: string; status: string; assignedCount: number; candidates?: Array<{ name: string; email: string; deliveryScope: DeliveryScope; attempts: AttemptHistory[] }> };
+
+function resultLabel(result: AttemptResult | null) {
+  const correct = result?.total?.correct ?? result?.summary?.correct;
+  const total = result?.total?.questions ?? result?.summary?.total;
+  return correct === undefined || total === undefined ? null : `${correct} / ${total} correct`;
+}
+
+function MissedQuestions({ result }: { result: AttemptResult | null }) {
+  const missed = result?.review?.filter((item) => !item.correct) ?? [];
+  if (!result) return <p className="ptc-review-empty">No completed result is recorded for this attempt.</p>;
+  if (!missed.length) return <p className="ptc-review-empty">No missed questions in this attempt.</p>;
+  return <div className="ptc-missed-list" aria-label="Missed question review">
+    {missed.map((item) => <div className="ptc-missed-item" key={`${item.section}-${item.question}`}>
+      <span>{item.section} · Q{item.question}</span>
+      <span>Response: <strong>{item.selected ?? "Omitted"}</strong></span>
+      <span>Key: <strong>{item.correctAnswer}</strong></span>
+    </div>)}
+  </div>;
+}
+
+function AttemptResultSummary({ result }: { result: AttemptResult | null }) {
+  if (!result) return null;
+  const sections = Object.entries(result.sections ?? {});
+  return <>
+    {result.total && <p className="ptc-attempt-total">{resultLabel(result)} <span>· {result.total.incorrect} incorrect · {result.total.omitted} omitted</span></p>}
+    {result.summary && !result.total && <p className="ptc-attempt-total">{resultLabel(result)} <span>· {result.summary.incorrect} incorrect · {result.summary.omitted} omitted</span></p>}
+    {sections.length > 0 && <div className="ptc-section-stats">{sections.map(([name, value]) => <span key={name}><b>{name}</b>{value.correct}/{value.total}<small>{value.incorrect} wrong · {value.omitted} omitted</small></span>)}</div>}
+  </>;
+}
+
 export function ResourceManager({ resources: initial }: { resources: ManagedResource[] }) {
   const [resources, setResources] = useState(initial);
   const [message, setMessage] = useState("");
@@ -100,14 +142,34 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
         <button disabled={busy !== null || resource.status !== "published"} onClick={() => mutate(resource, "issue_invite")}>{busy === resource.id ? "Working…" : "Create access code"}</button>
         {(resource.status === "published" || resource.status === "hidden" || resource.status === "draft") && <button className="secondary" disabled={busy !== null} onClick={() => mutate(resource, "set_status")}>{resource.status === "published" ? "Hide resource" : "Publish resource"}</button>}
       </div>
-      {resource.candidates?.length ? <section className="ptc-candidate-results"><h3>Candidate attempts</h3>{resource.candidates.map((candidate, index) => <article key={candidate.email + index}>
-        <div><strong>{candidate.name}</strong><small>{candidate.email}</small></div>
-        <span>{candidate.status === "completed" ? `Attempt ${candidate.attempt} · ${candidate.result?.total?.correct ?? candidate.result?.summary?.correct ?? "—"}/${candidate.result?.total?.questions ?? candidate.result?.summary?.total ?? "—"}` : candidate.status === "in_progress" ? `Attempt ${candidate.attempt} · In progress` : "Not started"}</span>
-        <span>{candidate.deliveryScope === "full" ? "Full diagnostic" : `${candidate.deliveryScope} only`}</span>
-        <span>{candidate.retakes} section retakes</span>
-        {candidate.result && <small>{Object.entries(candidate.result.sections ?? {}).map(([name, value]) => `${name}: ${value.correct}/${value.total}`).join(" · ")}</small>}
-        {candidate.retakeResults?.map((retake, index) => <small key={retake.section + index}>Retry {retake.number} · {retake.section}: {retake.result?.summary ? `${retake.result.summary.correct}/${retake.result.summary.total}` : retake.status}</small>)}
-      </article>)}</section> : null}
+      {resource.candidates?.length ? <section className="ptc-candidate-results">
+        <div className="ptc-candidate-heading"><div><p className="eyebrow">ASSIGNED CANDIDATES</p><h3>Attempts and answer review</h3></div><span>{resource.candidates.length} candidates</span></div>
+        {resource.candidates.map((candidate) => {
+          const latest = candidate.attempts.at(-1);
+          const retryCount = candidate.attempts.reduce((count, attempt) => count + attempt.retakes.length, 0);
+          return <details className="ptc-candidate" key={candidate.email}>
+            <summary>
+              <span className="ptc-candidate-person"><strong>{candidate.name}</strong><small>{candidate.email}</small></span>
+              <span className="ptc-candidate-state">{latest ? latest.status === "completed" ? `Latest · ${resultLabel(latest.result) ?? "Completed"}` : "Attempt in progress" : "Not started"}</span>
+              <span className="ptc-candidate-scope">{candidate.deliveryScope === "full" ? "Full diagnostic" : `${candidate.deliveryScope} only`}</span>
+              <span className="ptc-candidate-retries">{candidate.attempts.length} {candidate.attempts.length === 1 ? "attempt" : "attempts"} · {retryCount} section retakes</span>
+              <span className="ptc-expand-label">View history</span>
+            </summary>
+            <div className="ptc-candidate-history">
+              {candidate.attempts.length === 0 ? <p className="ptc-review-empty">This candidate has not started an attempt.</p> : candidate.attempts.map((attempt) => <section className="ptc-attempt-card" key={`attempt-${attempt.number}`}>
+                <header><div><p className="eyebrow">{attempt.deliveryScope === "full" ? "FULL DIAGNOSTIC" : `${attempt.deliveryScope.toUpperCase()} ASSIGNMENT`} · ATTEMPT {attempt.number}</p><strong>{attempt.status === "completed" ? "Completed" : `In progress · ${attempt.scope}`}</strong></div><time dateTime={attempt.completedAt ?? attempt.createdAt}>{new Date(attempt.completedAt ?? attempt.createdAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}</time></header>
+                <AttemptResultSummary result={attempt.result} />
+                {attempt.result && <details className="ptc-answer-review"><summary>Missed questions and answer key</summary><MissedQuestions result={attempt.result} /></details>}
+                {attempt.retakes.length > 0 && <div className="ptc-retake-history"><h4>Section retakes</h4>{attempt.retakes.map((retake) => <article key={`${retake.section}-${retake.number}`}>
+                  <header><strong>{retake.section} retake {retake.number}</strong><span>{retake.status === "completed" ? resultLabel(retake.result) ?? "Completed" : "In progress"}</span><time dateTime={retake.completedAt ?? retake.createdAt}>{new Date(retake.completedAt ?? retake.createdAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}</time></header>
+                  <AttemptResultSummary result={retake.result} />
+                  {retake.result && <details className="ptc-answer-review"><summary>Missed questions and answer key</summary><MissedQuestions result={retake.result} /></details>}
+                </article>)}</div>}
+              </section>)}
+            </div>
+          </details>;
+        })}
+      </section> : null}
     </article>)}</section>
   </main>;
 }

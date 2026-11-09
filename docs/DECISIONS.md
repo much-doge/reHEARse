@@ -538,6 +538,24 @@ settings and answer history. New teacher-issued invites may hide Listening
 question text; that setting is pinned into a newly claimed attempt and does not
 change active or historical attempts.
 
+## D037 — Teacher attempt review and reproducible test-package bootstrap (LFL-041)
+
+Accepted at the operator's request. The authenticated teacher/admin workspace
+may present the assigned candidate's full-attempt history, section-level
+results, section-retake lineage, completion times, and item review showing the
+candidate response (or omission) beside the correct choice. This is a staff
+capability only; learner answer review remains governed by D035/D036. Attempt
+rows and result JSON remain immutable and are never rewritten to build the view.
+
+New full tests are bootstrapped as versioned editable web-native packages with
+complete prompts/options, section/part directions, passage structure, keys,
+score conversion, audio timing/group maps, provenance, and content hashes. Raw
+page screenshots/crops and extracted page-text dumps are private comparison
+artifacts only and must never be candidate question content. The repeatable
+workflow and publication gates live in
+`apps/protefl-center/docs/FULL_TEST_BOOTSTRAP.md` and are required reading for
+future package work.
+
 Listening playback advances the visible item with the source audio, returns
 the view to the active item, and prevents navigation back to passed items.
 Structure navigation is separated into Parts A and B with their corresponding

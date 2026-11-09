@@ -106,26 +106,39 @@ export async function listManagedResources() {
      FROM protefl_resource r ORDER BY r.created_at DESC`,
   );
   const candidates = await getPool().query(
-    `SELECT a.resource_id,coalesce(d.delivery_scope,a.delivery_scope) AS delivery_scope,u.display_name,u.email,d.id,d.attempt_number,d.scope,d.status,d.completed_at,
-      r.result_data,
-      (SELECT count(*)::int FROM protefl_diagnostic_attempt retake WHERE retake.parent_attempt_id=d.id) AS retake_count,
-      (SELECT coalesce(jsonb_agg(jsonb_build_object('section',retake.scope,'number',retake.section_retake_number,'status',retake.status,'result',rr.result_data) ORDER BY retake.attempt_number), '[]'::jsonb)
-       FROM protefl_diagnostic_attempt retake LEFT JOIN protefl_diagnostic_result rr ON rr.attempt_id=retake.id WHERE retake.parent_attempt_id=d.id) AS retakes
+    `SELECT a.resource_id,a.delivery_scope,u.display_name,u.email,
+       COALESCE(history.attempts,'[]'::jsonb) AS attempts
      FROM protefl_resource_assignment a JOIN app_user u ON u.id=a.actor_id
-     LEFT JOIN protefl_diagnostic_attempt d ON d.resource_id=a.resource_id AND d.actor_id=a.actor_id AND d.scope='full'
-     LEFT JOIN protefl_diagnostic_result r ON r.attempt_id=d.id
-     WHERE a.revoked_at IS NULL ORDER BY a.resource_id,u.display_name,d.attempt_number`,
+     LEFT JOIN LATERAL (
+       SELECT jsonb_agg(jsonb_build_object(
+         'number',d.attempt_number,'status',d.status,'scope',d.scope,'deliveryScope',d.delivery_scope,
+         'createdAt',d.created_at,'completedAt',d.completed_at,'result',r.result_data,
+         'retakes',COALESCE((
+           SELECT jsonb_agg(jsonb_build_object(
+             'section',retry.scope,'number',retry.section_retake_number,'status',retry.status,
+             'createdAt',retry.created_at,'completedAt',retry.completed_at,'result',rr.result_data
+           ) ORDER BY retry.attempt_number)
+           FROM protefl_diagnostic_attempt retry
+           LEFT JOIN protefl_diagnostic_result rr ON rr.attempt_id=retry.id
+           WHERE retry.parent_attempt_id=d.id
+         ),'[]'::jsonb)
+       ) ORDER BY d.attempt_number) AS attempts
+       FROM protefl_diagnostic_attempt d
+       LEFT JOIN protefl_diagnostic_result r ON r.attempt_id=d.id
+       WHERE d.resource_id=a.resource_id AND d.actor_id=a.actor_id
+         AND d.scope='full' AND d.parent_attempt_id IS NULL
+     ) history ON true
+     WHERE a.revoked_at IS NULL ORDER BY a.resource_id,u.display_name`,
   );
   return result.rows.map((row) => ({
     id: String(row.id), code: row.code, version: Number(row.version), kind: row.kind,
     title: row.title, status: row.status, createdAt: new Date(row.created_at).toISOString(),
     assignedCount: Number(row.assigned_count),
     candidates: candidates.rows.filter((candidate) => String(candidate.resource_id) === String(row.id)).map((candidate) => ({
-      name: candidate.display_name as string, email: candidate.email as string, status: candidate.status as string | null, deliveryScope: candidate.delivery_scope as "full" | "listening" | "structure" | "reading",
-      attempt: candidate.attempt_number ? Number(candidate.attempt_number) : null,
-      completedAt: candidate.completed_at ? new Date(candidate.completed_at).toISOString() : null,
-      result: candidate.result_data ?? null, retakes: Number(candidate.retake_count ?? 0),
-      retakeResults: candidate.retakes ?? [],
+      name: candidate.display_name as string,
+      email: candidate.email as string,
+      deliveryScope: candidate.delivery_scope as "full" | "listening" | "structure" | "reading",
+      attempts: candidate.attempts ?? [],
     })),
   }));
 }

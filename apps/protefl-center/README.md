@@ -53,3 +53,9 @@ resource and a server-enforced assignment. Never serve the complete source PDF,
 answer key, scoring data, or listening scripts to a candidate before submission.
 The remaining policy and implementation gates are recorded in
 [`docs/LFL035_FULL_DIAGNOSTIC.md`](docs/LFL035_FULL_DIAGNOSTIC.md).
+
+Before creating or publishing another full test, follow
+[`docs/FULL_TEST_BOOTSTRAP.md`](docs/FULL_TEST_BOOTSTRAP.md). Candidate tests
+must use editable question/option/directions/passage data. Page screenshots,
+crops, and page-text dumps may be private source-comparison material only; they
+must never become the delivered question interface.

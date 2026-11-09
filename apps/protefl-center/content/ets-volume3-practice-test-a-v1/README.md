@@ -2,6 +2,9 @@
 
 This is the source-backed content package for the ProTEFL Test Center diagnostic. The owner explicitly confirmed they hold full rights to digitize and deliver this book to their students, then instructed that the package artifacts be committed to Git.
 
+The reproducible full-test bootstrap and the prohibition on raw page-image
+delivery are documented in [`../../docs/FULL_TEST_BOOTSTRAP.md`](../../docs/FULL_TEST_BOOTSTRAP.md).
+
 ## Package files
 
 - `source/ets-toefl-itp-volume-3.pdf`: complete owner-authorized source eBook.

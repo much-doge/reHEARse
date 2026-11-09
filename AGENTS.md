@@ -95,6 +95,26 @@ presenting the working tree as complete.
 
 Never claim deployed or live classroom verification from local tests.
 
+## Test Center assessment package workflow
+
+Before importing or publishing a TOEFL-like Test Center assessment, read
+[`apps/protefl-center/docs/FULL_TEST_BOOTSTRAP.md`](apps/protefl-center/docs/FULL_TEST_BOOTSTRAP.md)
+and the active package receipt. Treat a test as a versioned, structured web
+application package, not a PDF viewer: never deliver raw page screenshots,
+cropped book pages, or page-text dumps as candidate questions. Enter the
+directions, complete prompts, every A-D option, passage structure, answer key,
+part boundaries, score conversion, and media timing in the package's editable
+versioned data files. Page renders may be kept as private source-checking
+evidence only.
+
+For every new form, pin package/version and content/key/score/timing hashes to
+attempts, preserve prior attempts, enforce assignment/scope/role checks at the
+server boundary, and complete the guide's content, answer-key, audio, layout,
+review-state, and deployment gates before publication. Teacher answer review
+must be served only from the authenticated teacher/admin workspace. Never
+expose answer keys or score tables in a candidate payload before the attempt's
+permitted review state.
+
 
 <!-- BEGIN:nextjs-agent-rules -->
 
