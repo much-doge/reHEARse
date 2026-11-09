@@ -227,7 +227,10 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, hist
     const current = Math.round(element.currentTime * 1000);
     setAudioNow(current);
     const active = timing.questions.find((item) => {
-      const spokenQuestionCue = Math.max(item.questionAudioStartMs, item.answerWindowStartMs - 7_000);
+      const beginsWithLongContext = item.groupType !== "question" && item.questionAudioStartMs === item.contextStartMs;
+      const spokenQuestionCue = beginsWithLongContext
+        ? Math.max(item.questionAudioStartMs, item.answerWindowStartMs - 7_000)
+        : item.questionAudioStartMs;
       return current >= spokenQuestionCue && current < item.answerWindowEndMs;
     });
     if (active && snappedListeningQuestion.current !== active.question) {
