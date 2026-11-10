@@ -71,7 +71,7 @@ type AttemptHistory = {
   createdAt: string; completedAt: string | null; archivedAt: string | null; result: AttemptResult | null;
   retakes: Array<{ section: string; number: number; status: string; createdAt: string; completedAt: string | null; archivedAt: string | null; result: AttemptResult | null }>;
 };
-type ManagedResource = { id: string; code: string; version: number; kind: string; title: string; status: string; tags: string[]; assignedCount: number; candidates?: Array<{ actorId: string; name: string; email: string; deliveryScope: DeliveryScope; attempts: AttemptHistory[] }> };
+type ManagedResource = { id: string; code: string; version: number; kind: string; title: string; status: string; tags: string[]; assignedCount: number; candidates?: Array<{ actorId: string; name: string; email: string; deliveryScope: DeliveryScope; attempts: AttemptHistory[]; canResetPassword: boolean }> };
 
 function resultLabel(result: AttemptResult | null) {
   const correct = result?.total?.correct ?? result?.summary?.correct;
@@ -107,6 +107,7 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [issuedCode, setIssuedCode] = useState<{ title: string; code: string; scope: DeliveryScope; listeningMode: "autoplay" | "question_click"; inviteKind: "private" | "classroom" } | null>(null);
+  const [resetCredential, setResetCredential] = useState<{ name: string; email: string; temporaryPassword: string; revokedSessions: number } | null>(null);
   const [listeningMode, setListeningMode] = useState<"autoplay" | "question_click">("autoplay");
   const [showListeningQuestionText, setShowListeningQuestionText] = useState(true);
   const [deliveryScope, setDeliveryScope] = useState<DeliveryScope>("full");
@@ -122,7 +123,7 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
     setResourceVisibility((current) => ({ ...current, [resourceId]: !isOpen }));
   }
   async function mutate(resource: ManagedResource, action: "issue_invite" | "set_status") {
-    setBusy(resource.id); setMessage(""); setIssuedCode(null);
+    setBusy(resource.id); setMessage(""); setIssuedCode(null); setResetCredential(null);
     const status = resource.status === "published" ? "hidden" : "published";
     try {
       const response = await fetch("/api/test-center/teaching", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, resourceId: resource.id, status, listeningMode, showListeningQuestionText, deliveryScope, inviteKind }) });
@@ -157,6 +158,25 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
     } catch (error) { setMessage(error instanceof Error ? error.message : "The attempt could not be archived."); }
     finally { setBusy(null); }
   }
+  async function resetCandidatePassword(resource: ManagedResource, candidate: NonNullable<ManagedResource["candidates"]>[number]) {
+    if (!window.confirm(`Reset ${candidate.name}'s sign-in password? Their existing signed-in sessions will end, but assignments, attempts, answers, and results will remain unchanged.`)) return;
+    setBusy(`password:${candidate.actorId}`); setMessage(""); setResetCredential(null); setIssuedCode(null);
+    try {
+      const response = await fetch("/api/test-center/teaching", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "reset_candidate_password", resourceId: resource.id, candidateActorId: candidate.actorId }),
+      });
+      const data = await response.json() as { reset?: { learner: { name: string; email: string }; temporaryPassword: string; revokedSessions: number } };
+      if (!response.ok || !data.reset) throw new Error("The password could not be reset.");
+      setResetCredential({
+        name: data.reset.learner.name,
+        email: data.reset.learner.email,
+        temporaryPassword: data.reset.temporaryPassword,
+        revokedSessions: data.reset.revokedSessions,
+      });
+    } catch (error) { setMessage(error instanceof Error ? error.message : "The password could not be reset."); }
+    finally { setBusy(null); }
+  }
   async function saveTags(resource: ManagedResource) {
     setBusy(`tags:${resource.id}`); setMessage("");
     try {
@@ -178,6 +198,7 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
     <section className="ptc-resources-intro"><p className="eyebrow">TEACHER / ADMIN WORKSPACE</p><h1>Assignments and results</h1><p>Review candidate progress, publish resources, and issue private or classroom access codes.</p></section>
     {message && <p role="alert" className="ptc-resource-notice">{message}</p>}
     {issuedCode && <section className="ptc-issued-code" role="status"><div><span className="eyebrow">{issuedCode.inviteKind === "classroom" ? "CLASSROOM CODE CREATED" : "PRIVATE CODE CREATED"}</span><strong>{issuedCode.title}</strong></div><code>{issuedCode.code}</code><p>{issuedCode.inviteKind === "classroom" ? "May be claimed by multiple signed-in learners." : "May be claimed by one signed-in learner."} Scope: {issuedCode.scope === "full" ? "Full diagnostic" : issuedCode.scope === "structure" ? "Structure and Written Expression" : issuedCode.scope[0].toUpperCase() + issuedCode.scope.slice(1)}{issuedCode.scope === "full" || issuedCode.scope === "listening" ? ` · Listening: ${issuedCode.listeningMode === "autoplay" ? "Autoplay" : "Manual, play each question"}` : ""}. Expires in 7 days and is shown only now.</p><button onClick={() => { navigator.clipboard?.writeText(issuedCode.code); setMessage("Code copied."); }}>Copy code</button></section>}
+    {resetCredential && <section className="ptc-reset-credential" role="status"><div><span className="eyebrow">TEMPORARY PASSWORD CREATED</span><strong>{resetCredential.name}</strong><small>{resetCredential.email}</small></div><code>{resetCredential.temporaryPassword}</code><p>Copy and send this password securely. It is shown only here and is not stored in the audit record. {resetCredential.revokedSessions} existing {resetCredential.revokedSessions === 1 ? "session was" : "sessions were"} signed out.</p><div><button onClick={() => { navigator.clipboard?.writeText(resetCredential.temporaryPassword); setMessage("Temporary password copied."); }}>Copy password</button><button className="secondary" onClick={() => setResetCredential(null)}>Dismiss</button></div></section>}
     <div className="ptc-resource-view-controls" aria-label="Resource display"><span>{resources.length} activities</span><div><button className={viewMode === "compact" ? "active" : ""} onClick={() => changeViewMode("compact")} aria-pressed={viewMode === "compact"}>Compact</button><button className={viewMode === "expanded" ? "active" : ""} onClick={() => changeViewMode("expanded")} aria-pressed={viewMode === "expanded"}>Expanded</button></div></div>
     <section className={`ptc-resource-list is-${viewMode}`}>{resources.map((resource) => {
       const showDetails = resourceVisibility[resource.id] ?? viewMode === "expanded";
@@ -220,6 +241,7 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
               <span className="ptc-expand-label">View history</span>
             </summary>
             <div className="ptc-candidate-history">
+              {candidate.canResetPassword && <div className="ptc-password-reset"><div><strong>Sign-in recovery</strong><p>Create a temporary password and sign this learner out of existing sessions. Their course records remain unchanged.</p></div><button disabled={busy !== null} onClick={() => void resetCandidatePassword(resource, candidate)}>{busy === `password:${candidate.actorId}` ? "Resetting…" : "Reset sign-in password"}</button></div>}
               {currentAttempts.length > 0 && <div className="ptc-candidate-reset"><div><strong>Restart from the beginning</strong><p>Archive the current attempt lineage. All answers and results remain visible in this history.</p></div><button className="danger" disabled={busy !== null} onClick={() => void archiveCandidate(resource, candidate)}>{busy === `archive:${candidate.actorId}` ? "Archiving…" : "Archive current attempt and restart"}</button></div>}
               {currentAttempts.length === 0 && candidate.attempts.length > 0 && <p className="ptc-restart-ready">Current attempt archived · candidate is ready to start again.</p>}
               {candidate.attempts.length === 0 ? <p className="ptc-review-empty">This candidate has not started an attempt.</p> : candidate.attempts.map((attempt) => <section className={`ptc-attempt-card${attempt.archivedAt ? " is-archived" : ""}`} key={`attempt-${attempt.number}`}>

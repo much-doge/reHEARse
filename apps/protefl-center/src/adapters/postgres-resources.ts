@@ -1,6 +1,7 @@
-import { createHash } from "node:crypto";
+import { createHash, randomInt } from "node:crypto";
 
 import { getPool } from "@/adapters/db/client";
+import { hashPassword } from "@/adapters/identity/password";
 import { generateResourceCode, hashResourceCode, isValidResourceCode, normalizeResourceCode } from "../application/resource-code";
 
 export type TestCenterResource = {
@@ -19,6 +20,12 @@ export type TestCenterResource = {
 };
 
 const publicStatus = (status: string) => ["draft", "published", "hidden", "retired"].includes(status);
+const temporaryPasswordAlphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+
+function generateTemporaryPassword() {
+  const group = () => Array.from({ length: 4 }, () => temporaryPasswordAlphabet[randomInt(temporaryPasswordAlphabet.length)]).join("");
+  return `NJL-${group()}-${group()}-${group()}`;
+}
 
 export async function assignedResources(actorId: string): Promise<TestCenterResource[]> {
   const result = await getPool().query(
@@ -114,7 +121,7 @@ export async function claimResource(actorId: string, rawCode: string): Promise<v
   }
 }
 
-export async function listManagedResources() {
+export async function listManagedResources(staffActorId: string, staffRole: "teacher" | "admin") {
   const result = await getPool().query(
     `SELECT r.id,r.code,r.version,r.kind,r.title,r.status,r.tags,r.created_at,
        (SELECT count(*)::int FROM protefl_resource_assignment a WHERE a.resource_id=r.id AND a.revoked_at IS NULL) AS assigned_count
@@ -122,6 +129,7 @@ export async function listManagedResources() {
   );
   const candidates = await getPool().query(
     `SELECT a.resource_id,a.actor_id,a.delivery_scope,u.display_name,u.email,
+       ($2='admin' OR a.assigned_by=$1) AS can_reset_password,
        COALESCE(history.attempts,'[]'::jsonb) AS attempts
      FROM protefl_resource_assignment a JOIN app_user u ON u.id=a.actor_id
      LEFT JOIN LATERAL (
@@ -144,6 +152,7 @@ export async function listManagedResources() {
          AND d.scope='full' AND d.parent_attempt_id IS NULL
      ) history ON true
      WHERE a.revoked_at IS NULL ORDER BY a.resource_id,u.display_name`,
+    [staffActorId, staffRole],
   );
   return result.rows.map((row) => ({
     id: String(row.id), code: row.code, version: Number(row.version), kind: row.kind,
@@ -154,6 +163,7 @@ export async function listManagedResources() {
       name: candidate.display_name as string,
       email: candidate.email as string,
       actorId: String(candidate.actor_id),
+      canResetPassword: candidate.can_reset_password === true,
       deliveryScope: candidate.delivery_scope as "full" | "listening" | "structure" | "reading",
       attempts: candidate.attempts ?? [],
     })),
@@ -230,6 +240,50 @@ export async function archiveCandidateDiagnostic(resourceId: string, candidateAc
     await client.query("ROLLBACK");
     if (error instanceof Error && ["assignment_unavailable", "attempt_unavailable"].includes(error.message)) throw error;
     throw new Error("archive_unavailable");
+  } finally {
+    client.release();
+  }
+}
+
+export async function resetAssignedLearnerPassword(
+  resourceId: string,
+  candidateActorId: string,
+  staffActorId: string,
+  staffRole: "teacher" | "admin",
+) {
+  const client = await getPool().connect();
+  try {
+    await client.query("BEGIN");
+    const learner = (await client.query(
+      `SELECT u.id,u.email,u.display_name
+       FROM protefl_resource_assignment a
+       JOIN app_user u ON u.id=a.actor_id
+       WHERE a.resource_id=$1 AND a.actor_id=$2 AND a.revoked_at IS NULL
+         AND u.role='learner' AND ($4='admin' OR a.assigned_by=$3)
+       FOR UPDATE OF u`,
+      [resourceId, candidateActorId, staffActorId, staffRole],
+    )).rows[0];
+    if (!learner) throw new Error("password_reset_unavailable");
+
+    const temporaryPassword = generateTemporaryPassword();
+    const passwordHash = await hashPassword(temporaryPassword);
+    await client.query("UPDATE app_user SET password_hash=$2,updated_at=now() WHERE id=$1", [candidateActorId, passwordHash]);
+    const revoked = await client.query("DELETE FROM app_session WHERE user_id=$1", [candidateActorId]);
+    await client.query(
+      `INSERT INTO app_password_reset(user_id,reset_by,resource_id,sessions_revoked)
+       VALUES($1,$2,$3,$4)`,
+      [candidateActorId, staffActorId, resourceId, revoked.rowCount ?? 0],
+    );
+    await client.query("COMMIT");
+    return {
+      learner: { name: String(learner.display_name), email: String(learner.email) },
+      temporaryPassword,
+      revokedSessions: revoked.rowCount ?? 0,
+    };
+  } catch (error) {
+    await client.query("ROLLBACK");
+    if (error instanceof Error && error.message === "password_reset_unavailable") throw error;
+    throw new Error("password_reset_unavailable");
   } finally {
     client.release();
   }

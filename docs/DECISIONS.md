@@ -629,3 +629,24 @@ same group may begin at its own question cue. The candidate may pause and
 resume, the view returns to the active item, passed items remain locked, and
 the server accepts only the pinned selected sequence before completion.
 Question-by-question retakes retain the existing manual playback contract.
+
+## D042 — Assigned-learner password reset with one-time disclosure (LFL-050)
+
+Accepted at the operator's request after backup inspection confirmed that
+passwords are stored only as one-way scrypt hashes and therefore cannot be
+recovered as plaintext. An authorized teacher may reset only a learner whose
+active resource assignment was issued by that teacher. An administrator may
+reset any learner with an active assignment to the selected Test Center
+resource.
+
+The server generates a high-entropy temporary password, stores only its scrypt
+hash, returns the temporary value once in a private no-store response, and
+revokes all existing sessions for that learner. The teaching interface keeps
+the value only in transient component state and offers copy/dismiss controls;
+it is not added to resource DTOs, logs, URLs, analytics, or durable records.
+
+Each successful reset appends an audit row containing the learner, staff actor,
+resource, timestamp, and number of revoked sessions. The audit never stores the
+temporary password or password hash. Resetting credentials does not change the
+learner's assignments, attempts, answers, results, retakes, or archived
+generations.

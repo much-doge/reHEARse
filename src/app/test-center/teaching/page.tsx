@@ -10,5 +10,5 @@ export const dynamic = "force-dynamic";
 export default async function TeachingWorkspacePage() {
   const user = await requireUser("/test-center/teaching");
   if (user.role !== "teacher" && user.role !== "admin") redirect("/test-center");
-  return <ResourceManager resources={await listManagedResources()} />;
+  return <ResourceManager resources={await listManagedResources(user.id, user.role)} />;
 }
