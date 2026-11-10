@@ -75,11 +75,11 @@ async function calculateSectionResult(client: PoolClient, attemptId: string, sec
 
 export async function diagnosticAssignment(actorId: string) {
   const result = await getPool().query(
-    "SELECT r.id,r.code,r.version,r.title,r.status,a.listening_mode,a.delivery_scope,EXISTS(SELECT 1 FROM protefl_diagnostic_attempt d WHERE d.resource_id=r.id AND d.actor_id=a.actor_id AND d.archived_at IS NULL) AS has_attempt FROM protefl_resource_assignment a JOIN protefl_resource r ON r.id=a.resource_id WHERE a.actor_id=$1 AND r.code=$2 AND r.kind='diagnostic_package' AND a.revoked_at IS NULL AND a.starts_at<=now() AND (a.ends_at IS NULL OR a.ends_at>now()) AND (r.status='published' OR EXISTS(SELECT 1 FROM protefl_diagnostic_attempt d WHERE d.resource_id=r.id AND d.actor_id=a.actor_id AND d.archived_at IS NULL)) LIMIT 1",
+    "SELECT r.id,r.code,r.version,r.title,r.status,COALESCE(a.assignment_title,r.title) AS assignment_title,a.listening_mode,a.delivery_scope,EXISTS(SELECT 1 FROM protefl_diagnostic_attempt d WHERE d.resource_id=r.id AND d.actor_id=a.actor_id AND d.archived_at IS NULL) AS has_attempt FROM protefl_resource_assignment a JOIN protefl_resource r ON r.id=a.resource_id WHERE a.actor_id=$1 AND r.code=$2 AND r.kind='diagnostic_package' AND a.revoked_at IS NULL AND a.starts_at<=now() AND (a.ends_at IS NULL OR a.ends_at>now()) AND (r.status='published' OR EXISTS(SELECT 1 FROM protefl_diagnostic_attempt d WHERE d.resource_id=r.id AND d.actor_id=a.actor_id AND d.archived_at IS NULL)) LIMIT 1",
     [actorId, packageCode],
   );
   const row = result.rows[0];
-  return row ? { id: String(row.id), code: row.code as string, version: Number(row.version), title: row.title as string, status: row.status as string, listeningMode: row.listening_mode as "autoplay" | "question_click", deliveryScope: row.delivery_scope as "full" | Section, hasAttempt: row.has_attempt === true } : null;
+  return row ? { id: String(row.id), code: row.code as string, version: Number(row.version), title: row.title as string, assignmentTitle: row.assignment_title as string, status: row.status as string, listeningMode: row.listening_mode as "autoplay" | "question_click", deliveryScope: row.delivery_scope as "full" | Section, hasAttempt: row.has_attempt === true } : null;
 }
 
 export async function diagnosticInstructions() {

@@ -17,10 +17,12 @@ export async function POST(request: Request) {
   try {
     const raw = await request.text();
     if (raw.length > 1024) return Response.json({ error: "invalid_request" }, { status: 400, headers });
-    const body = JSON.parse(raw) as { action?: unknown; resourceId?: unknown; candidateActorId?: unknown; status?: unknown; listeningMode?: unknown; showListeningQuestionText?: unknown; deliveryScope?: unknown; inviteKind?: unknown; tags?: unknown };
+    const body = JSON.parse(raw) as { action?: unknown; resourceId?: unknown; candidateActorId?: unknown; status?: unknown; listeningMode?: unknown; showListeningQuestionText?: unknown; deliveryScope?: unknown; inviteKind?: unknown; assignmentTitle?: unknown; tags?: unknown };
     if (typeof body.resourceId !== "string" || !/^[0-9a-f-]{36}$/i.test(body.resourceId))
       return Response.json({ error: "invalid_request" }, { status: 400, headers });
     if (body.action === "issue_invite") {
+      if (typeof body.assignmentTitle !== "string" || body.assignmentTitle.trim().length < 1 || body.assignmentTitle.trim().length > 120)
+        return Response.json({ error: "invalid_assignment_title" }, { status: 400, headers });
       if (body.listeningMode !== undefined && body.listeningMode !== "autoplay" && body.listeningMode !== "question_click")
         return Response.json({ error: "invalid_request" }, { status: 400, headers });
       const listeningMode = body.listeningMode === "autoplay" ? "autoplay" : "question_click";
@@ -32,7 +34,7 @@ export async function POST(request: Request) {
         return Response.json({ error: "invalid_request" }, { status: 400, headers });
       const deliveryScope = body.deliveryScope === "listening" || body.deliveryScope === "structure" || body.deliveryScope === "reading" ? body.deliveryScope : "full";
       const inviteKind = body.inviteKind === "classroom" ? "classroom" : "private";
-      const invite = await issueResourceInvite(body.resourceId, user.id, listeningMode, body.showListeningQuestionText !== false, deliveryScope, inviteKind);
+      const invite = await issueResourceInvite(body.resourceId, user.id, body.assignmentTitle, listeningMode, body.showListeningQuestionText !== false, deliveryScope, inviteKind);
       return Response.json({ invite }, { headers });
     }
     if (body.action === "set_status" && (body.status === "published" || body.status === "hidden")) {
@@ -48,7 +50,7 @@ export async function POST(request: Request) {
     if (body.action === "archive_candidate_attempts") {
       if (typeof body.candidateActorId !== "string" || !/^[0-9a-f-]{36}$/i.test(body.candidateActorId))
         return Response.json({ error: "invalid_request" }, { status: 400, headers });
-      const archive = await archiveCandidateDiagnostic(body.resourceId, body.candidateActorId, user.id);
+      const archive = await archiveCandidateDiagnostic(body.resourceId, body.candidateActorId, user.id, user.role as "teacher" | "admin");
       return Response.json({ archive }, { headers });
     }
     if (body.action === "reset_candidate_password") {

@@ -29,9 +29,9 @@ export function ResourceClaim({ onClaimed }: { onClaimed: () => void | Promise<v
     } finally { setBusy(false); }
   }
   return <form className="ptc-resource-claim" onSubmit={submit}>
-    <label htmlFor="resource-code">Punya kode akses dari pengajar?</label>
+    <label htmlFor="resource-code">Have an access code from your teacher?</label>
     <div><input id="resource-code" value={code} onChange={(event) => setCode(event.target.value)} autoComplete="off" required maxLength={80} />
-      <button type="submit" disabled={busy}>{busy ? "Memeriksa…" : "Tambahkan akses"}</button></div>
+      <button type="submit" disabled={busy}>{busy ? "Checking…" : "Add access"}</button></div>
     {message && <p role="status">{message}</p>}
   </form>;
 }
@@ -50,7 +50,7 @@ export function AssignedResources({ resources, canManage }: { resources: TestCen
     <section className="ptc-resource-list" aria-live="polite">
       {items.length ? items.map((resource) => <article className="ptc-assigned-resource-card" key={resource.id}>
         <div><span className="eyebrow">{resource.kind === "listening_form" ? "LISTENING PILOT" : "DIAGNOSTIC PACKAGE"} · VERSION {resource.version}</span>
-          <h2>{resource.title}</h2><p>{canManage ? "This resource is assigned to your account." : resource.hasAttempt ? "Your previous attempt is available to continue or review." : `Assigned scope: ${resource.deliveryScope === "full" ? "Full diagnostic" : resource.deliveryScope === "structure" ? "Structure and Written Expression" : resource.deliveryScope[0].toUpperCase() + resource.deliveryScope.slice(1)}`}</p></div>
+          <h2>{resource.assignmentTitle}</h2>{resource.assignmentTitle !== resource.title && <p>{resource.title}</p>}<p>{canManage ? "This resource is assigned to your account." : resource.hasAttempt ? "Your previous attempt is available to continue or review." : `Assigned scope: ${resource.deliveryScope === "full" ? "Full diagnostic" : resource.deliveryScope === "structure" ? "Structure and Written Expression" : resource.deliveryScope[0].toUpperCase() + resource.deliveryScope.slice(1)}`}</p></div>
         {resource.kind === "listening_form" && <Link className="ptc-resource-open" href="/test-center/listening/2000-10">Open resource →</Link>}
         {resource.kind === "diagnostic_package" && <Link className="ptc-resource-open" href="/test-center/diagnostic/ets-volume3-practice-test-a">Open diagnostic →</Link>}
       </article>) : <div className="ptc-resource-empty"><h2>No resources assigned yet</h2><p>When your teacher shares an access code, enter it above. Assigned resources will appear here.</p></div>}
@@ -71,7 +71,7 @@ type AttemptHistory = {
   createdAt: string; completedAt: string | null; archivedAt: string | null; result: AttemptResult | null;
   retakes: Array<{ section: string; number: number; status: string; createdAt: string; completedAt: string | null; archivedAt: string | null; result: AttemptResult | null }>;
 };
-type ManagedResource = { id: string; code: string; version: number; kind: string; title: string; status: string; tags: string[]; assignedCount: number; candidates?: Array<{ actorId: string; name: string; email: string; deliveryScope: DeliveryScope; attempts: AttemptHistory[]; canResetPassword: boolean }> };
+type ManagedResource = { id: string; code: string; version: number; kind: string; title: string; status: string; tags: string[]; assignedCount: number; candidates?: Array<{ actorId: string; name: string; email: string; assignmentTitle: string; deliveryScope: DeliveryScope; attempts: AttemptHistory[]; canResetPassword: boolean }> };
 
 function resultLabel(result: AttemptResult | null) {
   const correct = result?.total?.correct ?? result?.summary?.correct;
@@ -107,6 +107,7 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [issuedCode, setIssuedCode] = useState<{ title: string; code: string; scope: DeliveryScope; listeningMode: "autoplay" | "question_click"; inviteKind: "private" | "classroom" } | null>(null);
+  const [assignmentTitle, setAssignmentTitle] = useState("");
   const [resetCredential, setResetCredential] = useState<{ name: string; email: string; temporaryPassword: string; revokedSessions: number } | null>(null);
   const [listeningMode, setListeningMode] = useState<"autoplay" | "question_click">("autoplay");
   const [showListeningQuestionText, setShowListeningQuestionText] = useState(true);
@@ -126,16 +127,16 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
     setBusy(resource.id); setMessage(""); setIssuedCode(null); setResetCredential(null);
     const status = resource.status === "published" ? "hidden" : "published";
     try {
-      const response = await fetch("/api/test-center/teaching", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, resourceId: resource.id, status, listeningMode, showListeningQuestionText, deliveryScope, inviteKind }) });
-      const data = await response.json() as { invite?: { code: string; deliveryScope: DeliveryScope; listeningMode: "autoplay" | "question_click"; inviteKind: "private" | "classroom" }; resource?: { status: string }; error?: string };
+      const response = await fetch("/api/test-center/teaching", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, resourceId: resource.id, status, assignmentTitle, listeningMode, showListeningQuestionText, deliveryScope, inviteKind }) });
+      const data = await response.json() as { invite?: { code: string; assignmentTitle: string; deliveryScope: DeliveryScope; listeningMode: "autoplay" | "question_click"; inviteKind: "private" | "classroom" }; resource?: { status: string }; error?: string };
       if (!response.ok) throw new Error("The change could not be saved.");
-      if (data.invite) setIssuedCode({ title: resource.title, code: data.invite.code, scope: data.invite.deliveryScope, listeningMode: data.invite.listeningMode, inviteKind: data.invite.inviteKind });
+      if (data.invite) setIssuedCode({ title: data.invite.assignmentTitle, code: data.invite.code, scope: data.invite.deliveryScope, listeningMode: data.invite.listeningMode, inviteKind: data.invite.inviteKind });
       if (data.resource) setResources((current) => current.map((item) => item.id === resource.id ? { ...item, status: data.resource!.status } : item));
     } catch (error) { setMessage(error instanceof Error ? error.message : "Something went wrong."); }
     finally { setBusy(null); }
   }
   async function archiveCandidate(resource: ManagedResource, candidate: NonNullable<ManagedResource["candidates"]>[number]) {
-    if (!window.confirm(`Archive ${candidate.name}'s current attempt history and let them start again from the beginning? Their answers and results will remain available here.`)) return;
+    if (!window.confirm(`Archive ${candidate.name}'s current ${candidate.deliveryScope === "full" ? "full diagnostic" : `${candidate.deliveryScope}-only assignment`} attempt history and let them start again from the beginning? Their answers and results will remain available here.`)) return;
     setBusy(`archive:${candidate.actorId}`); setMessage("");
     try {
       const response = await fetch("/api/test-center/teaching", {
@@ -207,6 +208,10 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
       {showDetails && <>
       <section className="ptc-tag-editor"><label htmlFor={`tags-${resource.id}`}><strong>Activity tags</strong><small>Separate tags with commas · maximum 8 tags, 80 characters each.</small></label><input id={`tags-${resource.id}`} value={tagDrafts[resource.id] ?? ""} maxLength={647} placeholder="e.g. Full TOEFL Practice Test" onChange={(event) => setTagDrafts((current) => ({ ...current, [resource.id]: event.target.value }))} /><button disabled={busy !== null} onClick={() => void saveTags(resource)}>{busy === `tags:${resource.id}` ? "Saving…" : "Save tags"}</button></section>
       <section className="ptc-assignment-builder"><div className="ptc-control-heading"><span className="eyebrow">NEW ASSIGNMENT</span><h3>Configure one access code</h3><p>These choices are pinned when the candidate claims the code.</p></div><div className="ptc-resource-actions">
+        <label className="ptc-listening-mode">Assignment title
+          <input value={assignmentTitle} onChange={(event) => setAssignmentTitle(event.target.value)} maxLength={120} required placeholder="e.g. Class B · November diagnostic" />
+          <small>Use a learner, class, or purpose label · 1–120 characters.</small>
+        </label>
         <label className="ptc-listening-mode">Access code type
           <select value={inviteKind} onChange={(event) => setInviteKind(event.target.value as "private" | "classroom")}>
             <option value="private">Private · one learner</option><option value="classroom">Classroom · many learners</option>
@@ -223,7 +228,7 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
           </select>
         </label>}
         {resource.kind === "diagnostic_package" && (deliveryScope === "full" || deliveryScope === "listening") && <label className="ptc-listening-mode"><span><input type="checkbox" checked={showListeningQuestionText} onChange={(event) => setShowListeningQuestionText(event.target.checked)} /> Show listening question text</span><small>This choice is pinned when each access code is issued.</small></label>}
-        <div className="ptc-primary-actions"><button disabled={busy !== null || resource.status !== "published"} onClick={() => mutate(resource, "issue_invite")}>{busy === resource.id ? "Creating…" : inviteKind === "classroom" ? "Create classroom code" : "Create private code"}</button>
+        <div className="ptc-primary-actions"><button disabled={busy !== null || resource.status !== "published" || assignmentTitle.trim().length < 1 || assignmentTitle.trim().length > 120} onClick={() => mutate(resource, "issue_invite")}>{busy === resource.id ? "Creating…" : inviteKind === "classroom" ? "Create classroom code" : "Create private code"}</button>
         {(resource.status === "published" || resource.status === "hidden" || resource.status === "draft") && <button className="secondary" disabled={busy !== null} onClick={() => mutate(resource, "set_status")}>{resource.status === "published" ? "Hide resource" : "Publish resource"}</button>}</div>
       </div></section>
       {resource.candidates?.length ? <section className="ptc-candidate-results">
@@ -234,7 +239,7 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
           const retryCount = candidate.attempts.reduce((count, attempt) => count + attempt.retakes.length, 0);
           return <details className="ptc-candidate" key={candidate.actorId}>
             <summary>
-              <span className="ptc-candidate-person"><strong>{candidate.name}</strong><small>{candidate.email}</small></span>
+              <span className="ptc-candidate-person"><strong>{candidate.name}</strong><small>{candidate.email}</small><small>Assignment: {candidate.assignmentTitle}</small></span>
               <span className="ptc-candidate-state">{latest ? latest.status === "completed" ? `Latest · ${resultLabel(latest.result) ?? "Completed"}` : "Attempt in progress" : "Not started"}</span>
               <span className="ptc-candidate-scope">{candidate.deliveryScope === "full" ? "Full diagnostic" : `${candidate.deliveryScope} only`}</span>
               <span className="ptc-candidate-retries">{candidate.attempts.length} historical {candidate.attempts.length === 1 ? "attempt" : "attempts"} · {retryCount} section retakes</span>
@@ -242,7 +247,7 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
             </summary>
             <div className="ptc-candidate-history">
               {candidate.canResetPassword && <div className="ptc-password-reset"><div><strong>Sign-in recovery</strong><p>Create a temporary password and sign this learner out of existing sessions. Their course records remain unchanged.</p></div><button disabled={busy !== null} onClick={() => void resetCandidatePassword(resource, candidate)}>{busy === `password:${candidate.actorId}` ? "Resetting…" : "Reset sign-in password"}</button></div>}
-              {currentAttempts.length > 0 && <div className="ptc-candidate-reset"><div><strong>Restart from the beginning</strong><p>Archive the current attempt lineage. All answers and results remain visible in this history.</p></div><button className="danger" disabled={busy !== null} onClick={() => void archiveCandidate(resource, candidate)}>{busy === `archive:${candidate.actorId}` ? "Archiving…" : "Archive current attempt and restart"}</button></div>}
+              {currentAttempts.length > 0 && <div className="ptc-candidate-reset"><div><strong>Restart {candidate.deliveryScope === "full" ? "the full diagnostic" : `${candidate.deliveryScope} only`}</strong><p>Archive this assignment’s current attempt lineage. All answers and results remain visible in this history.</p></div><button className="danger" disabled={busy !== null} onClick={() => void archiveCandidate(resource, candidate)}>{busy === `archive:${candidate.actorId}` ? "Archiving…" : "Archive current attempt and restart"}</button></div>}
               {currentAttempts.length === 0 && candidate.attempts.length > 0 && <p className="ptc-restart-ready">Current attempt archived · candidate is ready to start again.</p>}
               {candidate.attempts.length === 0 ? <p className="ptc-review-empty">This candidate has not started an attempt.</p> : candidate.attempts.map((attempt) => <section className={`ptc-attempt-card${attempt.archivedAt ? " is-archived" : ""}`} key={`attempt-${attempt.number}`}>
                 <header><div><p className="eyebrow">{attempt.deliveryScope === "full" ? "FULL DIAGNOSTIC" : `${attempt.deliveryScope.toUpperCase()} ASSIGNMENT`} · ATTEMPT {attempt.number}</p><strong>{attempt.archivedAt ? "Archived" : attempt.status === "completed" ? "Completed" : `In progress · ${attempt.scope}`}</strong></div><div className="ptc-attempt-dates"><time dateTime={attempt.completedAt ?? attempt.createdAt}>{new Date(attempt.completedAt ?? attempt.createdAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}</time>{attempt.archivedAt && <small>Archived {new Date(attempt.archivedAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}</small>}</div></header>

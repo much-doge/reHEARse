@@ -7,7 +7,7 @@ import { serverNowAt } from "./server-clock";
 
 type Section = "listening" | "structure" | "reading";
 type DeliveryScope = "full" | Section;
-type Assignment = { id: string; code: string; version: number; title: string; listeningMode: "autoplay" | "question_click"; deliveryScope: DeliveryScope; hasAttempt: boolean };
+type Assignment = { id: string; code: string; version: number; title: string; assignmentTitle: string; listeningMode: "autoplay" | "question_click"; deliveryScope: DeliveryScope; hasAttempt: boolean };
 type Timing = {
   audioDurationMs: number;
   pauses: Array<{ question: number; answerWindowStartMs: number; answerWindowEndMs: number; durationMs: number }>;
@@ -428,7 +428,7 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, hist
   if (!state) {
     const assignedSections = assignment.deliveryScope === "full" ? (["listening", "structure", "reading"] as Section[]) : [assignment.deliveryScope];
     return <><section className="ptd-welcome">
-    <p className="ptd-kicker">{assignment.deliveryScope === "full" ? "FULL TOEFL ITP DIAGNOSTIC" : `${labels[assignment.deliveryScope].toUpperCase()} · ASSIGNED SECTION`}</p><h1>{assignment.title}</h1>
+    <p className="ptd-kicker">{assignment.deliveryScope === "full" ? "FULL TOEFL ITP DIAGNOSTIC" : `${labels[assignment.deliveryScope].toUpperCase()} · ASSIGNED SECTION`}</p><h1>{assignment.assignmentTitle}</h1><p className="ptd-lead">{assignment.title}</p>
     <p className="ptd-lead">{assignment.deliveryScope === "full" ? "Work through all three sections in order. Your answers are saved as you go, and the complete result appears after you submit the Reading section." : `Complete the assigned ${labels[assignment.deliveryScope]} section. Your result, answer review, and a focused retry of missed questions will be available when you finish.`}</p>
     <div className="ptd-section-cards">
       {assignedSections.includes("listening") && <article><span>01</span><h2>Listening</h2><p>50 questions · follows the complete audio sequence</p><small>{assignment.listeningMode === "autoplay" ? "Autoplay with answer pauses" : "Play each question when ready"}</small></article>}

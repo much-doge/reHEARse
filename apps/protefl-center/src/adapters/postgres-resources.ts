@@ -10,6 +10,7 @@ export type TestCenterResource = {
   version: number;
   kind: "listening_form" | "diagnostic_package";
   title: string;
+  assignmentTitle: string;
   status: "draft" | "published" | "hidden" | "retired";
   assignedAt: string;
   startsAt: string;
@@ -30,6 +31,7 @@ function generateTemporaryPassword() {
 export async function assignedResources(actorId: string): Promise<TestCenterResource[]> {
   const result = await getPool().query(
     `SELECT r.id,r.code,r.version,r.kind,r.title,r.status,
+       COALESCE(a.assignment_title,r.title) AS assignment_title,
        a.assigned_at,a.starts_at,a.ends_at,a.listening_mode,a.delivery_scope,
             (EXISTS(SELECT 1 FROM protefl_attempt t WHERE t.actor_id=a.actor_id AND t.form_id=r.listening_form_id AND t.status<>'invalidated') OR EXISTS(SELECT 1 FROM protefl_diagnostic_attempt d WHERE d.actor_id=a.actor_id AND d.resource_id=r.id AND d.archived_at IS NULL)) AS has_attempt
      FROM protefl_resource_assignment a
@@ -43,7 +45,7 @@ export async function assignedResources(actorId: string): Promise<TestCenterReso
   );
   return result.rows.map((row) => ({
     id: String(row.id), code: row.code, version: Number(row.version), kind: row.kind,
-    title: row.title, status: row.status, assignedAt: new Date(row.assigned_at).toISOString(),
+    title: row.title, assignmentTitle: row.assignment_title, status: row.status, assignedAt: new Date(row.assigned_at).toISOString(),
     startsAt: new Date(row.starts_at).toISOString(), endsAt: row.ends_at ? new Date(row.ends_at).toISOString() : null,
     hasAttempt: row.has_attempt === true, listeningMode: row.listening_mode, deliveryScope: row.delivery_scope,
   }));
@@ -101,12 +103,12 @@ export async function claimResource(actorId: string, rawCode: string): Promise<v
     if (invite.invite_kind === "private" && invite.claimed_at)
       throw new Error("invite_unavailable");
     await client.query(
-      `INSERT INTO protefl_resource_assignment(resource_id,actor_id,assigned_by,invite_id,assignment_kind,listening_mode,show_listening_question_text,delivery_scope)
-       VALUES($1,$2,$3,$4,'invite',$5,$6,$7)
+      `INSERT INTO protefl_resource_assignment(resource_id,actor_id,assigned_by,invite_id,assignment_kind,listening_mode,show_listening_question_text,delivery_scope,assignment_title)
+       VALUES($1,$2,$3,$4,'invite',$5,$6,$7,$8)
        ON CONFLICT(resource_id,actor_id) WHERE revoked_at IS NULL DO UPDATE SET
          assigned_by=excluded.assigned_by,invite_id=excluded.invite_id,assignment_kind='invite',listening_mode=excluded.listening_mode,
-         show_listening_question_text=excluded.show_listening_question_text,delivery_scope=excluded.delivery_scope,starts_at=now(),ends_at=NULL`,
-      [invite.resource_id, actorId, invite.created_by, invite.id, invite.listening_mode, invite.show_listening_question_text, invite.delivery_scope],
+         show_listening_question_text=excluded.show_listening_question_text,delivery_scope=excluded.delivery_scope,assignment_title=excluded.assignment_title,starts_at=now(),ends_at=NULL`,
+      [invite.resource_id, actorId, invite.created_by, invite.id, invite.listening_mode, invite.show_listening_question_text, invite.delivery_scope, invite.assignment_title],
     );
     if (invite.invite_kind === "private")
       await client.query("UPDATE protefl_resource_invite SET claimed_at=now(),claimed_by=$2 WHERE id=$1", [invite.id, actorId]);
@@ -128,10 +130,10 @@ export async function listManagedResources(staffActorId: string, staffRole: "tea
      FROM protefl_resource r ORDER BY r.created_at DESC`,
   );
   const candidates = await getPool().query(
-    `SELECT a.resource_id,a.actor_id,a.delivery_scope,u.display_name,u.email,
+    `SELECT a.resource_id,a.actor_id,a.delivery_scope,COALESCE(a.assignment_title,r.title) AS assignment_title,u.display_name,u.email,
        ($2='admin' OR a.assigned_by=$1) AS can_reset_password,
        COALESCE(history.attempts,'[]'::jsonb) AS attempts
-     FROM protefl_resource_assignment a JOIN app_user u ON u.id=a.actor_id
+     FROM protefl_resource_assignment a JOIN app_user u ON u.id=a.actor_id JOIN protefl_resource r ON r.id=a.resource_id
      LEFT JOIN LATERAL (
        SELECT jsonb_agg(jsonb_build_object(
          'number',d.attempt_number,'status',d.status,'scope',d.scope,'deliveryScope',d.delivery_scope,
@@ -149,7 +151,7 @@ export async function listManagedResources(staffActorId: string, staffRole: "tea
        FROM protefl_diagnostic_attempt d
        LEFT JOIN protefl_diagnostic_result r ON r.attempt_id=d.id
        WHERE d.resource_id=a.resource_id AND d.actor_id=a.actor_id
-         AND d.scope='full' AND d.parent_attempt_id IS NULL
+         AND d.parent_attempt_id IS NULL
      ) history ON true
      WHERE a.revoked_at IS NULL ORDER BY a.resource_id,u.display_name`,
     [staffActorId, staffRole],
@@ -165,6 +167,7 @@ export async function listManagedResources(staffActorId: string, staffRole: "tea
       actorId: String(candidate.actor_id),
       canResetPassword: candidate.can_reset_password === true,
       deliveryScope: candidate.delivery_scope as "full" | "listening" | "structure" | "reading",
+      assignmentTitle: candidate.assignment_title as string,
       attempts: candidate.attempts ?? [],
     })),
   }));
@@ -204,7 +207,7 @@ export async function setResourceTags(resourceId: string, rawTags: string[], act
   }
 }
 
-export async function archiveCandidateDiagnostic(resourceId: string, candidateActorId: string, staffActorId: string) {
+export async function archiveCandidateDiagnostic(resourceId: string, candidateActorId: string, staffActorId: string, staffRole: "teacher" | "admin") {
   const client = await getPool().connect();
   try {
     await client.query("BEGIN");
@@ -212,8 +215,8 @@ export async function archiveCandidateDiagnostic(resourceId: string, candidateAc
       `SELECT a.id FROM protefl_resource_assignment a
        JOIN protefl_resource r ON r.id=a.resource_id
        WHERE a.resource_id=$1 AND a.actor_id=$2 AND a.revoked_at IS NULL
-         AND r.kind='diagnostic_package' FOR UPDATE OF a,r`,
-      [resourceId, candidateActorId],
+         AND r.kind='diagnostic_package' AND ($4='admin' OR a.assigned_by=$3) FOR UPDATE OF a,r`,
+      [resourceId, candidateActorId, staffActorId, staffRole],
     );
     if (!assignment.rowCount) throw new Error("assignment_unavailable");
     const attempts = await client.query(
@@ -292,11 +295,14 @@ export async function resetAssignedLearnerPassword(
 export async function issueResourceInvite(
   resourceId: string,
   actorId: string,
+  assignmentTitle: string,
   listeningMode: "autoplay" | "question_click" = "question_click",
   showListeningQuestionText = true,
   deliveryScope: "full" | "listening" | "structure" | "reading" = "full",
   inviteKind: "private" | "classroom" = "private",
 ) {
+  const pinnedTitle = assignmentTitle.trim();
+  if (!pinnedTitle || pinnedTitle.length > 120) throw new Error("invalid_assignment_title");
   const code = generateResourceCode();
   const client = await getPool().connect();
   try {
@@ -307,13 +313,13 @@ export async function issueResourceInvite(
     if (!(inviteKind === "private" || inviteKind === "classroom")) throw new Error("invalid_invite_kind");
     const pinnedMode = resource.kind === "diagnostic_package" ? listeningMode : "question_click";
     const invite = (await client.query(
-      `INSERT INTO protefl_resource_invite(resource_id,code_hash,created_by,expires_at,listening_mode,show_listening_question_text,delivery_scope,invite_kind)
-       VALUES($1,$2,$3,now()+interval '7 days',$4,$5,$6,$7) RETURNING id`,
-      [resourceId, hashResourceCode(code), actorId, pinnedMode, showListeningQuestionText, deliveryScope, inviteKind],
+      `INSERT INTO protefl_resource_invite(resource_id,code_hash,created_by,expires_at,listening_mode,show_listening_question_text,delivery_scope,invite_kind,assignment_title)
+       VALUES($1,$2,$3,now()+interval '7 days',$4,$5,$6,$7,$8) RETURNING id`,
+      [resourceId, hashResourceCode(code), actorId, pinnedMode, showListeningQuestionText, deliveryScope, inviteKind, pinnedTitle],
     )).rows[0];
     await client.query("INSERT INTO protefl_resource_event(resource_id,actor_id,invite_id,event_type) VALUES($1,$2,$3,'invite_created')", [resourceId, actorId, invite.id]);
     await client.query("COMMIT");
-    return { code, listeningMode: pinnedMode, showListeningQuestionText, deliveryScope, inviteKind, expiresInDays: 7 };
+    return { code, assignmentTitle: pinnedTitle, listeningMode: pinnedMode, showListeningQuestionText, deliveryScope, inviteKind, expiresInDays: 7 };
   } catch (error) {
     await client.query("ROLLBACK");
     throw error;
