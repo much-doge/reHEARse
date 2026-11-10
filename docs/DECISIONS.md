@@ -679,3 +679,22 @@ delivery scopes. It does not authorize guessed reset behavior for a different
 future resource kind. A resource kind without explicit restart semantics must
 return a safe unavailable result until its handler and evidence-preservation
 rules are recorded.
+
+## D044 — Teacher-issued full-section restart (LFL-052)
+
+Accepted after operator review showed that assignment-level restart did not
+provide the requested per-section control for a learner who had completed a
+full diagnostic. A completed full diagnostic exposes separate teacher controls
+for Listening, Structure and Reading. Each control appends a new child attempt
+covering the entire selected section. It is not a missed-only focused retake
+and it does not replace, partially archive, or recalculate the completed full
+attempt.
+
+The child attempt pins the parent package hashes and assignment settings,
+records the authorizing staff actor as an opaque identifier, and remains in the
+same immutable section-attempt history. Existing focused retakes and the full
+result remain visible. Only an administrator or the teacher who issued the
+active assignment may create the restart. The selected parent must be a
+completed, unarchived full root for the same assigned learner and diagnostic
+resource, and no other unarchived attempt may be in progress for that learner
+and resource. Unsupported resources and invalid lineages fail closed.
