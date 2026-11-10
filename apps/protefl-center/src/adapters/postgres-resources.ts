@@ -1,6 +1,7 @@
 import { createHash, randomInt } from "node:crypto";
 
 import { getPool } from "@/adapters/db/client";
+import { effectiveDiagnosticResult, type CompletedSectionReset, type FullDiagnosticResult } from "../application/diagnostic-effective-result";
 import { hashPassword } from "@/adapters/identity/password";
 import { generateResourceCode, hashResourceCode, isValidResourceCode, normalizeResourceCode } from "../application/resource-code";
 
@@ -136,11 +137,12 @@ export async function listManagedResources(staffActorId: string, staffRole: "tea
      FROM protefl_resource_assignment a JOIN app_user u ON u.id=a.actor_id JOIN protefl_resource r ON r.id=a.resource_id
      LEFT JOIN LATERAL (
        SELECT jsonb_agg(jsonb_build_object(
-         'number',d.attempt_number,'status',d.status,'scope',d.scope,'deliveryScope',d.delivery_scope,
+         'id',d.id,'number',d.attempt_number,'status',d.status,'scope',d.scope,'deliveryScope',d.delivery_scope,
          'createdAt',d.created_at,'completedAt',d.completed_at,'archivedAt',d.archived_at,'result',r.result_data,
          'retakes',COALESCE((
            SELECT jsonb_agg(jsonb_build_object(
              'section',retry.scope,'number',retry.section_retake_number,'status',retry.status,
+             'teacherIssuedRestart',(retry.teacher_restarted_by IS NOT NULL),
              'createdAt',retry.created_at,'completedAt',retry.completed_at,'archivedAt',retry.archived_at,'result',rr.result_data
            ) ORDER BY retry.attempt_number)
            FROM protefl_diagnostic_attempt retry
@@ -168,7 +170,10 @@ export async function listManagedResources(staffActorId: string, staffRole: "tea
       canResetPassword: candidate.can_reset_password === true,
       deliveryScope: candidate.delivery_scope as "full" | "listening" | "structure" | "reading",
       assignmentTitle: candidate.assignment_title as string,
-      attempts: candidate.attempts ?? [],
+      attempts: (candidate.attempts ?? []).map((attempt: { result?: FullDiagnosticResult | null; retakes?: Array<{ teacherIssuedRestart?: boolean; archivedAt?: string | null; status?: string; section: string; result?: unknown }> }) => {
+        const resets = (attempt.retakes ?? []).filter((retry) => retry.teacherIssuedRestart && !retry.archivedAt && retry.status === "completed" && retry.result).map((retry) => ({ section: retry.section, result: retry.result })) as CompletedSectionReset[];
+        return { ...attempt, effectiveResult: attempt.result && resets.length ? effectiveDiagnosticResult(attempt.result, resets) : null };
+      }),
     })),
   }));
 }

@@ -140,6 +140,11 @@
 .ptc-retake-history h4 { margin:0 0 .5rem; font-size:.76rem; }
 .ptc-retake-history article { min-width:0; padding:.7rem; border-radius:9px; background:white; }
 .ptc-retake-history article+article { margin-top:.45rem; }
+.ptc-section-reset { display:grid; grid-template-columns:minmax(220px,1fr) minmax(300px,1.4fr); gap:1rem; align-items:center; margin-top:.9rem; padding:1rem; border:1px solid #d7e5dd; border-radius:12px; background:#f2f7f3; }
+.ptc-section-reset strong { display:block; margin-bottom:.25rem; }
+.ptc-section-reset p { margin:0; color:#617269; font-size:.78rem; line-height:1.45; }
+.ptc-section-reset>div:last-child { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.5rem; }
+@media (max-width:780px) { .ptc-section-reset { grid-template-columns:1fr; } .ptc-section-reset>div:last-child { grid-template-columns:1fr; } }
 @media(max-width:900px) { .ptc-candidate>summary { grid-template-columns:minmax(0,1fr) minmax(125px,1fr); } .ptc-expand-label { grid-column:2; justify-self:end; } }
 @media(max-width:640px) { .ptc-assignment-builder,.ptc-issued-code,.ptc-reset-credential { grid-template-columns:1fr; } .ptc-issued-code p { grid-column:1; } .ptc-candidate-results { padding:20px; } .ptc-candidate-reset,.ptc-password-reset { align-items:stretch; flex-direction:column; } .ptc-attempt-dates { justify-items:start; } }
 @media(max-width:560px) { .ptc-candidate>summary { grid-template-columns:minmax(0,1fr) auto; gap:.45rem .7rem; } .ptc-candidate-state,.ptc-candidate-scope,.ptc-candidate-retries { grid-column:1; } .ptc-expand-label { grid-column:2; grid-row:2; } .ptc-candidate-history { padding-left:0; } .ptc-missed-item { grid-template-columns:1fr 1fr; } .ptc-missed-item>span:first-child { grid-column:1 / -1; } }

@@ -9,6 +9,7 @@ vi.mock("@/adapters/db/client", () => ({ getPool: () => ({ connect, query: poolQ
 vi.mock("@/adapters/identity/password", () => ({ hashPassword: vi.fn() }));
 
 import { archiveCandidateDiagnostic, claimResource } from "./postgres-resources";
+import { restartCandidateDiagnosticSection } from "./postgres-diagnostic";
 
 const actor = "11111111-1111-4111-8111-111111111111";
 const staff = "22222222-2222-4222-8222-222222222222";
@@ -70,5 +71,48 @@ describe("assignment title pinning and diagnostic archive boundaries", () => {
     const update = clientQuery.mock.calls.find(([sql]) => String(sql).includes("UPDATE protefl_diagnostic_attempt"));
     expect(update?.[0]).not.toContain("parent_attempt_id");
     expect(clientQuery).toHaveBeenCalledWith("COMMIT");
+  });
+
+  it("creates an authorized full-section reset without changing the completed parent", async () => {
+    const parent = "44444444-4444-4444-8444-444444444444";
+    clientQuery.mockImplementation(async (sql: string) => {
+      if (sql === "BEGIN" || sql === "COMMIT") return { rowCount: 0, rows: [] };
+      if (sql.includes("SELECT d.*,r.status AS resource_status")) return { rowCount: 1, rows: [{
+        id: parent, package_version: 1, resource_version: 1, content_hash: "content", answer_key_hash: "answers",
+        score_table_hash: "scores", timing_map_hash: "timing", assigned_listening_mode: "autoplay",
+        assigned_show_question_text: true, delivery_scope: "full",
+      }] };
+      if (sql.includes("status='in_progress'")) return { rowCount: 0, rows: [] };
+      if (sql.includes("max(attempt_number)")) return { rowCount: 1, rows: [{ number: 3 }] };
+      if (sql.includes("max(section_retake_number)")) return { rowCount: 1, rows: [{ number: 1 }] };
+      if (sql.includes("INSERT INTO protefl_diagnostic_attempt")) return { rowCount: 1, rows: [{ id: "55555555-5555-4555-8555-555555555555", attempt_number: 4, section_retake_number: 2, created_at: new Date("2026-11-10T07:00:00Z") }] };
+      return { rowCount: 0, rows: [] };
+    });
+
+    const result = await restartCandidateDiagnosticSection(resource, actor, parent, "structure", staff, "teacher");
+
+    expect(result).toMatchObject({ attemptNumber: 4, sectionRetakeNumber: 2, section: "structure" });
+    const authorization = clientQuery.mock.calls.find(([sql]) => String(sql).includes("SELECT d.*,r.status AS resource_status"));
+    expect(authorization?.[0]).toContain("a.assigned_by=$4");
+    expect(authorization?.[0]).toContain("d.delivery_scope='full'");
+    const insert = clientQuery.mock.calls.find(([sql]) => String(sql).includes("INSERT INTO protefl_diagnostic_attempt"));
+    expect(insert?.[0]).toContain("selected_questions,delivery_scope,teacher_restarted_by");
+    expect(insert?.[0]).toContain("$13,NULL,$14,$15");
+    expect(insert?.[1]?.at(-1)).toBe(staff);
+    expect(clientQuery).toHaveBeenCalledWith("COMMIT");
+  });
+
+  it("rejects a section reset while another attempt is active", async () => {
+    const parent = "44444444-4444-4444-8444-444444444444";
+    clientQuery.mockImplementation(async (sql: string) => {
+      if (sql === "BEGIN" || sql === "ROLLBACK") return { rowCount: 0, rows: [] };
+      if (sql.includes("SELECT d.*,r.status AS resource_status")) return { rowCount: 1, rows: [{ id: parent }] };
+      if (sql.includes("status='in_progress'")) return { rowCount: 1, rows: [{ id: "active" }] };
+      return { rowCount: 0, rows: [] };
+    });
+
+    await expect(restartCandidateDiagnosticSection(resource, actor, parent, "reading", staff, "admin")).rejects.toThrow("active_attempt_exists");
+    expect(clientQuery.mock.calls.some(([sql]) => String(sql).includes("INSERT INTO protefl_diagnostic_attempt"))).toBe(false);
+    expect(clientQuery).toHaveBeenCalledWith("ROLLBACK");
   });
 });

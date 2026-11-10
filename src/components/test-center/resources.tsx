@@ -68,9 +68,9 @@ type AttemptResult = {
   review?: ReviewItem[];
 };
 type AttemptHistory = {
-  number: number; status: string; scope: string; deliveryScope: DeliveryScope;
+  id: string; number: number; status: string; scope: string; deliveryScope: DeliveryScope; effectiveResult?: AttemptResult | null;
   createdAt: string; completedAt: string | null; archivedAt: string | null; result: AttemptResult | null;
-  retakes: Array<{ section: string; number: number; status: string; createdAt: string; completedAt: string | null; archivedAt: string | null; result: AttemptResult | null }>;
+  retakes: Array<{ section: string; number: number; status: string; teacherIssuedRestart?: boolean; createdAt: string; completedAt: string | null; archivedAt: string | null; result: AttemptResult | null }>;
 };
 type ManagedResource = { id: string; code: string; version: number; kind: string; title: string; status: string; tags: string[]; assignedCount: number; candidates?: Array<{ actorId: string; name: string; email: string; assignmentTitle: string; deliveryScope: DeliveryScope; attempts: AttemptHistory[]; canResetPassword: boolean }> };
 
@@ -161,6 +161,34 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
     } catch (error) { setMessage(error instanceof Error ? error.message : "The attempt could not be archived."); }
     finally { setBusy(null); }
   }
+  async function resetCandidateSection(resource: ManagedResource, candidate: NonNullable<ManagedResource["candidates"]>[number], attempt: AttemptHistory, section: "listening" | "structure" | "reading") {
+    const label = section === "structure" ? "Structure and Written Expression" : section[0].toUpperCase() + section.slice(1);
+    if (!window.confirm(`Reset ${label} for ${candidate.name}? They will redo the complete section. When completed, this section will be used in their recalculated current score; the original result remains in history.`)) return;
+    setBusy(`section:${attempt.id}:${section}`); setMessage("");
+    try {
+      const response = await fetch("/api/test-center/teaching", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "reset_candidate_section", resourceId: resource.id, candidateActorId: candidate.actorId, parentAttemptId: attempt.id, section }),
+      });
+      const data = await response.json() as { restart?: { attemptId: string; attemptNumber: number; sectionRetakeNumber: number; section: string; createdAt: string }; error?: string };
+      if (!response.ok || !data.restart) throw new Error(data.error === "active_attempt_exists" ? "This learner already has an attempt in progress." : "The section could not be reset.");
+      setResources((current) => current.map((item) => item.id !== resource.id ? item : {
+        ...item,
+        candidates: item.candidates?.map((entry) => entry.actorId !== candidate.actorId ? entry : {
+          ...entry,
+          attempts: entry.attempts.map((record) => record.id !== attempt.id ? record : {
+            ...record,
+            retakes: [...record.retakes, {
+              section, number: data.restart!.sectionRetakeNumber, status: "in_progress", teacherIssuedRestart: true,
+              createdAt: data.restart!.createdAt, completedAt: null, archivedAt: null, result: null,
+            }],
+          }),
+        }),
+      }));
+      setMessage(`${label} was reset for ${candidate.name}. Their next visit will open the complete section.`);
+    } catch (error) { setMessage(error instanceof Error ? error.message : "The section could not be reset."); }
+    finally { setBusy(null); }
+  }
   async function resetCandidatePassword(resource: ManagedResource, candidate: NonNullable<ManagedResource["candidates"]>[number]) {
     if (!window.confirm(`Reset ${candidate.name}'s sign-in password? Their existing signed-in sessions will end, but assignments, attempts, answers, and results will remain unchanged.`)) return;
     setBusy(`password:${candidate.actorId}`); setMessage(""); setResetCredential(null); setIssuedCode(null);
@@ -238,11 +266,12 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
         {resource.candidates.map((candidate) => {
           const currentAttempts = candidate.attempts.filter((attempt) => !attempt.archivedAt);
           const latest = currentAttempts.at(-1);
+          const hasActiveAttempt = currentAttempts.some((attempt) => attempt.status === "in_progress" || attempt.retakes.some((retake) => !retake.archivedAt && retake.status === "in_progress"));
           const retryCount = candidate.attempts.reduce((count, attempt) => count + attempt.retakes.length, 0);
           return <details className="ptc-candidate" key={candidate.actorId}>
             <summary>
               <span className="ptc-candidate-person"><strong>{candidate.name}</strong><small>{candidate.email}</small><small>Assignment: {candidate.assignmentTitle}</small></span>
-              <span className="ptc-candidate-state">{latest ? latest.status === "completed" ? `Latest · ${resultLabel(latest.result) ?? "Completed"}` : "Attempt in progress" : "Not started"}</span>
+              <span className="ptc-candidate-state">{latest ? latest.status === "completed" ? `Latest · ${resultLabel(latest.effectiveResult ?? latest.result) ?? "Completed"}` : "Attempt in progress" : "Not started"}</span>
               <span className="ptc-candidate-scope">{candidate.deliveryScope === "full" ? "Full diagnostic" : `${candidate.deliveryScope} only`}</span>
               <span className="ptc-candidate-retries">{candidate.attempts.length} historical {candidate.attempts.length === 1 ? "attempt" : "attempts"} · {retryCount} section retakes</span>
               <span className="ptc-expand-label">View history</span>
@@ -253,10 +282,13 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
               {currentAttempts.length === 0 && candidate.attempts.length > 0 && <p className="ptc-restart-ready">Current attempt archived · candidate is ready to start again.</p>}
               {candidate.attempts.length === 0 ? <p className="ptc-review-empty">This candidate has not started an attempt.</p> : candidate.attempts.map((attempt) => <section className={`ptc-attempt-card${attempt.archivedAt ? " is-archived" : ""}`} key={`attempt-${attempt.number}`}>
                 <header><div><p className="eyebrow">{attempt.deliveryScope === "full" ? "FULL DIAGNOSTIC" : `${attempt.deliveryScope.toUpperCase()} ASSIGNMENT`} · ATTEMPT {attempt.number}</p><strong>{attempt.archivedAt ? "Archived" : attempt.status === "completed" ? "Completed" : `In progress · ${attempt.scope}`}</strong></div><div className="ptc-attempt-dates"><time dateTime={attempt.completedAt ?? attempt.createdAt}>{new Date(attempt.completedAt ?? attempt.createdAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}</time>{attempt.archivedAt && <small>Archived {new Date(attempt.archivedAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}</small>}</div></header>
-                <AttemptResultSummary result={attempt.result} />
-                {attempt.result && <details className="ptc-answer-review"><summary>Missed questions and answer key</summary><MissedQuestions result={attempt.result} /></details>}
+                {attempt.effectiveResult && <p className="ptc-restart-ready">Current score recalculated from completed section resets. The original result remains below.</p>}
+                <AttemptResultSummary result={attempt.effectiveResult ?? attempt.result} />
+                {attempt.effectiveResult && <details className="ptc-answer-review"><summary>Original completed result</summary><AttemptResultSummary result={attempt.result} /></details>}
+                {(attempt.effectiveResult ?? attempt.result) && <details className="ptc-answer-review"><summary>Missed questions and answer key · current score</summary><MissedQuestions result={attempt.effectiveResult ?? attempt.result} /></details>}
+                {!attempt.archivedAt && attempt.status === "completed" && attempt.scope === "full" && attempt.deliveryScope === "full" && <div className="ptc-section-reset"><div><strong>Reset one section</strong><p>The learner will redo every question in that section. Its completed result will update the current recalculated score; ordinary missed-item retakes never change it.</p></div><div>{(["listening", "structure", "reading"] as const).map((section) => <button className="secondary" disabled={busy !== null || hasActiveAttempt} key={section} onClick={() => void resetCandidateSection(resource, candidate, attempt, section)}>{busy === `section:${attempt.id}:${section}` ? "Resetting…" : `Reset ${section === "structure" ? "Structure" : section[0].toUpperCase() + section.slice(1)}`}</button>)}</div></div>}
                 {attempt.retakes.length > 0 && <div className="ptc-retake-history"><h4>Section retakes</h4>{attempt.retakes.map((retake) => <article className={retake.archivedAt ? "is-archived" : ""} key={`${retake.section}-${retake.number}`}>
-                  <header><strong>{retake.section} retake {retake.number}</strong><span>{retake.archivedAt ? "Archived" : retake.status === "completed" ? resultLabel(retake.result) ?? "Completed" : "In progress"}</span><time dateTime={retake.archivedAt ?? retake.completedAt ?? retake.createdAt}>{retake.archivedAt ? `Archived ${new Date(retake.archivedAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}` : new Date(retake.completedAt ?? retake.createdAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}</time></header>
+                  <header><strong>{retake.section} {retake.teacherIssuedRestart ? "reset" : "retake"} {retake.number}</strong><span>{retake.archivedAt ? "Archived" : retake.status === "completed" ? resultLabel(retake.result) ?? "Completed" : "In progress"}</span><time dateTime={retake.archivedAt ?? retake.completedAt ?? retake.createdAt}>{retake.archivedAt ? `Archived ${new Date(retake.archivedAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}` : new Date(retake.completedAt ?? retake.createdAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}</time></header>
                   <AttemptResultSummary result={retake.result} />
                   {retake.result && <details className="ptc-answer-review"><summary>Missed questions and answer key</summary><MissedQuestions result={retake.result} /></details>}
                 </article>)}</div>}

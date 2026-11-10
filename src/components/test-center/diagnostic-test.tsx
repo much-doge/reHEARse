@@ -17,7 +17,7 @@ type SectionResult = { correct: number; incorrect: number; omitted: number; tota
 type ReviewItem = { section: Section; question: number; selected: string | null; correctAnswer: string; correct: boolean };
 type Result = { sections: Record<Section, SectionResult>; total: { correct: number; incorrect: number; omitted: number; questions: number }; convertedTotal: [number, number] | null; review: ReviewItem[] };
 type SectionRetakeResult = { section: Section; summary: SectionResult; review: ReviewItem[]; answers: Record<string, string> };
-type SectionRetakeHistory = { id: string; section: Section; number: number; completedAt: string; result: SectionRetakeResult };
+type SectionRetakeHistory = { id: string; section: Section; number: number; teacherIssuedRestart?: boolean; completedAt: string; result: SectionRetakeResult };
 type DiagnosticState = {
   id: string; attemptNumber: number; isPrimary: boolean; status: "in_progress" | "completed";
   scope: "full" | Section; deliveryScope: DeliveryScope; parentAttemptId: string | null; primaryAttemptId?: string; sectionRetakeNumber: number | null;
@@ -26,7 +26,8 @@ type DiagnosticState = {
   readingStartedAt: string | null; readingDeadlineAt: string | null; serverTime: string;
   answers: Record<string, string>; heardListeningQuestions: number[]; lastListeningPositionMs: number;
   selectedQuestions?: number[] | null; showListeningQuestionText?: boolean;
-  result?: Result; primaryResult?: Result; sectionAssignmentResult?: SectionRetakeResult; sectionRetakeResult?: SectionRetakeResult; sectionRetakes?: SectionRetakeHistory[];
+  teacherIssuedRestart?: boolean;
+  result?: Result; effectiveResult?: Result; primaryResult?: Result; sectionAssignmentResult?: SectionRetakeResult; sectionRetakeResult?: SectionRetakeResult; sectionRetakes?: SectionRetakeHistory[];
 };
 type Directions = {
   listening: { overview: string; partA: string; partB: string; partC: string };
@@ -470,7 +471,7 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, hist
   />;
 
   if (section && section !== "completed" && !sectionStarted && sectionInstruction) return <section className="ptd-section-intro">
-    <p className="ptd-kicker">{state.scope !== "full" ? `SECTION RETAKE ${state.sectionRetakeNumber}` : state.deliveryScope === "full" ? `SECTION ${section === "listening" ? "1" : section === "structure" ? "2" : "3"}` : "ASSIGNED SECTION"} · {labels[section]}</p>
+    <p className="ptd-kicker">{state.scope !== "full" ? state.teacherIssuedRestart ? `TEACHER-ISSUED SECTION RESET ${state.sectionRetakeNumber}` : `SECTION RETAKE ${state.sectionRetakeNumber}` : state.deliveryScope === "full" ? `SECTION ${section === "listening" ? "1" : section === "structure" ? "2" : "3"}` : "ASSIGNED SECTION"} · {labels[section]}</p>
     <h1>{section === "listening" ? "Listen carefully and answer as you go." : section === "structure" ? "Read the directions, then begin when ready." : "Read each passage and answer its questions."}</h1>
     {section === "listening" ? <div className="ptd-directions">
       <p>{instructions.listening.overview}</p>{(state.scope === "listening" && state.selectedQuestions?.length ? [...new Set(state.selectedQuestions.map((number) => number <= 30 ? "A" : number <= 37 ? "B" : "C"))] : ["A"]).map((part) => <article key={part}><span>PART {part} · QUESTIONS {part === "A" ? "1–30" : part === "B" ? "31–37" : "38–50"}</span><p>{part === "A" ? instructions.listening.partA : part === "B" ? instructions.listening.partB : instructions.listening.partC}</p></article>)}
@@ -598,13 +599,15 @@ function DiagnosticResults({ state, busy, reviewOpen, setReviewOpen, reviewFilte
   onOpenAttempt: (id: string) => void;
 }) {
   const [selected, setSelected] = useState<ReviewItem | null>(null);
-  const result = state.result!;
+  const originalResult = state.result!;
+  const result = state.effectiveResult ?? originalResult;
   const review = reviewFilter === "incorrect" ? result.review.filter((item) => !item.correct) : result.review;
   return <section className="ptd-results">
     <p className="ptd-kicker">DIAGNOSTIC COMPLETE · ATTEMPT {state.attemptNumber}</p>
     <h1>Your results</h1>
     {!state.isPrimary && state.primaryResult && <ScoreSummary result={state.primaryResult} title="Your first completed result · remains your primary result" />}
-    <ScoreSummary result={result} title={state.isPrimary ? "Primary diagnostic result" : "This retake · shown separately"} />
+    {state.effectiveResult && <ScoreSummary result={originalResult} title="Original completed diagnostic · preserved" />}
+    <ScoreSummary result={result} title={state.effectiveResult ? "Current recalculated result · latest teacher resets applied" : state.isPrimary ? "Primary diagnostic result" : "This retake · shown separately"} />
     {result.convertedTotal === null && <p className="ptd-score-note">The ETS conversion table leaves at least one raw-count value without a converted range. That section and the combined range are shown as unavailable rather than estimated.</p>}
     <div className="ptd-result-actions">
       <button className="ptd-primary" onClick={() => setReviewOpen(!reviewOpen)}>{reviewOpen ? "Close answer review" : "Review answers"}</button>
@@ -612,7 +615,7 @@ function DiagnosticResults({ state, busy, reviewOpen, setReviewOpen, reviewFilte
     <section className="ptd-section-retakes">
       <div><p className="ptd-kicker">FOCUSED RETAKES</p><h2>Try one section again</h2><p>Each retake is saved separately. It does not replace or increase the result above.</p></div>
       <div className="ptd-retake-buttons">{(["listening", "structure", "reading"] as const).map((name) => { const missed = result.review.filter((item) => item.section === name && !item.correct).length; return <button className="ptd-secondary" disabled={busy || missed === 0} key={name} onClick={() => onSectionRetake(name)}>Retry missed items · {labels[name]} ({missed})</button>; })}</div>
-      {!!state.sectionRetakes?.length && <div className="ptd-retake-history">{state.sectionRetakes.map((retake) => <article key={retake.id}><span>{labels[retake.section]} · Retake {retake.number}</span><strong>{retake.result.summary.correct}/{retake.result.summary.total}</strong><small>{retake.result.summary.incorrect} incorrect · {retake.result.summary.omitted} omitted</small></article>)}</div>}
+      {!!state.sectionRetakes?.length && <div className="ptd-retake-history">{state.sectionRetakes.map((retake) => <article key={retake.id}><span>{labels[retake.section]} · {retake.teacherIssuedRestart ? "Teacher reset" : "Retake"} {retake.number}</span><strong>{retake.result.summary.correct}/{retake.result.summary.total}</strong><small>{retake.result.summary.incorrect} incorrect · {retake.result.summary.omitted} omitted</small></article>)}</div>}
     </section>
     {history.length > 1 && <section className="ptd-history"><p className="ptd-kicker">YOUR RECORD</p><h2>Attempt history</h2>{history.map((attempt) => <article key={attempt.id}><div><strong>Attempt {attempt.attemptNumber}</strong><span>{attempt.status === "completed" ? "Completed" : "In progress"} · {new Date(attempt.createdAt).toLocaleDateString()}</span></div><span>{attempt.result?.total ? `${attempt.result.total.correct}/${attempt.result.total.questions} correct` : attempt.result?.summary ? `${attempt.result.summary.correct}/${attempt.result.summary.total} correct` : "Not completed"}</span>{attempt.id !== state.id && <button className="ptd-secondary" onClick={() => onOpenAttempt(attempt.id)}>Open record</button>}</article>)}</section>}
     {reviewOpen && <div className="ptd-review">
@@ -637,8 +640,8 @@ function SectionRetakeResults({ state, result, standalone = false, busy, onAgain
   const review = filter === "incorrect" ? result.review.filter((item) => !item.correct) : result.review;
   const accuracy = Math.round(summary.correct / summary.total * 100);
   return <section className="ptd-results">
-    <p className="ptd-kicker">{labels[result.section].toUpperCase()} · {standalone ? `ATTEMPT ${state.attemptNumber}` : `RETAKE ${state.sectionRetakeNumber}`}</p>
-    <h1>{standalone ? "Assigned section complete" : "Section retake complete"}</h1>
+    <p className="ptd-kicker">{labels[result.section].toUpperCase()} · {standalone ? `ATTEMPT ${state.attemptNumber}` : state.teacherIssuedRestart ? `TEACHER RESTART ${state.sectionRetakeNumber}` : `RETAKE ${state.sectionRetakeNumber}`}</p>
+    <h1>{standalone ? "Assigned section complete" : state.teacherIssuedRestart ? "Section reset complete" : "Section retake complete"}</h1>
     <section className="ptd-section-retake-score">
       <div><span>Correct answers</span><strong>{summary.correct}<small>/{summary.total}</small></strong><p>{accuracy}% accuracy {standalone ? "on this section" : "on this retake"}</p></div>
       <div className="ptd-retake-stat-grid"><span><strong>{summary.incorrect}</strong> Incorrect</span><span><strong>{summary.omitted}</strong> Omitted</span><span><strong>{summary.converted ? `${summary.converted[0]}–${summary.converted[1]}` : "—"}</strong> Converted range</span></div>

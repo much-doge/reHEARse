@@ -5,11 +5,13 @@ import type { PoolClient } from "pg";
 
 import { getPool } from "@/adapters/db/client";
 import { completesAfterSection } from "../application/diagnostic-delivery";
+import { effectiveDiagnosticResult, type CompletedSectionReset, type FullDiagnosticResult } from "../application/diagnostic-effective-result";
 import { convertedSectionRange, convertedTotalRange, type ScoreRangeRow } from "../application/diagnostic-scoring";
 
 const root = join(process.cwd(), "apps/protefl-center/content/ets-volume3-practice-test-a-v1");
 const packageCode = "ets-volume3-practice-test-a";
-type Section = "listening" | "structure" | "reading";
+export type DiagnosticSection = "listening" | "structure" | "reading";
+type Section = DiagnosticSection;
 type Choice = "A" | "B" | "C" | "D";
 type Keys = Record<Section, Choice[]>;
 type StandardItem = { number: number; prompt: string; options: Record<Choice, string>; sourcePage: number; part?: "A" | "B" | "C" };
@@ -234,6 +236,82 @@ export async function startSectionRetake(actorId: string, sourceAttemptId: strin
   }
 }
 
+export async function restartCandidateDiagnosticSection(
+  resourceId: string,
+  candidateActorId: string,
+  parentAttemptId: string,
+  section: DiagnosticSection,
+  staffActorId: string,
+  staffRole: "teacher" | "admin",
+) {
+  const client = await getPool().connect();
+  try {
+    await client.query("BEGIN");
+    const parent = (await client.query(
+      `SELECT d.*,r.status AS resource_status,r.version AS resource_version,
+         a.listening_mode AS assigned_listening_mode,a.show_listening_question_text AS assigned_show_question_text
+       FROM protefl_diagnostic_attempt d
+       JOIN protefl_resource_assignment a ON a.resource_id=d.resource_id AND a.actor_id=d.actor_id
+       JOIN protefl_resource r ON r.id=d.resource_id
+       WHERE d.id=$1 AND d.resource_id=$2 AND d.actor_id=$3
+         AND d.scope='full' AND d.delivery_scope='full' AND d.parent_attempt_id IS NULL AND d.status='completed' AND d.archived_at IS NULL
+         AND r.kind='diagnostic_package' AND r.status='published' AND a.revoked_at IS NULL
+         AND a.starts_at<=now() AND (a.ends_at IS NULL OR a.ends_at>now())
+         AND ($5='admin' OR a.assigned_by=$4)
+       FOR UPDATE OF d,a,r`,
+      [parentAttemptId, resourceId, candidateActorId, staffActorId, staffRole],
+    )).rows[0];
+    if (!parent) throw new Error("section_restart_unavailable");
+
+    const active = await client.query(
+      `SELECT id FROM protefl_diagnostic_attempt
+       WHERE resource_id=$1 AND actor_id=$2 AND status='in_progress' AND archived_at IS NULL
+       LIMIT 1 FOR UPDATE`,
+      [resourceId, candidateActorId],
+    );
+    if (active.rowCount) throw new Error("active_attempt_exists");
+
+    const sequence = (await client.query(
+      "SELECT coalesce(max(attempt_number),0)::int AS number FROM protefl_diagnostic_attempt WHERE resource_id=$1 AND actor_id=$2",
+      [resourceId, candidateActorId],
+    )).rows[0];
+    const restart = (await client.query(
+      "SELECT coalesce(max(section_retake_number),0)::int AS number FROM protefl_diagnostic_attempt WHERE parent_attempt_id=$1 AND scope=$2",
+      [parentAttemptId, section],
+    )).rows[0];
+    const hashes = await pinnedPackageHashes();
+    if (hashes.version !== Number(parent.resource_version) || hashes.version !== Number(parent.package_version))
+      throw new Error("section_restart_unavailable");
+
+    const inserted = (await client.query(
+      `INSERT INTO protefl_diagnostic_attempt(
+         resource_id,actor_id,attempt_number,is_primary,package_version,content_hash,answer_key_hash,
+         score_table_hash,timing_map_hash,listening_mode,scope,parent_attempt_id,section_retake_number,
+         current_section,show_listening_question_text,selected_questions,delivery_scope,teacher_restarted_by
+       ) VALUES($1,$2,$3,false,$4,$5,$6,$7,$8,$9,$10,$11,$12,$10,$13,NULL,$14,$15)
+       RETURNING id,attempt_number,section_retake_number,created_at`,
+      [
+        resourceId, candidateActorId, Number(sequence.number) + 1, parent.package_version,
+        parent.content_hash, parent.answer_key_hash, parent.score_table_hash, parent.timing_map_hash,
+        parent.assigned_listening_mode, section, parentAttemptId, Number(restart.number) + 1,
+        parent.assigned_show_question_text, parent.delivery_scope, staffActorId,
+      ],
+    )).rows[0];
+    await client.query("COMMIT");
+    return {
+      attemptId: String(inserted.id), attemptNumber: Number(inserted.attempt_number),
+      sectionRetakeNumber: Number(inserted.section_retake_number), section,
+      createdAt: new Date(inserted.created_at).toISOString(),
+    };
+  } catch (error) {
+    await client.query("ROLLBACK");
+    if (error instanceof Error && ["section_restart_unavailable", "active_attempt_exists"].includes(error.message)) throw error;
+    throw new Error("section_restart_unavailable");
+  } finally {
+    client.release();
+  }
+}
+
 export type DiagnosticAction =
   | { type: "begin_section"; requestId: string }
   | { type: "answer"; section: Section; question: number; choice: Choice; requestId: string }
@@ -328,7 +406,7 @@ export async function applyDiagnosticAction(actorId: string, attemptId: string, 
         section = "listening";
         if (completesAfterSection(attempt.scope, attempt.delivery_scope, "listening")) {
           const resultData = await calculateSectionResult(client, attemptId, "listening");
-          await client.query("INSERT INTO protefl_diagnostic_result(attempt_id,is_primary,result_version,package_version,result_data) VALUES($1,$2,$3,$4,$5)", [attemptId, attempt.is_primary, attempt.scope === "listening" ? "ets-volume3-practice-test-a.section-retake.v1" : "ets-volume3-practice-test-a.section-assignment.v1", attempt.package_version, JSON.stringify(resultData)]);
+          await client.query("INSERT INTO protefl_diagnostic_result(attempt_id,is_primary,result_version,package_version,result_data) VALUES($1,$2,$3,$4,$5)", [attemptId, attempt.is_primary, attempt.scope === "listening" ? attempt.teacher_restarted_by ? "ets-volume3-practice-test-a.section-reset.v1" : "ets-volume3-practice-test-a.section-retake.v1" : "ets-volume3-practice-test-a.section-assignment.v1", attempt.package_version, JSON.stringify(resultData)]);
           await client.query("UPDATE protefl_diagnostic_attempt SET status='completed',current_section='completed',completed_at=now() WHERE id=$1", [attemptId]);
           eventType = "diagnostic_submitted";
         } else {
@@ -339,7 +417,7 @@ export async function applyDiagnosticAction(actorId: string, attemptId: string, 
         section = "structure";
         if (completesAfterSection(attempt.scope, attempt.delivery_scope, "structure")) {
           const resultData = await calculateSectionResult(client, attemptId, "structure");
-          await client.query("INSERT INTO protefl_diagnostic_result(attempt_id,is_primary,result_version,package_version,result_data) VALUES($1,$2,$3,$4,$5)", [attemptId, attempt.is_primary, attempt.scope === "structure" ? "ets-volume3-practice-test-a.section-retake.v1" : "ets-volume3-practice-test-a.section-assignment.v1", attempt.package_version, JSON.stringify(resultData)]);
+          await client.query("INSERT INTO protefl_diagnostic_result(attempt_id,is_primary,result_version,package_version,result_data) VALUES($1,$2,$3,$4,$5)", [attemptId, attempt.is_primary, attempt.scope === "structure" ? attempt.teacher_restarted_by ? "ets-volume3-practice-test-a.section-reset.v1" : "ets-volume3-practice-test-a.section-retake.v1" : "ets-volume3-practice-test-a.section-assignment.v1", attempt.package_version, JSON.stringify(resultData)]);
           await client.query("UPDATE protefl_diagnostic_attempt SET status='completed',current_section='completed',completed_at=now() WHERE id=$1", [attemptId]);
           eventType = "diagnostic_submitted";
         } else {
@@ -351,7 +429,7 @@ export async function applyDiagnosticAction(actorId: string, attemptId: string, 
       if (attempt.current_section !== "reading" || !attempt.reading_started_at) throw new Error("action_unavailable");
       if (completesAfterSection(attempt.scope, attempt.delivery_scope, "reading")) {
         const resultData = await calculateSectionResult(client, attemptId, "reading");
-        await client.query("INSERT INTO protefl_diagnostic_result(attempt_id,is_primary,result_version,package_version,result_data) VALUES($1,$2,$3,$4,$5)", [attemptId, attempt.is_primary, attempt.scope === "reading" ? "ets-volume3-practice-test-a.section-retake.v1" : "ets-volume3-practice-test-a.section-assignment.v1", attempt.package_version, JSON.stringify(resultData)]);
+        await client.query("INSERT INTO protefl_diagnostic_result(attempt_id,is_primary,result_version,package_version,result_data) VALUES($1,$2,$3,$4,$5)", [attemptId, attempt.is_primary, attempt.scope === "reading" ? attempt.teacher_restarted_by ? "ets-volume3-practice-test-a.section-reset.v1" : "ets-volume3-practice-test-a.section-retake.v1" : "ets-volume3-practice-test-a.section-assignment.v1", attempt.package_version, JSON.stringify(resultData)]);
         await client.query("UPDATE protefl_diagnostic_attempt SET status='completed',current_section='completed',completed_at=now() WHERE id=$1", [attemptId]);
         eventType = "diagnostic_submitted"; section = "reading";
       } else {
@@ -425,6 +503,7 @@ export async function diagnosticAttemptState(actorId: string, attemptId: string)
     status: attempt.status, currentSection: attempt.current_section, listeningMode: attempt.listening_mode,
     showListeningQuestionText: attempt.show_listening_question_text !== false,
     selectedQuestions: Array.isArray(attempt.selected_questions) ? attempt.selected_questions.map(Number) : null,
+    teacherIssuedRestart: attempt.teacher_restarted_by != null,
     listeningStartedAt: attempt.listening_started_at ? new Date(attempt.listening_started_at).toISOString() : null,
     structureStartedAt: attempt.structure_started_at ? new Date(attempt.structure_started_at).toISOString() : null,
     structureDeadlineAt: attempt.structure_deadline_at ? new Date(attempt.structure_deadline_at).toISOString() : null,
@@ -451,12 +530,14 @@ export async function diagnosticAttemptState(actorId: string, attemptId: string)
   }
   if (attempt.scope === "full" && attempt.status === "completed") {
     const retakes = await getPool().query(
-      "SELECT d.id,d.scope,d.section_retake_number,d.completed_at,r.result_data FROM protefl_diagnostic_attempt d JOIN protefl_diagnostic_result r ON r.attempt_id=d.id WHERE d.parent_attempt_id=$1 AND d.status='completed' AND d.archived_at IS NULL ORDER BY d.completed_at,d.attempt_number",
+      "SELECT d.id,d.scope,d.section_retake_number,d.completed_at,d.teacher_restarted_by,r.result_data FROM protefl_diagnostic_attempt d JOIN protefl_diagnostic_result r ON r.attempt_id=d.id WHERE d.parent_attempt_id=$1 AND d.status='completed' AND d.archived_at IS NULL ORDER BY d.completed_at,d.attempt_number",
       [attemptId],
     );
     state.sectionRetakes = retakes.rows.map((row) => ({
-      id: String(row.id), section: row.scope as Section, number: Number(row.section_retake_number), completedAt: new Date(row.completed_at).toISOString(), result: row.result_data,
+      id: String(row.id), section: row.scope as Section, number: Number(row.section_retake_number), teacherIssuedRestart: row.teacher_restarted_by != null, completedAt: new Date(row.completed_at).toISOString(), result: row.result_data,
     }));
+    const teacherResets = retakes.rows.filter((row) => row.teacher_restarted_by != null).map((row) => ({ section: row.scope, result: row.result_data })) as CompletedSectionReset[];
+    if (teacherResets.length && state.result) state.effectiveResult = effectiveDiagnosticResult(state.result as FullDiagnosticResult, teacherResets);
   }
   return state;
 }
