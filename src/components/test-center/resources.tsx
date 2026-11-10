@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 import type { TestCenterResource } from "@protefl/adapters/postgres-resources";
+import { assignmentTitleDraft, hasValidAssignmentTitleDraft, trimmedAssignmentTitleDraft, updateAssignmentTitleDraft } from "./assignment-title-drafts";
 
 export function ResourceClaim({ onClaimed }: { onClaimed: () => void | Promise<void> }) {
   const [code, setCode] = useState("");
@@ -107,7 +108,7 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [issuedCode, setIssuedCode] = useState<{ title: string; code: string; scope: DeliveryScope; listeningMode: "autoplay" | "question_click"; inviteKind: "private" | "classroom" } | null>(null);
-  const [assignmentTitle, setAssignmentTitle] = useState("");
+  const [assignmentTitleDrafts, setAssignmentTitleDrafts] = useState<Record<string, string>>({});
   const [resetCredential, setResetCredential] = useState<{ name: string; email: string; temporaryPassword: string; revokedSessions: number } | null>(null);
   const [listeningMode, setListeningMode] = useState<"autoplay" | "question_click">("autoplay");
   const [showListeningQuestionText, setShowListeningQuestionText] = useState(true);
@@ -126,6 +127,7 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
   async function mutate(resource: ManagedResource, action: "issue_invite" | "set_status") {
     setBusy(resource.id); setMessage(""); setIssuedCode(null); setResetCredential(null);
     const status = resource.status === "published" ? "hidden" : "published";
+    const assignmentTitle = action === "issue_invite" ? trimmedAssignmentTitleDraft(assignmentTitleDrafts, resource.id) : undefined;
     try {
       const response = await fetch("/api/test-center/teaching", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, resourceId: resource.id, status, assignmentTitle, listeningMode, showListeningQuestionText, deliveryScope, inviteKind }) });
       const data = await response.json() as { invite?: { code: string; assignmentTitle: string; deliveryScope: DeliveryScope; listeningMode: "autoplay" | "question_click"; inviteKind: "private" | "classroom" }; resource?: { status: string }; error?: string };
@@ -209,7 +211,7 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
       <section className="ptc-tag-editor"><label htmlFor={`tags-${resource.id}`}><strong>Activity tags</strong><small>Separate tags with commas · maximum 8 tags, 80 characters each.</small></label><input id={`tags-${resource.id}`} value={tagDrafts[resource.id] ?? ""} maxLength={647} placeholder="e.g. Full TOEFL Practice Test" onChange={(event) => setTagDrafts((current) => ({ ...current, [resource.id]: event.target.value }))} /><button disabled={busy !== null} onClick={() => void saveTags(resource)}>{busy === `tags:${resource.id}` ? "Saving…" : "Save tags"}</button></section>
       <section className="ptc-assignment-builder"><div className="ptc-control-heading"><span className="eyebrow">NEW ASSIGNMENT</span><h3>Configure one access code</h3><p>These choices are pinned when the candidate claims the code.</p></div><div className="ptc-resource-actions">
         <label className="ptc-listening-mode">Assignment title
-          <input value={assignmentTitle} onChange={(event) => setAssignmentTitle(event.target.value)} maxLength={120} required placeholder="e.g. Class B · November diagnostic" />
+          <input value={assignmentTitleDraft(assignmentTitleDrafts, resource.id)} onChange={(event) => setAssignmentTitleDrafts((current) => updateAssignmentTitleDraft(current, resource.id, event.target.value))} maxLength={120} required placeholder="e.g. Class B · November diagnostic" />
           <small>Use a learner, class, or purpose label · 1–120 characters.</small>
         </label>
         <label className="ptc-listening-mode">Access code type
@@ -228,7 +230,7 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
           </select>
         </label>}
         {resource.kind === "diagnostic_package" && (deliveryScope === "full" || deliveryScope === "listening") && <label className="ptc-listening-mode"><span><input type="checkbox" checked={showListeningQuestionText} onChange={(event) => setShowListeningQuestionText(event.target.checked)} /> Show listening question text</span><small>This choice is pinned when each access code is issued.</small></label>}
-        <div className="ptc-primary-actions"><button disabled={busy !== null || resource.status !== "published" || assignmentTitle.trim().length < 1 || assignmentTitle.trim().length > 120} onClick={() => mutate(resource, "issue_invite")}>{busy === resource.id ? "Creating…" : inviteKind === "classroom" ? "Create classroom code" : "Create private code"}</button>
+        <div className="ptc-primary-actions"><button disabled={busy !== null || resource.status !== "published" || !hasValidAssignmentTitleDraft(assignmentTitleDrafts, resource.id)} onClick={() => mutate(resource, "issue_invite")}>{busy === resource.id ? "Creating…" : inviteKind === "classroom" ? "Create classroom code" : "Create private code"}</button>
         {(resource.status === "published" || resource.status === "hidden" || resource.status === "draft") && <button className="secondary" disabled={busy !== null} onClick={() => mutate(resource, "set_status")}>{resource.status === "published" ? "Hide resource" : "Publish resource"}</button>}</div>
       </div></section>
       {resource.candidates?.length ? <section className="ptc-candidate-results">
