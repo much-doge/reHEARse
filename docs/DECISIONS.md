@@ -751,3 +751,18 @@ That fallback is a source-label example, not a definition or claim about the
 word's meaning. The sentence illustrates one use or source label, not every
 sense or all machine-extracted labels. Keep the existing no-score invariant,
 attempt history, and vocabulary/Test Center boundary unchanged.
+
+## D048 — Immediate vocabulary feedback and authored examples (LFL-057)
+
+Part-of-speech choices return feedback immediately; a separate check action is
+not required. Multi-label cards distinguish a correct partial selection from a
+complete selection, and a learner can revise selections directly. Keep the
+next/previous action beside the choices and retain the card navigator below.
+Cards with multiple listed roles show one original, contextual clue sentence
+below the headword; every card has an original contextual sentence with the
+headword highlighted. Learner copy treats the reviewed labels as the activity's
+authoritative answer and does not blame incomplete source data. Package v3 is
+immutable. Existing attempts stay pinned to their saved package version; new
+rounds use v3. This supersedes D047 only for new v3 content and interaction.
+Preserve answer-event history, no-score learning, and the vocabulary/Test
+Center boundary.

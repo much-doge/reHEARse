@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 type Part = "Noun" | "Verb" | "Adjective" | "Adverb";
 const parts: Part[] = ["Noun", "Verb", "Adjective", "Adverb"];
 type Assignment = { id: string; title: string; latestStatus: string | null; createdAt: string };
-type Card = { id: string; headword: string; partsOfSpeech: Part[]; classification: string[]; priority: string[]; frequencyBand: string[]; wordForms: string[]; bookOccurrences: number | null; skillOccurrences: { listening: number; structure: number; reading: number }; sourceRows: number; example?: { sentence: string; highlightStart: number; highlightLength: number; source: "wordnet-3.0" | "rehearse-original" } | null };
+type Card = { id: string; headword: string; partsOfSpeech: Part[]; classification: string[]; priority: string[]; frequencyBand: string[]; wordForms: string[]; bookOccurrences: number | null; skillOccurrences: { listening: number; structure: number; reading: number }; sourceRows: number; example?: { sentence: string; highlightStart: number; highlightLength: number; source: "wordnet-3.0" | "rehearse-original" | "rehearse-authored" } | null };
 type AnswerState = { selectedParts: Part[]; isCorrect: boolean; answeredAt?: string };
 type RunData = { assignment: { id: string; title: string }; attempt: { id: string; number: number; status: string; cardOrder: string[] }; cards: Card[]; answers: Record<string, AnswerState>; openCounts: Record<string, number>; prompt: string };
 type ReviewAssignment = { id: string; type: "private" | "classroom"; title: string; expiresAt: string; revoked: boolean; candidates: Array<{ id: string; learnerId: string; name: string; email: string; attempts: Array<{ id: string; number: number; status: string; createdAt: string; completedAt: string | null; archivedAt: string | null }> }> };
@@ -50,7 +50,7 @@ export function VocabularyHome() {
       <div className="vocab-assignments"><div className="vocab-section-heading"><div><p className="vocab-kicker">YOUR LEARNING DESK</p><h2>Assigned word sets</h2></div><span>{assignments.length.toString().padStart(2, "0")}</span></div>
         {assignments.length ? assignments.map((assignment) => <article className="vocab-assignment-card" key={assignment.id}><div className="vocab-card-mark">Aa</div><div className="vocab-assignment-info"><span className="vocab-tag">TOEFL ITP · FREQUENCY REVIEW</span><h3>{assignment.title}</h3><p>{assignment.latestStatus === "completed" ? "Your last round is ready to review or continue." : "A fresh set of word cards is ready."}</p></div><Link className="vocab-open-link" href={`/vocabulary/${assignment.id}`}>Open cards <span>↗</span></Link></article>) : <div className="vocab-empty"><span className="vocab-empty-spark">✳</span><h3>Your next word set will land here.</h3><p>When your teacher shares a private or classroom code, add it below.</p></div>}
       </div>
-      <aside className="vocab-code-panel"><p className="vocab-kicker">A CODE FROM YOUR TEACHER?</p><h2>Let’s get you in.</h2><p>Enter your access code to add the assigned word set to your desk.</p><form onSubmit={claim}><label htmlFor="vocab-code">Access code</label><input id="vocab-code" value={code} onChange={(event) => setCode(event.target.value.toUpperCase())} maxLength={24} autoComplete="off" placeholder="LEX-XXXXXXXXXX" required /><button disabled={busy}>{busy ? "Checking…" : "Add word set →"}</button>{message && <p className="vocab-status" role="status">{message}</p>}</form><div className="vocab-note"><b>About this deck</b><p>Choose the word-class labels listed by the source. After you check your answer, each card shows an example sentence with the word highlighted. One example shows one use, not every possible meaning or label.</p><small>WordNet examples: Princeton University, “About WordNet,” WordNet, 2010. <a href="/WORDNET-3.0-LICENSE.txt" target="_blank" rel="noreferrer">Full license</a> · <a href="https://wordnet.princeton.edu/citing-wordnet" target="_blank" rel="noreferrer">Citation details</a>.</small></div></aside>
+      <aside className="vocab-code-panel"><p className="vocab-kicker">A CODE FROM YOUR TEACHER?</p><h2>Let’s get you in.</h2><p>Enter your access code to add the assigned word set to your desk.</p><form onSubmit={claim}><label htmlFor="vocab-code">Access code</label><input id="vocab-code" value={code} onChange={(event) => setCode(event.target.value.toUpperCase())} maxLength={24} autoComplete="off" placeholder="LEX-XXXXXXXXXX" required /><button disabled={busy}>{busy ? "Checking…" : "Add word set →"}</button>{message && <p className="vocab-status" role="status">{message}</p>}</form><div className="vocab-note"><b>About this deck</b><p>Choose the roles that fit each word. Your choice gets immediate feedback, and an example sentence shows the word in context.</p></div></aside>
     </section>
   </main>;
 }
@@ -59,7 +59,7 @@ export function VocabularyPlay({ assignmentId }: { assignmentId: string }) {
   const [run, setRun] = useState<RunData | null>(null);
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<Part[]>([]);
-  const [feedback, setFeedback] = useState<{ correct: boolean; expected: Part[] } | null>(null);
+  const [feedback, setFeedback] = useState<{ correct: boolean; partial: boolean; expected: Part[] } | null>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [celebrate, setCelebrate] = useState(false);
@@ -74,7 +74,9 @@ export function VocabularyPlay({ assignmentId }: { assignmentId: string }) {
   const applyRun = useCallback((data: RunData) => {
     setRun(data);
     const currentAnswer = data.cards[0] ? data.answers[data.cards[0].id] : null;
-    setSelected(currentAnswer?.selectedParts ?? []); setFeedback(currentAnswer ? { correct: currentAnswer.isCorrect, expected: data.cards[0]?.partsOfSpeech ?? [] } : null); setIndex(0);
+    const expected = data.cards[0]?.partsOfSpeech ?? [];
+    const saved = currentAnswer?.selectedParts ?? [];
+    setSelected(saved); setFeedback(currentAnswer ? { correct: currentAnswer.isCorrect, partial: !currentAnswer.isCorrect && saved.length > 0 && saved.every((part) => expected.includes(part)), expected } : null); setIndex(0);
   }, []);
   useEffect(() => {
     let current = true;
@@ -100,17 +102,21 @@ export function VocabularyPlay({ assignmentId }: { assignmentId: string }) {
   function go(nextIndex: number) {
     if (!run || nextIndex < 0 || nextIndex >= run.cards.length) return;
     setIndex(nextIndex); const nextCard = run.cards[nextIndex]; const previous = run.answers[nextCard.id];
-    setSelected(previous?.selectedParts ?? []); setFeedback(previous ? { correct: previous.isCorrect, expected: nextCard.partsOfSpeech } : null); setMessage(""); setCelebrate(false);
+    const saved = previous?.selectedParts ?? [];
+    setSelected(saved); setFeedback(previous ? { correct: previous.isCorrect, partial: !previous.isCorrect && saved.length > 0 && saved.every((part) => nextCard.partsOfSpeech.includes(part)), expected: nextCard.partsOfSpeech } : null); setMessage(""); setCelebrate(false);
   }
-  function togglePart(part: Part) { setSelected((before) => before.includes(part) ? before.filter((value) => value !== part) : [...before, part]); setFeedback(null); setCelebrate(false); }
-  async function checkWord() {
-    if (!run || !card || !selected.length) return;
+  async function togglePart(part: Part) {
+    if (!run || !card || busy || isDone || !run.openCounts[card.id]) return;
+    const next = selected.includes(part) ? selected.filter((value) => value !== part) : [...selected, part];
+    if (!next.length) return;
+    setSelected(next); setFeedback(null); setCelebrate(false); setMessage("");
     setBusy(true); setMessage("");
     try {
-      const result = await postJson<{ isCorrect: boolean; expectedParts: Part[] }>("/api/vocabulary", { kind: "answer", attemptId: run.attempt.id, cardId: card.id, selectedParts: selected });
-      const answer = { selectedParts: selected, isCorrect: result.isCorrect };
+      const result = await postJson<{ isCorrect: boolean; expectedParts: Part[] }>("/api/vocabulary", { kind: "answer", attemptId: run.attempt.id, cardId: card.id, selectedParts: next });
+      const partial = !result.isCorrect && next.every((value) => result.expectedParts.includes(value));
+      const answer = { selectedParts: next, isCorrect: result.isCorrect };
       setRun((current) => current ? { ...current, answers: { ...current.answers, [card.id]: answer } } : current);
-      setFeedback({ correct: result.isCorrect, expected: result.expectedParts }); setCelebrate(result.isCorrect);
+      setFeedback({ correct: result.isCorrect, partial, expected: result.expectedParts }); setCelebrate(result.isCorrect);
     } catch { setMessage("Your response did not save. Please try again."); }
     finally { setBusy(false); }
   }
@@ -130,27 +136,27 @@ export function VocabularyPlay({ assignmentId }: { assignmentId: string }) {
   const cardStatus = (id: string) => run.answers[id]?.isCorrect === true ? "right" : run.answers[id]?.isCorrect === false ? "wrong" : run.openCounts[id] ? "opened" : "new";
   return <main className="vocab-play-shell">
     <header className="vocab-topbar"><Link href="/vocabulary">← Word desk</Link><span>reHEARse · WORD STUDIO</span><Link href="/dashboard">Dashboard</Link></header>
-    <section className="vocab-play-heading"><div><p className="vocab-kicker">TOEFL ITP · FREQUENCY REVIEW</p><h1>{run.assignment.title}</h1><p>Choose every word-class label in the source list. Some words have more than one.</p></div><div className="vocab-round-mark"><span>ROUND</span><b>{String(run.attempt.number).padStart(2, "0")}</b></div></section>
+    <section className="vocab-play-heading"><div><p className="vocab-kicker">TOEFL ITP · FREQUENCY REVIEW</p><h1>{run.assignment.title}</h1><p>Tap every role that fits the word. Each choice gives you instant feedback.</p></div><div className="vocab-round-mark"><span>ROUND</span><b>{String(run.attempt.number).padStart(2, "0")}</b></div></section>
     <div className="vocab-progress-row"><span>WORD CARD <b>{String(index + 1).padStart(2, "0")}</b> <i>OF</i> {String(run.cards.length).padStart(2, "0")}</span><span>{card.classification.slice(0, 2).join(" · ")}</span></div>
     <div className="vocab-play-layout">
-      <section className={`vocab-flashcard${feedback ? feedback.correct ? " is-correct" : " is-wrong" : ""}`}>
+      <section className={`vocab-flashcard${feedback ? feedback.correct || feedback.partial ? " is-correct" : " is-wrong" : ""}`}>
         {celebrate && <div className="vocab-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, i) => <span key={i} style={{ "--confetti-i": i } as React.CSSProperties} />)}</div>}
         <div className="vocab-card-topline"><span className="vocab-card-category">{card.priority[0]?.split(" — ")[0] ?? "WORD"}</span><span className="vocab-card-count">{card.bookOccurrences?.toLocaleString("en-US") ?? "—"} <small>source occurrences</small></span></div>
-        <div className="vocab-card-word-wrap"><span className="vocab-word-spark spark-one">✳</span><span className="vocab-word-spark spark-two">✦</span><h2>{card.headword}</h2><p>{card.wordForms.length > 1 ? `Word forms: ${card.wordForms.slice(0, 5).join(" · ")}` : "One word, many ways to use it."}</p></div>
+        <div className="vocab-card-word-wrap"><span className="vocab-word-spark spark-one">✳</span><span className="vocab-word-spark spark-two">✦</span><h2>{card.headword}</h2><p>{card.wordForms.length > 1 ? `Word forms: ${card.wordForms.slice(0, 5).join(" · ")}` : "One word, many ways to use it."}</p>{card.partsOfSpeech.length > 1 && card.example && <div className="vocab-clue-example" aria-label="Example clue">“{card.example.sentence.slice(0, card.example.highlightStart)}<strong>{card.example.sentence.slice(card.example.highlightStart, card.example.highlightStart + card.example.highlightLength)}</strong>{card.example.sentence.slice(card.example.highlightStart + card.example.highlightLength)}”{card.example.source === "wordnet-3.0" && <small>WordNet 3.0 · Princeton University</small>}</div>}</div>
         <div className="vocab-card-bottomline"><span>LISTED IN</span><div>{card.classification.slice(0, 3).map((tag) => <i key={tag}>{tag}</i>)}</div></div>
       </section>
       <aside className="vocab-answer-panel">
-        <p className="vocab-kicker">YOUR MOVE</p><h2>Which roles are listed?</h2><p>Select every part of speech associated with this word form in the source list.</p>
-        <div className="vocab-part-buttons">{parts.map((part) => <button key={part} aria-pressed={selected.includes(part)} onClick={() => togglePart(part)} disabled={isDone || busy} className={`${selected.includes(part) ? "selected" : ""}${feedback?.expected.includes(part) ? " expected" : ""}`}>{part}<span>{part === "Noun" ? "a thing or idea" : part === "Verb" ? "an action or state" : part === "Adjective" ? "a describing word" : "a describing action"}</span></button>)}</div>
-        {!feedback && <button className="vocab-check-button" onClick={() => void checkWord()} disabled={!selected.length || busy || isDone || !run.openCounts[card.id]}>{busy ? "Checking…" : !run.openCounts[card.id] ? "Opening card…" : "Check this word ↗"}</button>}
-        {feedback && <div className={`vocab-feedback${feedback.correct ? " right" : " wrong"}`} role="status"><span className="vocab-feedback-icon">{feedback.correct ? "✦" : "↻"}</span><div><strong>{feedback.correct ? "That’s it. Nice read." : "Not quite — take another look."}</strong><p>The source lists this form as <b>{feedback.expected.join(" + ")}</b>.{feedback.correct ? " Keep the rhythm going." : " You can change your picks and try again."}</p></div>{!feedback.correct && !isDone && <button onClick={() => { setFeedback(null); setSelected([]); setCelebrate(false); }}>Try again</button>}</div>}
-        {feedback && card.example && <div className="vocab-example"><p className="vocab-kicker">WORD IN CONTEXT</p><p>{card.example.sentence.slice(0, card.example.highlightStart)}<strong>{card.example.sentence.slice(card.example.highlightStart, card.example.highlightStart + card.example.highlightLength)}</strong>{card.example.sentence.slice(card.example.highlightStart + card.example.highlightLength)}</p><small>{card.example.source === "wordnet-3.0" ? <>WordNet 3.0 · Princeton University · <a href="/WORDNET-3.0-LICENSE.txt" target="_blank" rel="noreferrer">license</a></> : "Source-label example written for this deck"}</small></div>}
+        <p className="vocab-kicker">YOUR MOVE</p><h2>Which roles fit?</h2><p>Tap each part of speech this word can play.</p>
+        <div className="vocab-part-buttons">{parts.map((part) => <button key={part} aria-pressed={selected.includes(part)} onClick={() => void togglePart(part)} disabled={isDone || busy} className={`${selected.includes(part) ? "selected" : ""}${feedback?.expected.includes(part) ? " expected" : ""}`}>{part}<span>{part === "Noun" ? "a person, place, thing, or idea" : part === "Verb" ? "an action or state" : part === "Adjective" ? "describes a noun" : "adds detail to an action or statement"}</span></button>)}</div>
+        <div className="vocab-inline-nav" aria-label="Card actions"><button disabled={index === 0 || busy} onClick={() => go(index - 1)}>← Previous</button>{index < run.cards.length - 1 ? <button className="next" disabled={busy} onClick={() => go(index + 1)}>Next →</button> : isDone ? <button className="next" disabled={busy} onClick={() => void nextRound(false)}>Next 12 words →</button> : <button className="finish" disabled={busy} onClick={() => void finish()}>{busy ? "Saving…" : "Finish round ✓"}</button>}</div>
+        {feedback && <div className={`vocab-feedback${feedback.correct || feedback.partial ? " right" : " wrong"}`} role="status" aria-live="polite"><span className="vocab-feedback-icon">{feedback.correct ? "✦" : feedback.partial ? "＋" : "↻"}</span><div><strong>{feedback.correct ? "That’s it. Nice read." : feedback.partial ? "That role fits." : "Not quite — try another role."}</strong><p>{feedback.correct ? <>Exactly: <b>{feedback.expected.join(" + ")}</b>. Keep the rhythm going.</> : feedback.partial ? "There’s another role to find. Tap it to complete your answer." : "Change your selection and try again."}</p></div></div>}
+        {feedback && card.example && card.partsOfSpeech.length === 1 && <div className="vocab-example"><p className="vocab-kicker">WORD IN CONTEXT</p><p>{card.example.sentence.slice(0, card.example.highlightStart)}<strong>{card.example.sentence.slice(card.example.highlightStart, card.example.highlightStart + card.example.highlightLength)}</strong>{card.example.sentence.slice(card.example.highlightStart + card.example.highlightLength)}</p>{card.example.source === "wordnet-3.0" && <small>WordNet 3.0 · Princeton University · <a href="/WORDNET-3.0-LICENSE.txt" target="_blank" rel="noreferrer">license</a></small>}</div>}
         {message && <p className="vocab-status" role="status">{message}</p>}
-        <p className="vocab-reference-note">The card checks labels from the reviewed source list. An example sentence illustrates one use and may not cover every listed role.</p>
+        <p className="vocab-reference-note">Examples show the word in context. A clue appears on cards with more than one role.</p>
       </aside>
     </div>
-    <nav className="vocab-card-nav" aria-label="Word cards"><button className="vocab-nav-arrow" disabled={index === 0 || busy} onClick={() => go(index - 1)}>← <span>Previous</span></button><div className="vocab-nav-dots">{run.cards.map((item, i) => <button aria-label={`Card ${i + 1}: ${cardStatus(item.id)}`} aria-current={i === index ? "step" : undefined} className={`status-${cardStatus(item.id)}${i === index ? " current" : ""}`} key={item.id} onClick={() => go(i)}>{String(i + 1).padStart(2, "0")}</button>)}</div>{index < run.cards.length - 1 ? <button className="vocab-nav-arrow next" disabled={busy} onClick={() => go(index + 1)}>Next <span>→</span></button> : isDone ? <button className="vocab-nav-arrow next" disabled={busy} onClick={() => void nextRound(false)}>Next 12 words <span>→</span></button> : <button className="vocab-nav-arrow finish" disabled={busy} onClick={() => void finish()}>{busy ? "Saving…" : "Finish this round ✓"}</button>}</nav>
-    {isDone && <section className="vocab-finish-panel"><div><p className="vocab-kicker">ROUND {run.attempt.number} · SAVED</p><h2>Your cards are ready to revisit.</h2><p>Open any card above to review the source labels. Your teacher can see which cards you opened and your latest response for each.</p></div><div>{Object.values(run.answers).some((answer) => !answer.isCorrect) && <button className="vocab-retry-button" onClick={() => void nextRound(true)} disabled={busy}>Repeat missed cards ↻</button>}<button onClick={() => void nextRound(false)} disabled={busy}>Deal the next 12 ✦</button></div></section>}
+    <nav className="vocab-card-nav" aria-label="Word cards"><div className="vocab-nav-dots">{run.cards.map((item, i) => <button aria-label={`Card ${i + 1}: ${cardStatus(item.id)}`} aria-current={i === index ? "step" : undefined} className={`status-${cardStatus(item.id)}${i === index ? " current" : ""}`} key={item.id} onClick={() => go(i)}>{String(i + 1).padStart(2, "0")}</button>)}</div></nav>
+    {isDone && <section className="vocab-finish-panel"><div><p className="vocab-kicker">ROUND {run.attempt.number} · SAVED</p><h2>Your cards are ready to revisit.</h2><p>Open any card above to review its word roles and example. Your teacher can see which cards you opened and your latest response for each.</p></div><div>{Object.values(run.answers).some((answer) => !answer.isCorrect) && <button className="vocab-retry-button" onClick={() => void nextRound(true)} disabled={busy}>Repeat missed cards ↻</button>}<button onClick={() => void nextRound(false)} disabled={busy}>Deal the next 12 ✦</button></div></section>}
   </main>;
 }
 

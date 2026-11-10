@@ -4,11 +4,12 @@ import type { PoolClient } from "pg";
 import { getPool } from "@/adapters/db/client";
 import packageV1Json from "../../../content/vocabulary/toefl-itp-full-frequency.v1.json";
 import packageV2Json from "../../../content/vocabulary/toefl-itp-full-frequency.v2.json";
+import packageV3Json from "../../../content/vocabulary/toefl-itp-full-frequency.v3.json";
 
 type Part = "Noun" | "Verb" | "Adjective" | "Adverb";
-type Card = { id: string; headword: string; partsOfSpeech: Part[]; classification: string[]; teachingFocus: string[]; priority: string[]; frequencyBand: string[]; frequencyReference: string[]; wordForms: string[]; bookOccurrences: number | null; bookTestCoverage: number | null; skillOccurrences: { listening: number; structure: number; reading: number }; sourceRows: number; example?: { sentence: string; highlightStart: number; highlightLength: number; source: "wordnet-3.0" | "rehearse-original" } };
+type Card = { id: string; headword: string; partsOfSpeech: Part[]; classification: string[]; teachingFocus: string[]; priority: string[]; frequencyBand: string[]; frequencyReference: string[]; wordForms: string[]; bookOccurrences: number | null; bookTestCoverage: number | null; skillOccurrences: { listening: number; structure: number; reading: number }; sourceRows: number; example?: { sentence: string; highlightStart: number; highlightLength: number; source: "wordnet-3.0" | "rehearse-original" | "rehearse-authored" } };
 type Package = { contractVersion: string; version: number; id: string; title: string; prompt: string; sourceNote: string; cardCount: number; cards: Card[] };
-const packageByVersion = new Map<number, Package>([[1, packageV1Json as Package], [2, packageV2Json as Package]]);
+const packageByVersion = new Map<number, Package>([[1, packageV1Json as Package], [2, packageV2Json as Package], [3, packageV3Json as Package]]);
 const roundSize = 12;
 
 export class VocabularyError extends Error {
