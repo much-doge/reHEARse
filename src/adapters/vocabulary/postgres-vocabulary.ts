@@ -28,7 +28,7 @@ function shuffle<T>(items: T[]) {
 }
 
 async function createAttempt(client: PoolClient, assignmentId: string, learnerId: string, previousAttemptId: string | null = null, missedOnly = false) {
-  const assignment = await client.query("SELECT id,package_version FROM vocabulary_assignment WHERE id=$1 AND learner_id=$2 AND revoked_at IS NULL FOR UPDATE", [assignmentId, learnerId]);
+  const assignment = await client.query("SELECT id,package_version,assignment_title FROM vocabulary_assignment WHERE id=$1 AND learner_id=$2 AND revoked_at IS NULL FOR UPDATE", [assignmentId, learnerId]);
   if (!assignment.rows[0]) throw new VocabularyError("assignment_unavailable", 404);
   const pack = vocabularyPackage(Number(assignment.rows[0].package_version));
   const cardById = new Map(pack.cards.map((card) => [card.id, card]));
@@ -57,10 +57,11 @@ async function createAttempt(client: PoolClient, assignmentId: string, learnerId
   const numberResult = await client.query("SELECT COALESCE(max(attempt_number),0)+1 AS n FROM vocabulary_attempt WHERE assignment_id=$1", [assignmentId]);
   const inserted = await client.query(
     `INSERT INTO vocabulary_attempt (assignment_id,attempt_number,previous_attempt_id,package_version,card_order,status)
-     VALUES ($1,$2,$3,$4,$5::jsonb,'active') RETURNING id,attempt_number,created_at`,
+     VALUES ($1,$2,$3,$4,$5::jsonb,'active')
+     RETURNING id,attempt_number,previous_attempt_id,package_version,card_order,status,created_at`,
     [assignmentId, Number(numberResult.rows[0].n), previous?.id ?? null, pack.version, JSON.stringify(cardOrder)],
   );
-  return inserted.rows[0];
+  return { ...inserted.rows[0], assignment_title: assignment.rows[0].assignment_title };
 }
 
 async function attemptState(client: PoolClient, learnerId: string, assignmentId: string, attemptId?: string) {
