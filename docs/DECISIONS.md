@@ -737,3 +737,17 @@ history. Access codes, learner assignments, attempts and resets use
 vocabulary-specific persistence; a private code binds to one learner, while a
 classroom code creates isolated learner assignments. Teacher reset archives
 the current attempt and preserves its events before a new attempt starts.
+
+## D047 — Vocabulary example sentences (LFL-055)
+
+This decision supersedes only D046's prohibition on adding example sentences.
+Each card has one bolded, illustrative sentence, shown after the learner checks
+their answer so it cannot reveal the classification first. Use a WordNet 3.0
+example only when it contains the exact headword and is attached to a matching
+part-of-speech synset; preserve WordNet attribution and license with the
+distributed examples. When no such example exists, use a short original
+sentence that explicitly states the reviewed list's part-of-speech label.
+That fallback is a source-label example, not a definition or claim about the
+word's meaning. The sentence illustrates one use or source label, not every
+sense or all machine-extracted labels. Keep the existing no-score invariant,
+attempt history, and vocabulary/Test Center boundary unchanged.
