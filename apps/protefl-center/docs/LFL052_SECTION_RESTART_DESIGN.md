@@ -13,12 +13,19 @@ partially archiving that root would corrupt its historical meaning.
 
 - A completed, unarchived full root exposes Listening, Structure and Reading
   restart controls in the authorized teaching workspace.
-- A section restart creates a new child attempt for every question in that
+- A section reset creates a new child attempt for every question in that
   section. `selected_questions` remains null; this distinguishes a full-section
   run from the subset used by a focused missed-question retake.
 - The child records that it was teacher-issued and stores only the opaque staff
   actor ID. It pins the parent package version/hashes, Listening mode,
   question-text setting and delivery scope.
+- On completion, the latest teacher-issued reset for that section replaces only
+  that section in the learner's current recalculated diagnostic score. The
+  other sections come from their latest completed teacher-issued resets, or
+  from the original full result when no reset exists.
+- The recalculation is a read projection over immutable stored results. It does
+  not update or replace the original full-result row. Missed-only focused
+  retakes never affect it.
 - The parent result, answer events, previous focused retakes and previous
   teacher-issued restarts remain immutable and visible.
 - At most one unarchived attempt may be in progress for the learner/resource.
@@ -26,7 +33,7 @@ partially archiving that root would corrupt its historical meaning.
 - Authorization requires an active diagnostic assignment and either an admin
   or the teacher who issued it. The parent must belong to the same resource and
   learner and be a completed, unarchived full root.
-- Learner and teacher history label the child as a section restart rather than
+- Learner and teacher history label the child as a section reset rather than
   a focused retake. After completion, the learner may use the existing
   missed-only retry workflow from that new section result.
 
@@ -36,6 +43,8 @@ partially archiving that root would corrupt its historical meaning.
   attempt.
 - Each control creates only the requested full-section child attempt and does
   not alter the parent result or sibling-section history.
+- Completing it updates the current recalculated score for only that section;
+  ordinary retakes leave that score unchanged.
 - Active-attempt, cross-learner, cross-resource, non-issuer teacher,
   non-completed-root and unsupported-resource requests are rejected.
 - The learner resumes the new section through the existing attempt delivery,

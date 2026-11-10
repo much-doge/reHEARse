@@ -687,8 +687,14 @@ provide the requested per-section control for a learner who had completed a
 full diagnostic. A completed full diagnostic exposes separate teacher controls
 for Listening, Structure and Reading. Each control appends a new child attempt
 covering the entire selected section. It is not a missed-only focused retake
-and it does not replace, partially archive, or recalculate the completed full
-attempt.
+and it does not replace or partially archive the completed full attempt.
+
+When a teacher-issued section reset is completed, the learner's current
+diagnostic interpretation is recalculated using the newest completed reset for
+that section and the retained results for the other two sections. This current
+projection is additive and reproducible from immutable result rows. The
+original full-test result remains visible as historical evidence. Learner
+missed-only retakes never enter the recalculated score.
 
 The child attempt pins the parent package hashes and assignment settings,
 records the authorizing staff actor as an opaque identifier, and remains in the
