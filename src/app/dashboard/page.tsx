@@ -44,6 +44,13 @@ export default async function DashboardPage() {
           </section>
 
           <section className="ladder-dashboard-entry">
+            <p className="eyebrow">VOCABULARY PRACTICE</p>
+            <h2>Word Studio</h2>
+            <p>Share private or classroom word rounds and review each learner’s card activity.</p>
+            <Link href="/vocabulary/teaching" className="ladder-primary">Open Word Studio →</Link>
+          </section>
+
+          <section className="ladder-dashboard-entry">
             <p className="eyebrow">ARCHIVED LEARNING TOOLS</p>
             <h2>Legacy reHEARse resources</h2>
             <p>Archived listening tools stay hidden from learners until you enable access for them.</p>
@@ -66,6 +73,13 @@ export default async function DashboardPage() {
             <h2>Your assigned resources</h2>
             <p>Only resources your teacher has assigned to your account appear here.</p>
             <Link href="/test-center" className="ladder-primary">Open TOEFL-like Test Center →</Link>
+          </section>
+
+          <section className="ladder-dashboard-entry">
+            <p className="eyebrow">VOCABULARY PRACTICE</p>
+            <h2>Word Studio</h2>
+            <p>Play the word rounds assigned to your account by your teacher.</p>
+            <Link href="/vocabulary" className="ladder-primary">Open assigned word sets →</Link>
           </section>
 
           {legacyVisible && <section className="ladder-dashboard-entry">

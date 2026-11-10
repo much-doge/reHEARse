@@ -716,3 +716,24 @@ requested item's structured prompt/options and associated Reading passage
 when applicable, under private no-store response headers. The teacher view
 groups missed items into separate Listening, Structure, and Reading sections;
 items in a section are displayed in a single vertical column.
+
+## D046 — Assigned TOEFL vocabulary classification cards (LFL-054)
+
+The reviewed TOEFL frequency list is a versioned learning package, separate
+from formal Test Center resources and records. The source has no example
+sentences or definitions, and many spellings have multiple part-of-speech
+labels. The import therefore merges same-spelling rows into one card, retains
+all source labels, and asks which labels the source associates with that form;
+it must not imply a context-free word has only one grammatical role or invent
+example usage. Source frequency metadata may help a learner select a bounded
+study round.
+
+Learner gameplay gives immediate item-level response feedback and supports
+returning to a card. Teacher-only assigned-item history may show whether a card
+was opened and the learner's item-level response states. It must not calculate
+or present an overall score, percent correct, mastery estimate, or aggregate
+correctness, and must not enter listening diagnostics or formal Test Center
+history. Access codes, learner assignments, attempts and resets use
+vocabulary-specific persistence; a private code binds to one learner, while a
+classroom code creates isolated learner assignments. Teacher reset archives
+the current attempt and preserves its events before a new attempt starts.
