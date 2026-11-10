@@ -650,3 +650,32 @@ resource, timestamp, and number of revoked sessions. The audit never stores the
 temporary password or password hash. Resetting credentials does not change the
 learner's assignments, attempts, answers, results, retakes, or archived
 generations.
+
+## D043 — Pinned assignment titles and scope-neutral diagnostic restart (LFL-051)
+
+Accepted at the operator's request. Every newly issued private or classroom
+code carries a teacher-authored assignment title describing the intended
+cohort, learner, or purpose. The title is validated as concise text, stored on
+the invite, and copied into each assignment when claimed. It is descriptive
+metadata only and never participates in authorization, scoring, resource
+visibility, or attempt ownership. Existing invites and assignments remain
+valid with a resource-title fallback; the migration must not invent cohort
+names or rewrite historical evidence.
+
+The title appears in the one-time issued-code summary, the teaching workspace,
+the learner's assigned-resource context, and attempt/history framing where it
+helps distinguish multiple deliveries. User-authored title text is rendered as
+ordinary escaped text and never as HTML.
+
+Diagnostic restart is defined against a root attempt, not against the literal
+`full` scope. The teacher history and archive action must therefore include
+root attempts for full diagnostic, Listening-only, Structure-only, and
+Reading-only assignments. Archiving a current root also archives its child
+section retakes in the same audited batch, preserves every answer and result,
+and lets the learner start the same pinned assignment scope again.
+
+This scope-neutral contract is the extension point for later diagnostic
+delivery scopes. It does not authorize guessed reset behavior for a different
+future resource kind. A resource kind without explicit restart semantics must
+return a safe unavailable result until its handler and evidence-preservation
+rules are recorded.
