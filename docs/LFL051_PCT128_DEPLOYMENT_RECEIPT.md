@@ -7,7 +7,9 @@ Environment: Countryroad Proxmox PCT 128, public origin
 
 Implementation commit: `57522c888ef7e3a22cdf829c971f4ef1ab39175c`
 
-Application image: `rehearse-app:57522c8`
+Follow-up UI fix: `afb2b0db8ac948ea93caf6dc645d6ca58490f906`
+
+Final application image: `rehearse-app:afb2b0d`
 
 ## Delivered behavior
 
@@ -26,6 +28,10 @@ restricted to administrators or the teacher who issued the active assignment.
 No answers or results are deleted or rewritten. Unsupported resource kinds
 remain unavailable until they have explicit restart semantics.
 
+The follow-up fix stores title drafts by resource ID. Each resource card now
+validates and submits only its own trimmed title, preventing drafts from
+appearing on or being issued for another activity.
+
 ## Database and rollback boundary
 
 Before production migration, a custom-format PostgreSQL backup was written to
@@ -39,16 +45,19 @@ The production migration ledger now lists `030_assignment_titles.sql` above
 029 and 028. Existing assignment and attempt evidence was not intentionally
 modified; no learner reset or archive operation was performed during release.
 
-If application rollback is needed, set `REHEARSE_IMAGE_TAG=2919a92` and
-recreate only the `app` service with the production Compose configuration.
-Keep migration 030 in place; its nullable columns remain compatible with the
-previous app. Do not restore the database backup over live data except as an
+To roll back only the follow-up UI correction, set
+`REHEARSE_IMAGE_TAG=57522c8` and recreate only the `app` service. To roll back
+the full LFL-051 application change, use `REHEARSE_IMAGE_TAG=2919a92`. Keep
+migration 030 in place; its nullable columns remain compatible with both
+images. Do not restore the database backup over live data except as an
 explicit disaster-recovery decision.
 
 ## Verification
 
-- Local `git diff --check`, changed-path ESLint, TypeScript, and the full
-  Vitest suite passed: 49 files and 186 tests.
+- Local `git diff --check`, changed-path ESLint, TypeScript, and the final full
+  Vitest suite passed: 50 files and 188 tests. Two new tests verify that two
+  resource title drafts stay isolated, submit trimmed values, and validate
+  independently.
 - Local migration 030 applied after a mode-0600 custom-format backup; its
   archive listing validated and the app container remained healthy with zero
   restarts.
@@ -58,8 +67,12 @@ explicit disaster-recovery decision.
   phase passed.
 - Production migration 030 applied after the validated backup. The production
   migration ledger reports 030, 029, and 028.
-- `rehearse-app-1` runs `rehearse-app:57522c8`, is healthy, and has zero
-  restarts. The PostgreSQL container remains healthy.
+- Follow-up `rehearse-app:afb2b0d` was built from the exact follow-up commit
+  after its Next.js production build and TypeScript phase passed. Compose
+  configuration validated, and only the `app` service was recreated with
+  `--no-deps`; migration 030 was not rerun and Postgres was not modified.
+- `rehearse-app-1` runs `rehearse-app:afb2b0d`, is healthy, and has zero
+  restarts. The PostgreSQL container remains healthy with zero restarts.
 - PCT128 LAN health at `http://192.168.8.63:3001/api/health` and public
   `https://rehearse.najala.org/api/health` both returned HTTP 200.
 - The logged-out teaching page returned HTTP 307 with private/no-store cache
