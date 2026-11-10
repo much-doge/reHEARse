@@ -70,7 +70,7 @@ type AttemptResult = {
 type AttemptHistory = {
   id: string; number: number; status: string; scope: string; deliveryScope: DeliveryScope; effectiveResult?: AttemptResult | null;
   createdAt: string; completedAt: string | null; archivedAt: string | null; result: AttemptResult | null;
-  retakes: Array<{ section: string; number: number; status: string; teacherIssuedRestart?: boolean; createdAt: string; completedAt: string | null; archivedAt: string | null; result: AttemptResult | null }>;
+  retakes: Array<{ id: string; section: string; number: number; status: string; teacherIssuedRestart?: boolean; createdAt: string; completedAt: string | null; archivedAt: string | null; result: AttemptResult | null }>;
 };
 type ManagedResource = { id: string; code: string; version: number; kind: string; title: string; status: string; tags: string[]; assignedCount: number; candidates?: Array<{ actorId: string; name: string; email: string; assignmentTitle: string; deliveryScope: DeliveryScope; attempts: AttemptHistory[]; canResetPassword: boolean }> };
 
@@ -80,17 +80,70 @@ function resultLabel(result: AttemptResult | null) {
   return correct === undefined || total === undefined ? null : `${correct} / ${total} correct`;
 }
 
-function MissedQuestions({ result }: { result: AttemptResult | null }) {
+function MissedQuestions({ result, resourceId, candidateActorId, attemptId }: { result: AttemptResult | null; resourceId: string; candidateActorId: string; attemptId: string }) {
   const missed = result?.review?.filter((item) => !item.correct) ?? [];
   if (!result) return <p className="ptc-review-empty">No completed result is recorded for this attempt.</p>;
   if (!missed.length) return <p className="ptc-review-empty">No missed questions in this attempt.</p>;
-  return <div className="ptc-missed-list" aria-label="Missed question review">
-    {missed.map((item) => <div className="ptc-missed-item" key={`${item.section}-${item.question}`}>
-      <span>{item.section} · Q{item.question}</span>
-      <span>Response: <strong>{item.selected ?? "Omitted"}</strong></span>
-      <span>Key: <strong>{item.correctAnswer}</strong></span>
-    </div>)}
+  return <div className="ptc-missed-sections" aria-label="Missed question review">
+    {(["listening", "structure", "reading"] as const).map((section) => {
+      const sectionItems = missed.filter((item) => item.section === section);
+      if (!sectionItems.length) return null;
+      const title = section === "structure" ? "Structure and Written Expression" : section === "listening" ? "Listening Comprehension" : "Reading Comprehension";
+      return <section className="ptc-missed-section" key={section}>
+        <h4>{title}<span>{sectionItems.length} missed</span></h4>
+        <div className="ptc-missed-list">{sectionItems.map((item) => <TeacherQuestionReveal key={`${item.section}-${item.question}`} item={item} resourceId={resourceId} candidateActorId={candidateActorId} attemptId={attemptId} />)}</div>
+      </section>;
+    })}
   </div>;
+}
+
+type TeacherQuestionPayload = {
+  section: string;
+  part?: string;
+  question: ReviewItem;
+  item: { prompt?: string; options: Record<string, string>; part?: string; tokens?: Array<{ text: string; choice?: string }> };
+  passage?: { questions: [number, number]; lines: Array<{ text: string; line: number | null; paragraphStart: boolean }> };
+};
+
+function TeacherQuestionReveal({ item, resourceId, candidateActorId, attemptId }: { item: ReviewItem; resourceId: string; candidateActorId: string; attemptId: string }) {
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [payload, setPayload] = useState<TeacherQuestionPayload | null>(null);
+  const [failed, setFailed] = useState(false);
+  async function reveal() {
+    if (!open && !payload && !busy) {
+      setBusy(true); setFailed(false);
+      try {
+        const response = await fetch("/api/test-center/teaching/question", {
+          method: "POST", cache: "no-store", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ resourceId, candidateActorId, attemptId, section: item.section, question: item.question }),
+        });
+        const data = await response.json() as { item?: TeacherQuestionPayload };
+        if (!response.ok || !data.item) throw new Error("question_unavailable");
+        setPayload(data.item); setOpen(true);
+      } catch { setFailed(true); }
+      finally { setBusy(false); }
+    } else setOpen(!open);
+  }
+  const groupedTokens = payload?.item.tokens?.reduce<Array<{ text: string; choice?: string }>>((groups, token) => {
+    const previous = groups.at(-1);
+    if (previous && previous.choice === token.choice) previous.text += " " + token.text;
+    else groups.push({ ...token });
+    return groups;
+  }, []);
+  return <article className={`ptc-missed-item${open ? " is-open" : ""}`}>
+    <button className="ptc-missed-trigger" aria-expanded={open} onClick={() => void reveal()} disabled={busy}>
+      <strong>{item.section} · Q{item.question}</strong><span>Response: <b>{item.selected ?? "Omitted"}</b></span><span>Key: <b>{item.correctAnswer}</b></span><small>{busy ? "Loading…" : failed ? "Could not load · click to retry" : open ? "Hide question −" : "Reveal question +"}</small>
+    </button>
+    {open && payload && <div className="ptc-teacher-question">
+      {payload.passage && <article className="ptc-teacher-passage"><header>PASSAGE · Questions {payload.passage.questions[0]}–{payload.passage.questions[1]}</header>{payload.passage.lines.map((line, index) => <p className={line.paragraphStart ? "paragraph-start" : ""} key={index}>{line.line && <span>{line.line}</span>}{line.text}</p>)}</article>}
+      <div className="ptc-teacher-question-card">
+        <header><span>{item.section === "structure" ? `PART ${payload.part === "completion" ? "A · SENTENCE COMPLETION" : "B · ERROR IDENTIFICATION"}` : item.section === "listening" ? `PART ${payload.item.part ?? ""} · LISTENING` : "READING COMPREHENSION"}</span><b>Question {item.question}</b></header>
+        {groupedTokens ? <p className="ptc-teacher-error-sentence">{groupedTokens.map((token, index) => <span className={token.choice ? "is-underlined" : ""} key={index}>{token.text}{index < groupedTokens.length - 1 ? " " : ""}</span>)}</p> : <h5>{payload.item.prompt?.replace("_____", "________")}</h5>}
+        <div className="ptc-teacher-options">{(["A", "B", "C", "D"] as const).map((choice) => <div className={choice === item.correctAnswer ? "is-key" : choice === item.selected ? "is-response" : ""} key={choice}><b>{choice}</b><span>{payload.item.options[choice]}</span></div>)}</div>
+      </div>
+    </div>}
+  </article>;
 }
 
 function AttemptResultSummary({ result }: { result: AttemptResult | null }) {
@@ -179,6 +232,7 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
           attempts: entry.attempts.map((record) => record.id !== attempt.id ? record : {
             ...record,
             retakes: [...record.retakes, {
+              id: data.restart!.attemptId,
               section, number: data.restart!.sectionRetakeNumber, status: "in_progress", teacherIssuedRestart: true,
               createdAt: data.restart!.createdAt, completedAt: null, archivedAt: null, result: null,
             }],
@@ -285,12 +339,12 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
                 {attempt.effectiveResult && <p className="ptc-restart-ready">Current score recalculated from completed section resets. The original result remains below.</p>}
                 <AttemptResultSummary result={attempt.effectiveResult ?? attempt.result} />
                 {attempt.effectiveResult && <details className="ptc-answer-review"><summary>Original completed result</summary><AttemptResultSummary result={attempt.result} /></details>}
-                {(attempt.effectiveResult ?? attempt.result) && <details className="ptc-answer-review"><summary>Missed questions and answer key · current score</summary><MissedQuestions result={attempt.effectiveResult ?? attempt.result} /></details>}
+                {(attempt.effectiveResult ?? attempt.result) && <details className="ptc-answer-review"><summary>Missed questions and answer key · current score</summary><MissedQuestions result={attempt.effectiveResult ?? attempt.result} resourceId={resource.id} candidateActorId={candidate.actorId} attemptId={attempt.id} /></details>}
                 {!attempt.archivedAt && attempt.status === "completed" && attempt.scope === "full" && attempt.deliveryScope === "full" && <div className="ptc-section-reset"><div><strong>Reset one section</strong><p>The learner will redo every question in that section. Its completed result will update the current recalculated score; ordinary missed-item retakes never change it.</p></div><div>{(["listening", "structure", "reading"] as const).map((section) => <button className="secondary" disabled={busy !== null || hasActiveAttempt} key={section} onClick={() => void resetCandidateSection(resource, candidate, attempt, section)}>{busy === `section:${attempt.id}:${section}` ? "Resetting…" : `Reset ${section === "structure" ? "Structure" : section[0].toUpperCase() + section.slice(1)}`}</button>)}</div></div>}
                 {attempt.retakes.length > 0 && <div className="ptc-retake-history"><h4>Section retakes</h4>{attempt.retakes.map((retake) => <article className={retake.archivedAt ? "is-archived" : ""} key={`${retake.section}-${retake.number}`}>
                   <header><strong>{retake.section} {retake.teacherIssuedRestart ? "reset" : "retake"} {retake.number}</strong><span>{retake.archivedAt ? "Archived" : retake.status === "completed" ? resultLabel(retake.result) ?? "Completed" : "In progress"}</span><time dateTime={retake.archivedAt ?? retake.completedAt ?? retake.createdAt}>{retake.archivedAt ? `Archived ${new Date(retake.archivedAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}` : new Date(retake.completedAt ?? retake.createdAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}</time></header>
                   <AttemptResultSummary result={retake.result} />
-                  {retake.result && <details className="ptc-answer-review"><summary>Missed questions and answer key</summary><MissedQuestions result={retake.result} /></details>}
+                  {retake.result && <details className="ptc-answer-review"><summary>Missed questions and answer key</summary><MissedQuestions result={retake.result} resourceId={resource.id} candidateActorId={candidate.actorId} attemptId={retake.id} /></details>}
                 </article>)}</div>}
               </section>)}
             </div>

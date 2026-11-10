@@ -704,3 +704,15 @@ active assignment may create the restart. The selected parent must be a
 completed, unarchived full root for the same assigned learner and diagnostic
 resource, and no other unarchived attempt may be in progress for that learner
 and resource. Unsupported resources and invalid lineages fail closed.
+
+## D045 — On-demand teacher question reveal and section grouping (LFL-053)
+
+The authenticated teacher/admin attempt review may reveal one missed diagnostic
+question at a time when staff selects its row. The reveal endpoint verifies
+that the staff actor is an administrator or issued the active assignment, the
+attempt belongs to that assigned learner/resource, the attempt has a completed
+result, and the requested item is missed in that result. It returns only the
+requested item's structured prompt/options and associated Reading passage
+when applicable, under private no-store response headers. The teacher view
+groups missed items into separate Listening, Structure, and Reading sections;
+items in a section are displayed in a single vertical column.

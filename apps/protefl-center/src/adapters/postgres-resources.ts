@@ -141,7 +141,7 @@ export async function listManagedResources(staffActorId: string, staffRole: "tea
          'createdAt',d.created_at,'completedAt',d.completed_at,'archivedAt',d.archived_at,'result',r.result_data,
          'retakes',COALESCE((
            SELECT jsonb_agg(jsonb_build_object(
-             'section',retry.scope,'number',retry.section_retake_number,'status',retry.status,
+             'id',retry.id,'section',retry.scope,'number',retry.section_retake_number,'status',retry.status,
              'teacherIssuedRestart',(retry.teacher_restarted_by IS NOT NULL),
              'createdAt',retry.created_at,'completedAt',retry.completed_at,'archivedAt',retry.archived_at,'result',rr.result_data
            ) ORDER BY retry.attempt_number)
