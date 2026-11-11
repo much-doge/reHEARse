@@ -1,6 +1,6 @@
 # Change ledger
 
-| LFL-062 | in_progress | Extend teacher workspace sorting across activity tags, candidate email, answered-question progress, and retake count | Pending checks and deployment | This revision; D035; D037 |
+| LFL-062 | in_progress | Extend teacher workspace sorting across activity tags, candidate email, answered-question progress, and retake count | Changed-path ESLint, repository TypeScript, Next production build, and diff check passed; commit and deployment pending | This revision; D035; D037 |
 
 | LFL-061 | in_progress | Correct ETS Practice Test A Structure Q39 key, harden Listening context/retake playback, keep server-owned timed sections running across tab restores, and improve Reading passage controls | Pending checks, deployment, and authenticated retake/browser review | This revision; D027; D035; D037 |
 

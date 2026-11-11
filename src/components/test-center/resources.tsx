@@ -230,8 +230,8 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
   const [deliveryScope, setDeliveryScope] = useState<DeliveryScope>("full");
   const [inviteKind, setInviteKind] = useState<"private" | "classroom">("private");
   const [viewMode, setViewMode] = useState<"compact" | "expanded">("compact");
-  const [resourceSort, setResourceSort] = useState<"newest" | "title" | "status" | "assignments">("newest");
-  const [candidateSort, setCandidateSort] = useState<"name" | "recent" | "status" | "score">("name");
+  const [resourceSort, setResourceSort] = useState<"newest" | "title" | "status" | "assignments" | "tags">("newest");
+  const [candidateSort, setCandidateSort] = useState<"name" | "email" | "recent" | "status" | "score" | "answered" | "retakes">("name");
   const [resourceVisibility, setResourceVisibility] = useState<Record<string, boolean>>({});
   const [tagDrafts, setTagDrafts] = useState<Record<string, string>>(() => Object.fromEntries(initial.map((resource) => [resource.id, resource.tags.join(", ")])));
   function changeViewMode(mode: "compact" | "expanded") {
@@ -245,6 +245,7 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
     if (resourceSort === "title") return left.title.localeCompare(right.title, "en");
     if (resourceSort === "status") return left.status.localeCompare(right.status, "en") || right.createdAt.localeCompare(left.createdAt);
     if (resourceSort === "assignments") return right.assignedCount - left.assignedCount || right.createdAt.localeCompare(left.createdAt);
+    if (resourceSort === "tags") return left.tags.join(", ").localeCompare(right.tags.join(", "), "en") || left.title.localeCompare(right.title, "en");
     return right.createdAt.localeCompare(left.createdAt);
   }), [resourceSort, resources]);
   function orderedCandidates(candidates: NonNullable<ManagedResource["candidates"]>) {
@@ -252,11 +253,22 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
       const leftLatest = left.attempts.at(-1);
       const rightLatest = right.attempts.at(-1);
       if (candidateSort === "name") return left.name.localeCompare(right.name, "en") || left.email.localeCompare(right.email, "en");
+      if (candidateSort === "email") return left.email.localeCompare(right.email, "en") || left.name.localeCompare(right.name, "en");
       if (candidateSort === "status") return (leftLatest?.status ?? "not_started").localeCompare(rightLatest?.status ?? "not_started", "en") || left.name.localeCompare(right.name, "en");
       if (candidateSort === "score") {
         const leftScore = leftLatest?.effectiveResult?.total?.correct ?? leftLatest?.result?.total?.correct ?? -1;
         const rightScore = rightLatest?.effectiveResult?.total?.correct ?? rightLatest?.result?.total?.correct ?? -1;
         return rightScore - leftScore || left.name.localeCompare(right.name, "en");
+      }
+      if (candidateSort === "answered") {
+        const leftAnswered = left.attempts.reduce((count, attempt) => count + (attempt.answeredQuestions?.length ?? 0), 0);
+        const rightAnswered = right.attempts.reduce((count, attempt) => count + (attempt.answeredQuestions?.length ?? 0), 0);
+        return rightAnswered - leftAnswered || left.name.localeCompare(right.name, "en");
+      }
+      if (candidateSort === "retakes") {
+        const leftRetakes = left.attempts.reduce((count, attempt) => count + attempt.retakes.length, 0);
+        const rightRetakes = right.attempts.reduce((count, attempt) => count + attempt.retakes.length, 0);
+        return rightRetakes - leftRetakes || left.name.localeCompare(right.name, "en");
       }
       const leftDate = leftLatest?.completedAt ?? leftLatest?.createdAt ?? "";
       const rightDate = rightLatest?.completedAt ?? rightLatest?.createdAt ?? "";
@@ -370,7 +382,7 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
     {message && <p role="alert" className="ptc-resource-notice">{message}</p>}
     {issuedCode && <section className="ptc-issued-code" role="status"><div><span className="eyebrow">{issuedCode.inviteKind === "classroom" ? "CLASSROOM CODE CREATED" : "PRIVATE CODE CREATED"}</span><strong>{issuedCode.title}</strong></div><code>{issuedCode.code}</code><p>{issuedCode.inviteKind === "classroom" ? "May be claimed by multiple signed-in learners." : "May be claimed by one signed-in learner."} Scope: {issuedCode.scope === "full" ? "Full diagnostic" : issuedCode.scope === "structure" ? "Structure and Written Expression" : issuedCode.scope[0].toUpperCase() + issuedCode.scope.slice(1)}{issuedCode.scope === "full" || issuedCode.scope === "listening" ? ` · Listening: ${issuedCode.listeningMode === "autoplay" ? "Autoplay" : "Manual, play each question"}` : ""}. Expires in 7 days and is shown only now.</p><button onClick={() => { navigator.clipboard?.writeText(issuedCode.code); setMessage("Code copied."); }}>Copy code</button></section>}
     {resetCredential && <section className="ptc-reset-credential" role="status"><div><span className="eyebrow">TEMPORARY PASSWORD CREATED</span><strong>{resetCredential.name}</strong><small>{resetCredential.email}</small></div><code>{resetCredential.temporaryPassword}</code><p>Copy and send this password securely. It is shown only here and is not stored in the audit record. {resetCredential.revokedSessions} existing {resetCredential.revokedSessions === 1 ? "session was" : "sessions were"} signed out.</p><div><button onClick={() => { navigator.clipboard?.writeText(resetCredential.temporaryPassword); setMessage("Temporary password copied."); }}>Copy password</button><button className="secondary" onClick={() => setResetCredential(null)}>Dismiss</button></div></section>}
-    <div className="ptc-resource-view-controls" aria-label="Resource display"><span>{resources.length} activities</span><label>Sort activities <select value={resourceSort} onChange={(event) => setResourceSort(event.target.value as typeof resourceSort)}><option value="newest">Newest first</option><option value="title">Title A–Z</option><option value="status">Status</option><option value="assignments">Most assigned</option></select></label><div><button className={viewMode === "compact" ? "active" : ""} onClick={() => changeViewMode("compact")} aria-pressed={viewMode === "compact"}>Compact</button><button className={viewMode === "expanded" ? "active" : ""} onClick={() => changeViewMode("expanded")} aria-pressed={viewMode === "expanded"}>Expanded</button></div></div>
+    <div className="ptc-resource-view-controls" aria-label="Resource display"><span>{resources.length} activities</span><label>Sort activities <select value={resourceSort} onChange={(event) => setResourceSort(event.target.value as typeof resourceSort)}><option value="newest">Newest first</option><option value="title">Title A–Z</option><option value="status">Status</option><option value="assignments">Most assigned</option><option value="tags">Tag A–Z</option></select></label><div><button className={viewMode === "compact" ? "active" : ""} onClick={() => changeViewMode("compact")} aria-pressed={viewMode === "compact"}>Compact</button><button className={viewMode === "expanded" ? "active" : ""} onClick={() => changeViewMode("expanded")} aria-pressed={viewMode === "expanded"}>Expanded</button></div></div>
     <section className={`ptc-resource-list is-${viewMode}`}>{orderedResources.map((resource) => {
       const showDetails = resourceVisibility[resource.id] ?? viewMode === "expanded";
       return <article className={`ptc-resource-card${showDetails ? " is-open" : " is-compact"}`} key={resource.id}>
@@ -403,7 +415,7 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
       </div></section>
       {resource.candidates?.length ? <section className="ptc-candidate-results">
         <div className="ptc-candidate-heading"><div><p className="eyebrow">ASSIGNED CANDIDATES</p><h3>Attempts and answer review</h3></div><span>{resource.candidates.length} candidates</span></div>
-        <div className="ptc-candidate-sort"><label>Sort candidates <select value={candidateSort} onChange={(event) => setCandidateSort(event.target.value as typeof candidateSort)}><option value="name">Name A–Z</option><option value="recent">Most recent activity</option><option value="status">Status</option><option value="score">Highest score</option></select></label></div>
+        <div className="ptc-candidate-sort"><label>Sort candidates <select value={candidateSort} onChange={(event) => setCandidateSort(event.target.value as typeof candidateSort)}><option value="name">Name A–Z</option><option value="email">Email A–Z</option><option value="recent">Most recent activity</option><option value="status">Status</option><option value="score">Highest score</option><option value="answered">Most answered</option><option value="retakes">Most retakes</option></select></label></div>
         {orderedCandidates(resource.candidates).map((candidate) => {
           const currentAttempts = candidate.attempts.filter((attempt) => !attempt.archivedAt);
           const latest = currentAttempts.at(-1);
