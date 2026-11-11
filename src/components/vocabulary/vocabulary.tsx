@@ -43,6 +43,7 @@ export function VocabularyHome() {
   const [code, setCode] = useState("");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
+  const [activeAssignment, setActiveAssignment] = useState<string | null>(null);
   const refresh = useCallback(async () => {
     const response = await fetch("/api/vocabulary", { cache: "no-store" });
     if (response.ok) setAssignments(((await response.json()) as { assignments: Assignment[] }).assignments);
@@ -67,14 +68,15 @@ export function VocabularyHome() {
     </section>
     <section className="vocab-content-grid">
       <div className="vocab-assignments"><div className="vocab-section-heading"><div><p className="vocab-kicker">YOUR LEARNING DESK</p><h2>Assigned word sets</h2></div><span>{assignments.length.toString().padStart(2, "0")}</span></div>
-        {assignments.length ? assignments.map((assignment) => <article className="vocab-assignment-card" key={assignment.id}><div className="vocab-card-mark">Aa</div><div className="vocab-assignment-info"><span className="vocab-tag">TOEFL ITP · CONTEXT PRACTICE</span><h3>{assignment.title}</h3><p>{assignment.latestStatus === "completed" ? "Your next focused set is ready whenever you are." : "Your contextual word queue is ready to continue."}</p></div><Link className="vocab-open-link" href={`/vocabulary/${assignment.id}`}>Open cards <span>↗</span></Link></article>) : <div className="vocab-empty"><span className="vocab-empty-spark">✳</span><h3>Your next word set will land here.</h3><p>When your teacher shares a private or classroom code, add it below.</p></div>}
+        {assignments.length ? assignments.map((assignment) => <article className="vocab-assignment-card" key={assignment.id}><div className="vocab-card-mark">Aa</div><div className="vocab-assignment-info"><span className="vocab-tag">TOEFL ITP · CONTEXT PRACTICE</span><h3>{assignment.title}</h3><p>{assignment.latestStatus === "completed" ? "Your next focused set is ready whenever you are." : "Your contextual word queue is ready to continue."}</p></div><button className="vocab-open-link" type="button" onClick={() => setActiveAssignment(assignment.id)}>Open cards <span>↗</span></button></article>) : <div className="vocab-empty"><span className="vocab-empty-spark">✳</span><h3>Your next word set will land here.</h3><p>When your teacher shares a private or classroom code, add it below.</p></div>}
       </div>
       <aside className="vocab-code-panel"><p className="vocab-kicker">A CODE FROM YOUR TEACHER?</p><h2>Let’s get you in.</h2><p>Enter your access code to add the assigned word set to your desk.</p><form onSubmit={claim}><label htmlFor="vocab-code">Access code</label><input id="vocab-code" value={code} onChange={(event) => setCode(event.target.value.toUpperCase())} maxLength={24} autoComplete="off" placeholder="LEX-XXXXXXXXXX" required /><button disabled={busy}>{busy ? "Checking…" : "Add word set →"}</button>{message && <p className="vocab-status" role="status">{message}</p>}</form><div className="vocab-note"><b>About this deck</b><p>Read each sentence, then choose the role its highlighted word plays in that context. Every choice receives immediate feedback.</p></div></aside>
     </section>
+    {activeAssignment && <VocabularyPlay assignmentId={activeAssignment} onClose={() => setActiveAssignment(null)} />}
   </main>;
 }
 
-export function VocabularyPlay({ assignmentId }: { assignmentId: string }) {
+export function VocabularyPlay({ assignmentId, onClose }: { assignmentId: string; onClose?: () => void }) {
   const [run, setRun] = useState<RunData | ContextRunData | null>(null);
   const [message, setMessage] = useState("");
   useEffect(() => {
@@ -88,10 +90,12 @@ export function VocabularyPlay({ assignmentId }: { assignmentId: string }) {
       .catch((error) => { if (current) setMessage(error instanceof Error ? error.message : "The word deck could not be opened."); });
     return () => { current = false; };
   }, [assignmentId]);
-  if (!run) return <main className="vocab-play-shell"><header className="vocab-topbar"><Link href="/vocabulary">← Word desk</Link><span>reHEARse · WORD STUDIO</span></header><p className="vocab-load-message">{message || "Opening your word cards…"}</p></main>;
-  return "isContextualQueue" in run
-    ? <VocabularyContextualPlay assignmentId={assignmentId} initialRun={run} />
-    : <VocabularyLegacyPlay assignmentId={assignmentId} initialRun={run} />;
+  const content = !run ? <main className="vocab-play-shell"><header className="vocab-topbar"><Link href="/vocabulary">← Word desk</Link><span>reHEARse · WORD STUDIO</span></header><p className="vocab-load-message">{message || "Opening your word cards…"}</p></main>
+    : "isContextualQueue" in run
+      ? <VocabularyContextualPlay assignmentId={assignmentId} initialRun={run} />
+      : <VocabularyLegacyPlay assignmentId={assignmentId} initialRun={run} />;
+  if (!onClose) return content;
+  return <div className="vocab-modal-backdrop" role="dialog" aria-modal="true" aria-label="Word practice"><div className="vocab-modal-panel"><button type="button" className="vocab-modal-close" onClick={onClose} aria-label="Close word practice">×</button>{content}</div></div>;
 }
 
 function VocabularyContextualPlay({ assignmentId, initialRun }: { assignmentId: string; initialRun: ContextRunData }) {
@@ -161,10 +165,10 @@ function VocabularyContextualPlay({ assignmentId, initialRun }: { assignmentId: 
     <header className="vocab-topbar"><Link href="/vocabulary">← Word desk</Link><span>reHEARse · WORD STUDIO</span><Link href="/dashboard">Dashboard</Link></header>
     <section className="vocab-batch-finish">
       <span className="vocab-finish-spark" aria-hidden="true">✦</span><p className="vocab-kicker">TODAY’S PRACTICE · SAVED</p>
-      <h1>Twelve focused encounters.<br /><em>Keep the rhythm going.</em></h1>
+      <h1>Twenty focused encounters.<br /><em>Keep the rhythm going.</em></h1>
       <p>Your full word deck stays here. Continue now or return later—the queue will resume from the same place.</p>
       <div className="vocab-stat-strip"><span><b>{run.stats.todayCount}</b><small>of {run.stats.dailyTarget} today</small></span><span><b>{run.stats.practiceDayStreak}</b><small>day streak</small></span><span><b>{run.stats.newExposuresToday}</b><small>new today</small></span><span><b>{run.stats.revisitedExposuresToday}</b><small>revisited</small></span></div>
-      <button disabled={busy} onClick={() => void continueBatch()}>{busy ? "Preparing…" : "Continue with 12 more →"}</button>
+      <button disabled={busy} onClick={() => void continueBatch()}>{busy ? "Preparing…" : "Continue with 20 more →"}</button>
       {message && <p className="vocab-status" role="status">{message}</p>}
     </section>
   </main>;
@@ -178,7 +182,7 @@ function VocabularyContextualPlay({ assignmentId, initialRun }: { assignmentId: 
     <div className="vocab-context-layout">
       <section className={`vocab-context-card${shownFeedback ? shownFeedback.correct ? " is-correct" : " is-wrong" : ""}`}>
         {shownFeedback?.correct && <div className="vocab-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, i) => <span key={i} style={{ "--confetti-i": i } as React.CSSProperties} />)}</div>}
-        <div className="vocab-context-meta"><span>{current.exposureKind === "new" ? "NEW WORD" : current.exposureKind === "requeue" ? "BACK FOR ANOTHER LOOK" : "SPACED REVIEW"}</span><span>{run.exposures.length} / 12</span></div>
+        <div className="vocab-context-meta"><span>{current.exposureKind === "new" ? "NEW WORD" : current.exposureKind === "requeue" ? "BACK FOR ANOTHER LOOK" : "SPACED REVIEW"}</span><span>{run.exposures.length} / {run.stats.dailyTarget}</span></div>
         <div className="vocab-context-word"><h2>{card.headword}</h2>{example && <p>{example.sentence.slice(0, example.highlightStart)}<strong>{example.sentence.slice(example.highlightStart, example.highlightStart + example.highlightLength)}</strong>{example.sentence.slice(example.highlightStart + example.highlightLength)}</p>}</div>
         {example?.source === "wordnet-3.0" && <small className="vocab-attribution">Example from WordNet 3.0 · Princeton University · <a href="/WORDNET-3.0-LICENSE.txt" target="_blank" rel="noreferrer">license</a></small>}
       </section>
@@ -186,7 +190,7 @@ function VocabularyContextualPlay({ assignmentId, initialRun }: { assignmentId: 
         <p className="vocab-kicker">YOUR MOVE</p><h2>What role does it play?</h2><p>Choose once. The next encounter always starts clean.</p>
         <div className="vocab-part-buttons vocab-single-choice">{parts.map((part) => <button key={part} onClick={() => void answer(part)} disabled={busy || Boolean(shownFeedback)} className={`${shownFeedback?.selected === part ? "selected" : ""}${shownFeedback && shownFeedback.expected === part ? " expected" : ""}${shownFeedback?.selected === part && !shownFeedback.correct ? " incorrect" : ""}`}>{part}<span>{part === "Noun" ? "names a person, place, thing, or idea" : part === "Verb" ? "expresses an action or state" : part === "Adjective" ? "describes a noun" : "adds detail to an action or description"}</span></button>)}</div>
         {shownFeedback && <div className={`vocab-feedback ${shownFeedback.correct ? "right" : "wrong"}`} role="status" aria-live="polite"><span className="vocab-feedback-icon">{shownFeedback.correct ? "✦" : "↻"}</span><div><strong>{shownFeedback.correct ? "Exactly right." : "Not this time."}</strong><p>{shownFeedback.correct ? <>The highlighted word works as <b>{shownFeedback.expected}</b> in this sentence.</> : <>Here it works as <b>{shownFeedback.expected}</b>. You’ll meet it again after a few different words.</>}</p></div></div>}
-        <div className="vocab-context-actions">{!shownFeedback ? <button className="vocab-skip-button" disabled={busy} onClick={() => void skip()}>{busy ? "Saving…" : "Not sure · skip for now"}</button> : <button className="vocab-next-button" disabled={busy} onClick={() => void next()}>{busy ? "Opening…" : run.exposures.length >= 12 ? "Finish this set →" : "Next word →"}</button>}</div>
+        <div className="vocab-context-actions">{!shownFeedback ? <button className="vocab-skip-button" disabled={busy} onClick={() => void skip()}>{busy ? "Saving…" : "Not sure · skip for now"}</button> : <button className="vocab-next-button" disabled={busy} onClick={() => void next()}>{busy ? "Opening…" : run.exposures.length >= run.stats.dailyTarget ? "Finish this set →" : "Next word →"}</button>}</div>
         {message && <p className="vocab-status" role="status">{message}</p>}
       </aside>
     </div>

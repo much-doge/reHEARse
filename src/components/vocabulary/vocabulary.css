@@ -25,8 +25,14 @@
 .vocab-tag { display:inline-flex; color:#188176; font-size:.59rem; font-weight:850; letter-spacing:.1em; text-transform:uppercase; }
 .vocab-assignment-info h3,.vocab-teacher-assignment h3 { margin:.35rem 0; font-size:1.05rem; letter-spacing:-.03em; }
 .vocab-assignment-info p { margin:0; color:var(--muted); font-size:.76rem; line-height:1.5; }
-.vocab-open-link { display:flex; align-items:center; gap:.6rem; padding:.7rem .9rem; border-radius:999px; background:var(--ink); color:white; font-size:.73rem; font-weight:750; white-space:nowrap; }
+.vocab-open-link { display:flex; align-items:center; gap:.6rem; padding:.7rem .9rem; border:0; border-radius:999px; background:var(--ink); color:white; font:inherit; font-size:.73rem; font-weight:750; white-space:nowrap; cursor:pointer; }
 .vocab-open-link span { color:#9ce7c9; font-size:1rem; }
+.vocab-modal-backdrop { position:fixed; inset:0; z-index:40; display:grid; place-items:center; padding:24px; background:rgba(20,39,35,.34); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); overflow:auto; }
+.vocab-modal-panel { position:relative; width:min(1180px,100%); max-height:calc(100vh - 48px); overflow:auto; border:1px solid rgba(221,232,225,.9); border-radius:20px; background:#f7f4ec; box-shadow:0 28px 90px rgba(20,39,35,.25); }
+.vocab-modal-panel .vocab-play-shell { width:100%; max-width:none; min-height:0; padding:26px 34px 44px; }
+.vocab-modal-close { position:sticky; z-index:2; top:14px; float:right; margin:0 14px -42px 0; width:36px; height:36px; border:1px solid #c9d9d1; border-radius:50%; background:rgba(255,255,255,.88); color:#244e43; font-size:24px; line-height:1; cursor:pointer; }
+.vocab-modal-close:hover { background:white; }
+@media(max-width:640px) { .vocab-modal-backdrop { padding:0; } .vocab-modal-panel { max-height:100vh; border-radius:0; } .vocab-modal-panel .vocab-play-shell { padding:22px 18px 32px; } }
 .vocab-empty { display:grid; justify-items:start; padding:2rem; border:1px dashed #cbd2cb; border-radius:18px; background:rgba(255,253,247,.55); }
 .vocab-empty h3 { margin:.5rem 0; font-size:1.05rem; }.vocab-empty p { max-width:370px; margin:0; color:var(--muted); font-size:.82rem; line-height:1.55; }.vocab-empty-spark { color:var(--blue); font-size:1.4rem; }
 .vocab-code-panel { padding:1.5rem; border-radius:20px; background:#eaf3ec; }

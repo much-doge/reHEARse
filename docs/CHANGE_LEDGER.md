@@ -1,5 +1,11 @@
 # Change ledger
 
+| LFL-062 | in_progress | Extend teacher workspace sorting across activity tags, candidate email, answered-question progress, and retake count | Pending checks and deployment | This revision; D035; D037 |
+
+| LFL-061 | in_progress | Correct ETS Practice Test A Structure Q39 key, harden Listening context/retake playback, keep server-owned timed sections running across tab restores, and improve Reading passage controls | Pending checks, deployment, and authenticated retake/browser review | This revision; D027; D035; D037 |
+
+| LFL-059 | in_progress | Expand contextual vocabulary practice to 20-card batches, present the existing card design in a blurred Word Desk modal, and issue shorter vocabulary access codes | Pending migration, checks, and deployment | This revision; D049; migration 037 |
+
 | LFL-060 | deployed | Strengthen the teacher Test Center workspace with live and archived answer review, teacher-only Listening playback per question/context, and sortable activity/candidate lists | Changed-path ESLint, repository TypeScript, 52 Vitest files/194 tests, Next production build, and diff check passed; app-only PCT128 image `rehearse-app:4fff2fe` built and deployed with PostgreSQL untouched; PCT128 app/PostgreSQL healthy; LAN/public health HTTP 200; logged-out teaching page 307 and protected teacher question API 401; authenticated teacher/browser and classroom playback remain unverified | `4fff2fe`; `docs/LFL060_TEACHER_LIVE_REVIEW_RECEIPT.md`; D035; D037; D045 |
 
 | LFL-040 | deployed_dev | Clone the Countryroad/PCT128 hosted PostgreSQL database into the isolated laptop development deployment at `dev1-rehearse.najala.org` | Hosted database read only; mode-600 local pre-clone and hosted clone archives passed `pg_restore --list`; local app stopped for drop/create/restore and returned healthy; hosted/local-after counts match at 59 users, 27 assignments, 7 diagnostic attempts, 494 events and 2 results; migration 024 recorded once; dev1 health HTTP 200, logged-out teaching redirect 307, unauthenticated run API 401; authenticated browser review not performed | `docs/LFL040_DEV_DATABASE_CLONE.md`; Countryroad source `e677c82`; D035; D036 |

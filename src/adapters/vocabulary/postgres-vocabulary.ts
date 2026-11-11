@@ -11,7 +11,7 @@ type Part = "Noun" | "Verb" | "Adjective" | "Adverb";
 type Card = { id: string; headword: string; targetPart?: Part; partsOfSpeech: Part[]; classification: string[]; teachingFocus: string[]; priority: string[]; frequencyBand: string[]; frequencyReference: string[]; wordForms: string[]; bookOccurrences: number | null; bookTestCoverage: number | null; skillOccurrences: { listening: number; structure: number; reading: number }; sourceRows: number; example?: { sentence: string; highlightStart: number; highlightLength: number; source: "wordnet-3.0" | "rehearse-original" | "rehearse-authored" } };
 type Package = { contractVersion: string; version: number; id: string; title: string; prompt: string; sourceNote: string; cardCount: number; cards: Card[] };
 const packageByVersion = new Map<number, Package>([[1, packageV1Json as Package], [2, packageV2Json as Package], [3, packageV3Json as Package], [4, packageV4Json as Package]]);
-const roundSize = 12;
+const roundSize = 20;
 const reviewIntervalsDays = [1, 3, 7, 14];
 const separationHeadwords = 6;
 
@@ -27,6 +27,11 @@ export class VocabularyError extends Error {
 }
 
 const codeHash = (code: string) => createHash("sha256").update(code.trim().toUpperCase()).digest("hex");
+const vocabularyCodeAlphabet = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+function generateVocabularyCode() {
+  const raw = Array.from(randomBytes(6), (byte) => vocabularyCodeAlphabet[byte & 31]).join("");
+  return `LEX-${raw}`;
+}
 function vocabularyPackage(version: number) {
   const pack = packageByVersion.get(version);
   if (!pack) throw new VocabularyError("package_unavailable", 503);
@@ -377,15 +382,15 @@ async function practiceStats(client: PoolClient, assignmentId: string, lineageId
   const todayRow = rows.find((row) => row.practice_day === today);
   let streak = 0;
   const yesterdayResult = await client.query("SELECT to_char((now() AT TIME ZONE 'Asia/Jakarta')::date - 1,'YYYY-MM-DD') AS day");
-  const start = todayRow && Number(todayRow.target_count) >= 12 ? today : String(yesterdayResult.rows[0].day);
+  const start = todayRow && Number(todayRow.target_count) >= roundSize ? today : String(yesterdayResult.rows[0].day);
   let expected = start;
   for (const row of rows) {
-    if (row.practice_day !== expected || Number(row.target_count) < 12) break;
+    if (row.practice_day !== expected || Number(row.target_count) < roundSize) break;
     streak += 1;
     const previousDay = await client.query("SELECT to_char($1::date - 1,'YYYY-MM-DD') AS day", [expected]);
     expected = String(previousDay.rows[0].day);
   }
-  return { dailyTarget: 12, todayCount: Math.min(12, Number(todayRow?.target_count ?? 0)), practiceDayStreak: streak,
+  return { dailyTarget: roundSize, todayCount: Math.min(roundSize, Number(todayRow?.target_count ?? 0)), practiceDayStreak: streak,
     newExposuresToday: Number(todayRow?.new_count ?? 0), revisitedExposuresToday: Number(todayRow?.revisited_count ?? 0) };
 }
 
@@ -660,7 +665,7 @@ export async function nextVocabularyRound(learnerId: string, assignmentId: strin
 }
 
 export async function createVocabularyCode(staffId: string, deckId: string, inviteKind: "private" | "classroom", title: string) {
-  const code = `LEX-${randomBytes(8).toString("hex").toUpperCase()}`;
+  const code = generateVocabularyCode();
   const result = await getPool().query(
     `INSERT INTO vocabulary_invite (deck_id,package_version,code_hash,invite_kind,assignment_title,created_by,expires_at)
      SELECT id,version,$2,$3,$4,$5,now()+interval '7 days' FROM vocabulary_deck WHERE id=$1 AND state='published'
