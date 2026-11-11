@@ -8,13 +8,13 @@
   "sourceFiles": [
     {
       "path": "README.md",
-      "bytes": 3505,
-      "sha256": "7d21c782be0b5588c58db579b819f8222fa3eb97fa3cb412be8d14e3737b5687"
+      "bytes": 3682,
+      "sha256": "a1b2894db31cffbff669dc390f3cbd477f7ed4ad1a9fff5c4b6de740fec2a735"
     },
     {
       "path": "metadata/answer-key-practice-test-a-v1.json",
       "bytes": 1763,
-      "sha256": "fedaf2b87226c046d23c8e21884ff36879d04856234d7b27fe28de2b9bb5e193"
+      "sha256": "0dba310028b94b06c194cf8b820642b3305fedc59471f78390f15451fc017b16"
     },
     {
       "path": "metadata/instructions-practice-test-a-v1.json",

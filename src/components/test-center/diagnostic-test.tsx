@@ -165,6 +165,21 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, hist
     return () => window.clearInterval(timer);
   }, [serverTime]);
 
+  // Deadlines are server-owned. Re-sync when a tab is restored so a throttled
+  // background timer can never pause Structure or Reading time on the client.
+  useEffect(() => {
+    if (!state?.id) return;
+    const sync = () => {
+      if (document.visibilityState === "visible") void refresh(state.id);
+    };
+    document.addEventListener("visibilitychange", sync);
+    window.addEventListener("pageshow", sync);
+    return () => {
+      document.removeEventListener("visibilitychange", sync);
+      window.removeEventListener("pageshow", sync);
+    };
+  }, [refresh, state?.id]);
+
   useEffect(() => {
     if (section === "listening") document.querySelector(".ptd-question-content")?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }, [question, section]);
@@ -286,7 +301,7 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, hist
   async function playFocusedQuestion(index: number) {
     const sequence = focusedQuestions();
     const number = sequence[index];
-    const segment = number ? timing.questions[number - 1] : null;
+    const segment = number ? timing.questions.find((item) => item.question === number) : null;
     if (!segment) { await completeFocusedAutoplay(); return; }
     focusedSequenceIndex.current = index;
     setFocusedSequencePosition(index);
@@ -320,7 +335,7 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, hist
   }
 
   async function openFocusedAnswerWindow(number: number) {
-    const segment = timing.questions[number - 1];
+    const segment = timing.questions.find((item) => item.question === number);
     if (!segment) return;
     const saved = await reportAudio(number, segment.answerWindowStartMs);
     if (!saved) { setFocusedSequenceRunning(false); return; }
@@ -369,7 +384,7 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, hist
   }
 
   async function playQuestionAudio(withContext: boolean) {
-    const segment = timing.questions[question - 1];
+    const segment = timing.questions.find((item) => item.question === question);
     if (!segment) return;
     const startMs = withContext ? segment.contextStartMs : segment.questionAudioStartMs;
     await playRange(startMs, segment.questionAudioEndMs, question);
@@ -387,6 +402,17 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, hist
     }
   }
 
+  function listeningContextQuestions() {
+    if (section !== "listening" || state?.listeningMode !== "autoplay") return [];
+    const currentTiming = timing.questions.find((item) => item.question === question);
+    if (!currentTiming || currentTiming.groupType === "question") return [];
+    const group = timing.questions.filter((item) => item.groupId === currentTiming.groupId);
+    const first = group[0];
+    if (!first || audioNow < first.contextStartMs || audioNow >= first.answerWindowStartMs) return [];
+    const selected = state.selectedQuestions?.length ? new Set(state.selectedQuestions) : null;
+    return group.filter((item) => !selected || selected.has(item.question)).map((item) => item.question);
+  }
+
   const sectionInstruction = section === "listening" ? instructions.listening : section === "structure" ? instructions.structure : section === "reading" ? instructions.reading : null;
   const sectionStarted = section === "listening" ? !!state?.listeningStartedAt : section === "structure" ? !!state?.structureStartedAt : section === "reading" ? !!state?.readingStartedAt : false;
 
@@ -395,9 +421,13 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, hist
     const numbers = state?.scope === name && state.selectedQuestions?.length ? state.selectedQuestions : allNumbers;
     const answers = state?.answers ?? {};
     const answerDisabled = busy || (name === "listening" ? !canAnswerListening : remaining === 0);
+    const contextQuestions = name === "listening" ? listeningContextQuestions() : [];
     return <div className="ptd-workspace">
       <section className="ptd-question-content">
-        <StructuredQuestionCard attemptId={state!.id} section={name} question={question} selected={answers[answerKey(name, question)]} disabled={answerDisabled} onChoose={(choice) => void chooseAnswer(name, question, choice)} />
+        {contextQuestions.length > 0 ? <section className="ptd-listening-context-preview" aria-label="Questions in this conversation or talk">
+          <header><span>LISTENING CONTEXT</span><strong>Review the questions while the recording plays</strong></header>
+          <div>{contextQuestions.map((number) => <StructuredQuestionCard key={number} attemptId={state!.id} section="listening" question={number} selected={answers[answerKey("listening", number)]} disabled={true} onChoose={() => undefined} />)}</div>
+        </section> : <StructuredQuestionCard attemptId={state!.id} section={name} question={question} selected={answers[answerKey(name, question)]} disabled={answerDisabled} onChoose={(choice) => void chooseAnswer(name, question, choice)} />}
       </section>
       <aside className="ptd-answer-panel">
         <div className="ptd-current-question"><span>QUESTION</span><strong>{String(question).padStart(2, "0")}</strong><small>of {counts[name]}</small></div>
@@ -570,7 +600,8 @@ function renderQuestionPrompt(prompt: string) {
 }
 
 function ReadingPassage({ passage }: { passage: Passage }) {
-  return <article className="ptd-reading-passage"><header><span>PASSAGE</span><strong>Questions {passage.questions[0]}–{passage.questions[1]}</strong></header><div>{passage.lines.map((line, index) => <p className={line.paragraphStart ? "paragraph-start" : ""} key={index}>{line.line && <span className="line-number">{line.line}</span>}{line.text}</p>)}</div></article>;
+  const [zoom, setZoom] = useState(1);
+  return <article className="ptd-reading-passage"><header><span>PASSAGE</span><strong>Questions {passage.questions[0]}–{passage.questions[1]}</strong><div className="ptd-reading-passage-tools" aria-label="Passage text size"><button type="button" onClick={() => setZoom((value) => Math.max(.85, Number((value - .1).toFixed(1))))} aria-label="Zoom out">−</button><output>{Math.round(zoom * 100)}%</output><button type="button" onClick={() => setZoom((value) => Math.min(1.5, Number((value + .1).toFixed(1))))} aria-label="Zoom in">+</button></div></header><div style={{ fontSize: `${zoom}em` }}>{passage.lines.map((line, index) => <p className={line.paragraphStart ? "paragraph-start" : ""} key={index}>{line.line && <span className="line-number">{line.line}</span>}{line.text}</p>)}</div></article>;
 }
 
 function ScoreSummary({ result, title }: { result: Result; title: string }) {
