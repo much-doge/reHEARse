@@ -1,5 +1,7 @@
 # Change ledger
 
+| LFL-063 | source_complete | Export the supplied evening-class participant diagnostic assignments, append-only answers/events, results, and metrics for listening analysis | Read-only export from PCT128 PostgreSQL; 12 requested participants represented; 2 alias matches and 1 not-found account recorded; local JSON mode 600; private data not committed | `docs/LFL063_EVENING_LISTENING_EXPORT_RECEIPT.md`; D035; D037 |
+
 | LFL-062 | deployed | Extend teacher workspace sorting across activity tags, candidate email, answered-question progress, and retake count | Changed-path ESLint, repository TypeScript, Next production build, and diff check passed; `rehearse-app:fe5c590` healthy on PCT128; LAN/public health HTTP 200; authenticated teacher/browser review remains pending | `12b3c81`; `docs/LFL062_TEACHER_SORTING_RECEIPT.md`; D035; D037 |
 
 | LFL-061 | deployed | Correct ETS Practice Test A Structure Q39 key, harden Listening context/retake playback, keep server-owned timed sections running across tab restores, and improve Reading passage controls | Package verifier, changed-path ESLint, repository TypeScript, 52 Vitest files/194 tests, Next production build, and diff check passed; `rehearse-app:fe5c590` healthy on PCT128; LAN/public health HTTP 200; authenticated retake/browser playback remains pending | `ef95805`; `docs/LFL061_DIAGNOSTIC_PLAYBACK_READING_RECEIPT.md`; D027; D035; D037 |
