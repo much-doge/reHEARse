@@ -766,3 +766,27 @@ immutable. Existing attempts stay pinned to their saved package version; new
 rounds use v3. This supersedes D047 only for new v3 content and interaction.
 Preserve answer-event history, no-score learning, and the vocabulary/Test
 Center boundary.
+
+## D049 — Contextual vocabulary exposures and controlled practice queue (LFL-058)
+
+This decision supersedes D048's multi-label selection, revisable answer state,
+and fixed numbered navigator for package v4 practice. A vocabulary assignment
+grants the complete contextual deck; twelve exposures are only the default
+daily target and batch size, and a learner may immediately continue into later
+batches from the same scheduling lineage. A learner exposure asks for the
+single grammatical role used by the highlighted headword in one original
+contextual sentence. The sentence is visible before the response; the first
+choice closes that exposure and is appended as evidence. A later exposure
+starts with clean controls and never rehydrates an earlier selection.
+
+The server persists a deterministic, resumable full-deck queue. Unseen
+contextual items are drawn without replacement across successive batches,
+recently exposed headwords are separated, a missed item returns after three to
+five different headwords, and a skipped item returns after two to four.
+Activity-only indicators may show today's bounded target, practice-day streak,
+and new versus revisited exposures. They must not show aggregate correctness,
+mastery, rank, grade, or proficiency. Existing v1–v3 attempts and events remain
+immutable; an active legacy attempt may be archived with an explicit system
+transition before a new v4 attempt is made. Private and classroom assignment
+ownership checks remain unchanged, and teacher reset applies to the complete
+deck scheduling lineage while preserving prior history.
