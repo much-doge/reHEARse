@@ -1,5 +1,9 @@
 # Change ledger
 
+| LFL-067 | planned | Produce a private PDF analysis of the requested evening-class Listening attempts, with Q1–Q50 error frequencies, percentages, participant/attempt coverage, and Longman skill-family grouping | Pending export computation, PDF render inspection, and private artifact handoff; no learner or production records changed by report generation | `scripts/build_listening_analysis_pdf.py`; `docs/LFL067_LISTENING_ANALYSIS_RECEIPT.md`; D035; D037 |
+
+| LFL-066 | planned | Deploy the teacher participant filter/privacy controls and group the matched evening-class learners under one assignment label without touching attempts or answers | Pending PCT128 app-only deployment, production backup/read-only verification, exact assignment-label update for matched accounts, and public/teacher-route checks | `docs/LFL066_PCT128_COHORT_DEPLOYMENT_RECEIPT.md`; `src/components/test-center/resources.tsx`; `src/components/test-center/resources.css`; D035; D037 |
+
 | LFL-065 | source_complete | Add teacher-only participant grouping/filtering by assignment label and a screen-sharing privacy toggle for participant names | Changed-path ESLint, repository TypeScript, and diff check passed; filters are local view state and do not change attempts or learner DTOs; authenticated teacher browser review remains pending | `src/components/test-center/resources.tsx`; `src/components/test-center/resources.css`; `docs/LFL065_TEACHER_PARTICIPANT_FILTER_RECEIPT.md`; D035; D037 |
 
 | LFL-064 | source_complete | Provide an academic participant guide for the Word Studio contextual flashcards as an illustrated, headerless/footerless PDF | Guide is generated from the current Word Studio v4 learner flow; no runtime or learner data changes; PDF rendered and visually inspected; generator retained for reproducibility | `scripts/build_vocab_guide_pdf.py`; `docs/LFL064_VOCABULARY_GUIDE_RECEIPT.md`; D049 |
