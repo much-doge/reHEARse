@@ -43,4 +43,23 @@ records.
 
 ## Deployment
 
-Deployment evidence is appended here after the app-only PCT128 rollout.
+Date: 2026-11-11 (Asia/Jakarta)
+
+Environment: Countryroad Proxmox PCT128, public origin
+`https://rehearse.najala.org`
+
+- App-only image `rehearse-app:4fff2fe` was built from the exact committed
+  release and replaced the previous app container; PostgreSQL was not
+  recreated and no migration ran.
+- PCT128 app and PostgreSQL are healthy with zero observed restarts after the
+  replacement.
+- LAN `http://192.168.8.63:3001/api/health` and public
+  `https://rehearse.najala.org/api/health` returned HTTP 200.
+- Logged-out `/test-center/teaching` returned HTTP 307. The protected question
+  endpoint returned HTTP 401 for an unauthenticated request.
+- Authenticated teacher playback and visual review were not available in this
+  operator session; classroom verification remains pending.
+
+Rollback is app-only to the retained previous image. Do not restore the
+database for this release: the change is additive application behavior and all
+attempt/event/result records remain untouched.
