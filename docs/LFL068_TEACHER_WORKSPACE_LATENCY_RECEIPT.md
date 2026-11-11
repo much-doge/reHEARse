@@ -2,7 +2,7 @@
 
 Date: 2026-11-11 (Asia/Jakarta)
 
-Status: source-complete; deployment pending PLN recovery.
+Status: deployed to the Debian `dev1` runtime on 2026-11-12 (Asia/Jakarta).
 
 ## Diagnosis
 
@@ -41,17 +41,38 @@ from the initial page payload.
 - Local SQL plan measured both the previous nested aggregation and the new
   summary path against the current database copy.
 
-## Deployment state
+## Deployment
 
-No production or PCT128 replacement was attempted in this checkpoint because
-the operator reported a PLN outage. The change is application-only and has no
-migration. When power/network access returns, deploy the committed app image
-without recreating PostgreSQL, then verify:
+The committed app image `rehearse-app:8156d4a` is running as container
+`73e54097b40a5524b90316ded28f75a6783d71c6e8c44db31edb92b83dbcabf7` on the
+Debian `dev1` runtime. The existing `rehearse-db-1` PostgreSQL container and
+`rehearse_listening_db_v18` volume were not recreated. The existing media volume
+and HTTPS-safe session-cookie setting were retained.
 
-1. public health and logged-out teaching redirect;
-2. authenticated teacher first paint with compact resource cards;
-3. one candidate open loads full live/archived history;
-4. question reveal and staff-only Listening playback still work; and
-5. existing attempts/events/results counts remain unchanged.
+Observed after replacement:
 
-Rollback is app-only to the previous image; no database restore is required.
+- app container health: `healthy`;
+- local `/api/health`: HTTP 200;
+- public `https://dev1-rehearse.najala.org/api/health`: HTTP 200;
+- logged-out `/test-center/teaching`: HTTP 307 with private/no-store headers;
+- unauthenticated candidate-history API: HTTP 401 with private/no-store headers;
+- PostgreSQL counts unchanged: 69 users, 50 active assignments, 49 diagnostic
+  attempts, 5,184 diagnostic events, and 36 diagnostic results.
+
+The change is application-only and has no migration. Authenticated teacher
+first-paint, candidate history expansion, question reveal, and protected
+Listening playback still need an operator browser check.
+
+## Rollback
+
+If the app image needs to be rolled back, recreate only the app container from
+the retained prior image `rehearse-app:7e1ccdc` with the same `rehearse_default`
+network and `rehearse_listening_media` volume. Do not recreate PostgreSQL or
+restore a database dump.
+
+For the next release, verify:
+
+1. authenticated teacher first paint with compact resource cards;
+2. one candidate open loads full live/archived history;
+3. question reveal and staff-only Listening playback still work; and
+4. existing attempts/events/results counts remain unchanged.
