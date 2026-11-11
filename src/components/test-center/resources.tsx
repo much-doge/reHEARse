@@ -234,6 +234,9 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
   const [candidateSort, setCandidateSort] = useState<"name" | "email" | "recent" | "status" | "score" | "answered" | "retakes">("name");
   const [resourceVisibility, setResourceVisibility] = useState<Record<string, boolean>>({});
   const [tagDrafts, setTagDrafts] = useState<Record<string, string>>(() => Object.fromEntries(initial.map((resource) => [resource.id, resource.tags.join(", ")])));
+  const [candidateQueries, setCandidateQueries] = useState<Record<string, string>>({});
+  const [candidateGroups, setCandidateGroups] = useState<Record<string, string>>({});
+  const [hideParticipantNames, setHideParticipantNames] = useState(false);
   function changeViewMode(mode: "compact" | "expanded") {
     setViewMode(mode);
     setResourceVisibility({});
@@ -273,6 +276,16 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
       const leftDate = leftLatest?.completedAt ?? leftLatest?.createdAt ?? "";
       const rightDate = rightLatest?.completedAt ?? rightLatest?.createdAt ?? "";
       return rightDate.localeCompare(leftDate) || left.name.localeCompare(right.name, "en");
+    });
+  }
+  function filteredCandidates(resource: ManagedResource) {
+    const candidates = resource.candidates ?? [];
+    const query = (candidateQueries[resource.id] ?? "").trim().toLocaleLowerCase("en");
+    const group = candidateGroups[resource.id] ?? "all";
+    return orderedCandidates(candidates).filter((candidate) => {
+      const matchesGroup = group === "all" || candidate.assignmentTitle === group;
+      const haystack = `${candidate.name} ${candidate.email} ${candidate.assignmentTitle}`.toLocaleLowerCase("en");
+      return matchesGroup && (!query || haystack.includes(query));
     });
   }
   async function mutate(resource: ManagedResource, action: "issue_invite" | "set_status") {
@@ -414,16 +427,23 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
         {(resource.status === "published" || resource.status === "hidden" || resource.status === "draft") && <button className="secondary" disabled={busy !== null} onClick={() => mutate(resource, "set_status")}>{resource.status === "published" ? "Hide resource" : "Publish resource"}</button>}</div>
       </div></section>
       {resource.candidates?.length ? <section className="ptc-candidate-results">
-        <div className="ptc-candidate-heading"><div><p className="eyebrow">ASSIGNED CANDIDATES</p><h3>Attempts and answer review</h3></div><span>{resource.candidates.length} candidates</span></div>
-        <div className="ptc-candidate-sort"><label>Sort candidates <select value={candidateSort} onChange={(event) => setCandidateSort(event.target.value as typeof candidateSort)}><option value="name">Name A–Z</option><option value="email">Email A–Z</option><option value="recent">Most recent activity</option><option value="status">Status</option><option value="score">Highest score</option><option value="answered">Most answered</option><option value="retakes">Most retakes</option></select></label></div>
-        {orderedCandidates(resource.candidates).map((candidate) => {
+        <div className="ptc-candidate-heading"><div><p className="eyebrow">ASSIGNED CANDIDATES</p><h3>Attempts and answer review</h3></div><span>{filteredCandidates(resource).length} of {resource.candidates.length} candidates</span></div>
+        <div className="ptc-candidate-tools">
+          <label className="ptc-candidate-search">Find a participant or assignment label<input value={candidateQueries[resource.id] ?? ""} onChange={(event) => setCandidateQueries((current) => ({ ...current, [resource.id]: event.target.value }))} placeholder="Name, email, or assignment label" /></label>
+          <label>Assignment group<select value={candidateGroups[resource.id] ?? "all"} onChange={(event) => setCandidateGroups((current) => ({ ...current, [resource.id]: event.target.value }))}><option value="all">All assignment labels</option>{Array.from(new Set(resource.candidates.map((candidate) => candidate.assignmentTitle))).sort((a, b) => a.localeCompare(b, "en")).map((title) => <option value={title} key={title}>{title}</option>)}</select></label>
+          <label>Sort candidates<select value={candidateSort} onChange={(event) => setCandidateSort(event.target.value as typeof candidateSort)}><option value="name">Name A–Z</option><option value="email">Email A–Z</option><option value="recent">Most recent activity</option><option value="status">Status</option><option value="score">Highest score</option><option value="answered">Most answered</option><option value="retakes">Most retakes</option></select></label>
+          <label className="ptc-hide-names"><input type="checkbox" checked={hideParticipantNames} onChange={(event) => setHideParticipantNames(event.target.checked)} /> Hide participant names <small>also hides email addresses on this screen</small></label>
+        </div>
+        {filteredCandidates(resource).map((candidate, candidateIndex) => {
           const currentAttempts = candidate.attempts.filter((attempt) => !attempt.archivedAt);
           const latest = currentAttempts.at(-1);
           const hasActiveAttempt = currentAttempts.some((attempt) => attempt.status === "in_progress" || attempt.retakes.some((retake) => !retake.archivedAt && retake.status === "in_progress"));
           const retryCount = candidate.attempts.reduce((count, attempt) => count + attempt.retakes.length, 0);
+          const displayName = hideParticipantNames ? `Participant ${String(candidateIndex + 1).padStart(2, "0")}` : candidate.name;
+          const displayEmail = hideParticipantNames ? "Identity hidden in this view" : candidate.email;
           return <details className="ptc-candidate" key={candidate.actorId}>
             <summary>
-              <span className="ptc-candidate-person"><strong>{candidate.name}</strong><small>{candidate.email}</small><small>Assignment: {candidate.assignmentTitle}</small></span>
+              <span className="ptc-candidate-person"><strong>{displayName}</strong><small>{displayEmail}</small><small>Assignment: {candidate.assignmentTitle}</small></span>
               <span className="ptc-candidate-state">{latest ? latest.status === "completed" ? `Latest · ${resultLabel(latest.effectiveResult ?? latest.result) ?? "Completed"}` : "Attempt in progress" : "Not started"}</span>
               <span className="ptc-candidate-scope">{candidate.deliveryScope === "full" ? "Full diagnostic" : `${candidate.deliveryScope} only`}</span>
               <span className="ptc-candidate-retries">{candidate.attempts.length} historical {candidate.attempts.length === 1 ? "attempt" : "attempts"} · {retryCount} section retakes</span>
@@ -453,6 +473,7 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
             </div>
           </details>;
         })}
+        {!filteredCandidates(resource).length && <p className="ptc-review-empty">No candidates match this participant or assignment filter.</p>}
       </section> : null}
       </>}
     </article>})}</section>

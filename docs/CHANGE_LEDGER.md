@@ -1,5 +1,7 @@
 # Change ledger
 
+| LFL-065 | source_complete | Add teacher-only participant grouping/filtering by assignment label and a screen-sharing privacy toggle for participant names | Changed-path ESLint, repository TypeScript, and diff check passed; filters are local view state and do not change attempts or learner DTOs; authenticated teacher browser review remains pending | `src/components/test-center/resources.tsx`; `src/components/test-center/resources.css`; `docs/LFL065_TEACHER_PARTICIPANT_FILTER_RECEIPT.md`; D035; D037 |
+
 | LFL-064 | source_complete | Provide an academic participant guide for the Word Studio contextual flashcards as an illustrated, headerless/footerless PDF | Guide is generated from the current Word Studio v4 learner flow; no runtime or learner data changes; PDF rendered and visually inspected; generator retained for reproducibility | `scripts/build_vocab_guide_pdf.py`; `docs/LFL064_VOCABULARY_GUIDE_RECEIPT.md`; D049 |
 
 | LFL-063 | source_complete | Export the supplied evening-class participant diagnostic assignments, append-only answers/events, results, and metrics for listening analysis | Read-only export from PCT128 PostgreSQL; 12 requested participants represented; 2 alias matches and 1 not-found account recorded; local JSON mode 600; private data not committed | `docs/LFL063_EVENING_LISTENING_EXPORT_RECEIPT.md`; D035; D037 |
