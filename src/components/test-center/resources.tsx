@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import type { TestCenterResource } from "@protefl/adapters/postgres-resources";
 import { assignmentTitleDraft, hasValidAssignmentTitleDraft, trimmedAssignmentTitleDraft, updateAssignmentTitleDraft } from "./assignment-title-drafts";
@@ -60,7 +60,7 @@ export function AssignedResources({ resources, canManage }: { resources: TestCen
 }
 
 type DeliveryScope = "full" | "listening" | "structure" | "reading";
-type ReviewItem = { section: string; question: number; selected: string | null; correctAnswer: string; correct: boolean };
+type ReviewItem = { section: string; question: number; selected: string | null; correctAnswer?: string; correct?: boolean; answeredAt?: string };
 type AttemptResult = {
   total?: { correct: number; incorrect: number; omitted: number; questions: number };
   sections?: Record<string, { correct: number; incorrect: number; omitted: number; total: number }>;
@@ -70,9 +70,10 @@ type AttemptResult = {
 type AttemptHistory = {
   id: string; number: number; status: string; scope: string; deliveryScope: DeliveryScope; effectiveResult?: AttemptResult | null;
   createdAt: string; completedAt: string | null; archivedAt: string | null; result: AttemptResult | null;
+  answeredQuestions?: Array<{ section: string; question: number; selected: string; answeredAt: string }>;
   retakes: Array<{ id: string; section: string; number: number; status: string; teacherIssuedRestart?: boolean; createdAt: string; completedAt: string | null; archivedAt: string | null; result: AttemptResult | null }>;
 };
-type ManagedResource = { id: string; code: string; version: number; kind: string; title: string; status: string; tags: string[]; assignedCount: number; candidates?: Array<{ actorId: string; name: string; email: string; assignmentTitle: string; deliveryScope: DeliveryScope; attempts: AttemptHistory[]; canResetPassword: boolean }> };
+type ManagedResource = { id: string; code: string; version: number; kind: string; title: string; status: string; createdAt: string; tags: string[]; assignedCount: number; candidates?: Array<{ actorId: string; name: string; email: string; assignmentTitle: string; deliveryScope: DeliveryScope; attempts: AttemptHistory[]; canResetPassword: boolean }> };
 
 function resultLabel(result: AttemptResult | null) {
   const correct = result?.total?.correct ?? result?.summary?.correct;
@@ -103,7 +104,45 @@ type TeacherQuestionPayload = {
   question: ReviewItem;
   item: { prompt?: string; options: Record<string, string>; part?: string; tokens?: Array<{ text: string; choice?: string }> };
   passage?: { questions: [number, number]; lines: Array<{ text: string; line: number | null; paragraphStart: boolean }> };
+  audio?: { groupId: string; groupType: "question" | "conversation" | "talk"; contextStartMs: number; contextEndMs: number; questionStartMs: number; questionEndMs: number };
 };
+
+function TeacherAudioButton({ label, startMs, endMs, resourceId, candidateActorId, attemptId }: { label: string; startMs: number; endMs: number; resourceId: string; candidateActorId: string; attemptId: string }) {
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [playing, setPlaying] = useState(false);
+  const source = `/api/test-center/teaching/question?resourceId=${encodeURIComponent(resourceId)}&candidateActorId=${encodeURIComponent(candidateActorId)}&attemptId=${encodeURIComponent(attemptId)}`;
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    const onTime = () => {
+      if (audio.currentTime >= endMs / 1000) {
+        audio.pause();
+        audio.currentTime = startMs / 1000;
+        setPlaying(false);
+      }
+    };
+    const onEnded = () => setPlaying(false);
+    audio.addEventListener("timeupdate", onTime);
+    audio.addEventListener("ended", onEnded);
+    return () => { audio.removeEventListener("timeupdate", onTime); audio.removeEventListener("ended", onEnded); };
+  }, [endMs, startMs]);
+  async function toggle() {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (playing) { audio.pause(); setPlaying(false); return; }
+    const start = () => {
+      audio.currentTime = startMs / 1000;
+      void audio.play().then(() => setPlaying(true)).catch(() => setPlaying(false));
+    };
+    if (audio.readyState >= 1) start();
+    else audio.addEventListener("loadedmetadata", start, { once: true });
+  }
+  return <div className="ptc-teacher-audio-control">
+    <button type="button" onClick={() => void toggle()}>{playing ? "Pause" : "Play"} {label}</button>
+    <span>{(startMs / 1000).toFixed(1)}–{(endMs / 1000).toFixed(1)}s</span>
+    <audio ref={audioRef} preload="metadata" src={source} />
+  </div>;
+}
 
 function TeacherQuestionReveal({ item, resourceId, candidateActorId, attemptId }: { item: ReviewItem; resourceId: string; candidateActorId: string; attemptId: string }) {
   const [open, setOpen] = useState(false);
@@ -133,17 +172,40 @@ function TeacherQuestionReveal({ item, resourceId, candidateActorId, attemptId }
   }, []);
   return <article className={`ptc-missed-item${open ? " is-open" : ""}`}>
     <button className="ptc-missed-trigger" aria-expanded={open} onClick={() => void reveal()} disabled={busy}>
-      <strong>{item.section} · Q{item.question}</strong><span>Response: <b>{item.selected ?? "Omitted"}</b></span><span>Key: <b>{item.correctAnswer}</b></span><small>{busy ? "Loading…" : failed ? "Could not load · click to retry" : open ? "Hide question −" : "Reveal question +"}</small>
+      <strong>{item.section} · Q{item.question}</strong><span>Response: <b>{item.selected ?? "Omitted"}</b></span><span>Key: <b>{item.correctAnswer ?? "—"}</b></span><small>{busy ? "Loading…" : failed ? "Could not load · click to retry" : open ? "Hide question −" : "Reveal question +"}</small>
     </button>
     {open && payload && <div className="ptc-teacher-question">
+      {payload.audio && <div className="ptc-teacher-audio-controls" aria-label="Listening audio review">
+        {payload.audio.groupType === "question" ? <TeacherAudioButton label="question" startMs={payload.audio.questionStartMs} endMs={payload.audio.questionEndMs} resourceId={resourceId} candidateActorId={candidateActorId} attemptId={attemptId} /> : <>
+          <TeacherAudioButton label={payload.audio.groupType === "conversation" ? "dialogue" : "talk"} startMs={payload.audio.contextStartMs} endMs={payload.audio.contextEndMs} resourceId={resourceId} candidateActorId={candidateActorId} attemptId={attemptId} />
+          <TeacherAudioButton label="question" startMs={payload.audio.questionStartMs} endMs={payload.audio.questionEndMs} resourceId={resourceId} candidateActorId={candidateActorId} attemptId={attemptId} />
+        </>}
+      </div>}
       {payload.passage && <article className="ptc-teacher-passage"><header>PASSAGE · Questions {payload.passage.questions[0]}–{payload.passage.questions[1]}</header>{payload.passage.lines.map((line, index) => <p className={line.paragraphStart ? "paragraph-start" : ""} key={index}>{line.line && <span>{line.line}</span>}{line.text}</p>)}</article>}
       <div className="ptc-teacher-question-card">
         <header><span>{item.section === "structure" ? `PART ${payload.part === "completion" ? "A · SENTENCE COMPLETION" : "B · ERROR IDENTIFICATION"}` : item.section === "listening" ? `PART ${payload.item.part ?? ""} · LISTENING` : "READING COMPREHENSION"}</span><b>Question {item.question}</b></header>
         {groupedTokens ? <p className="ptc-teacher-error-sentence">{groupedTokens.map((token, index) => <span className={token.choice ? "is-underlined" : ""} key={index}>{token.text}{index < groupedTokens.length - 1 ? " " : ""}</span>)}</p> : <h5>{payload.item.prompt?.replace("_____", "________")}</h5>}
-        <div className="ptc-teacher-options">{(["A", "B", "C", "D"] as const).map((choice) => <div className={choice === item.correctAnswer ? "is-key" : choice === item.selected ? "is-response" : ""} key={choice}><b>{choice}</b><span>{payload.item.options[choice]}</span></div>)}</div>
+        <div className="ptc-teacher-options">{(["A", "B", "C", "D"] as const).map((choice) => <div className={choice === payload.question.correctAnswer ? "is-key" : choice === payload.question.selected ? "is-response" : ""} key={choice}><b>{choice}</b><span>{payload.item.options[choice]}</span></div>)}</div>
       </div>
     </div>}
   </article>;
+}
+
+function AnsweredQuestions({ attempt, resourceId, candidateActorId }: { attempt: AttemptHistory; resourceId: string; candidateActorId: string }) {
+  const fromEvents = attempt.answeredQuestions ?? [];
+  const fromResult = (attempt.result?.review ?? []).filter((item) => item.selected).map((item) => ({ section: item.section, question: item.question, selected: item.selected as string, answeredAt: "" }));
+  const answers = fromEvents.length ? fromEvents : fromResult;
+  if (!answers.length) return <p className="ptc-review-empty">No submitted answers yet.</p>;
+  return <div className="ptc-answered-sections" aria-label="Submitted answer review">
+    {(["listening", "structure", "reading"] as const).map((section) => {
+      const sectionItems = answers.filter((item) => item.section === section);
+      if (!sectionItems.length) return null;
+      return <section className="ptc-answered-section" key={section}>
+        <h4>{section === "structure" ? "Structure and Written Expression" : section[0].toUpperCase() + section.slice(1)}<span>{sectionItems.length} answered</span></h4>
+        <div className="ptc-missed-list">{sectionItems.map((item) => <TeacherQuestionReveal key={`${section}-${item.question}`} item={{ section, question: item.question, selected: item.selected }} resourceId={resourceId} candidateActorId={candidateActorId} attemptId={attempt.id} />)}</div>
+      </section>;
+    })}
+  </div>;
 }
 
 function AttemptResultSummary({ result }: { result: AttemptResult | null }) {
@@ -168,6 +230,8 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
   const [deliveryScope, setDeliveryScope] = useState<DeliveryScope>("full");
   const [inviteKind, setInviteKind] = useState<"private" | "classroom">("private");
   const [viewMode, setViewMode] = useState<"compact" | "expanded">("compact");
+  const [resourceSort, setResourceSort] = useState<"newest" | "title" | "status" | "assignments">("newest");
+  const [candidateSort, setCandidateSort] = useState<"name" | "recent" | "status" | "score">("name");
   const [resourceVisibility, setResourceVisibility] = useState<Record<string, boolean>>({});
   const [tagDrafts, setTagDrafts] = useState<Record<string, string>>(() => Object.fromEntries(initial.map((resource) => [resource.id, resource.tags.join(", ")])));
   function changeViewMode(mode: "compact" | "expanded") {
@@ -176,6 +240,28 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
   }
   function toggleResource(resourceId: string, isOpen: boolean) {
     setResourceVisibility((current) => ({ ...current, [resourceId]: !isOpen }));
+  }
+  const orderedResources = useMemo(() => resources.slice().sort((left, right) => {
+    if (resourceSort === "title") return left.title.localeCompare(right.title, "en");
+    if (resourceSort === "status") return left.status.localeCompare(right.status, "en") || right.createdAt.localeCompare(left.createdAt);
+    if (resourceSort === "assignments") return right.assignedCount - left.assignedCount || right.createdAt.localeCompare(left.createdAt);
+    return right.createdAt.localeCompare(left.createdAt);
+  }), [resourceSort, resources]);
+  function orderedCandidates(candidates: NonNullable<ManagedResource["candidates"]>) {
+    return candidates.slice().sort((left, right) => {
+      const leftLatest = left.attempts.at(-1);
+      const rightLatest = right.attempts.at(-1);
+      if (candidateSort === "name") return left.name.localeCompare(right.name, "en") || left.email.localeCompare(right.email, "en");
+      if (candidateSort === "status") return (leftLatest?.status ?? "not_started").localeCompare(rightLatest?.status ?? "not_started", "en") || left.name.localeCompare(right.name, "en");
+      if (candidateSort === "score") {
+        const leftScore = leftLatest?.effectiveResult?.total?.correct ?? leftLatest?.result?.total?.correct ?? -1;
+        const rightScore = rightLatest?.effectiveResult?.total?.correct ?? rightLatest?.result?.total?.correct ?? -1;
+        return rightScore - leftScore || left.name.localeCompare(right.name, "en");
+      }
+      const leftDate = leftLatest?.completedAt ?? leftLatest?.createdAt ?? "";
+      const rightDate = rightLatest?.completedAt ?? rightLatest?.createdAt ?? "";
+      return rightDate.localeCompare(leftDate) || left.name.localeCompare(right.name, "en");
+    });
   }
   async function mutate(resource: ManagedResource, action: "issue_invite" | "set_status") {
     setBusy(resource.id); setMessage(""); setIssuedCode(null); setResetCredential(null);
@@ -284,8 +370,8 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
     {message && <p role="alert" className="ptc-resource-notice">{message}</p>}
     {issuedCode && <section className="ptc-issued-code" role="status"><div><span className="eyebrow">{issuedCode.inviteKind === "classroom" ? "CLASSROOM CODE CREATED" : "PRIVATE CODE CREATED"}</span><strong>{issuedCode.title}</strong></div><code>{issuedCode.code}</code><p>{issuedCode.inviteKind === "classroom" ? "May be claimed by multiple signed-in learners." : "May be claimed by one signed-in learner."} Scope: {issuedCode.scope === "full" ? "Full diagnostic" : issuedCode.scope === "structure" ? "Structure and Written Expression" : issuedCode.scope[0].toUpperCase() + issuedCode.scope.slice(1)}{issuedCode.scope === "full" || issuedCode.scope === "listening" ? ` · Listening: ${issuedCode.listeningMode === "autoplay" ? "Autoplay" : "Manual, play each question"}` : ""}. Expires in 7 days and is shown only now.</p><button onClick={() => { navigator.clipboard?.writeText(issuedCode.code); setMessage("Code copied."); }}>Copy code</button></section>}
     {resetCredential && <section className="ptc-reset-credential" role="status"><div><span className="eyebrow">TEMPORARY PASSWORD CREATED</span><strong>{resetCredential.name}</strong><small>{resetCredential.email}</small></div><code>{resetCredential.temporaryPassword}</code><p>Copy and send this password securely. It is shown only here and is not stored in the audit record. {resetCredential.revokedSessions} existing {resetCredential.revokedSessions === 1 ? "session was" : "sessions were"} signed out.</p><div><button onClick={() => { navigator.clipboard?.writeText(resetCredential.temporaryPassword); setMessage("Temporary password copied."); }}>Copy password</button><button className="secondary" onClick={() => setResetCredential(null)}>Dismiss</button></div></section>}
-    <div className="ptc-resource-view-controls" aria-label="Resource display"><span>{resources.length} activities</span><div><button className={viewMode === "compact" ? "active" : ""} onClick={() => changeViewMode("compact")} aria-pressed={viewMode === "compact"}>Compact</button><button className={viewMode === "expanded" ? "active" : ""} onClick={() => changeViewMode("expanded")} aria-pressed={viewMode === "expanded"}>Expanded</button></div></div>
-    <section className={`ptc-resource-list is-${viewMode}`}>{resources.map((resource) => {
+    <div className="ptc-resource-view-controls" aria-label="Resource display"><span>{resources.length} activities</span><label>Sort activities <select value={resourceSort} onChange={(event) => setResourceSort(event.target.value as typeof resourceSort)}><option value="newest">Newest first</option><option value="title">Title A–Z</option><option value="status">Status</option><option value="assignments">Most assigned</option></select></label><div><button className={viewMode === "compact" ? "active" : ""} onClick={() => changeViewMode("compact")} aria-pressed={viewMode === "compact"}>Compact</button><button className={viewMode === "expanded" ? "active" : ""} onClick={() => changeViewMode("expanded")} aria-pressed={viewMode === "expanded"}>Expanded</button></div></div>
+    <section className={`ptc-resource-list is-${viewMode}`}>{orderedResources.map((resource) => {
       const showDetails = resourceVisibility[resource.id] ?? viewMode === "expanded";
       return <article className={`ptc-resource-card${showDetails ? " is-open" : " is-compact"}`} key={resource.id}>
       <header className="ptc-resource-summary"><div><span className="eyebrow">{resource.kind.replaceAll("_", " ").toUpperCase()} · VERSION {resource.version}</span><h2>{resource.title}</h2>{resource.tags.length > 0 && <div className="ptc-resource-tags">{resource.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>}</div><div className="ptc-resource-status"><span className={`status-${resource.status}`}>{resource.status}</span><small>{resource.assignedCount} active assignments</small><button className="ptc-resource-toggle" onClick={() => toggleResource(resource.id, showDetails)}>{showDetails ? "Collapse" : "Expand"}</button></div></header>
@@ -317,7 +403,8 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
       </div></section>
       {resource.candidates?.length ? <section className="ptc-candidate-results">
         <div className="ptc-candidate-heading"><div><p className="eyebrow">ASSIGNED CANDIDATES</p><h3>Attempts and answer review</h3></div><span>{resource.candidates.length} candidates</span></div>
-        {resource.candidates.map((candidate) => {
+        <div className="ptc-candidate-sort"><label>Sort candidates <select value={candidateSort} onChange={(event) => setCandidateSort(event.target.value as typeof candidateSort)}><option value="name">Name A–Z</option><option value="recent">Most recent activity</option><option value="status">Status</option><option value="score">Highest score</option></select></label></div>
+        {orderedCandidates(resource.candidates).map((candidate) => {
           const currentAttempts = candidate.attempts.filter((attempt) => !attempt.archivedAt);
           const latest = currentAttempts.at(-1);
           const hasActiveAttempt = currentAttempts.some((attempt) => attempt.status === "in_progress" || attempt.retakes.some((retake) => !retake.archivedAt && retake.status === "in_progress"));
@@ -338,6 +425,10 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
                 <header><div><p className="eyebrow">{attempt.deliveryScope === "full" ? "FULL DIAGNOSTIC" : `${attempt.deliveryScope.toUpperCase()} ASSIGNMENT`} · ATTEMPT {attempt.number}</p><strong>{attempt.archivedAt ? "Archived" : attempt.status === "completed" ? "Completed" : `In progress · ${attempt.scope}`}</strong></div><div className="ptc-attempt-dates"><time dateTime={attempt.completedAt ?? attempt.createdAt}>{new Date(attempt.completedAt ?? attempt.createdAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}</time>{attempt.archivedAt && <small>Archived {new Date(attempt.archivedAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}</small>}</div></header>
                 {attempt.effectiveResult && <p className="ptc-restart-ready">Current score recalculated from completed section resets. The original result remains below.</p>}
                 <AttemptResultSummary result={attempt.effectiveResult ?? attempt.result} />
+                <details className="ptc-answer-review" open={attempt.status === "in_progress"}>
+                  <summary>Submitted answers · live review</summary>
+                  <AnsweredQuestions attempt={attempt} resourceId={resource.id} candidateActorId={candidate.actorId} />
+                </details>
                 {attempt.effectiveResult && <details className="ptc-answer-review"><summary>Original completed result</summary><AttemptResultSummary result={attempt.result} /></details>}
                 {(attempt.effectiveResult ?? attempt.result) && <details className="ptc-answer-review"><summary>Missed questions and answer key · current score</summary><MissedQuestions result={attempt.effectiveResult ?? attempt.result} resourceId={resource.id} candidateActorId={candidate.actorId} attemptId={attempt.id} /></details>}
                 {!attempt.archivedAt && attempt.status === "completed" && attempt.scope === "full" && attempt.deliveryScope === "full" && <div className="ptc-section-reset"><div><strong>Reset one section</strong><p>The learner will redo every question in that section. Its completed result will update the current recalculated score; ordinary missed-item retakes never change it.</p></div><div>{(["listening", "structure", "reading"] as const).map((section) => <button className="secondary" disabled={busy !== null || hasActiveAttempt} key={section} onClick={() => void resetCandidateSection(resource, candidate, attempt, section)}>{busy === `section:${attempt.id}:${section}` ? "Resetting…" : `Reset ${section === "structure" ? "Structure" : section[0].toUpperCase() + section.slice(1)}`}</button>)}</div></div>}

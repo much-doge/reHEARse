@@ -14,8 +14,10 @@
 .ptc-resource-claim button:disabled, .ptc-resource-actions button:disabled { opacity: .55; cursor: wait; }
 .ptc-resource-claim p, .ptc-resource-notice { margin: 10px 0 0; color: #8a3c31; font-size: 12px; }
 .ptc-resource-list { display: grid; gap: 12px; }
-.ptc-resource-view-controls { display:flex; align-items:center; justify-content:space-between; gap:16px; margin:0 0 12px; }
+.ptc-resource-view-controls { display:flex; align-items:center; justify-content:space-between; gap:16px; margin:0 0 12px; flex-wrap:wrap; }
 .ptc-resource-view-controls>span { color:#718078; font-size:12px; }
+.ptc-resource-view-controls label,.ptc-candidate-sort label { display:flex; align-items:center; gap:8px; color:#61746b; font-size:11px; font-weight:700; }
+.ptc-resource-view-controls select,.ptc-candidate-sort select { min-height:32px; padding:6px 10px; border:1px solid #cad8cf; border-radius:8px; background:#fff; color:#315b49; font:inherit; font-size:11px; }
 .ptc-resource-view-controls>div { display:flex; padding:3px; border:1px solid #d7e1dc; border-radius:10px; background:#f7faf8; }
 .ptc-resource-view-controls button { border:0; border-radius:7px; padding:7px 12px; background:transparent; color:#597069; font:inherit; font-size:11px; font-weight:750; cursor:pointer; }
 .ptc-resource-view-controls button.active { background:white; color:#175f55; box-shadow:0 1px 4px rgba(25,45,50,.12); }
@@ -96,6 +98,7 @@
 .ptc-candidate-heading .eyebrow { margin:0 0 .25rem; }
 .ptc-candidate-heading h3 { margin:0; font-size:1rem; }
 .ptc-candidate-heading>span { color:#718078; font-size:.75rem; }
+.ptc-candidate-sort { display:flex; justify-content:flex-end; margin:-.2rem 0 .45rem; }
 .ptc-candidate { min-width:0; border-top:1px solid #e9efec; }
 .ptc-candidate>summary { display:grid; grid-template-columns:minmax(170px,1.35fr) minmax(130px,1fr) minmax(105px,.8fr) minmax(140px,1fr) auto; align-items:center; gap:.65rem 1rem; padding:.95rem .15rem; cursor:pointer; list-style:none; }
 .ptc-candidate>summary::-webkit-details-marker { display:none; }
@@ -146,6 +149,11 @@
 .ptc-missed-trigger small { color:#286e60; font-size:.62rem; font-weight:750; white-space:nowrap; }
 .ptc-missed-item.is-open { background:white; border-color:#cbded4; }
 .ptc-teacher-question { padding:.2rem .65rem .7rem; }
+.ptc-teacher-audio-controls { display:flex; flex-wrap:wrap; gap:.45rem; margin:0 0 .65rem; padding:.55rem; border:1px solid #d5e6dc; border-radius:8px; background:#f3faf6; }
+.ptc-teacher-audio-control { display:flex; align-items:center; gap:.45rem; }
+.ptc-teacher-audio-control button { border:1px solid #75aa97; border-radius:7px; padding:.42rem .62rem; background:white; color:#17675b; font:inherit; font-size:.68rem; font-weight:800; cursor:pointer; }
+.ptc-teacher-audio-control span { color:#708079; font-size:.64rem; font-variant-numeric:tabular-nums; }
+.ptc-teacher-audio-control audio { display:none; }
 .ptc-teacher-question-card { padding:.8rem; border:1px solid #e3ebe6; border-radius:9px; background:white; color:#243a32; }
 .ptc-teacher-question-card>header { display:flex; justify-content:space-between; gap:1rem; margin-bottom:.55rem; color:#5e786b; font-size:.62rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; }
 .ptc-teacher-question-card h5 { margin:.3rem 0 .7rem; font-size:.86rem; line-height:1.5; white-space:pre-wrap; }

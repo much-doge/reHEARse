@@ -139,6 +139,21 @@ export async function listManagedResources(staffActorId: string, staffRole: "tea
        SELECT jsonb_agg(jsonb_build_object(
          'id',d.id,'number',d.attempt_number,'status',d.status,'scope',d.scope,'deliveryScope',d.delivery_scope,
          'createdAt',d.created_at,'completedAt',d.completed_at,'archivedAt',d.archived_at,'result',r.result_data,
+         'answeredQuestions',COALESCE((
+           SELECT jsonb_agg(jsonb_build_object(
+             'section',answer_events.section,
+             'question',answer_events.question_number,
+             'selected',answer_events.answer_choice,
+             'answeredAt',answer_events.created_at
+           ) ORDER BY answer_events.id)
+           FROM (
+             SELECT DISTINCT ON (e.section,e.question_number)
+               e.id,e.section,e.question_number,e.answer_choice,e.created_at
+             FROM protefl_diagnostic_event e
+             WHERE e.attempt_id=d.id AND e.event_type='answer'
+             ORDER BY e.section,e.question_number,e.id DESC
+           ) answer_events
+         ),'[]'::jsonb),
          'retakes',COALESCE((
            SELECT jsonb_agg(jsonb_build_object(
              'id',retry.id,'section',retry.scope,'number',retry.section_retake_number,'status',retry.status,

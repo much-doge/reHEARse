@@ -18,6 +18,16 @@ type StandardItem = { number: number; prompt: string; options: Record<Choice, st
 type ErrorItem = { number: number; tokens: Array<{ text: string; choice?: Choice }>; options: Record<Choice, string>; sourcePage: number };
 type Passage = { id: string; questions: [number, number]; sourcePage: number; lines: Array<{ text: string; line: number | null; paragraphStart: boolean }> };
 type ItemPackage = { listening: StandardItem[]; structure: { completion: StandardItem[]; errorIdentification: ErrorItem[] }; reading: { passages: Passage[]; questions: StandardItem[] } };
+type ListeningMapItem = {
+  question: number;
+  groupId: string;
+  groupType: "question" | "conversation" | "talk";
+  questionAudioStartMs: number;
+  questionAudioEndMs: number;
+  contextStartMs: number;
+  answerWindowStartMs: number;
+  answerWindowEndMs: number;
+};
 
 export type DiagnosticInstructions = {
   listening: { overview: string; partA: string; partB: string; partC: string };
@@ -127,13 +137,13 @@ export async function teacherDiagnosticReviewItem(
   const question = Number(questionValue);
   if (!validQuestion(section, question)) return null;
   const result = await getPool().query(
-    `SELECT d.id,d.package_version,r.code,dr.result_data
+    `SELECT d.id,d.package_version,d.status,d.archived_at,d.selected_questions,r.code,dr.result_data
      FROM protefl_diagnostic_attempt d
      JOIN protefl_resource r ON r.id=d.resource_id
      JOIN protefl_resource_assignment a ON a.resource_id=d.resource_id AND a.actor_id=d.actor_id
-     JOIN protefl_diagnostic_result dr ON dr.attempt_id=d.id
+     LEFT JOIN protefl_diagnostic_result dr ON dr.attempt_id=d.id
      WHERE d.id=$1 AND d.resource_id=$2 AND d.actor_id=$3
-       AND r.kind='diagnostic_package' AND d.status='completed' AND d.archived_at IS NULL
+       AND r.kind='diagnostic_package'
        AND a.revoked_at IS NULL AND a.starts_at<=now() AND (a.ends_at IS NULL OR a.ends_at>now())
        AND ($5='admin' OR a.assigned_by=$4)
      LIMIT 1`,
@@ -141,22 +151,41 @@ export async function teacherDiagnosticReviewItem(
   );
   const row = result.rows[0];
   if (!row || row.code !== packageCode) return null;
-  let reviewItem = (row.result_data?.review ?? []).find((item: { section: string; question: number; correct: boolean }) => item.section === section && Number(item.question) === question && !item.correct);
+  if (Array.isArray(row.selected_questions) && !row.selected_questions.map(Number).includes(question)) return null;
+  let reviewItem = (row.result_data?.review ?? []).find((item: { section: string; question: number }) => item.section === section && Number(item.question) === question) as { section: string; question: number; selected: Choice | null; correctAnswer: Choice; correct: boolean } | undefined;
   if (!reviewItem) {
-    const resetResults = await getPool().query(
-      `SELECT dr.result_data FROM protefl_diagnostic_attempt child
-       JOIN protefl_diagnostic_result dr ON dr.attempt_id=child.id
-       WHERE child.parent_attempt_id=$1 AND child.status='completed' AND child.archived_at IS NULL`,
-      [attemptId],
+    const answer = await getPool().query(
+      `SELECT answer_choice FROM protefl_diagnostic_event
+       WHERE attempt_id=$1 AND event_type='answer' AND section=$2 AND question_number=$3
+       ORDER BY id DESC LIMIT 1`,
+      [attemptId, section, question],
     );
-    for (const reset of resetResults.rows) {
-      const found = (reset.result_data?.review ?? []).find((item: { section: string; question: number; correct: boolean }) => item.section === section && Number(item.question) === question && !item.correct);
-      if (found) { reviewItem = found; break; }
-    }
+    if (!answer.rows[0]) return null;
+    const keyFile = await json<{ sections: Keys }>("metadata/answer-key-practice-test-a-v1.json");
+    const selected = answer.rows[0].answer_choice as Choice;
+    const correctAnswer = keyFile.sections[section][question - 1];
+    reviewItem = { section, question, selected, correctAnswer, correct: selected === correctAnswer };
   }
-  if (!reviewItem) return null;
   const content = await json<ItemPackage>("metadata/questions-practice-test-a-v1.json");
-  if (section === "listening") return { section, question: reviewItem, item: content.listening[question - 1] };
+  if (section === "listening") {
+    const map = await json<{ questions: ListeningMapItem[] }>("metadata/listening-question-map-v1.json");
+    const timing = map.questions[question - 1];
+    if (!timing) return null;
+    const group = map.questions.filter((entry) => entry.groupId === timing.groupId);
+    return {
+      section,
+      question: reviewItem,
+      item: content.listening[question - 1],
+      audio: {
+        groupId: timing.groupId,
+        groupType: timing.groupType,
+        contextStartMs: timing.contextStartMs,
+        contextEndMs: Math.max(...group.map((entry) => entry.questionAudioEndMs)),
+        questionStartMs: timing.questionAudioStartMs,
+        questionEndMs: timing.questionAudioEndMs,
+      },
+    };
+  }
   if (section === "structure") return {
     section,
     question: reviewItem,
@@ -165,6 +194,31 @@ export async function teacherDiagnosticReviewItem(
   };
   const passage = content.reading.passages.find((candidate) => question >= candidate.questions[0] && question <= candidate.questions[1]);
   return { section, question: reviewItem, item: content.reading.questions[question - 1], passage };
+}
+
+export async function teacherDiagnosticAudio(
+  staffActorId: string,
+  staffRole: "teacher" | "admin",
+  resourceId: string,
+  candidateActorId: string,
+  attemptId: string,
+) {
+  const authorized = await getPool().query(
+    `SELECT d.id
+     FROM protefl_diagnostic_attempt d
+     JOIN protefl_resource r ON r.id=d.resource_id
+     JOIN protefl_resource_assignment a ON a.resource_id=d.resource_id AND a.actor_id=d.actor_id
+     WHERE d.id=$1 AND d.resource_id=$2 AND d.actor_id=$3 AND r.kind='diagnostic_package'
+       AND a.revoked_at IS NULL AND ($5='admin' OR a.assigned_by=$4)
+     LIMIT 1`,
+    [attemptId, resourceId, candidateActorId, staffActorId, staffRole],
+  );
+  if (!authorized.rowCount) return null;
+  try {
+    return await readFile(join(root, "source/practice-test-a-listening.m4a"));
+  } catch {
+    return null;
+  }
 }
 
 export async function diagnosticAudio(actorId: string, id: string) {
