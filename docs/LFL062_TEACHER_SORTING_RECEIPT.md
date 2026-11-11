@@ -9,6 +9,6 @@ score, answered-question count, or section-retake count. Sorting is local to
 the teacher view and does not alter learner payloads or expose teacher tags.
 
 Verification: changed-path ESLint, repository TypeScript, Next production
-build, and `git diff --check` passed locally. App image `rehearse-app:fe5c590`
+build, and `git diff --check` passed locally. App image `rehearse-app:f75779f`
 is healthy on PCT128 and LAN/public health returned HTTP 200. Authenticated
 teacher/browser review remains pending.

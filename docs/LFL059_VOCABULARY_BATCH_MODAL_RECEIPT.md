@@ -26,7 +26,7 @@ existing attempts, events, lineages, or assignments.
   `.secrets/lfl059-pre-migration-fe5c590-20261111175133.dump` (2,722,884 bytes).
 - Migration `037_vocabulary_contextual_queue_twenty.sql` applied once on
   PCT128 at `2026-11-11 10:55:40 UTC`.
-- App image `rehearse-app:fe5c590` is healthy on PCT128; LAN and public health
+- App image `rehearse-app:f75779f` is healthy on PCT128; LAN and public health
   checks returned HTTP 200. Signed-out vocabulary API remains private (401,
   `Cache-Control: private, no-store`). Authenticated learner/teacher playback
   remains unverified in a browser.

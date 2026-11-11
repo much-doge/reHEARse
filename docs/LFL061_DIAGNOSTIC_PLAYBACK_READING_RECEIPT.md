@@ -25,7 +25,7 @@ zoom controls.
 
 Verification: package verifier, changed-path ESLint, repository TypeScript,
 Vitest, Next production build, and `git diff --check` passed locally. PCT128 is
-running `rehearse-app:fe5c590`; LAN/public health returned HTTP 200, logged-out
+running `rehearse-app:f75779f`; LAN/public health returned HTTP 200, logged-out
 teacher route returned 307, and the protected vocabulary API returned 401 with
 private/no-store headers. Authenticated retake/browser playback review remains
 pending.
