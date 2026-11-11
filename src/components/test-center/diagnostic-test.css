@@ -69,6 +69,10 @@
 .ptd-listening-context-preview .ptd-question-card { padding:18px; box-shadow:none; }
 .ptd-listening-context-preview .ptd-question-card h2 { margin:20px 0; font-size:1.2rem; line-height:1.4; }
 .ptd-listening-context-preview .ptd-option-cards button { padding:8px 10px; }
+.ptd-listening-directions-live { min-height:420px; display:grid; align-content:center; justify-items:start; gap:10px; padding:clamp(26px,5vw,58px); border:1px solid #cbdacb; border-radius:22px; background:linear-gradient(145deg,#edf5e9,#f9fbf5); }
+.ptd-listening-directions-live>span { color:#347051; font-size:.7rem; font-weight:850; letter-spacing:.12em; }
+.ptd-listening-directions-live h2 { max-width:620px; margin:0; color:#1e3e31; font:600 clamp(1.55rem,3vw,2.3rem)/1.2 Georgia,"Times New Roman",serif; }
+.ptd-listening-directions-live p { margin:0; color:#61766b; line-height:1.6; }
 .ptd-question-card .ptd-completion-prompt { font-size:clamp(1.45rem,2.5vw,2.2rem); line-height:1.6; }
 .ptd-sentence-blank { display:inline-flex; min-width:7.5rem; margin:0 .22em; border-bottom:3px solid #2d7054; transform:translateY(-.08em); }
 .ptd-sentence-blank span { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); }

@@ -422,9 +422,11 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, hist
     const answers = state?.answers ?? {};
     const answerDisabled = busy || (name === "listening" ? !canAnswerListening : remaining === 0);
     const contextQuestions = name === "listening" ? listeningContextQuestions() : [];
+    const firstListeningAudio = name === "listening" ? timing.questions.find((item) => item.question === numbers[0]) : undefined;
+    const listeningDirectionsOnly = name === "listening" && state?.listeningMode === "autoplay" && !!firstListeningAudio && audioNow < firstListeningAudio.questionAudioStartMs;
     return <div className="ptd-workspace">
       <section className="ptd-question-content">
-        {contextQuestions.length > 0 ? <section className="ptd-listening-context-preview" aria-label="Questions in this conversation or talk">
+        {listeningDirectionsOnly ? <section className="ptd-listening-directions-live" aria-live="polite"><span>LISTENING DIRECTIONS</span><h2>Listen to the directions before Question {numbers[0]}</h2><p>The first question will appear when the recording reaches its question cue.</p></section> : contextQuestions.length > 0 ? <section className="ptd-listening-context-preview" aria-label="Questions in this conversation or talk">
           <header><span>LISTENING CONTEXT</span><strong>Review the questions while the recording plays</strong></header>
           <div>{contextQuestions.map((number) => <StructuredQuestionCard key={number} attemptId={state!.id} section="listening" question={number} selected={answers[answerKey("listening", number)]} disabled={true} onChoose={() => undefined} />)}</div>
         </section> : <StructuredQuestionCard attemptId={state!.id} section={name} question={question} selected={answers[answerKey(name, question)]} disabled={answerDisabled} onChoose={(choice) => void chooseAnswer(name, question, choice)} />}
