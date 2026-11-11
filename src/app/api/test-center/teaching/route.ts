@@ -1,4 +1,4 @@
-import { archiveCandidateDiagnostic, issueResourceInvite, resetAssignedLearnerPassword, setResourceStatus, setResourceTags } from "@protefl/adapters/postgres-resources";
+import { archiveCandidateDiagnostic, getManagedCandidateHistory, issueResourceInvite, resetAssignedLearnerPassword, setResourceStatus, setResourceTags } from "@protefl/adapters/postgres-resources";
 import { restartCandidateDiagnosticSection } from "@protefl/adapters/postgres-diagnostic";
 import { currentUser } from "@/lib/session";
 import { isSameOriginRequest } from "@/lib/same-origin";
@@ -7,6 +7,23 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 const headers = { "Cache-Control": "private, no-store" };
 const staff = (role: string) => role === "teacher" || role === "admin";
+
+export async function GET(request: Request) {
+  const user = await currentUser();
+  if (!user) return Response.json({ error: "authentication_required" }, { status: 401, headers });
+  if (!staff(user.role)) return Response.json({ error: "not_found" }, { status: 404, headers });
+  const params = new URL(request.url).searchParams;
+  const resourceId = params.get("resourceId");
+  const candidateActorId = params.get("candidateActorId");
+  if (!resourceId || !candidateActorId || !/^[0-9a-f-]{36}$/i.test(resourceId) || !/^[0-9a-f-]{36}$/i.test(candidateActorId))
+    return Response.json({ error: "invalid_request" }, { status: 400, headers });
+  try {
+    const candidate = await getManagedCandidateHistory(resourceId, candidateActorId, user.id, user.role as "teacher" | "admin");
+    return candidate ? Response.json({ candidate }, { headers }) : Response.json({ error: "not_found" }, { status: 404, headers });
+  } catch {
+    return Response.json({ error: "resource_unavailable" }, { status: 503, headers });
+  }
+}
 
 export async function POST(request: Request) {
   if (!isSameOriginRequest(request)) return Response.json({ error: "origin_rejected" }, { status: 403, headers });

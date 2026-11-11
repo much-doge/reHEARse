@@ -124,6 +124,98 @@ export async function claimResource(actorId: string, rawCode: string): Promise<v
   }
 }
 
+type ManagedHistoryAttemptRow = {
+  result?: FullDiagnosticResult | null;
+  answeredQuestions?: unknown[];
+  retakes?: Array<{ teacherIssuedRestart?: boolean; archivedAt?: string | null; status?: string; section: string; result?: unknown }>;
+};
+type ManagedCandidateHistoryRow = {
+  display_name: string;
+  email: string;
+  actor_id: string;
+  can_reset_password: boolean;
+  delivery_scope: "full" | "listening" | "structure" | "reading";
+  assignment_title: string;
+  attempts?: ManagedHistoryAttemptRow[];
+};
+
+const managedCandidateHistoryQuery = `
+  SELECT a.resource_id,a.actor_id,a.delivery_scope,COALESCE(a.assignment_title,r.title) AS assignment_title,u.display_name,u.email,
+    ($2='admin' OR a.assigned_by=$1) AS can_reset_password,
+    COALESCE(history.attempts,'[]'::jsonb) AS attempts
+  FROM protefl_resource_assignment a
+  JOIN app_user u ON u.id=a.actor_id
+  JOIN protefl_resource r ON r.id=a.resource_id
+  LEFT JOIN LATERAL (
+    SELECT jsonb_agg(jsonb_build_object(
+      'id',d.id,'number',d.attempt_number,'status',d.status,'scope',d.scope,'deliveryScope',d.delivery_scope,
+      'createdAt',d.created_at,'completedAt',d.completed_at,'archivedAt',d.archived_at,'result',result_row.result_data,
+      'answeredQuestions',COALESCE((
+        SELECT jsonb_agg(jsonb_build_object(
+          'section',answer_events.section,
+          'question',answer_events.question_number,
+          'selected',answer_events.answer_choice,
+          'answeredAt',answer_events.created_at
+        ) ORDER BY answer_events.id)
+        FROM (
+          SELECT DISTINCT ON (e.section,e.question_number)
+            e.id,e.section,e.question_number,e.answer_choice,e.created_at
+          FROM protefl_diagnostic_event e
+          WHERE e.attempt_id=d.id AND e.event_type='answer'
+          ORDER BY e.section,e.question_number,e.id DESC
+        ) answer_events
+      ),'[]'::jsonb),
+      'retakes',COALESCE((
+        SELECT jsonb_agg(jsonb_build_object(
+          'id',retry.id,'section',retry.scope,'number',retry.section_retake_number,'status',retry.status,
+          'teacherIssuedRestart',(retry.teacher_restarted_by IS NOT NULL),
+          'createdAt',retry.created_at,'completedAt',retry.completed_at,'archivedAt',retry.archived_at,'result',rr.result_data
+        ) ORDER BY retry.attempt_number)
+        FROM protefl_diagnostic_attempt retry
+        LEFT JOIN protefl_diagnostic_result rr ON rr.attempt_id=retry.id
+        WHERE retry.parent_attempt_id=d.id
+      ),'[]'::jsonb)
+    ) ORDER BY d.attempt_number) AS attempts
+    FROM protefl_diagnostic_attempt d
+    LEFT JOIN protefl_diagnostic_result result_row ON result_row.attempt_id=d.id
+    WHERE d.resource_id=a.resource_id AND d.actor_id=a.actor_id
+      AND d.parent_attempt_id IS NULL
+  ) history ON true
+  WHERE a.revoked_at IS NULL`;
+
+function mapManagedCandidateHistory(row: ManagedCandidateHistoryRow) {
+  const attempts = (row.attempts ?? []).map((attempt) => {
+    const resets = (attempt.retakes ?? []).filter((retry) => retry.teacherIssuedRestart && !retry.archivedAt && retry.status === "completed" && retry.result).map((retry) => ({ section: retry.section, result: retry.result })) as CompletedSectionReset[];
+    return { ...attempt, effectiveResult: attempt.result && resets.length ? effectiveDiagnosticResult(attempt.result, resets) : null };
+  });
+  return {
+    name: row.display_name as string,
+    email: row.email as string,
+    actorId: String(row.actor_id),
+    canResetPassword: row.can_reset_password === true,
+    deliveryScope: row.delivery_scope as "full" | "listening" | "structure" | "reading",
+    assignmentTitle: row.assignment_title as string,
+    attempts,
+    attemptCount: attempts.length,
+    retakeCount: attempts.reduce((count: number, attempt: { retakes?: unknown[] }) => count + (attempt.retakes?.length ?? 0), 0),
+    answeredCount: attempts.reduce((count: number, attempt: { answeredQuestions?: unknown[] }) => count + (attempt.answeredQuestions?.length ?? 0), 0),
+    historyLoaded: true,
+  };
+}
+
+export async function getManagedCandidateHistory(
+  resourceId: string,
+  candidateActorId: string,
+  staffActorId: string,
+  staffRole: "teacher" | "admin",
+) {
+  const result = await getPool().query(
+    `${managedCandidateHistoryQuery} AND a.resource_id=$3 AND a.actor_id=$4 LIMIT 1`,
+    [staffActorId, staffRole, resourceId, candidateActorId],
+  );
+  return result.rows[0] ? mapManagedCandidateHistory(result.rows[0]) : null;
+}
+
 export async function listManagedResources(staffActorId: string, staffRole: "teacher" | "admin") {
   const result = await getPool().query(
     `SELECT r.id,r.code,r.version,r.kind,r.title,r.status,r.tags,r.created_at,
@@ -133,43 +225,41 @@ export async function listManagedResources(staffActorId: string, staffRole: "tea
   const candidates = await getPool().query(
     `SELECT a.resource_id,a.actor_id,a.delivery_scope,COALESCE(a.assignment_title,r.title) AS assignment_title,u.display_name,u.email,
        ($2='admin' OR a.assigned_by=$1) AS can_reset_password,
-       COALESCE(history.attempts,'[]'::jsonb) AS attempts
-     FROM protefl_resource_assignment a JOIN app_user u ON u.id=a.actor_id JOIN protefl_resource r ON r.id=a.resource_id
+       COALESCE(stats.attempt_count,0)::int AS attempt_count,
+       COALESCE(stats.retake_count,0)::int AS retake_count,
+       COALESCE(stats.answered_count,0)::int AS answered_count,
+       stats.latest_attempt
+     FROM protefl_resource_assignment a
+     JOIN app_user u ON u.id=a.actor_id
+     JOIN protefl_resource r ON r.id=a.resource_id
      LEFT JOIN LATERAL (
-       SELECT jsonb_agg(jsonb_build_object(
-         'id',d.id,'number',d.attempt_number,'status',d.status,'scope',d.scope,'deliveryScope',d.delivery_scope,
-         'createdAt',d.created_at,'completedAt',d.completed_at,'archivedAt',d.archived_at,'result',r.result_data,
-         'answeredQuestions',COALESCE((
-           SELECT jsonb_agg(jsonb_build_object(
-             'section',answer_events.section,
-             'question',answer_events.question_number,
-             'selected',answer_events.answer_choice,
-             'answeredAt',answer_events.created_at
-           ) ORDER BY answer_events.id)
-           FROM (
-             SELECT DISTINCT ON (e.section,e.question_number)
-               e.id,e.section,e.question_number,e.answer_choice,e.created_at
-             FROM protefl_diagnostic_event e
-             WHERE e.attempt_id=d.id AND e.event_type='answer'
-             ORDER BY e.section,e.question_number,e.id DESC
-           ) answer_events
-         ),'[]'::jsonb),
-         'retakes',COALESCE((
-           SELECT jsonb_agg(jsonb_build_object(
-             'id',retry.id,'section',retry.scope,'number',retry.section_retake_number,'status',retry.status,
-             'teacherIssuedRestart',(retry.teacher_restarted_by IS NOT NULL),
-             'createdAt',retry.created_at,'completedAt',retry.completed_at,'archivedAt',retry.archived_at,'result',rr.result_data
-           ) ORDER BY retry.attempt_number)
-           FROM protefl_diagnostic_attempt retry
-           LEFT JOIN protefl_diagnostic_result rr ON rr.attempt_id=retry.id
-           WHERE retry.parent_attempt_id=d.id
-         ),'[]'::jsonb)
-       ) ORDER BY d.attempt_number) AS attempts
-       FROM protefl_diagnostic_attempt d
-       LEFT JOIN protefl_diagnostic_result r ON r.attempt_id=d.id
-       WHERE d.resource_id=a.resource_id AND d.actor_id=a.actor_id
-         AND d.parent_attempt_id IS NULL
-     ) history ON true
+       SELECT count(*)::int AS attempt_count,
+              COALESCE(sum(root.retake_count),0)::int AS retake_count,
+              COALESCE(sum(root.answered_count),0)::int AS answered_count,
+              (SELECT jsonb_build_object(
+                 'id',latest.id,'number',latest.attempt_number,'status',latest.status,'scope',latest.scope,'deliveryScope',latest.delivery_scope,
+                 'createdAt',latest.created_at,'completedAt',latest.completed_at,'archivedAt',latest.archived_at,
+                 'result',CASE WHEN latest_result.result_data IS NULL THEN NULL ELSE jsonb_build_object('total',latest_result.result_data->'total','sections',latest_result.result_data->'sections','summary',latest_result.result_data->'summary') END,
+                 'answeredCount',latest.answered_count,'retakeCount',latest.retake_count
+               )
+               FROM (
+                 SELECT d.id,d.attempt_number,d.status,d.scope,d.delivery_scope,d.created_at,d.completed_at,d.archived_at,
+                   (SELECT count(DISTINCT (e.section,e.question_number))::int FROM protefl_diagnostic_event e WHERE e.attempt_id=d.id AND e.event_type='answer') AS answered_count,
+                   (SELECT count(*)::int FROM protefl_diagnostic_attempt retry WHERE retry.parent_attempt_id=d.id) AS retake_count
+                 FROM protefl_diagnostic_attempt d
+                 WHERE d.resource_id=a.resource_id AND d.actor_id=a.actor_id AND d.parent_attempt_id IS NULL AND d.archived_at IS NULL
+                 ORDER BY d.attempt_number DESC LIMIT 1
+               ) latest
+               LEFT JOIN protefl_diagnostic_result latest_result ON latest_result.attempt_id=latest.id
+              ) AS latest_attempt
+       FROM (
+         SELECT d.id,
+           (SELECT count(*)::int FROM protefl_diagnostic_attempt retry WHERE retry.parent_attempt_id=d.id) AS retake_count,
+           (SELECT count(DISTINCT (e.section,e.question_number))::int FROM protefl_diagnostic_event e WHERE e.attempt_id=d.id AND e.event_type='answer') AS answered_count
+         FROM protefl_diagnostic_attempt d
+         WHERE d.resource_id=a.resource_id AND d.actor_id=a.actor_id AND d.parent_attempt_id IS NULL
+       ) root
+     ) stats ON true
      WHERE a.revoked_at IS NULL ORDER BY a.resource_id,u.display_name`,
     [staffActorId, staffRole],
   );
@@ -185,10 +275,11 @@ export async function listManagedResources(staffActorId: string, staffRole: "tea
       canResetPassword: candidate.can_reset_password === true,
       deliveryScope: candidate.delivery_scope as "full" | "listening" | "structure" | "reading",
       assignmentTitle: candidate.assignment_title as string,
-      attempts: (candidate.attempts ?? []).map((attempt: { result?: FullDiagnosticResult | null; retakes?: Array<{ teacherIssuedRestart?: boolean; archivedAt?: string | null; status?: string; section: string; result?: unknown }> }) => {
-        const resets = (attempt.retakes ?? []).filter((retry) => retry.teacherIssuedRestart && !retry.archivedAt && retry.status === "completed" && retry.result).map((retry) => ({ section: retry.section, result: retry.result })) as CompletedSectionReset[];
-        return { ...attempt, effectiveResult: attempt.result && resets.length ? effectiveDiagnosticResult(attempt.result, resets) : null };
-      }),
+      attempts: candidate.latest_attempt ? [{ ...candidate.latest_attempt, retakes: [], answeredQuestions: [] }] : [],
+      attemptCount: Number(candidate.attempt_count),
+      retakeCount: Number(candidate.retake_count),
+      answeredCount: Number(candidate.answered_count),
+      historyLoaded: false,
     })),
   }));
 }
