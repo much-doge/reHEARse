@@ -16,9 +16,17 @@ not rewrite existing invitations.
 Migration 037 widens the queue exposure counter from 12 to 20 without changing
 existing attempts, events, lineages, or assignments.
 
-## Verification
+## Verification and deployment
 
 - Changed-path ESLint, repository TypeScript, and diff check passed.
-- Next production build pending before deployment.
+- Next production build passed locally and in the PCT128 production-shaped image.
 - Existing learner attempts remain pinned and append-only; no attempt was
   created for verification.
+- Validated mode-600 pre-migration PostgreSQL custom dump:
+  `.secrets/lfl059-pre-migration-fe5c590-20261111175133.dump` (2,722,884 bytes).
+- Migration `037_vocabulary_contextual_queue_twenty.sql` applied once on
+  PCT128 at `2026-11-11 10:55:40 UTC`.
+- App image `rehearse-app:fe5c590` is healthy on PCT128; LAN and public health
+  checks returned HTTP 200. Signed-out vocabulary API remains private (401,
+  `Cache-Control: private, no-store`). Authenticated learner/teacher playback
+  remains unverified in a browser.

@@ -1,6 +1,6 @@
 # LFL-061 diagnostic playback and Reading receipt
 
-Status: source-complete pending deployment
+Status: deployed to PCT128; authenticated browser review pending
 
 This revision keeps existing diagnostic attempts and answer events append-only.
 It corrects the ETS Volume 3 Practice Test A Structure answer key for question
@@ -24,5 +24,8 @@ type scale, responsive spacing, bounded resize support, and learner-controlled
 zoom controls.
 
 Verification: package verifier, changed-path ESLint, repository TypeScript,
-Vitest, Next production build, and `git diff --check` passed locally. PCT128
-deployment and authenticated retake/browser playback review remain pending.
+Vitest, Next production build, and `git diff --check` passed locally. PCT128 is
+running `rehearse-app:fe5c590`; LAN/public health returned HTTP 200, logged-out
+teacher route returned 307, and the protected vocabulary API returned 401 with
+private/no-store headers. Authenticated retake/browser playback review remains
+pending.
