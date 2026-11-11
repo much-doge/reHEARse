@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { answerVocabularyCard, claimVocabularyCode, finishVocabularyRound, getVocabularyRun, learnerAssignments, nextVocabularyRound, recordVocabularyOpen, VocabularyError } from "@/adapters/vocabulary/postgres-vocabulary";
+import { advanceVocabularyExposure, answerVocabularyCard, answerVocabularyExposure, claimVocabularyCode, finishVocabularyRound, getVocabularyRun, learnerAssignments, nextVocabularyBatch, nextVocabularyRound, recordVocabularyOpen, skipVocabularyExposure, VocabularyError } from "@/adapters/vocabulary/postgres-vocabulary";
 import { currentUser } from "@/lib/session";
 import { isSameOriginRequest } from "@/lib/same-origin";
 
@@ -12,6 +12,10 @@ const schema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("claim"), code: z.string().trim().min(8).max(24) }).strict(),
   z.object({ kind: z.literal("open"), attemptId: z.uuid(), cardId: z.string().regex(/^word-[a-f0-9]{16}$/) }).strict(),
   z.object({ kind: z.literal("answer"), attemptId: z.uuid(), cardId: z.string().regex(/^word-[a-f0-9]{16}$/), selectedParts: z.array(part).min(1).max(4) }).strict(),
+  z.object({ kind: z.literal("answer_v4"), attemptId: z.uuid(), exposureId: z.uuid(), selectedPart: part }).strict(),
+  z.object({ kind: z.literal("skip_v4"), attemptId: z.uuid(), exposureId: z.uuid() }).strict(),
+  z.object({ kind: z.literal("advance_v4"), attemptId: z.uuid() }).strict(),
+  z.object({ kind: z.literal("next_batch_v4"), assignmentId: z.uuid(), previousAttemptId: z.uuid() }).strict(),
   z.object({ kind: z.literal("complete"), attemptId: z.uuid() }).strict(),
   z.object({ kind: z.literal("next"), assignmentId: z.uuid(), previousAttemptId: z.uuid(), missedOnly: z.boolean() }).strict(),
 ]);
@@ -51,6 +55,10 @@ export async function POST(request: Request) {
       case "claim": return Response.json(await claimVocabularyCode(user.id, action.data.code), { headers });
       case "open": await recordVocabularyOpen(user.id, action.data.attemptId, action.data.cardId); return Response.json({ opened: true }, { headers });
       case "answer": return Response.json(await answerVocabularyCard(user.id, action.data.attemptId, action.data.cardId, action.data.selectedParts), { headers });
+      case "answer_v4": return Response.json(await answerVocabularyExposure(user.id, action.data.attemptId, action.data.exposureId, action.data.selectedPart), { headers });
+      case "skip_v4": return Response.json(await skipVocabularyExposure(user.id, action.data.attemptId, action.data.exposureId), { headers });
+      case "advance_v4": return Response.json(await advanceVocabularyExposure(user.id, action.data.attemptId), { headers });
+      case "next_batch_v4": return Response.json(await nextVocabularyBatch(user.id, action.data.assignmentId, action.data.previousAttemptId), { headers });
       case "complete": return Response.json(await finishVocabularyRound(user.id, action.data.attemptId), { headers });
       case "next": return Response.json(await nextVocabularyRound(user.id, action.data.assignmentId, action.data.previousAttemptId, action.data.missedOnly), { headers });
     }

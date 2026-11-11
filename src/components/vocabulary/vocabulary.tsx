@@ -9,8 +9,27 @@ type Assignment = { id: string; title: string; latestStatus: string | null; crea
 type Card = { id: string; headword: string; partsOfSpeech: Part[]; classification: string[]; priority: string[]; frequencyBand: string[]; wordForms: string[]; bookOccurrences: number | null; skillOccurrences: { listening: number; structure: number; reading: number }; sourceRows: number; example?: { sentence: string; highlightStart: number; highlightLength: number; source: "wordnet-3.0" | "rehearse-original" | "rehearse-authored" } | null };
 type AnswerState = { selectedParts: Part[]; isCorrect: boolean; answeredAt?: string };
 type RunData = { assignment: { id: string; title: string }; attempt: { id: string; number: number; status: string; cardOrder: string[] }; cards: Card[]; answers: Record<string, AnswerState>; openCounts: Record<string, number>; prompt: string };
+type ContextExposure = {
+  exposureId: string;
+  sequence: number;
+  exposureKind: "new" | "review" | "requeue";
+  status: "open" | "answered" | "skipped";
+  selectedPart: Part | null;
+  isCorrect: boolean | null;
+  expectedPart: Part | null;
+  card: Omit<Card, "partsOfSpeech">;
+};
+type ContextRunData = {
+  assignment: { id: string; title: string };
+  attempt: { id: string; number: number; status: "active" | "completed"; cardOrder: string[] };
+  packageVersion: 4;
+  isContextualQueue: true;
+  exposures: ContextExposure[];
+  currentExposureId: string | null;
+  stats: { dailyTarget: number; todayCount: number; practiceDayStreak: number; newExposuresToday: number; revisitedExposuresToday: number };
+};
 type ReviewAssignment = { id: string; type: "private" | "classroom"; title: string; expiresAt: string; revoked: boolean; candidates: Array<{ id: string; learnerId: string; name: string; email: string; attempts: Array<{ id: string; number: number; status: string; createdAt: string; completedAt: string | null; archivedAt: string | null }> }> };
-type ReviewCard = { id: string; headword: string; sourcePartsOfSpeech: Part[]; opened: boolean; openEvents: number; selectedParts: Part[] | null; isCorrect: boolean | null; responseTrail: Array<{ selectedParts: Part[]; isCorrect: boolean; answeredAt: string }>; lastSeen: string | null };
+type ReviewCard = { id: string; cardId?: string; headword: string; sourcePartsOfSpeech: Part[]; targetPart?: Part; example?: Card["example"]; status?: "open" | "answered" | "skipped"; exposureKind?: "new" | "review" | "requeue"; opened: boolean; openEvents: number; selectedParts: Part[] | null; isCorrect: boolean | null; responseTrail: Array<{ selectedParts: Part[]; isCorrect: boolean; answeredAt: string }>; lastSeen: string | null };
 
 async function postJson<T>(url: string, body: unknown): Promise<T> {
   const response = await fetch(url, { method: "POST", cache: "no-store", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
@@ -48,18 +67,141 @@ export function VocabularyHome() {
     </section>
     <section className="vocab-content-grid">
       <div className="vocab-assignments"><div className="vocab-section-heading"><div><p className="vocab-kicker">YOUR LEARNING DESK</p><h2>Assigned word sets</h2></div><span>{assignments.length.toString().padStart(2, "0")}</span></div>
-        {assignments.length ? assignments.map((assignment) => <article className="vocab-assignment-card" key={assignment.id}><div className="vocab-card-mark">Aa</div><div className="vocab-assignment-info"><span className="vocab-tag">TOEFL ITP · FREQUENCY REVIEW</span><h3>{assignment.title}</h3><p>{assignment.latestStatus === "completed" ? "Your last round is ready to review or continue." : "A fresh set of word cards is ready."}</p></div><Link className="vocab-open-link" href={`/vocabulary/${assignment.id}`}>Open cards <span>↗</span></Link></article>) : <div className="vocab-empty"><span className="vocab-empty-spark">✳</span><h3>Your next word set will land here.</h3><p>When your teacher shares a private or classroom code, add it below.</p></div>}
+        {assignments.length ? assignments.map((assignment) => <article className="vocab-assignment-card" key={assignment.id}><div className="vocab-card-mark">Aa</div><div className="vocab-assignment-info"><span className="vocab-tag">TOEFL ITP · CONTEXT PRACTICE</span><h3>{assignment.title}</h3><p>{assignment.latestStatus === "completed" ? "Your next focused set is ready whenever you are." : "Your contextual word queue is ready to continue."}</p></div><Link className="vocab-open-link" href={`/vocabulary/${assignment.id}`}>Open cards <span>↗</span></Link></article>) : <div className="vocab-empty"><span className="vocab-empty-spark">✳</span><h3>Your next word set will land here.</h3><p>When your teacher shares a private or classroom code, add it below.</p></div>}
       </div>
-      <aside className="vocab-code-panel"><p className="vocab-kicker">A CODE FROM YOUR TEACHER?</p><h2>Let’s get you in.</h2><p>Enter your access code to add the assigned word set to your desk.</p><form onSubmit={claim}><label htmlFor="vocab-code">Access code</label><input id="vocab-code" value={code} onChange={(event) => setCode(event.target.value.toUpperCase())} maxLength={24} autoComplete="off" placeholder="LEX-XXXXXXXXXX" required /><button disabled={busy}>{busy ? "Checking…" : "Add word set →"}</button>{message && <p className="vocab-status" role="status">{message}</p>}</form><div className="vocab-note"><b>About this deck</b><p>Choose the roles that fit each word. Your choice gets immediate feedback, and an example sentence shows the word in context.</p></div></aside>
+      <aside className="vocab-code-panel"><p className="vocab-kicker">A CODE FROM YOUR TEACHER?</p><h2>Let’s get you in.</h2><p>Enter your access code to add the assigned word set to your desk.</p><form onSubmit={claim}><label htmlFor="vocab-code">Access code</label><input id="vocab-code" value={code} onChange={(event) => setCode(event.target.value.toUpperCase())} maxLength={24} autoComplete="off" placeholder="LEX-XXXXXXXXXX" required /><button disabled={busy}>{busy ? "Checking…" : "Add word set →"}</button>{message && <p className="vocab-status" role="status">{message}</p>}</form><div className="vocab-note"><b>About this deck</b><p>Read each sentence, then choose the role its highlighted word plays in that context. Every choice receives immediate feedback.</p></div></aside>
     </section>
   </main>;
 }
 
 export function VocabularyPlay({ assignmentId }: { assignmentId: string }) {
-  const [run, setRun] = useState<RunData | null>(null);
+  const [run, setRun] = useState<RunData | ContextRunData | null>(null);
+  const [message, setMessage] = useState("");
+  useEffect(() => {
+    let current = true;
+    void fetch(`/api/vocabulary?${new URLSearchParams({ assignmentId })}`, { cache: "no-store" })
+      .then(async (response) => {
+        if (!response.ok) throw new Error("This assignment is not available to your account. Return to Word desk and ask your teacher to check your access code.");
+        return response.json() as Promise<RunData | ContextRunData>;
+      })
+      .then((data) => { if (current) setRun(data); })
+      .catch((error) => { if (current) setMessage(error instanceof Error ? error.message : "The word deck could not be opened."); });
+    return () => { current = false; };
+  }, [assignmentId]);
+  if (!run) return <main className="vocab-play-shell"><header className="vocab-topbar"><Link href="/vocabulary">← Word desk</Link><span>reHEARse · WORD STUDIO</span></header><p className="vocab-load-message">{message || "Opening your word cards…"}</p></main>;
+  return "isContextualQueue" in run
+    ? <VocabularyContextualPlay assignmentId={assignmentId} initialRun={run} />
+    : <VocabularyLegacyPlay assignmentId={assignmentId} initialRun={run} />;
+}
+
+function VocabularyContextualPlay({ assignmentId, initialRun }: { assignmentId: string; initialRun: ContextRunData }) {
+  const [run, setRun] = useState(initialRun);
+  const [feedback, setFeedback] = useState<{ selected: Part; correct: boolean; expected: Part } | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState("");
+  const current = run.exposures.find((item) => item.exposureId === run.currentExposureId)
+    ?? [...run.exposures].reverse().find((item) => item.status === "open")
+    ?? run.exposures.at(-1);
+  const savedFeedback = current?.status === "answered" && current.selectedPart && current.expectedPart
+    ? { selected: current.selectedPart, correct: Boolean(current.isCorrect), expected: current.expectedPart }
+    : null;
+  const shownFeedback = feedback ?? savedFeedback;
+
+  const refresh = useCallback(async (attemptId?: string) => {
+    const query = new URLSearchParams({ assignmentId });
+    if (attemptId) query.set("attemptId", attemptId);
+    const response = await fetch(`/api/vocabulary?${query}`, { cache: "no-store" });
+    if (!response.ok) throw new Error("practice_unavailable");
+    const next = await response.json() as ContextRunData;
+    setRun(next); setFeedback(null); setMessage("");
+  }, [assignmentId]);
+
+  async function answer(part: Part) {
+    if (!current || current.status !== "open" || busy || shownFeedback) return;
+    setBusy(true); setMessage("");
+    try {
+      const result = await postJson<{ isCorrect: boolean; expectedPart: Part }>("/api/vocabulary", {
+        kind: "answer_v4", attemptId: run.attempt.id, exposureId: current.exposureId, selectedPart: part,
+      });
+      setFeedback({ selected: part, correct: result.isCorrect, expected: result.expectedPart });
+    } catch { setMessage("Your response did not save. Please try again."); }
+    finally { setBusy(false); }
+  }
+
+  async function skip() {
+    if (!current || current.status !== "open" || busy || shownFeedback) return;
+    setBusy(true); setMessage("");
+    try {
+      await postJson("/api/vocabulary", { kind: "skip_v4", attemptId: run.attempt.id, exposureId: current.exposureId });
+      await refresh();
+    } catch { setMessage("This card could not be skipped. Please try again."); }
+    finally { setBusy(false); }
+  }
+
+  async function next() {
+    if (busy || !shownFeedback) return;
+    setBusy(true); setMessage("");
+    try {
+      await postJson("/api/vocabulary", { kind: "advance_v4", attemptId: run.attempt.id });
+      await refresh();
+    } catch { setMessage("The next card could not be opened. Please try again."); }
+    finally { setBusy(false); }
+  }
+
+  async function continueBatch() {
+    setBusy(true); setMessage("");
+    try {
+      const result = await postJson<{ attemptId: string }>("/api/vocabulary", { kind: "next_batch_v4", assignmentId, previousAttemptId: run.attempt.id });
+      await refresh(result.attemptId);
+    } catch { setMessage("The next practice set could not be started."); }
+    finally { setBusy(false); }
+  }
+
+  if (!current || run.attempt.status === "completed") return <main className="vocab-play-shell">
+    <header className="vocab-topbar"><Link href="/vocabulary">← Word desk</Link><span>reHEARse · WORD STUDIO</span><Link href="/dashboard">Dashboard</Link></header>
+    <section className="vocab-batch-finish">
+      <span className="vocab-finish-spark" aria-hidden="true">✦</span><p className="vocab-kicker">TODAY’S PRACTICE · SAVED</p>
+      <h1>Twelve focused encounters.<br /><em>Keep the rhythm going.</em></h1>
+      <p>Your full word deck stays here. Continue now or return later—the queue will resume from the same place.</p>
+      <div className="vocab-stat-strip"><span><b>{run.stats.todayCount}</b><small>of {run.stats.dailyTarget} today</small></span><span><b>{run.stats.practiceDayStreak}</b><small>day streak</small></span><span><b>{run.stats.newExposuresToday}</b><small>new today</small></span><span><b>{run.stats.revisitedExposuresToday}</b><small>revisited</small></span></div>
+      <button disabled={busy} onClick={() => void continueBatch()}>{busy ? "Preparing…" : "Continue with 12 more →"}</button>
+      {message && <p className="vocab-status" role="status">{message}</p>}
+    </section>
+  </main>;
+
+  const card = current.card;
+  const example = card.example;
+  return <main className="vocab-play-shell">
+    <header className="vocab-topbar"><Link href="/vocabulary">← Word desk</Link><span>reHEARse · WORD STUDIO</span><Link href="/dashboard">Dashboard</Link></header>
+    <section className="vocab-play-heading vocab-context-heading"><div><p className="vocab-kicker">TOEFL ITP · CONTEXT PRACTICE</p><h1>{run.assignment.title}</h1><p>Read the sentence, then choose the role the highlighted word plays here.</p></div><div className="vocab-round-mark"><span>SET</span><b>{String(run.attempt.number).padStart(2, "0")}</b></div></section>
+    <section className="vocab-stat-strip vocab-stat-strip-top" aria-label="Practice activity"><span><b>{run.stats.todayCount}</b><small>of {run.stats.dailyTarget} today</small></span><span><b>{run.stats.practiceDayStreak}</b><small>day streak</small></span><span><b>{run.stats.newExposuresToday}</b><small>new</small></span><span><b>{run.stats.revisitedExposuresToday}</b><small>revisited</small></span></section>
+    <div className="vocab-context-layout">
+      <section className={`vocab-context-card${shownFeedback ? shownFeedback.correct ? " is-correct" : " is-wrong" : ""}`}>
+        {shownFeedback?.correct && <div className="vocab-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, i) => <span key={i} style={{ "--confetti-i": i } as React.CSSProperties} />)}</div>}
+        <div className="vocab-context-meta"><span>{current.exposureKind === "new" ? "NEW WORD" : current.exposureKind === "requeue" ? "BACK FOR ANOTHER LOOK" : "SPACED REVIEW"}</span><span>{run.exposures.length} / 12</span></div>
+        <div className="vocab-context-word"><h2>{card.headword}</h2>{example && <p>{example.sentence.slice(0, example.highlightStart)}<strong>{example.sentence.slice(example.highlightStart, example.highlightStart + example.highlightLength)}</strong>{example.sentence.slice(example.highlightStart + example.highlightLength)}</p>}</div>
+        {example?.source === "wordnet-3.0" && <small className="vocab-attribution">Example from WordNet 3.0 · Princeton University · <a href="/WORDNET-3.0-LICENSE.txt" target="_blank" rel="noreferrer">license</a></small>}
+      </section>
+      <aside className="vocab-context-answer">
+        <p className="vocab-kicker">YOUR MOVE</p><h2>What role does it play?</h2><p>Choose once. The next encounter always starts clean.</p>
+        <div className="vocab-part-buttons vocab-single-choice">{parts.map((part) => <button key={part} onClick={() => void answer(part)} disabled={busy || Boolean(shownFeedback)} className={`${shownFeedback?.selected === part ? "selected" : ""}${shownFeedback && shownFeedback.expected === part ? " expected" : ""}${shownFeedback?.selected === part && !shownFeedback.correct ? " incorrect" : ""}`}>{part}<span>{part === "Noun" ? "names a person, place, thing, or idea" : part === "Verb" ? "expresses an action or state" : part === "Adjective" ? "describes a noun" : "adds detail to an action or description"}</span></button>)}</div>
+        {shownFeedback && <div className={`vocab-feedback ${shownFeedback.correct ? "right" : "wrong"}`} role="status" aria-live="polite"><span className="vocab-feedback-icon">{shownFeedback.correct ? "✦" : "↻"}</span><div><strong>{shownFeedback.correct ? "Exactly right." : "Not this time."}</strong><p>{shownFeedback.correct ? <>The highlighted word works as <b>{shownFeedback.expected}</b> in this sentence.</> : <>Here it works as <b>{shownFeedback.expected}</b>. You’ll meet it again after a few different words.</>}</p></div></div>}
+        <div className="vocab-context-actions">{!shownFeedback ? <button className="vocab-skip-button" disabled={busy} onClick={() => void skip()}>{busy ? "Saving…" : "Not sure · skip for now"}</button> : <button className="vocab-next-button" disabled={busy} onClick={() => void next()}>{busy ? "Opening…" : run.exposures.length >= 12 ? "Finish this set →" : "Next word →"}</button>}</div>
+        {message && <p className="vocab-status" role="status">{message}</p>}
+      </aside>
+    </div>
+  </main>;
+}
+
+function VocabularyLegacyPlay({ assignmentId, initialRun }: { assignmentId: string; initialRun: RunData }) {
+  const initialCard = initialRun.cards[0];
+  const initialAnswer = initialCard ? initialRun.answers[initialCard.id] : null;
+  const initialExpected = initialCard?.partsOfSpeech ?? [];
+  const initialSelected = initialAnswer?.selectedParts ?? [];
+  const [run, setRun] = useState<RunData | null>(initialRun);
   const [index, setIndex] = useState(0);
-  const [selected, setSelected] = useState<Part[]>([]);
-  const [feedback, setFeedback] = useState<{ correct: boolean; partial: boolean; expected: Part[] } | null>(null);
+  const [selected, setSelected] = useState<Part[]>(initialSelected);
+  const [feedback, setFeedback] = useState<{ correct: boolean; partial: boolean; expected: Part[] } | null>(initialAnswer ? { correct: initialAnswer.isCorrect, partial: !initialAnswer.isCorrect && initialSelected.length > 0 && initialSelected.every((part) => initialExpected.includes(part)), expected: initialExpected } : null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [celebrate, setCelebrate] = useState(false);
@@ -78,11 +220,6 @@ export function VocabularyPlay({ assignmentId }: { assignmentId: string }) {
     const saved = currentAnswer?.selectedParts ?? [];
     setSelected(saved); setFeedback(currentAnswer ? { correct: currentAnswer.isCorrect, partial: !currentAnswer.isCorrect && saved.length > 0 && saved.every((part) => expected.includes(part)), expected } : null); setIndex(0);
   }, []);
-  useEffect(() => {
-    let current = true;
-    void fetchRun().then((data) => { if (current) applyRun(data); }).catch((error) => { if (current) setMessage(error instanceof Error ? error.message : "The word deck could not be opened."); });
-    return () => { current = false; };
-  }, [applyRun, fetchRun]);
   const card = run?.cards[index];
   const isDone = run?.attempt.status === "completed";
   useEffect(() => {
@@ -202,11 +339,11 @@ export function VocabularyTeaching() {
     <section className="vocab-builder"><div><p className="vocab-kicker">NEW ASSIGNMENT</p><h2>Share a word set</h2><p>Codes expire in seven days. A classroom code gives every learner a separate history.</p></div><form onSubmit={(event) => void issueCode(event)}><label htmlFor="vocab-assignment-title">Assignment title</label><input id="vocab-assignment-title" value={title} onChange={(event) => setTitle(event.target.value)} maxLength={120} placeholder="e.g. Monday TOEFL review" required /><div className="vocab-code-kind"><button type="button" aria-pressed={type === "private"} onClick={() => setType("private")}>Private <small>one learner</small></button><button type="button" aria-pressed={type === "classroom"} onClick={() => setType("classroom")}>Classroom <small>one cohort code</small></button></div><button className="vocab-issue-button" disabled={busy || !title.trim()}>{busy ? "Creating…" : `Create ${type} code →`}</button></form></section>
     {issued && <section className="vocab-issued"><div><p className="vocab-kicker">{issued.inviteKind.toUpperCase()} CODE · SHOWN ONCE</p><h3>{issued.title}</h3><p>Expires {new Date(issued.expiresAt).toLocaleDateString("en-US", { dateStyle: "medium" })}. Share only with the assigned learner or class.</p></div><code>{issued.code}</code><button onClick={() => { void navigator.clipboard?.writeText(issued.code); setMessage("Code copied."); }}>Copy code</button></section>}
     {message && <p className="vocab-status" role="status">{message}</p>}
-    <section className="vocab-assignment-list"><div className="vocab-section-heading"><div><p className="vocab-kicker">YOUR ASSIGNMENTS</p><h2>Card trails</h2></div><span>{assignments.length.toString().padStart(2, "0")}</span></div><p className="vocab-quality-note"><b>Source note</b> · The 2,844 headwords are machine-extracted and teacher-reviewable. Some spellings have multiple labels. Examples appear after you check a card; they illustrate one use and are not definitions.</p>
+    <section className="vocab-assignment-list"><div className="vocab-section-heading"><div><p className="vocab-kicker">YOUR ASSIGNMENTS</p><h2>Card trails</h2></div><span>{assignments.length.toString().padStart(2, "0")}</span></div><p className="vocab-quality-note"><b>Contextual deck</b> · Each encounter pairs one word with one grammatical role in a complete sentence. Learner histories remain separated by assignment and reset lineage.</p>
       {!assignments.length && <div className="vocab-empty"><h3>No word sets assigned yet.</h3><p>Create a private or classroom code above to get started.</p></div>}
       {assignments.map((assignment) => <article className="vocab-teacher-assignment" key={assignment.id}><header><div><span className="vocab-tag">{assignment.type.toUpperCase()} · {assignment.revoked ? "REVOKED" : "CODE ACTIVE"}</span><h3>{assignment.title}</h3></div><small>Claim window ends {new Date(assignment.expiresAt).toLocaleDateString("en-US", { dateStyle: "medium" })}</small></header>{assignment.candidates.length ? assignment.candidates.map((candidate) => <details className="vocab-candidate" key={candidate.id}><summary><span><b>{candidate.name}</b><small>{candidate.email}</small></span><span>{candidate.attempts.length ? `${candidate.attempts.length} round${candidate.attempts.length === 1 ? "" : "s"}` : "Not started"}</span><span className="vocab-summary-open">Open learner history ⌄</span></summary><div className="vocab-attempt-list">{candidate.attempts.length ? candidate.attempts.map((attempt) => <div className="vocab-attempt-row" key={attempt.id}><span>Round {attempt.number} · {attempt.status}{attempt.archivedAt ? " · archived" : ""}</span><div><button disabled={busy} onClick={() => void review(assignment.id, attempt.id)}>Review cards →</button>{!attempt.archivedAt && <button className="vocab-reset-small" disabled={busy} onClick={() => void reset(assignment.id, candidate.name)}>Archive and reset ↻</button>}</div></div>) : <p className="vocab-empty-small">No cards opened yet.</p>}</div></details>) : <p className="vocab-empty-small">Waiting for the first learner to claim this code.</p>}</article>)}
     </section>
-    {selectedReview && <section className="vocab-review-panel"><header><div><p className="vocab-kicker">ITEM-LEVEL HISTORY · {selectedReview.learnerName}</p><h2>Each card, as it happened.</h2></div><button onClick={() => setSelectedReview(null)}>Close ×</button></header><p>Opened cards and answer sequence for this round. This view intentionally has no combined score.</p><label className="vocab-filter-label">Find a word<input value={filter} onChange={(event) => setFilter(event.target.value)} placeholder="Search this round" /></label><div className="vocab-review-list">{visibleCards.map((card) => <article className="vocab-review-row" key={card.id}><div><b>{card.headword}</b><small>{card.sourcePartsOfSpeech.join(" + ")}</small></div><span className={`vocab-item-state ${!card.opened ? "unopened" : card.isCorrect === true ? "right" : card.isCorrect === false ? "wrong" : "opened"}`}>{!card.opened ? "Not opened" : card.isCorrect === true ? "Latest response · right" : card.isCorrect === false ? "Latest response · revisit" : "Opened · no response"}</span><span>{card.opened ? `Opened ${card.openEvents} time${card.openEvents === 1 ? "" : "s"}` : "—"}</span>{card.responseTrail.length > 0 && <small className="vocab-response-line">Response history: {card.responseTrail.map((answer) => answer.isCorrect ? "Right" : "Revisit").join(" → ")} · Last choice: {card.selectedParts?.join(" + ")}</small>}</article>)}{!visibleCards.length && <p className="vocab-empty-small">No cards match this search.</p>}</div></section>}
-    <footer className="vocab-teacher-foot">TOEFL ITP Vocabulary · Source labels are evidence from the reviewed list, not context-free definitions.</footer>
+    {selectedReview && <section className="vocab-review-panel"><header><div><p className="vocab-kicker">ITEM-LEVEL HISTORY · {selectedReview.learnerName}</p><h2>Each encounter, as it happened.</h2></div><button onClick={() => setSelectedReview(null)}>Close ×</button></header><p>Every presented context and first response in this set. This view intentionally has no combined score.</p><label className="vocab-filter-label">Find a word<input value={filter} onChange={(event) => setFilter(event.target.value)} placeholder="Search this set" /></label><div className="vocab-review-list">{visibleCards.map((card) => <article className="vocab-review-row vocab-review-context" key={card.id}><div><b>{card.headword}</b><small>{card.exposureKind ? `${card.exposureKind} encounter` : card.sourcePartsOfSpeech.join(" + ")}</small></div><span className={`vocab-item-state ${!card.opened ? "unopened" : card.status === "skipped" ? "opened" : card.isCorrect === true ? "right" : card.isCorrect === false ? "wrong" : "opened"}`}>{!card.opened ? "Not opened" : card.status === "skipped" ? "Skipped · queued again" : card.isCorrect === true ? "First response · right" : card.isCorrect === false ? "First response · revisit" : "Opened · no response"}</span><span>{card.selectedParts?.length ? `Choice: ${card.selectedParts.join(" + ")}` : card.status === "skipped" ? "No choice" : "—"}</span>{card.example && <p className="vocab-review-sentence">{card.example.sentence.slice(0, card.example.highlightStart)}<strong>{card.example.sentence.slice(card.example.highlightStart, card.example.highlightStart + card.example.highlightLength)}</strong>{card.example.sentence.slice(card.example.highlightStart + card.example.highlightLength)}</p>}{card.targetPart && <small className="vocab-response-line">Role in this context: {card.targetPart}{card.lastSeen ? ` · ${new Date(card.lastSeen).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}` : ""}</small>}</article>)}{!visibleCards.length && <p className="vocab-empty-small">No encounters match this search.</p>}</div></section>}
+    <footer className="vocab-teacher-foot">TOEFL ITP Vocabulary · Contextual encounters remain separate from listening diagnostics and formal test records.</footer>
   </main>;
 }
