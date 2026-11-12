@@ -699,7 +699,7 @@ export async function teacherVocabularyReview(staffId: string, role: "teacher" |
   const allowed = await getPool().query(
     `SELECT a.id,a.assignment_title,u.display_name FROM vocabulary_assignment a
      JOIN app_user u ON u.id=a.learner_id JOIN vocabulary_invite i ON i.id=a.invite_id
-     WHERE a.id=$1 AND ($3='admin' OR i.created_by=$2) AND a.revoked_at IS NULL`, [assignmentId, staffId, role],
+     WHERE a.id=$1 AND ($3='admin' OR i.created_by=$2)`, [assignmentId, staffId, role],
   );
   if (!allowed.rows[0]) throw new VocabularyError("assignment_unavailable", 404);
   const attempt = await getPool().query("SELECT id,assignment_id,status,package_version,card_order FROM vocabulary_attempt WHERE id=$1 AND assignment_id=$2", [attemptId, assignmentId]);
