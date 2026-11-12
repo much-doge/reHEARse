@@ -2,6 +2,8 @@
 
 Date: 2026-11-12 (Asia/Jakarta)
 
+Deployment status: deployed to PCT128 on 2026-11-12 (Asia/Jakarta).
+
 ## Product change
 
 The authenticated Test Center teacher workspace now presents the candidate list as a review workspace rather than a raw roster:
@@ -30,6 +32,17 @@ No vocabulary score, rank, or mastery value is introduced; this remains activity
 - unrelated owner-edited presentation files were not staged.
 
 Authenticated browser visual review, classroom use, and the post-deploy teacher polling journey remain operator verification items.
+
+## PCT128 deployment evidence
+
+- Runtime image: `rehearse-app:bc24d25`.
+- The app release was assembled from the retained `b3582dd` release plus the exact changed-file delta for this work; delta SHA-256: `87a3f94146830a7ec282983b57a40b6b72ce370b89aa5ddae648aa5091c19dc0`.
+- `rehearse-app-1`: healthy, zero restarts.
+- `rehearse-postgres-1`: healthy, zero restarts; no migration and no database recreation.
+- Counts after replacement: 90 users, 71 assignments, 93 diagnostic attempts, 7,794 diagnostic events, and 67 diagnostic results.
+- In-container and public `https://rehearse.najala.org/api/health`: HTTP 200.
+- Signed-out `/test-center/teaching`: HTTP 307 with private/no-store headers.
+- Unauthenticated `/api/vocabulary/teaching`: HTTP 401 with private/no-store headers.
 
 ## Rollback
 
