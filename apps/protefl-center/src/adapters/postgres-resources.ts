@@ -228,9 +228,9 @@ export async function getManagedQuestionAnalytics(
   if (!assignmentIds.length) return aggregateTeacherQuestionAnalytics([]);
   const result = await getPool().query(
     `SELECT DISTINCT ON (d.assignment_id)
-       d.assignment_id,d.status,d.attempt_number,root_result.result_data,
+       d.id,d.assignment_id,d.actor_id,d.status,d.attempt_number,root_result.result_data,
        COALESCE((
-         SELECT jsonb_agg(jsonb_build_object('section',retry.scope,'result',retry_result.result_data) ORDER BY retry.completed_at)
+         SELECT jsonb_agg(jsonb_build_object('id',retry.id,'section',retry.scope,'result',retry_result.result_data) ORDER BY retry.completed_at)
          FROM protefl_diagnostic_attempt retry
          JOIN protefl_diagnostic_result retry_result ON retry_result.attempt_id=retry.id
          WHERE retry.parent_attempt_id=d.id
@@ -253,12 +253,19 @@ export async function getManagedQuestionAnalytics(
   const completedResults: TeacherQuestionResult[] = [];
   for (const row of result.rows) {
     if (row.status !== "completed" || !row.result_data) continue;
-    const resets = (Array.isArray(row.resets) ? row.resets : []) as Array<{ section?: string; result?: unknown }>;
+    const resets = (Array.isArray(row.resets) ? row.resets : []) as Array<{ id?: string; section?: string; result?: unknown }>;
     const fullResult = row.result_data as FullDiagnosticResult;
+    const rootSource = { candidateActorId: String(row.actor_id), attemptId: String(row.id) };
     if (fullResult.sections && resets.length) {
-      const completedResets = resets.filter((reset) => (reset.section === "listening" || reset.section === "structure" || reset.section === "reading") && reset.result && typeof reset.result === "object").map((reset) => ({ section: reset.section as "listening" | "structure" | "reading", result: reset.result })) as CompletedSectionReset[];
-      completedResults.push(effectiveDiagnosticResult(fullResult, completedResets));
-    } else completedResults.push(row.result_data as TeacherQuestionResult);
+      const resetEntries = resets.filter((reset) => (reset.section === "listening" || reset.section === "structure" || reset.section === "reading") && reset.result && typeof reset.result === "object");
+      const completedResets = resetEntries.map((reset) => ({ section: reset.section as "listening" | "structure" | "reading", result: reset.result })) as CompletedSectionReset[];
+      const effective = effectiveDiagnosticResult(fullResult, completedResets);
+      const sourceBySection = new Map(resetEntries.map((reset) => [reset.section, { candidateActorId: String(row.actor_id), attemptId: String(reset.id ?? row.id) }]));
+      completedResults.push({ ...effective, review: effective.review.map((item) => ({ ...item, source: sourceBySection.get(item.section) ?? rootSource })) });
+    } else {
+      const resultData = row.result_data as TeacherQuestionResult;
+      completedResults.push({ ...resultData, review: resultData.review?.map((item) => ({ ...item, source: rootSource })) });
+    }
   }
   return aggregateTeacherQuestionAnalytics(completedResults);
 }

@@ -1,7 +1,7 @@
 type Section = "listening" | "structure" | "reading";
 type Choice = "A" | "B" | "C" | "D";
 type SectionSummary = { correct: number; incorrect: number; omitted: number; total: number };
-type ReviewItem = { section: Section; question: number; selected?: string | null; correctAnswer?: string; correct?: boolean };
+type ReviewItem = { section: Section; question: number; selected?: string | null; correctAnswer?: string; correct?: boolean; source?: { candidateActorId: string; attemptId: string } };
 
 export type TeacherQuestionResult = {
   sections?: Partial<Record<Section, SectionSummary>>;
@@ -17,6 +17,7 @@ export type TeacherQuestionRow = {
   incorrect: number;
   omitted: number;
   choices: Record<Choice, number>;
+  source?: { candidateActorId: string; attemptId: string };
 };
 
 export type TeacherQuestionSection = {
@@ -69,6 +70,7 @@ export function aggregateTeacherQuestionAnalytics(results: TeacherQuestionResult
       output.hasQuestionReview = true;
       const row = output.sections[item.section].rows[item.question - 1];
       row.seen += 1;
+      if (!row.source && item.source) row.source = item.source;
       const selected = item.selected?.toUpperCase() as Choice | undefined;
       if (!selected) row.omitted += 1;
       else {

@@ -95,7 +95,7 @@ type TeacherQuestionAnalytics = {
     correct: number;
     incorrect: number;
     omitted: number;
-    rows: Array<{ question: number; seen: number; correct: number; incorrect: number; omitted: number; choices: Record<"A" | "B" | "C" | "D", number> }>;
+    rows: Array<{ question: number; seen: number; correct: number; incorrect: number; omitted: number; choices: Record<"A" | "B" | "C" | "D", number>; source?: { candidateActorId: string; attemptId: string } }>;
   }>;
 };
 
@@ -215,6 +215,58 @@ function TeacherQuestionReveal({ item, resourceId, candidateActorId, attemptId }
   </article>;
 }
 
+function CohortQuestionRow({ section, row, resourceId }: { section: "listening" | "structure" | "reading"; row: { question: number; seen: number; correct: number; incorrect: number; omitted: number; choices: Record<"A" | "B" | "C" | "D", number>; source?: { candidateActorId: string; attemptId: string } }; resourceId: string }) {
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [payload, setPayload] = useState<TeacherQuestionPayload | null>(null);
+  const [failed, setFailed] = useState(false);
+  const canReveal = Boolean(row.seen && row.source);
+  const answered = row.choices.A + row.choices.B + row.choices.C + row.choices.D;
+  async function reveal() {
+    if (!canReveal || !row.source) return;
+    if (open) { setOpen(false); return; }
+    if (!payload && !busy) {
+      setBusy(true); setFailed(false);
+      try {
+        const response = await fetch("/api/test-center/teaching/question", {
+          method: "POST", cache: "no-store", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ resourceId, candidateActorId: row.source.candidateActorId, attemptId: row.source.attemptId, section, question: row.question }),
+        });
+        const data = await response.json() as { item?: TeacherQuestionPayload };
+        if (!response.ok || !data.item) throw new Error("question_unavailable");
+        setPayload(data.item); setOpen(true);
+      } catch { setFailed(true); }
+      finally { setBusy(false); }
+    } else setOpen(true);
+  }
+  const groupedTokens = payload?.item.tokens?.reduce<Array<{ text: string; choice?: string }>>((groups, token) => {
+    const previous = groups.at(-1);
+    if (previous && previous.choice === token.choice) previous.text += " " + token.text;
+    else groups.push({ ...token });
+    return groups;
+  }, []);
+  const title = section === "structure" ? "Structure and Written Expression" : section === "listening" ? "Listening Comprehension" : "Reading Comprehension";
+  return <>
+    <tr className={`${row.seen ? "has-data" : "no-data"}${open ? " is-open" : ""}`}>
+      <th scope="row">{canReveal ? <button type="button" className="ptc-question-row-trigger" onClick={() => void reveal()} disabled={busy}>{row.question}</button> : row.question}</th>
+      <td>{row.seen || "—"}</td><td>{row.seen ? row.correct : "—"}</td><td>{row.seen ? row.incorrect : "—"}</td><td>{row.seen ? row.omitted : "—"}</td>
+      <td>{row.seen && row.choices.A ? row.choices.A : "—"}</td><td>{row.seen && row.choices.B ? row.choices.B : "—"}</td><td>{row.seen && row.choices.C ? row.choices.C : "—"}</td><td>{row.seen && row.choices.D ? row.choices.D : "—"}</td>
+    </tr>
+    {open && payload && <tr className="ptc-question-detail-row"><td colSpan={9}><div className="ptc-question-detail-card" role="dialog" aria-label={`${title} question ${row.question}`}>
+      <header className="ptc-question-detail-header"><div><span className="eyebrow">{title.toUpperCase()} · QUESTION {row.question}</span><h4>Rendered question review</h4></div><button type="button" className="ptc-question-detail-close" onClick={() => setOpen(false)}>Close</button></header>
+      <div className="ptc-question-detail-grid">
+        <div className="ptc-question-detail-content">
+          {payload.audio && <div className="ptc-teacher-audio-controls" aria-label="Listening audio review">{payload.audio.groupType === "question" ? <TeacherAudioButton label="question" startMs={payload.audio.questionStartMs} endMs={payload.audio.questionEndMs} resourceId={resourceId} candidateActorId={row.source!.candidateActorId} attemptId={row.source!.attemptId} /> : <><TeacherAudioButton label={payload.audio.groupType === "conversation" ? "dialogue" : "talk"} startMs={payload.audio.contextStartMs} endMs={payload.audio.contextEndMs} resourceId={resourceId} candidateActorId={row.source!.candidateActorId} attemptId={row.source!.attemptId} /><TeacherAudioButton label="question" startMs={payload.audio.questionStartMs} endMs={payload.audio.questionEndMs} resourceId={resourceId} candidateActorId={row.source!.candidateActorId} attemptId={row.source!.attemptId} /></>}</div>}
+          {payload.passage && <article className="ptc-teacher-passage"><header>PASSAGE · Questions {payload.passage.questions[0]}–{payload.passage.questions[1]}</header>{payload.passage.lines.map((line, index) => <p className={line.paragraphStart ? "paragraph-start" : ""} key={index}>{line.line && <span>{line.line}</span>}{line.text}</p>)}</article>}
+          <div className="ptc-teacher-question-card"><header><span>{section === "structure" ? `PART ${payload.part === "completion" ? "A · SENTENCE COMPLETION" : "B · ERROR IDENTIFICATION"}` : section === "listening" ? `PART ${payload.item.part ?? ""} · LISTENING` : "READING COMPREHENSION"}</span><b>Question {row.question}</b></header>{groupedTokens ? <p className="ptc-teacher-error-sentence">{groupedTokens.map((token, index) => <span className={token.choice ? "is-underlined" : ""} key={index}>{token.text}{index < groupedTokens.length - 1 ? " " : ""}</span>)}</p> : <h5>{payload.item.prompt?.replace("_____", "________")}</h5>}<div className="ptc-teacher-options">{(["A", "B", "C", "D"] as const).map((choice) => <div className={choice === payload.question.correctAnswer ? "is-key" : ""} key={choice}><b>{choice}</b><span>{payload.item.options[choice]}</span></div>)}</div></div>
+        </div>
+        <aside className="ptc-question-distribution"><p className="eyebrow">COHORT ANSWERS</p><h5>How learners answered</h5><p className="ptc-question-distribution-note">Percentages use answered responses for this question. Omitted responses are shown separately.</p>{(["A", "B", "C", "D"] as const).map((choice) => { const count = row.choices[choice]; const percentage = answered ? Math.round((count / answered) * 100) : 0; return <div className="ptc-choice-distribution" key={choice}><div><strong>{choice}</strong><span>{percentage}% · {count} response{count === 1 ? "" : "s"}</span></div><div className="ptc-choice-bar"><span style={{ width: `${percentage}%` }} /></div></div>; })}<div className="ptc-omitted-distribution"><strong>{row.omitted}</strong><span>omitted · {row.seen ? Math.round((row.omitted / row.seen) * 100) : 0}% of attempts</span></div><div className="ptc-question-outcome"><strong>{row.correct} correct · {row.incorrect} wrong</strong><span>{row.seen} recorded attempt{row.seen === 1 ? "" : "s"}</span></div></aside>
+      </div>
+    </div></td></tr>}
+    {failed && <tr className="ptc-question-detail-row"><td colSpan={9}><p className="ptc-question-detail-error">The rendered question could not be loaded. Click Q{row.question} to retry.</p></td></tr>}
+  </>;
+}
+
 function AnsweredQuestions({ attempt, resourceId, candidateActorId }: { attempt: AttemptHistory; resourceId: string; candidateActorId: string }) {
   const fromEvents = attempt.answeredQuestions ?? [];
   const fromResult = (attempt.result?.review ?? []).filter((item) => item.selected).map((item) => ({ section: item.section, question: item.question, selected: item.selected as string, answeredAt: "" }));
@@ -278,7 +330,7 @@ function QuestionAnalytics({ resourceId, assignmentIds }: { resourceId: string; 
       const title = section === "structure" ? "Structure and Written Expression" : section === "listening" ? "Listening Comprehension" : "Reading Comprehension";
       return <details className="ptc-question-analytics-section" key={section}>
         <summary><span><strong>{title}</strong><small>{value.questions} questions · {value.correct} correct · {value.incorrect} incorrect · {value.omitted} omitted</small></span><b>Show questions</b></summary>
-        <div className="ptc-question-table-wrap"><table className="ptc-question-table"><caption>{title}: number-level correct, wrong, omitted, and selected-option counts</caption><thead><tr><th scope="col">Q</th><th scope="col">Seen</th><th scope="col">Correct</th><th scope="col">Wrong</th><th scope="col">Omitted</th><th scope="col">A</th><th scope="col">B</th><th scope="col">C</th><th scope="col">D</th></tr></thead><tbody>{rows.map((row) => <tr key={`${section}-${row.question}`} className={row.seen ? "has-data" : "no-data"}><th scope="row">{row.question}</th><td>{row.seen || "—"}</td><td>{row.seen ? row.correct : "—"}</td><td>{row.seen ? row.incorrect : "—"}</td><td>{row.seen ? row.omitted : "—"}</td><td>{row.seen && row.choices.A ? row.choices.A : "—"}</td><td>{row.seen && row.choices.B ? row.choices.B : "—"}</td><td>{row.seen && row.choices.C ? row.choices.C : "—"}</td><td>{row.seen && row.choices.D ? row.choices.D : "—"}</td></tr>)}</tbody></table></div>
+        <div className="ptc-question-table-wrap"><table className="ptc-question-table"><caption>{title}: select a numbered row to open the rendered item and cohort answer percentages</caption><thead><tr><th scope="col">Q</th><th scope="col">Seen</th><th scope="col">Correct</th><th scope="col">Wrong</th><th scope="col">Omitted</th><th scope="col">A</th><th scope="col">B</th><th scope="col">C</th><th scope="col">D</th></tr></thead><tbody>{rows.map((row) => <CohortQuestionRow key={`${section}-${row.question}`} section={section} row={row} resourceId={resourceId} />)}</tbody></table></div>
       </details>;
     })}</div>}
   </section>;
