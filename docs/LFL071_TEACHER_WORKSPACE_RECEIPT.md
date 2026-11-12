@@ -40,9 +40,10 @@ Authenticated browser visual review, classroom use, and the post-deploy teacher 
 
 ## PCT128 deployment evidence
 
-- Runtime image: `rehearse-app:d6989e0` (follow-up app-only replacement).
+- Runtime image: `rehearse-app:5a92221` (final app-only replacement).
 - The app release was assembled from the retained `b3582dd` release plus the exact changed-file delta for this work; delta SHA-256: `87a3f94146830a7ec282983b57a40b6b72ce370b89aa5ddae648aa5091c19dc0`.
 - The follow-up roster-metrics delta from `bc24d25` was deployed without a migration; delta SHA-256: `ae5bbdd2715fc8d5dec4e3b7996339325478ec632a69d844d9b9241456451cbf`.
+- The no-misses review-state follow-up from `d6989e0` was deployed without a migration; delta SHA-256: `20257be5d093e4a186c9536c800dccf3c79a8afb549a885150a81ef45a6f765f`.
 - `rehearse-app-1`: healthy, zero restarts.
 - `rehearse-postgres-1`: healthy, zero restarts; no migration and no database recreation.
 - Counts after replacement: 90 users, 71 assignments, 93 diagnostic attempts, 7,794 diagnostic events, and 67 diagnostic results.
