@@ -235,6 +235,64 @@ function effectiveAttemptResult(attempt: AttemptHistory) {
   return attempt.effectiveResult ?? attempt.result;
 }
 
+type QuestionAggregate = {
+  section: "listening" | "structure" | "reading";
+  question: number;
+  seen: number;
+  correct: number;
+  incorrect: number;
+  omitted: number;
+  choices: Record<"A" | "B" | "C" | "D", number>;
+};
+
+const QUESTION_COUNTS = { listening: 50, structure: 40, reading: 50 } as const;
+const QUESTION_SECTIONS = ["listening", "structure", "reading"] as const;
+
+function buildQuestionAnalytics(results: AttemptResult[]) {
+  const rows = new Map<string, QuestionAggregate>();
+  results.forEach((result) => result.review?.forEach((item) => {
+    if (!QUESTION_SECTIONS.includes(item.section as typeof QUESTION_SECTIONS[number]) || item.question < 1) return;
+    const section = item.section as QuestionAggregate["section"];
+    if (item.question > QUESTION_COUNTS[section]) return;
+    const key = `${section}:${item.question}`;
+    const current = rows.get(key) ?? {
+      section, question: item.question, seen: 0, correct: 0, incorrect: 0, omitted: 0,
+      choices: { A: 0, B: 0, C: 0, D: 0 },
+    };
+    current.seen += 1;
+    const selected = item.selected?.toUpperCase() as keyof QuestionAggregate["choices"] | null;
+    if (!selected) current.omitted += 1;
+    else {
+      if (selected in current.choices) current.choices[selected] += 1;
+      if (item.correct === true || (item.correctAnswer && selected === item.correctAnswer.toUpperCase())) current.correct += 1;
+      else current.incorrect += 1;
+    }
+    rows.set(key, current);
+  }));
+  return QUESTION_SECTIONS.map((section) => ({
+    section,
+    rows: Array.from({ length: QUESTION_COUNTS[section] }, (_, index) => rows.get(`${section}:${index + 1}`) ?? {
+      section, question: index + 1, seen: 0, correct: 0, incorrect: 0, omitted: 0, choices: { A: 0, B: 0, C: 0, D: 0 },
+    }),
+  }));
+}
+
+function QuestionAnalytics({ results, sectionTotals }: { results: AttemptResult[]; sectionTotals: Record<string, { correct: number; incorrect: number; omitted: number; questions: number }> }) {
+  const sections = buildQuestionAnalytics(results);
+  const hasQuestionReview = results.some((result) => (result.review?.length ?? 0) > 0);
+  return <section className="ptc-question-analytics" aria-label="Question-level response analytics">
+    <div className="ptc-question-analytics-heading"><div><p className="eyebrow">QUESTION DETAIL</p><h6>Per-question response distribution</h6></div><span>Latest completed attempt per visible learner</span></div>
+    {!hasQuestionReview ? <p className="ptc-response-empty">Question-level review is not present in the recorded result payload for this cohort.</p> : <div className="ptc-question-analytics-sections">{sections.map(({ section, rows }) => {
+      const total = sectionTotals[section];
+      const title = section === "structure" ? "Structure and Written Expression" : section === "listening" ? "Listening Comprehension" : "Reading Comprehension";
+      return <details className="ptc-question-analytics-section" key={section}>
+        <summary><span><strong>{title}</strong><small>{QUESTION_COUNTS[section]} questions · {total ? `${total.correct} correct · ${total.incorrect} incorrect · ${total.omitted} omitted` : "No section result"}</small></span><b>Show questions</b></summary>
+        <div className="ptc-question-table-wrap"><table className="ptc-question-table"><caption>{title}: number-level correct, wrong, omitted, and selected-option counts</caption><thead><tr><th scope="col">Q</th><th scope="col">Seen</th><th scope="col">Correct</th><th scope="col">Wrong</th><th scope="col">Omitted</th><th scope="col">A</th><th scope="col">B</th><th scope="col">C</th><th scope="col">D</th></tr></thead><tbody>{rows.map((row) => <tr key={`${section}-${row.question}`} className={row.seen ? "has-data" : "no-data"}><th scope="row">{row.question}</th><td>{row.seen || "—"}</td><td>{row.seen ? row.correct : "—"}</td><td>{row.seen ? row.incorrect : "—"}</td><td>{row.seen ? row.omitted : "—"}</td><td>{row.seen && row.choices.A ? row.choices.A : "—"}</td><td>{row.seen && row.choices.B ? row.choices.B : "—"}</td><td>{row.seen && row.choices.C ? row.choices.C : "—"}</td><td>{row.seen && row.choices.D ? row.choices.D : "—"}</td></tr>)}</tbody></table></div>
+      </details>;
+    })}</div>}
+  </section>;
+}
+
 function CohortSnapshot({ candidates }: { candidates: ManagedCandidate[] }) {
   const latest = candidates.map((candidate) => candidate.attempts.filter((attempt) => !attempt.archivedAt).at(-1)).filter(Boolean) as AttemptHistory[];
   const completed = latest.filter((attempt) => attempt.status === "completed").length;
@@ -287,6 +345,7 @@ function CohortSnapshot({ candidates }: { candidates: ManagedCandidate[] }) {
         const sectionRate = sectionAnswered ? Math.round((value.correct / sectionAnswered) * 100) : 0;
         return <div className="ptc-response-section" key={section}><div><strong>{title}</strong><span>{value ? `${value.correct}/${value.questions} correct` : "No result"}</span></div><div className="ptc-response-bar" aria-label={`${title}: ${sectionRate}% correct`}><span style={{ width: `${sectionRate}%` }} /></div><small>{value ? `${value.incorrect} incorrect · ${value.omitted} omitted · ${sectionRate}% of answered` : "Completed section results will appear here"}</small></div>;
       })}</div></div>}
+      {completedResults.length > 0 && <QuestionAnalytics results={completedResults} sectionTotals={responseTotals.sections} />}
       {!completedResults.length && <p className="ptc-response-empty">Complete a learner’s attempt to populate correct, incorrect, omitted, and section-level response totals.</p>}
     </section>
   </section>;
