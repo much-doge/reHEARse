@@ -679,7 +679,13 @@ export async function teacherVocabularyAssignments(staffId: string, role: "teach
   const result = await getPool().query(
     `SELECT i.id AS invite_id,i.invite_kind,i.assignment_title,i.created_at,i.expires_at,i.revoked_at,
        COALESCE(jsonb_agg(jsonb_build_object('id',a.id,'learnerId',a.learner_id,'name',u.display_name,'email',u.email,'createdAt',a.created_at,
-         'attempts',(SELECT COALESCE(jsonb_agg(jsonb_build_object('id',t.id,'number',t.attempt_number,'status',t.status,'createdAt',t.created_at,'completedAt',t.completed_at,'archivedAt',t.archived_at) ORDER BY t.attempt_number DESC),'[]'::jsonb) FROM vocabulary_attempt t WHERE t.assignment_id=a.id)
+         'attempts',(SELECT COALESCE(jsonb_agg(jsonb_build_object(
+           'id',t.id,'number',t.attempt_number,'status',t.status,'createdAt',t.created_at,'completedAt',t.completed_at,'archivedAt',t.archived_at,
+           'presented',CASE WHEN t.package_version=4 THEN (SELECT count(*)::int FROM vocabulary_practice_event p WHERE p.attempt_id=t.id AND p.event_type='presented') ELSE (SELECT count(*)::int FROM vocabulary_event e WHERE e.attempt_id=t.id AND e.event_type='opened') END,
+           'right',CASE WHEN t.package_version=4 THEN (SELECT count(*)::int FROM vocabulary_practice_event p WHERE p.attempt_id=t.id AND p.event_type='answered' AND p.is_correct=true) ELSE (SELECT count(*)::int FROM vocabulary_event e WHERE e.attempt_id=t.id AND e.event_type='answered' AND e.is_correct=true) END,
+           'wrong',CASE WHEN t.package_version=4 THEN (SELECT count(*)::int FROM vocabulary_practice_event p WHERE p.attempt_id=t.id AND p.event_type='answered' AND p.is_correct=false) ELSE (SELECT count(*)::int FROM vocabulary_event e WHERE e.attempt_id=t.id AND e.event_type='answered' AND e.is_correct=false) END,
+           'open',CASE WHEN t.package_version=4 THEN (SELECT count(*)::int FROM vocabulary_practice_event p WHERE p.attempt_id=t.id AND p.event_type='presented' AND NOT EXISTS (SELECT 1 FROM vocabulary_practice_event r WHERE r.exposure_id=p.exposure_id AND r.event_type IN ('answered','skipped'))) ELSE (SELECT count(*)::int FROM vocabulary_event e WHERE e.attempt_id=t.id AND e.event_type='opened' AND NOT EXISTS (SELECT 1 FROM vocabulary_event r WHERE r.attempt_id=t.id AND r.card_id=e.card_id AND r.event_type='answered')) END
+         ) ORDER BY t.attempt_number DESC),'[]'::jsonb) FROM vocabulary_attempt t WHERE t.assignment_id=a.id)
        )) FILTER (WHERE a.id IS NOT NULL),'[]'::jsonb) AS candidates
      FROM vocabulary_invite i LEFT JOIN vocabulary_assignment a ON a.invite_id=i.id
      LEFT JOIN app_user u ON u.id=a.learner_id
