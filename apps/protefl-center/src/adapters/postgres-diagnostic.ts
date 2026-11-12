@@ -381,9 +381,9 @@ export async function restartCandidateDiagnosticSection(
     const active = await client.query(
       `SELECT id FROM protefl_diagnostic_attempt
        WHERE assignment_id=(SELECT assignment_id FROM protefl_diagnostic_attempt WHERE id=$1)
-         AND actor_id=$2 AND status='in_progress' AND archived_at IS NULL
+         AND actor_id=$2 AND scope=$3 AND status='in_progress' AND archived_at IS NULL
        LIMIT 1 FOR UPDATE`,
-      [parentAttemptId, candidateActorId],
+      [parentAttemptId, candidateActorId, section],
     );
     if (active.rowCount) throw new Error("active_attempt_exists");
 

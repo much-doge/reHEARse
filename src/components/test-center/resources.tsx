@@ -60,6 +60,18 @@ export function AssignedResources({ resources, canManage }: { resources: TestCen
 }
 
 type DeliveryScope = "full" | "listening" | "structure" | "reading";
+type AssignmentSettings = {
+  listeningMode: "autoplay" | "question_click";
+  showListeningQuestionText: boolean;
+  deliveryScope: DeliveryScope;
+  inviteKind: "private" | "classroom";
+};
+const defaultAssignmentSettings: AssignmentSettings = {
+  listeningMode: "autoplay",
+  showListeningQuestionText: true,
+  deliveryScope: "full",
+  inviteKind: "private",
+};
 type ReviewItem = { section: string; question: number; selected: string | null; correctAnswer?: string; correct?: boolean; answeredAt?: string };
 type AttemptResult = {
   total?: { correct: number; incorrect: number; omitted: number; questions: number };
@@ -226,10 +238,7 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
   const [issuedCode, setIssuedCode] = useState<{ title: string; code: string; scope: DeliveryScope; listeningMode: "autoplay" | "question_click"; inviteKind: "private" | "classroom" } | null>(null);
   const [assignmentTitleDrafts, setAssignmentTitleDrafts] = useState<Record<string, string>>({});
   const [resetCredential, setResetCredential] = useState<{ name: string; email: string; temporaryPassword: string; revokedSessions: number } | null>(null);
-  const [listeningMode, setListeningMode] = useState<"autoplay" | "question_click">("autoplay");
-  const [showListeningQuestionText, setShowListeningQuestionText] = useState(true);
-  const [deliveryScope, setDeliveryScope] = useState<DeliveryScope>("full");
-  const [inviteKind, setInviteKind] = useState<"private" | "classroom">("private");
+  const [assignmentSettings, setAssignmentSettings] = useState<Record<string, AssignmentSettings>>({});
   const [viewMode, setViewMode] = useState<"compact" | "expanded">("compact");
   const [resourceSort, setResourceSort] = useState<"newest" | "title" | "status" | "assignments" | "tags">("newest");
   const [candidateSort, setCandidateSort] = useState<"name" | "email" | "recent" | "status" | "score" | "answered" | "retakes">("name");
@@ -240,6 +249,10 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
   const [hideParticipantNames, setHideParticipantNames] = useState(false);
   const [candidateHistories, setCandidateHistories] = useState<Record<string, ManagedCandidate>>({});
   const [historyBusy, setHistoryBusy] = useState<Record<string, boolean>>({});
+  function settingsFor(resourceId: string) { return assignmentSettings[resourceId] ?? defaultAssignmentSettings; }
+  function updateSettings(resourceId: string, patch: Partial<AssignmentSettings>) {
+    setAssignmentSettings((current) => ({ ...current, [resourceId]: { ...settingsFor(resourceId), ...patch } }));
+  }
   function changeViewMode(mode: "compact" | "expanded") {
     setViewMode(mode);
     setResourceVisibility({});
@@ -311,8 +324,9 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
     setBusy(resource.id); setMessage(""); setIssuedCode(null); setResetCredential(null);
     const status = resource.status === "published" ? "hidden" : "published";
     const assignmentTitle = action === "issue_invite" ? trimmedAssignmentTitleDraft(assignmentTitleDrafts, resource.id) : undefined;
+    const settings = settingsFor(resource.id);
     try {
-      const response = await fetch("/api/test-center/teaching", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, resourceId: resource.id, status, assignmentTitle, listeningMode, showListeningQuestionText, deliveryScope, inviteKind }) });
+      const response = await fetch("/api/test-center/teaching", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, resourceId: resource.id, status, assignmentTitle, ...settings }) });
       const data = await response.json() as { invite?: { code: string; assignmentTitle: string; deliveryScope: DeliveryScope; listeningMode: "autoplay" | "question_click"; inviteKind: "private" | "classroom" }; resource?: { status: string }; error?: string };
       if (!response.ok) throw new Error("The change could not be saved.");
       if (data.invite) setIssuedCode({ title: data.invite.assignmentTitle, code: data.invite.code, scope: data.invite.deliveryScope, listeningMode: data.invite.listeningMode, inviteKind: data.invite.inviteKind });
@@ -332,7 +346,7 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
       if (!response.ok || !data.archive) throw new Error("The attempt could not be archived.");
       setResources((current) => current.map((item) => item.id !== resource.id ? item : {
         ...item,
-        candidates: item.candidates?.map((entry) => entry.actorId !== candidate.actorId ? entry : {
+        candidates: item.candidates?.map((entry) => entry.assignmentId !== candidate.assignmentId ? entry : {
           ...entry,
           attempts: entry.attempts.map((attempt) => attempt.archivedAt ? attempt : {
             ...attempt, archivedAt: data.archive!.archivedAt,
@@ -357,7 +371,7 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
       if (!response.ok || !data.restart) throw new Error(data.error === "active_attempt_exists" ? "This learner already has an attempt in progress." : "The section could not be reset.");
       setResources((current) => current.map((item) => item.id !== resource.id ? item : {
         ...item,
-        candidates: item.candidates?.map((entry) => entry.actorId !== candidate.actorId ? entry : {
+        candidates: item.candidates?.map((entry) => entry.assignmentId !== candidate.assignmentId ? entry : {
           ...entry,
           attempts: entry.attempts.map((record) => record.id !== attempt.id ? record : {
             ...record,
@@ -426,24 +440,26 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
           <input value={assignmentTitleDraft(assignmentTitleDrafts, resource.id)} onChange={(event) => setAssignmentTitleDrafts((current) => updateAssignmentTitleDraft(current, resource.id, event.target.value))} maxLength={120} required placeholder="e.g. Class B · November diagnostic" />
           <small>Use a learner, class, or purpose label · 1–120 characters.</small>
         </label>
+        {(() => { const settings = settingsFor(resource.id); return <>
         <label className="ptc-listening-mode">Access code type
-          <select value={inviteKind} onChange={(event) => setInviteKind(event.target.value as "private" | "classroom")}>
+          <select value={settings.inviteKind} onChange={(event) => updateSettings(resource.id, { inviteKind: event.target.value as "private" | "classroom" })}>
             <option value="private">Private · one learner</option><option value="classroom">Classroom · many learners</option>
-          </select><small>{inviteKind === "classroom" ? "Share one code with the class; every signed-in learner receives a separate assignment." : "The code binds to the first signed-in learner who claims it."}</small>
+          </select><small>{settings.inviteKind === "classroom" ? "Share one code with the class; every signed-in learner receives a separate assignment." : "The code binds to the first signed-in learner who claims it."}</small>
         </label>
         {resource.kind === "diagnostic_package" && <label className="ptc-listening-mode">Assigned test scope
-          <select value={deliveryScope} onChange={(event) => setDeliveryScope(event.target.value as DeliveryScope)}>
+          <select value={settings.deliveryScope} onChange={(event) => updateSettings(resource.id, { deliveryScope: event.target.value as DeliveryScope })}>
             <option value="full">Full diagnostic · all three sections</option><option value="listening">Listening only</option><option value="structure">Structure and Written Expression only</option><option value="reading">Reading only</option>
           </select>
         </label>}
-        {resource.kind === "diagnostic_package" && (deliveryScope === "full" || deliveryScope === "listening") && <label className="ptc-listening-mode">Listening playback
-          <select value={listeningMode} onChange={(event) => setListeningMode(event.target.value as "autoplay" | "question_click")}>
+        {resource.kind === "diagnostic_package" && (settings.deliveryScope === "full" || settings.deliveryScope === "listening") && <label className="ptc-listening-mode">Listening playback
+          <select value={settings.listeningMode} onChange={(event) => updateSettings(resource.id, { listeningMode: event.target.value as "autoplay" | "question_click" })}>
             <option value="autoplay">Autoplay</option><option value="question_click">Play each question</option>
           </select>
         </label>}
-        {resource.kind === "diagnostic_package" && (deliveryScope === "full" || deliveryScope === "listening") && <label className="ptc-listening-mode"><span><input type="checkbox" checked={showListeningQuestionText} onChange={(event) => setShowListeningQuestionText(event.target.checked)} /> Show listening question text</span><small>This choice is pinned when each access code is issued.</small></label>}
-        <div className="ptc-primary-actions"><button disabled={busy !== null || resource.status !== "published" || !hasValidAssignmentTitleDraft(assignmentTitleDrafts, resource.id)} onClick={() => mutate(resource, "issue_invite")}>{busy === resource.id ? "Creating…" : inviteKind === "classroom" ? "Create classroom code" : "Create private code"}</button>
+        {resource.kind === "diagnostic_package" && (settings.deliveryScope === "full" || settings.deliveryScope === "listening") && <label className="ptc-listening-mode"><span><input type="checkbox" checked={settings.showListeningQuestionText} onChange={(event) => updateSettings(resource.id, { showListeningQuestionText: event.target.checked })} /> Show listening question text</span><small>This choice is pinned when each access code is issued.</small></label>}
+        <div className="ptc-primary-actions"><button disabled={busy !== null || resource.status !== "published" || !hasValidAssignmentTitleDraft(assignmentTitleDrafts, resource.id)} onClick={() => mutate(resource, "issue_invite")}>{busy === resource.id ? "Creating…" : settings.inviteKind === "classroom" ? "Create classroom code" : "Create private code"}</button>
         {(resource.status === "published" || resource.status === "hidden" || resource.status === "draft") && <button className="secondary" disabled={busy !== null} onClick={() => mutate(resource, "set_status")}>{resource.status === "published" ? "Hide resource" : "Publish resource"}</button>}</div>
+        </>; })()}
       </div></section>
       {resource.candidates?.length ? <section className="ptc-candidate-results">
         <div className="ptc-candidate-heading"><div><p className="eyebrow">ASSIGNED CANDIDATES</p><h3>Attempts and answer review</h3></div><span>{filteredCandidates(resource).length} of {resource.candidates.length} candidates</span></div>
@@ -486,8 +502,8 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
                 {attempt.effectiveResult && <details className="ptc-answer-review"><summary>Original completed result</summary><AttemptResultSummary result={attempt.result} /></details>}
                 {(attempt.effectiveResult ?? attempt.result) && <details className="ptc-answer-review"><summary>Missed questions and answer key · current score</summary><MissedQuestions result={attempt.effectiveResult ?? attempt.result} resourceId={resource.id} candidateActorId={history.actorId} attemptId={attempt.id} /></details>}
                 {!attempt.archivedAt && attempt.status === "completed" && attempt.scope === "full" && attempt.deliveryScope === "full" && (() => {
-                  const resetInProgress = history.attempts.some((record) => !record.archivedAt && (record.status === "in_progress" || record.retakes.some((retake) => !retake.archivedAt && retake.status === "in_progress")));
-                  return <div className="ptc-section-reset"><div><strong>Reset one section</strong><p>{resetInProgress ? "A section reset is currently in progress. Refresh live history after the learner finishes it to enable the next reset." : "The learner will redo every question in that section. Its completed result will update the current recalculated score; ordinary missed-item retakes never change it."}</p></div><div>{(["listening", "structure", "reading"] as const).map((section) => <button className="secondary" disabled={busy !== null || resetInProgress} key={section} onClick={() => void resetCandidateSection(resource, history, attempt, section)}>{busy === `section:${attempt.id}:${section}` ? "Resetting…" : `Reset ${section === "structure" ? "Structure" : section[0].toUpperCase() + section.slice(1)}`}</button>)}</div></div>;
+                  const resetInProgress = (section: "listening" | "structure" | "reading") => history.attempts.some((record) => !record.archivedAt && record.retakes.some((retake) => retake.section === section && !retake.archivedAt && retake.status === "in_progress"));
+                  return <div className="ptc-section-reset"><div><strong>Reset one section</strong><p>{"The learner will redo every question in that section. Its completed result will update the current recalculated score; ordinary missed-item retakes never change it. Each section can be reset independently."}</p></div><div>{(["listening", "structure", "reading"] as const).map((section) => <button className="secondary" disabled={busy !== null || resetInProgress(section)} key={section} onClick={() => void resetCandidateSection(resource, history, attempt, section)}>{busy === `section:${attempt.id}:${section}` ? "Resetting…" : resetInProgress(section) ? `${section === "structure" ? "Structure" : section[0].toUpperCase() + section.slice(1)} reset in progress` : `Reset ${section === "structure" ? "Structure" : section[0].toUpperCase() + section.slice(1)}`}</button>)}</div></div>;
                 })()}
                 {attempt.retakes.length > 0 && <div className="ptc-retake-history"><h4>Section retakes</h4>{attempt.retakes.map((retake) => <article className={retake.archivedAt ? "is-archived" : ""} key={`${retake.section}-${retake.number}`}>
                   <header><strong>{retake.section} {retake.teacherIssuedRestart ? "reset" : "retake"} {retake.number}</strong><span>{retake.archivedAt ? "Archived" : retake.status === "completed" ? resultLabel(retake.result) ?? "Completed" : "In progress"}</span><time dateTime={retake.archivedAt ?? retake.completedAt ?? retake.createdAt}>{retake.archivedAt ? `Archived ${new Date(retake.archivedAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}` : new Date(retake.completedAt ?? retake.createdAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}</time></header>

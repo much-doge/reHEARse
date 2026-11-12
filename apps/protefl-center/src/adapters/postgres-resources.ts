@@ -180,7 +180,8 @@ const managedCandidateHistoryQuery = `
       WHERE d.assignment_id=a.id
       AND d.parent_attempt_id IS NULL
   ) history ON true
-  WHERE a.revoked_at IS NULL`;
+  WHERE a.revoked_at IS NULL
+    AND ($2='admin' OR a.assigned_by=$1)`;
 
 function mapManagedCandidateHistory(row: ManagedCandidateHistoryRow) {
   const attempts = (row.attempts ?? []).map((attempt) => {
@@ -220,8 +221,16 @@ export async function getManagedCandidateHistory(
 export async function listManagedResources(staffActorId: string, staffRole: "teacher" | "admin") {
   const result = await getPool().query(
     `SELECT r.id,r.code,r.version,r.kind,r.title,r.status,r.tags,r.created_at,
-       (SELECT count(*)::int FROM protefl_resource_assignment a WHERE a.resource_id=r.id AND a.revoked_at IS NULL) AS assigned_count
-     FROM protefl_resource r ORDER BY r.created_at DESC`,
+       (SELECT count(*)::int FROM protefl_resource_assignment a
+        WHERE a.resource_id=r.id AND a.revoked_at IS NULL
+          AND ($2='admin' OR a.assigned_by=$1)) AS assigned_count
+     FROM protefl_resource r
+     WHERE $2='admin'
+        OR r.created_by=$1
+        OR EXISTS (SELECT 1 FROM protefl_resource_assignment owned WHERE owned.resource_id=r.id AND owned.assigned_by=$1)
+        OR EXISTS (SELECT 1 FROM protefl_resource_invite owned WHERE owned.resource_id=r.id AND owned.created_by=$1)
+     ORDER BY r.created_at DESC`,
+    [staffActorId, staffRole],
   );
   const candidates = await getPool().query(
     `SELECT a.id AS assignment_id,a.resource_id,a.actor_id,a.delivery_scope,COALESCE(a.assignment_title,r.title) AS assignment_title,u.display_name,u.email,
@@ -261,7 +270,9 @@ export async function listManagedResources(staffActorId: string, staffRole: "tea
          WHERE d.assignment_id=a.id AND d.parent_attempt_id IS NULL
        ) root
      ) stats ON true
-     WHERE a.revoked_at IS NULL ORDER BY a.resource_id,u.display_name`,
+     WHERE a.revoked_at IS NULL
+       AND ($2='admin' OR a.assigned_by=$1)
+     ORDER BY a.resource_id,u.display_name`,
     [staffActorId, staffRole],
   );
   return result.rows.map((row) => ({
@@ -286,7 +297,7 @@ export async function listManagedResources(staffActorId: string, staffRole: "tea
   }));
 }
 
-export async function setResourceTags(resourceId: string, rawTags: string[], actorId: string) {
+export async function setResourceTags(resourceId: string, rawTags: string[], actorId: string, staffRole: "teacher" | "admin") {
   const tags: string[] = [];
   const seen = new Set<string>();
   for (const rawTag of rawTags) {
@@ -302,8 +313,13 @@ export async function setResourceTags(resourceId: string, rawTags: string[], act
   try {
     await client.query("BEGIN");
     const resource = (await client.query(
-      "UPDATE protefl_resource SET tags=$2,updated_at=now() WHERE id=$1 RETURNING id,tags",
-      [resourceId, tags],
+      `UPDATE protefl_resource AS r SET tags=$2,updated_at=now()
+       WHERE r.id=$1
+         AND ($4='admin' OR r.created_by=$3
+           OR EXISTS (SELECT 1 FROM protefl_resource_assignment a WHERE a.resource_id=r.id AND a.assigned_by=$3)
+           OR EXISTS (SELECT 1 FROM protefl_resource_invite i WHERE i.resource_id=r.id AND i.created_by=$3))
+       RETURNING r.id,r.tags`,
+      [resourceId, tags, actorId, staffRole],
     )).rows[0];
     if (!resource) throw new Error("resource_unavailable");
     await client.query(
@@ -408,6 +424,7 @@ export async function resetAssignedLearnerPassword(
 export async function issueResourceInvite(
   resourceId: string,
   actorId: string,
+  staffRole: "teacher" | "admin",
   assignmentTitle: string,
   listeningMode: "autoplay" | "question_click" = "question_click",
   showListeningQuestionText = true,
@@ -420,7 +437,16 @@ export async function issueResourceInvite(
   const client = await getPool().connect();
   try {
     await client.query("BEGIN");
-    const resource = (await client.query("SELECT id,status,kind FROM protefl_resource WHERE id=$1 FOR UPDATE", [resourceId])).rows[0];
+    const resource = (await client.query(
+      `SELECT r.id,r.status,r.kind
+       FROM protefl_resource r
+       WHERE r.id=$1
+         AND ($3='admin' OR r.created_by=$2
+           OR EXISTS (SELECT 1 FROM protefl_resource_assignment a WHERE a.resource_id=r.id AND a.assigned_by=$2)
+           OR EXISTS (SELECT 1 FROM protefl_resource_invite i WHERE i.resource_id=r.id AND i.created_by=$2))
+       FOR UPDATE`,
+      [resourceId, actorId, staffRole],
+    )).rows[0];
     if (!resource || resource.status !== "published") throw new Error("resource_unavailable");
     if (!(listeningMode === "autoplay" || listeningMode === "question_click")) throw new Error("invalid_listening_mode");
     if (!(inviteKind === "private" || inviteKind === "classroom")) throw new Error("invalid_invite_kind");
@@ -441,14 +467,18 @@ export async function issueResourceInvite(
   }
 }
 
-export async function setResourceStatus(resourceId: string, status: string, actorId: string) {
+export async function setResourceStatus(resourceId: string, status: string, actorId: string, staffRole: "teacher" | "admin") {
   if (!publicStatus(status) || !["published", "hidden"].includes(status)) throw new Error("invalid_status");
   const client = await getPool().connect();
   try {
     await client.query("BEGIN");
     const result = await client.query(
       `UPDATE protefl_resource SET status=$2,published_at=CASE WHEN $2='published' THEN COALESCE(published_at,now()) ELSE published_at END,updated_at=now()
-       WHERE id=$1 AND status IN ('draft','published','hidden') RETURNING id,code,status`, [resourceId, status],
+       WHERE id=$1 AND status IN ('draft','published','hidden')
+         AND ($4='admin' OR created_by=$3
+           OR EXISTS (SELECT 1 FROM protefl_resource_assignment a WHERE a.resource_id=protefl_resource.id AND a.assigned_by=$3)
+           OR EXISTS (SELECT 1 FROM protefl_resource_invite i WHERE i.resource_id=protefl_resource.id AND i.created_by=$3))
+       RETURNING id,code,status`, [resourceId, status, actorId, staffRole],
     );
     const resource = result.rows[0];
     if (!resource) throw new Error("resource_unavailable");

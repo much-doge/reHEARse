@@ -103,17 +103,24 @@ describe("assignment title pinning and diagnostic archive boundaries", () => {
     expect(clientQuery).toHaveBeenCalledWith("COMMIT");
   });
 
-  it("rejects a section reset while another attempt is active", async () => {
+  it("allows a section reset while a different section is active", async () => {
     const parent = "44444444-4444-4444-8444-444444444444";
     clientQuery.mockImplementation(async (sql: string) => {
-      if (sql === "BEGIN" || sql === "ROLLBACK") return { rowCount: 0, rows: [] };
-      if (sql.includes("SELECT d.*,r.status AS resource_status")) return { rowCount: 1, rows: [{ id: parent }] };
-      if (sql.includes("status='in_progress'")) return { rowCount: 1, rows: [{ id: "active" }] };
+      if (sql === "BEGIN" || sql === "COMMIT") return { rowCount: 0, rows: [] };
+      if (sql.includes("SELECT d.*,r.status AS resource_status")) return { rowCount: 1, rows: [{
+        id: parent, package_version: 1, resource_version: 1, content_hash: "content", answer_key_hash: "answers",
+        score_table_hash: "scores", timing_map_hash: "timing", assigned_listening_mode: "autoplay",
+        assigned_show_question_text: true, delivery_scope: "full",
+      }] };
+      if (sql.includes("scope=$3")) return { rowCount: 0, rows: [] };
+      if (sql.includes("max(attempt_number)")) return { rowCount: 1, rows: [{ number: 3 }] };
+      if (sql.includes("max(section_retake_number)")) return { rowCount: 1, rows: [{ number: 1 }] };
+      if (sql.includes("INSERT INTO protefl_diagnostic_attempt")) return { rowCount: 1, rows: [{ id: "55555555-5555-4555-8555-555555555555", attempt_number: 4, section_retake_number: 2, created_at: new Date("2026-11-10T07:00:00Z") }] };
       return { rowCount: 0, rows: [] };
     });
 
-    await expect(restartCandidateDiagnosticSection(resource, assignment, actor, parent, "reading", staff, "admin")).rejects.toThrow("active_attempt_exists");
-    expect(clientQuery.mock.calls.some(([sql]) => String(sql).includes("INSERT INTO protefl_diagnostic_attempt"))).toBe(false);
-    expect(clientQuery).toHaveBeenCalledWith("ROLLBACK");
+    await expect(restartCandidateDiagnosticSection(resource, assignment, actor, parent, "reading", staff, "admin")).resolves.toMatchObject({ section: "reading" });
+    expect(clientQuery.mock.calls.some(([sql]) => String(sql).includes("INSERT INTO protefl_diagnostic_attempt"))).toBe(true);
+    expect(clientQuery).toHaveBeenCalledWith("COMMIT");
   });
 });

@@ -53,17 +53,17 @@ export async function POST(request: Request) {
         return Response.json({ error: "invalid_request" }, { status: 400, headers });
       const deliveryScope = body.deliveryScope === "listening" || body.deliveryScope === "structure" || body.deliveryScope === "reading" ? body.deliveryScope : "full";
       const inviteKind = body.inviteKind === "classroom" ? "classroom" : "private";
-      const invite = await issueResourceInvite(body.resourceId, user.id, body.assignmentTitle, listeningMode, body.showListeningQuestionText !== false, deliveryScope, inviteKind);
+      const invite = await issueResourceInvite(body.resourceId, user.id, user.role as "teacher" | "admin", body.assignmentTitle, listeningMode, body.showListeningQuestionText !== false, deliveryScope, inviteKind);
       return Response.json({ invite }, { headers });
     }
     if (body.action === "set_status" && (body.status === "published" || body.status === "hidden")) {
-      const resource = await setResourceStatus(body.resourceId, body.status, user.id);
+      const resource = await setResourceStatus(body.resourceId, body.status, user.id, user.role as "teacher" | "admin");
       return Response.json({ resource }, { headers });
     }
     if (body.action === "set_tags") {
       if (!Array.isArray(body.tags) || body.tags.length > 8 || body.tags.some((tag) => typeof tag !== "string" || tag.trim().replace(/\s+/g, " ").length > 80))
         return Response.json({ error: "invalid_tags" }, { status: 400, headers });
-      const resource = await setResourceTags(body.resourceId, body.tags, user.id);
+      const resource = await setResourceTags(body.resourceId, body.tags, user.id, user.role as "teacher" | "admin");
       return Response.json({ resource }, { headers });
     }
     if (body.action === "archive_candidate_attempts") {
