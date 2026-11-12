@@ -327,7 +327,7 @@ export function VocabularyTeaching() {
   }
   async function review(assignmentId: string, attemptId: string) {
     setBusy(true); setMessage("");
-      try { const response = await fetch(`/api/vocabulary/teaching?assignmentId=${assignmentId}&attemptId=${attemptId}`, { cache: "no-store" }); if (!response.ok) throw new Error(); const data = await response.json() as { learnerName: string; assignmentTitle: string; attemptStatus: string; cards: ReviewCard[] }; setReviewCards(data.cards); setReviewFilter("wrong"); setSelectedReview({ assignmentId, attemptId, learnerName: data.learnerName, assignmentTitle: data.assignmentTitle, attemptStatus: data.attemptStatus }); }
+      try { const response = await fetch(`/api/vocabulary/teaching?assignmentId=${assignmentId}&attemptId=${attemptId}`, { cache: "no-store" }); if (!response.ok) throw new Error(); const data = await response.json() as { learnerName: string; assignmentTitle: string; attemptStatus: string; cards: ReviewCard[] }; setReviewCards(data.cards); setReviewFilter(data.cards.some((card) => card.isCorrect === false) ? "wrong" : "all"); setSelectedReview({ assignmentId, attemptId, learnerName: data.learnerName, assignmentTitle: data.assignmentTitle, attemptStatus: data.attemptStatus }); }
     catch { setMessage("That learner’s card history could not be loaded."); }
     finally { setBusy(false); }
   }
