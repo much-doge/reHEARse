@@ -40,11 +40,12 @@ Authenticated browser visual review, classroom use, and the post-deploy teacher 
 
 ## PCT128 deployment evidence
 
-- Runtime image: `rehearse-app:5a92221` (final app-only replacement, rebuilt from the isolated release tree after a context mismatch was found).
+- Runtime image: `rehearse-app:1964c33` (final app-only replacement, rebuilt from the isolated release tree after a context mismatch was found).
 - The app release was assembled from the retained `b3582dd` release plus the exact changed-file delta for this work; delta SHA-256: `87a3f94146830a7ec282983b57a40b6b72ce370b89aa5ddae648aa5091c19dc0`.
 - The follow-up roster-metrics delta from `bc24d25` was deployed without a migration; delta SHA-256: `ae5bbdd2715fc8d5dec4e3b7996339325478ec632a69d844d9b9241456451cbf`.
 - The no-misses review-state follow-up from `d6989e0` was deployed without a migration; delta SHA-256: `20257be5d093e4a186c9536c800dccf3c79a8afb549a885150a81ef45a6f765f`.
 - Runtime correction: the first `5a92221` image build used the deployment checkout as its Docker context and therefore did not contain the release-tree changes. The image was rebuilt from `/opt/rehearse/.releases/5a92221` and replaced in place; image digest `sha256:f5aff8cfa112f6f174bfef3d718f46a286ea0b1582fb310d270974e3bcd29123`.
+- Archived-history permission fix from `1964c33` was deployed from `/opt/rehearse/.releases/1964c33`; delta SHA-256: `aefd21fdb224e636cb36ba512c57df6afd56e712853a8958e39dc39553d98b7c`; image digest `sha256:270cae4af21df04cfec5c669e9a191523be463e061754af559b30313d39fff05`.
 - `rehearse-app-1`: healthy, zero restarts.
 - `rehearse-postgres-1`: healthy, zero restarts; no migration and no database recreation.
 - Counts after replacement: 90 users, 71 assignments, 93 diagnostic attempts, 7,794 diagnostic events, and 67 diagnostic results.
