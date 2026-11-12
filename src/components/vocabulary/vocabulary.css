@@ -1,4 +1,12 @@
 .vocab-shell,.vocab-play-shell,.vocab-teacher-shell { width:min(1120px,calc(100% - 48px)); margin:0 auto; padding-bottom:72px; }
+.vocab-teacher-shell { display:flex; flex-direction:column; }
+.vocab-teacher-shell>.vocab-topbar { order:1; }
+.vocab-teacher-shell>.vocab-teacher-hero { order:2; }
+.vocab-teacher-shell>.vocab-builder { order:3; }
+.vocab-teacher-shell>.vocab-issued,.vocab-teacher-shell>.vocab-status { order:4; }
+.vocab-teacher-shell>.vocab-review-panel { order:5; margin-top:1.35rem; }
+.vocab-teacher-shell>.vocab-assignment-list { order:6; }
+.vocab-teacher-shell>.vocab-teacher-foot { order:7; }
 .vocab-topbar { min-height:64px; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:1rem; border-bottom:1px solid var(--line); color:var(--muted); font-size:.75rem; }
 .vocab-topbar>span:nth-child(2) { color:var(--ink); font-weight:800; letter-spacing:-.02em; }
 .vocab-topbar>a:last-child { justify-self:end; }
