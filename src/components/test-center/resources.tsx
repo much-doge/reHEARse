@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type { TestCenterResource } from "@protefl/adapters/postgres-resources";
 import { assignmentTitleDraft, hasValidAssignmentTitleDraft, trimmedAssignmentTitleDraft, updateAssignmentTitleDraft } from "./assignment-title-drafts";
@@ -231,6 +231,27 @@ function AttemptResultSummary({ result }: { result: AttemptResult | null }) {
   </>;
 }
 
+function CohortSnapshot({ candidates }: { candidates: ManagedCandidate[] }) {
+  const latest = candidates.map((candidate) => candidate.attempts.filter((attempt) => !attempt.archivedAt).at(-1)).filter(Boolean) as AttemptHistory[];
+  const completed = latest.filter((attempt) => attempt.status === "completed").length;
+  const inProgress = latest.filter((attempt) => attempt.status === "in_progress").length;
+  const answered = candidates.reduce((total, candidate) => total + candidate.answeredCount, 0);
+  const retakes = candidates.reduce((total, candidate) => total + candidate.retakeCount, 0);
+  const correct = latest.reduce((total, attempt) => total + (attempt.effectiveResult?.total?.correct ?? attempt.result?.total?.correct ?? 0), 0);
+  const scored = latest.reduce((total, attempt) => total + (attempt.effectiveResult?.total?.questions ?? attempt.result?.total?.questions ?? 0), 0);
+  const completion = candidates.length ? Math.round((completed / candidates.length) * 100) : 0;
+  return <section className="ptc-cohort-snapshot" aria-label="Cohort progress summary">
+    <div className="ptc-cohort-snapshot-heading"><div><p className="eyebrow">COHORT SNAPSHOT</p><h4>Progress at a glance</h4></div><span>{candidates.length} {candidates.length === 1 ? "learner" : "learners"}</span></div>
+    <div className="ptc-cohort-metrics">
+      <div><strong>{completed}</strong><span>Completed</span><small>{completion}% of this view</small></div>
+      <div><strong>{inProgress}</strong><span>In progress</span><small>{candidates.length - completed - inProgress} not started</small></div>
+      <div><strong>{answered.toLocaleString("en-US")}</strong><span>Answers saved</span><small>{retakes} section retakes</small></div>
+      <div><strong>{scored ? `${correct}/${scored}` : "—"}</strong><span>Recorded results</span><small>Completed attempts only</small></div>
+    </div>
+    <div className="ptc-cohort-progress" aria-label={`${completion}% completed`}><span style={{ width: `${completion}%` }} /></div>
+  </section>;
+}
+
 export function ResourceManager({ resources: initial }: { resources: ManagedResource[] }) {
   const [resources, setResources] = useState(initial);
   const [message, setMessage] = useState("");
@@ -249,6 +270,9 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
   const [hideParticipantNames, setHideParticipantNames] = useState(false);
   const [candidateHistories, setCandidateHistories] = useState<Record<string, ManagedCandidate>>({});
   const [historyBusy, setHistoryBusy] = useState<Record<string, boolean>>({});
+  const [openHistoryKeys, setOpenHistoryKeys] = useState<Record<string, boolean>>({});
+  const [liveReview, setLiveReview] = useState(true);
+  const [historyRefreshedAt, setHistoryRefreshedAt] = useState<Record<string, string>>({});
   function settingsFor(resourceId: string) { return assignmentSettings[resourceId] ?? defaultAssignmentSettings; }
   function updateSettings(resourceId: string, patch: Partial<AssignmentSettings>) {
     setAssignmentSettings((current) => ({ ...current, [resourceId]: { ...settingsFor(resourceId), ...patch } }));
@@ -260,7 +284,7 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
   function toggleResource(resourceId: string, isOpen: boolean) {
     setResourceVisibility((current) => ({ ...current, [resourceId]: !isOpen }));
   }
-  async function loadCandidateHistory(resource: ManagedResource, candidate: ManagedCandidate, force = false) {
+  const loadCandidateHistory = useCallback(async (resource: ManagedResource, candidate: ManagedCandidate, force = false) => {
     const key = `${resource.id}:${candidate.assignmentId}`;
     if ((!force && candidateHistories[key]) || historyBusy[key]) return;
     setHistoryBusy((current) => ({ ...current, [key]: true }));
@@ -270,12 +294,27 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
       const data = await response.json() as { candidate?: ManagedCandidate; error?: string };
       if (!response.ok || !data.candidate) throw new Error("The candidate history could not be loaded.");
       setCandidateHistories((current) => ({ ...current, [key]: data.candidate! }));
+      setHistoryRefreshedAt((current) => ({ ...current, [key]: new Date().toISOString() }));
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "The candidate history could not be loaded.");
     } finally {
       setHistoryBusy((current) => ({ ...current, [key]: false }));
     }
-  }
+  }, [candidateHistories, historyBusy]);
+  useEffect(() => {
+    if (!liveReview || !Object.values(openHistoryKeys).some(Boolean)) return;
+    const timer = window.setInterval(() => {
+      Object.entries(openHistoryKeys).filter(([, open]) => open).forEach(([key]) => {
+        const separator = key.indexOf(":");
+        const resourceId = key.slice(0, separator);
+        const assignmentId = key.slice(separator + 1);
+        const resource = resources.find((item) => item.id === resourceId);
+        const candidate = resource?.candidates?.find((item) => item.assignmentId === assignmentId);
+        if (resource && candidate) void loadCandidateHistory(resource, candidate, true);
+      });
+    }, 15000);
+    return () => window.clearInterval(timer);
+  }, [liveReview, loadCandidateHistory, openHistoryKeys, resources]);
   const orderedResources = useMemo(() => resources.slice().sort((left, right) => {
     if (resourceSort === "title") return left.title.localeCompare(right.title, "en");
     if (resourceSort === "status") return left.status.localeCompare(right.status, "en") || right.createdAt.localeCompare(left.createdAt);
@@ -462,21 +501,25 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
         </>; })()}
       </div></section>
       {resource.candidates?.length ? <section className="ptc-candidate-results">
-        <div className="ptc-candidate-heading"><div><p className="eyebrow">ASSIGNED CANDIDATES</p><h3>Attempts and answer review</h3></div><span>{filteredCandidates(resource).length} of {resource.candidates.length} candidates</span></div>
+        {(() => { const visibleCandidates = filteredCandidates(resource); return <>
+        <div className="ptc-candidate-heading"><div><p className="eyebrow">ASSIGNED CANDIDATES</p><h3>Progress and answer review</h3></div><span>{visibleCandidates.length} of {resource.candidates.length} candidates</span></div>
         <div className="ptc-candidate-tools">
           <label className="ptc-candidate-search">Find a participant or assignment label<input value={candidateQueries[resource.id] ?? ""} onChange={(event) => setCandidateQueries((current) => ({ ...current, [resource.id]: event.target.value }))} placeholder="Name, email, or assignment label" /></label>
           <label>Assignment group<select value={candidateGroups[resource.id] ?? "all"} onChange={(event) => setCandidateGroups((current) => ({ ...current, [resource.id]: event.target.value }))}><option value="all">All assignment labels</option>{Array.from(new Set(resource.candidates.map((candidate) => candidate.assignmentTitle))).sort((a, b) => a.localeCompare(b, "en")).map((title) => <option value={title} key={title}>{title}</option>)}</select></label>
           <label>Sort candidates<select value={candidateSort} onChange={(event) => setCandidateSort(event.target.value as typeof candidateSort)}><option value="name">Name A–Z</option><option value="email">Email A–Z</option><option value="recent">Most recent activity</option><option value="status">Status</option><option value="score">Highest score</option><option value="answered">Most answered</option><option value="retakes">Most retakes</option></select></label>
           <label className="ptc-hide-names"><input type="checkbox" checked={hideParticipantNames} onChange={(event) => setHideParticipantNames(event.target.checked)} /> Hide participant names <small>also hides email addresses on this screen</small></label>
         </div>
-        {filteredCandidates(resource).map((candidate, candidateIndex) => {
+        {visibleCandidates.length > 0 && <CohortSnapshot candidates={visibleCandidates} />}
+        {visibleCandidates.map((candidate, candidateIndex) => {
           const historyKey = `${resource.id}:${candidate.assignmentId}`;
           const history = candidateHistories[historyKey];
           const latest = candidate.attempts.filter((attempt) => !attempt.archivedAt).at(-1);
           const displayName = hideParticipantNames ? `Participant ${String(candidateIndex + 1).padStart(2, "0")}` : candidate.name;
           const displayEmail = hideParticipantNames ? "Identity hidden in this view" : candidate.email;
           return <details className="ptc-candidate" key={candidate.assignmentId} onToggle={(event) => {
-            if ((event.currentTarget as HTMLDetailsElement).open) void loadCandidateHistory(resource, candidate, true);
+            const open = (event.currentTarget as HTMLDetailsElement).open;
+            setOpenHistoryKeys((current) => ({ ...current, [historyKey]: open }));
+            if (open) void loadCandidateHistory(resource, candidate, true);
           }}>
             <summary>
               <span className="ptc-candidate-person"><strong>{displayName}</strong><small>{displayEmail}</small><small>Assignment: {candidate.assignmentTitle}</small></span>
@@ -487,7 +530,7 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
             </summary>
             <div className="ptc-candidate-history">
               {!history ? <p className="ptc-review-empty">{historyBusy[historyKey] ? "Loading immutable attempt and answer history…" : "Open this candidate to load their live and archived review."}</p> : <>
-              <div className="ptc-history-actions"><button className="secondary" disabled={historyBusy[historyKey]} onClick={() => void loadCandidateHistory(resource, candidate, true)}>{historyBusy[historyKey] ? "Refreshing…" : "Refresh live history"}</button><span>Refresh after a learner completes a reset to re-enable the next section control.</span></div>
+              <div className="ptc-history-actions"><div><button className="secondary" disabled={historyBusy[historyKey]} onClick={() => void loadCandidateHistory(resource, candidate, true)}>{historyBusy[historyKey] ? "Refreshing…" : "Refresh now"}</button><label><input type="checkbox" checked={liveReview} onChange={(event) => setLiveReview(event.target.checked)} /> Live refresh every 15 seconds</label></div><span>{historyRefreshedAt[historyKey] ? `Last checked ${new Date(historyRefreshedAt[historyKey]).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}.` : "Live answers and progress load from the signed-in learner record."}</span></div>
               {history.canResetPassword && <div className="ptc-password-reset"><div><strong>Sign-in recovery</strong><p>Create a temporary password and sign this learner out of existing sessions. Their course records remain unchanged.</p></div><button disabled={busy !== null} onClick={() => void resetCandidatePassword(resource, history)}>{busy === `password:${candidate.actorId}` ? "Resetting…" : "Reset sign-in password"}</button></div>}
               {history.attempts.filter((attempt) => !attempt.archivedAt).length > 0 && <div className="ptc-candidate-reset"><div><strong>Restart {history.deliveryScope === "full" ? "the full diagnostic" : `${history.deliveryScope} only`}</strong><p>Archive this assignment’s current attempt lineage. All answers and results remain visible in this history.</p></div><button className="danger" disabled={busy !== null} onClick={() => void archiveCandidate(resource, history)}>{busy === `archive:${candidate.actorId}` ? "Archiving…" : "Archive current attempt and restart"}</button></div>}
               {history.attempts.filter((attempt) => !attempt.archivedAt).length === 0 && history.attempts.length > 0 && <p className="ptc-restart-ready">Current attempt archived · candidate is ready to start again.</p>}
@@ -515,7 +558,8 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
             </div>
           </details>;
         })}
-        {!filteredCandidates(resource).length && <p className="ptc-review-empty">No candidates match this participant or assignment filter.</p>}
+        {!visibleCandidates.length && <p className="ptc-review-empty">No candidates match this participant or assignment filter.</p>}
+        </>; })()}
       </section> : null}
       </>}
     </article>})}</section>
