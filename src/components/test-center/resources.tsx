@@ -231,24 +231,64 @@ function AttemptResultSummary({ result }: { result: AttemptResult | null }) {
   </>;
 }
 
+function effectiveAttemptResult(attempt: AttemptHistory) {
+  return attempt.effectiveResult ?? attempt.result;
+}
+
 function CohortSnapshot({ candidates }: { candidates: ManagedCandidate[] }) {
   const latest = candidates.map((candidate) => candidate.attempts.filter((attempt) => !attempt.archivedAt).at(-1)).filter(Boolean) as AttemptHistory[];
   const completed = latest.filter((attempt) => attempt.status === "completed").length;
   const inProgress = latest.filter((attempt) => attempt.status === "in_progress").length;
   const answered = candidates.reduce((total, candidate) => total + candidate.answeredCount, 0);
   const retakes = candidates.reduce((total, candidate) => total + candidate.retakeCount, 0);
-  const correct = latest.reduce((total, attempt) => total + (attempt.effectiveResult?.total?.correct ?? attempt.result?.total?.correct ?? 0), 0);
-  const scored = latest.reduce((total, attempt) => total + (attempt.effectiveResult?.total?.questions ?? attempt.result?.total?.questions ?? 0), 0);
+  const completedResults = latest.filter((attempt) => attempt.status === "completed").map(effectiveAttemptResult).filter((result): result is AttemptResult => Boolean(result));
+  const responseTotals = completedResults.reduce((totals, result) => {
+    const summary = result.total ?? result.summary;
+    if (summary) {
+      totals.correct += summary.correct;
+      totals.incorrect += summary.incorrect;
+      totals.omitted += summary.omitted;
+      totals.questions += "questions" in summary ? summary.questions : summary.total;
+    }
+    Object.entries(result.sections ?? {}).forEach(([section, value]) => {
+      const current = totals.sections[section] ?? { correct: 0, incorrect: 0, omitted: 0, questions: 0 };
+      current.correct += value.correct;
+      current.incorrect += value.incorrect;
+      current.omitted += value.omitted;
+      current.questions += value.total;
+      totals.sections[section] = current;
+    });
+    return totals;
+  }, { correct: 0, incorrect: 0, omitted: 0, questions: 0, sections: {} as Record<string, { correct: number; incorrect: number; omitted: number; questions: number }> });
+  const answeredResponses = responseTotals.correct + responseTotals.incorrect;
+  const correctRate = answeredResponses ? Math.round((responseTotals.correct / answeredResponses) * 100) : 0;
   const completion = candidates.length ? Math.round((completed / candidates.length) * 100) : 0;
   return <section className="ptc-cohort-snapshot" aria-label="Cohort progress summary">
-    <div className="ptc-cohort-snapshot-heading"><div><p className="eyebrow">COHORT SNAPSHOT</p><h4>Progress at a glance</h4></div><span>{candidates.length} {candidates.length === 1 ? "learner" : "learners"}</span></div>
+    <div className="ptc-cohort-snapshot-heading"><div><p className="eyebrow">COHORT SNAPSHOT</p><h4>Progress at a glance</h4><p className="ptc-cohort-caption">This view follows the learners currently shown below. Results use each learner’s latest non-archived attempt.</p></div><span>{candidates.length} {candidates.length === 1 ? "learner" : "learners"}</span></div>
     <div className="ptc-cohort-metrics">
       <div><strong>{completed}</strong><span>Completed</span><small>{completion}% of this view</small></div>
       <div><strong>{inProgress}</strong><span>In progress</span><small>{candidates.length - completed - inProgress} not started</small></div>
       <div><strong>{answered.toLocaleString("en-US")}</strong><span>Answers saved</span><small>{retakes} section retakes</small></div>
-      <div><strong>{scored ? `${correct}/${scored}` : "—"}</strong><span>Recorded results</span><small>Completed attempts only</small></div>
+      <div><strong>{completedResults.length || "—"}</strong><span>Results recorded</span><small>Completed attempts only</small></div>
     </div>
     <div className="ptc-cohort-progress" aria-label={`${completion}% completed`}><span style={{ width: `${completion}%` }} /></div>
+    <section className="ptc-response-summary" aria-label="Response summary">
+      <div className="ptc-response-summary-heading"><div><p className="eyebrow">RESPONSE SUMMARY</p><h5>Answer breakdown</h5></div><span>{completedResults.length ? `${answeredResponses.toLocaleString("en-US")} answered responses` : "Waiting for a completed result"}</span></div>
+      <div className="ptc-response-metrics">
+        <div className="is-correct"><strong>{responseTotals.correct.toLocaleString("en-US")}</strong><span>Correct</span><small>{answeredResponses ? `${correctRate}% of answered responses` : "No completed answers yet"}</small></div>
+        <div className="is-incorrect"><strong>{responseTotals.incorrect.toLocaleString("en-US")}</strong><span>Incorrect</span><small>Answered, but not keyed correctly</small></div>
+        <div className="is-omitted"><strong>{responseTotals.omitted.toLocaleString("en-US")}</strong><span>Omitted</span><small>Left unanswered at submission</small></div>
+        <div><strong>{responseTotals.questions.toLocaleString("en-US") || "—"}</strong><span>Questions recorded</span><small>{completedResults.length ? `${completedResults.length} completed result${completedResults.length === 1 ? "" : "s"}` : "Completed attempts only"}</small></div>
+      </div>
+      {completedResults.length > 0 && <div className="ptc-response-sections"><h6>By section</h6><div className="ptc-response-section-grid">{(["listening", "structure", "reading"] as const).map((section) => {
+        const value = responseTotals.sections[section];
+        const title = section === "structure" ? "Structure" : section[0].toUpperCase() + section.slice(1);
+        const sectionAnswered = value ? value.correct + value.incorrect : 0;
+        const sectionRate = sectionAnswered ? Math.round((value.correct / sectionAnswered) * 100) : 0;
+        return <div className="ptc-response-section" key={section}><div><strong>{title}</strong><span>{value ? `${value.correct}/${value.questions} correct` : "No result"}</span></div><div className="ptc-response-bar" aria-label={`${title}: ${sectionRate}% correct`}><span style={{ width: `${sectionRate}%` }} /></div><small>{value ? `${value.incorrect} incorrect · ${value.omitted} omitted · ${sectionRate}% of answered` : "Completed section results will appear here"}</small></div>;
+      })}</div></div>}
+      {!completedResults.length && <p className="ptc-response-empty">Complete a learner’s attempt to populate correct, incorrect, omitted, and section-level response totals.</p>}
+    </section>
   </section>;
 }
 
@@ -502,7 +542,7 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
       </div></section>
       {resource.candidates?.length ? <section className="ptc-candidate-results">
         {(() => { const visibleCandidates = filteredCandidates(resource); return <>
-        <div className="ptc-candidate-heading"><div><p className="eyebrow">ASSIGNED CANDIDATES</p><h3>Progress and answer review</h3></div><span>{visibleCandidates.length} of {resource.candidates.length} candidates</span></div>
+        <div className="ptc-candidate-heading"><div><p className="eyebrow">ASSIGNED CANDIDATES</p><h3>Progress and answer review</h3><p className="ptc-candidate-flow">Filter the group first, scan the response summary, then open a learner for live answers, history, and reset controls.</p></div><span>{visibleCandidates.length} of {resource.candidates.length} candidates</span></div>
         <div className="ptc-candidate-tools">
           <label className="ptc-candidate-search">Find a participant or assignment label<input value={candidateQueries[resource.id] ?? ""} onChange={(event) => setCandidateQueries((current) => ({ ...current, [resource.id]: event.target.value }))} placeholder="Name, email, or assignment label" /></label>
           <label>Assignment group<select value={candidateGroups[resource.id] ?? "all"} onChange={(event) => setCandidateGroups((current) => ({ ...current, [resource.id]: event.target.value }))}><option value="all">All assignment labels</option>{Array.from(new Set(resource.candidates.map((candidate) => candidate.assignmentTitle))).sort((a, b) => a.localeCompare(b, "en")).map((title) => <option value={title} key={title}>{title}</option>)}</select></label>
