@@ -41,6 +41,14 @@ questions/options/directions, source-checked keys, timing/audio maps,
 version/hash pins, scope-aware assignments, and separate content/audio/layout
 verification gates. Raw page screenshots remain private source evidence only.
 
+The current Practice Test A package passes the structural template audit:
+Listening 50 items and 50 timing-map entries; Structure 15 Part A plus 25 Part
+B items (40 keyed); Reading 50 questions across five passages; and directions
+for Listening, Structure, and Reading with Structure Parts A/B represented in
+the instruction contract. The manifest remains the package's source/hash
+authority; classroom audibility and authenticated duplicate-card browser
+review are still separate gates.
+
 ## Verification record
 
 | State | Evidence |
