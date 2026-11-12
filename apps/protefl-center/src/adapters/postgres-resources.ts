@@ -379,6 +379,7 @@ export async function archiveCandidateDiagnostic(resourceId: string, assignmentI
 
 export async function resetAssignedLearnerPassword(
   resourceId: string,
+  assignmentId: string,
   candidateActorId: string,
   staffActorId: string,
   staffRole: "teacher" | "admin",
@@ -390,10 +391,10 @@ export async function resetAssignedLearnerPassword(
       `SELECT u.id,u.email,u.display_name
        FROM protefl_resource_assignment a
        JOIN app_user u ON u.id=a.actor_id
-       WHERE a.resource_id=$1 AND a.actor_id=$2 AND a.revoked_at IS NULL
-         AND u.role='learner' AND ($4='admin' OR a.assigned_by=$3)
+       WHERE a.resource_id=$1 AND a.id=$2 AND a.actor_id=$3 AND a.revoked_at IS NULL
+         AND u.role='learner' AND ($5='admin' OR a.assigned_by=$4)
        FOR UPDATE OF u`,
-      [resourceId, candidateActorId, staffActorId, staffRole],
+      [resourceId, assignmentId, candidateActorId, staffActorId, staffRole],
     )).rows[0];
     if (!learner) throw new Error("password_reset_unavailable");
 
@@ -402,9 +403,9 @@ export async function resetAssignedLearnerPassword(
     await client.query("UPDATE app_user SET password_hash=$2,updated_at=now() WHERE id=$1", [candidateActorId, passwordHash]);
     const revoked = await client.query("DELETE FROM app_session WHERE user_id=$1", [candidateActorId]);
     await client.query(
-      `INSERT INTO app_password_reset(user_id,reset_by,resource_id,sessions_revoked)
-       VALUES($1,$2,$3,$4)`,
-      [candidateActorId, staffActorId, resourceId, revoked.rowCount ?? 0],
+      `INSERT INTO app_password_reset(user_id,reset_by,resource_id,assignment_id,sessions_revoked)
+       VALUES($1,$2,$3,$4,$5)`,
+      [candidateActorId, staffActorId, resourceId, assignmentId, revoked.rowCount ?? 0],
     );
     await client.query("COMMIT");
     return {

@@ -85,9 +85,10 @@ export async function POST(request: Request) {
       return Response.json({ restart }, { headers });
     }
     if (body.action === "reset_candidate_password") {
-      if (typeof body.candidateActorId !== "string" || !/^[0-9a-f-]{36}$/i.test(body.candidateActorId))
+      if (typeof body.assignmentId !== "string" || !/^[0-9a-f-]{36}$/i.test(body.assignmentId)
+        || typeof body.candidateActorId !== "string" || !/^[0-9a-f-]{36}$/i.test(body.candidateActorId))
         return Response.json({ error: "invalid_request" }, { status: 400, headers });
-      const reset = await resetAssignedLearnerPassword(body.resourceId, body.candidateActorId, user.id, user.role as "teacher" | "admin");
+      const reset = await resetAssignedLearnerPassword(body.resourceId, body.assignmentId, body.candidateActorId, user.id, user.role as "teacher" | "admin");
       return Response.json({ reset }, { headers });
     }
     return Response.json({ error: "invalid_request" }, { status: 400, headers });

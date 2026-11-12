@@ -14,6 +14,8 @@ control contract without rewriting learner attempts or results.
   boundary. The role check in the route is not treated as ownership.
 - Resource tags, issue-code, and publish/hide mutations require the same owner
   check.
+- Credential resets are tied to the exact additive assignment and the audit row
+  records that assignment ID.
 - Teacher-issued Listening, Structure, and Reading resets are independently
   guarded. A duplicate reset for the same assignment, learner, and section is
   still rejected, while a reset in another section may be created immediately.
@@ -25,9 +27,11 @@ control contract without rewriting learner attempts or results.
 ## Preservation and rollback
 
 No attempt, event, result, assignment, or source package is deleted or rewritten.
-Migration 039 only replaces the active-attempt uniqueness indexes with scoped
-variants. Rollback is to restore the previous indexes from migration 038 after
-confirming there are no same-assignment cross-section active attempts.
+Migrations 039 and 040 only add assignment-scoped reset behavior and replace the
+active-attempt uniqueness indexes with scoped variants. Rollback is to restore
+the previous indexes from migration 038 and leave the nullable audit column in
+place, after confirming there are no same-assignment cross-section active
+attempts.
 
 ## Verification
 

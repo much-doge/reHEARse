@@ -393,7 +393,7 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
     try {
       const response = await fetch("/api/test-center/teaching", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "reset_candidate_password", resourceId: resource.id, candidateActorId: candidate.actorId }),
+        body: JSON.stringify({ action: "reset_candidate_password", resourceId: resource.id, assignmentId: candidate.assignmentId, candidateActorId: candidate.actorId }),
       });
       const data = await response.json() as { reset?: { learner: { name: string; email: string }; temporaryPassword: string; revokedSessions: number } };
       if (!response.ok || !data.reset) throw new Error("The password could not be reset.");
