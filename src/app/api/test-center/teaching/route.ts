@@ -1,4 +1,4 @@
-import { archiveCandidateDiagnostic, getManagedCandidateHistory, issueResourceInvite, resetAssignedLearnerPassword, setResourceStatus, setResourceTags } from "@protefl/adapters/postgres-resources";
+import { archiveCandidateDiagnostic, getManagedCandidateHistory, getManagedQuestionAnalytics, issueResourceInvite, resetAssignedLearnerPassword, setResourceStatus, setResourceTags } from "@protefl/adapters/postgres-resources";
 import { restartCandidateDiagnosticSection } from "@protefl/adapters/postgres-diagnostic";
 import { currentUser } from "@/lib/session";
 import { isSameOriginRequest } from "@/lib/same-origin";
@@ -35,10 +35,16 @@ export async function POST(request: Request) {
   if (!staff(user.role)) return Response.json({ error: "not_found" }, { status: 404, headers });
   try {
     const raw = await request.text();
-    if (raw.length > 1024) return Response.json({ error: "invalid_request" }, { status: 400, headers });
-    const body = JSON.parse(raw) as { action?: unknown; resourceId?: unknown; assignmentId?: unknown; candidateActorId?: unknown; parentAttemptId?: unknown; section?: unknown; status?: unknown; listeningMode?: unknown; showListeningQuestionText?: unknown; deliveryScope?: unknown; inviteKind?: unknown; assignmentTitle?: unknown; tags?: unknown };
+    if (raw.length > 20000) return Response.json({ error: "invalid_request" }, { status: 400, headers });
+    const body = JSON.parse(raw) as { action?: unknown; resourceId?: unknown; assignmentId?: unknown; assignmentIds?: unknown; candidateActorId?: unknown; parentAttemptId?: unknown; section?: unknown; status?: unknown; listeningMode?: unknown; showListeningQuestionText?: unknown; deliveryScope?: unknown; inviteKind?: unknown; assignmentTitle?: unknown; tags?: unknown };
     if (typeof body.resourceId !== "string" || !/^[0-9a-f-]{36}$/i.test(body.resourceId))
       return Response.json({ error: "invalid_request" }, { status: 400, headers });
+    if (body.action === "question_analytics") {
+      if (!Array.isArray(body.assignmentIds) || body.assignmentIds.length > 200 || body.assignmentIds.some((id) => typeof id !== "string" || !/^[0-9a-f-]{36}$/i.test(id)))
+        return Response.json({ error: "invalid_request" }, { status: 400, headers });
+      const analytics = await getManagedQuestionAnalytics(body.resourceId, body.assignmentIds as string[], user.id, user.role as "teacher" | "admin");
+      return Response.json({ analytics }, { headers });
+    }
     if (body.action === "issue_invite") {
       if (typeof body.assignmentTitle !== "string" || body.assignmentTitle.trim().length < 1 || body.assignmentTitle.trim().length > 120)
         return Response.json({ error: "invalid_assignment_title" }, { status: 400, headers });

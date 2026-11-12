@@ -2,6 +2,7 @@ import { createHash, randomInt } from "node:crypto";
 
 import { getPool } from "@/adapters/db/client";
 import { effectiveDiagnosticResult, type CompletedSectionReset, type FullDiagnosticResult } from "../application/diagnostic-effective-result";
+import { aggregateTeacherQuestionAnalytics, type TeacherQuestionAnalytics, type TeacherQuestionResult } from "../application/teacher-question-analytics";
 import { hashPassword } from "@/adapters/identity/password";
 import { generateResourceCode, hashResourceCode, isValidResourceCode, normalizeResourceCode } from "../application/resource-code";
 
@@ -216,6 +217,50 @@ export async function getManagedCandidateHistory(
     [staffActorId, staffRole, resourceId, assignmentId, candidateActorId],
   );
   return result.rows[0] ? mapManagedCandidateHistory(result.rows[0]) : null;
+}
+
+export async function getManagedQuestionAnalytics(
+  resourceId: string,
+  assignmentIds: string[],
+  staffActorId: string,
+  staffRole: "teacher" | "admin",
+): Promise<TeacherQuestionAnalytics> {
+  if (!assignmentIds.length) return aggregateTeacherQuestionAnalytics([]);
+  const result = await getPool().query(
+    `SELECT DISTINCT ON (d.assignment_id)
+       d.assignment_id,d.status,d.attempt_number,root_result.result_data,
+       COALESCE((
+         SELECT jsonb_agg(jsonb_build_object('section',retry.scope,'result',retry_result.result_data) ORDER BY retry.completed_at)
+         FROM protefl_diagnostic_attempt retry
+         JOIN protefl_diagnostic_result retry_result ON retry_result.attempt_id=retry.id
+         WHERE retry.parent_attempt_id=d.id
+           AND retry.teacher_restarted_by IS NOT NULL
+           AND retry.status='completed'
+           AND retry.archived_at IS NULL
+       ),'[]'::jsonb) AS resets
+     FROM protefl_diagnostic_attempt d
+     JOIN protefl_resource_assignment a ON a.id=d.assignment_id
+     LEFT JOIN protefl_diagnostic_result root_result ON root_result.attempt_id=d.id
+     WHERE d.parent_attempt_id IS NULL
+       AND d.archived_at IS NULL
+       AND a.resource_id=$1
+       AND a.id=ANY($2::uuid[])
+       AND a.revoked_at IS NULL
+       AND ($4='admin' OR a.assigned_by=$3)
+     ORDER BY d.assignment_id,d.attempt_number DESC`,
+    [resourceId, assignmentIds, staffActorId, staffRole],
+  );
+  const completedResults: TeacherQuestionResult[] = [];
+  for (const row of result.rows) {
+    if (row.status !== "completed" || !row.result_data) continue;
+    const resets = (Array.isArray(row.resets) ? row.resets : []) as Array<{ section?: string; result?: unknown }>;
+    const fullResult = row.result_data as FullDiagnosticResult;
+    if (fullResult.sections && resets.length) {
+      const completedResets = resets.filter((reset) => (reset.section === "listening" || reset.section === "structure" || reset.section === "reading") && reset.result && typeof reset.result === "object").map((reset) => ({ section: reset.section as "listening" | "structure" | "reading", result: reset.result })) as CompletedSectionReset[];
+      completedResults.push(effectiveDiagnosticResult(fullResult, completedResets));
+    } else completedResults.push(row.result_data as TeacherQuestionResult);
+  }
+  return aggregateTeacherQuestionAnalytics(completedResults);
 }
 
 export async function listManagedResources(staffActorId: string, staffRole: "teacher" | "admin") {
