@@ -14,8 +14,7 @@ export default async function DiagnosticTestPage({ params, searchParams }: { par
   if (packageCode !== "ets-volume3-practice-test-a") notFound();
   const user = await requireUser("/test-center/diagnostic/" + packageCode);
   if (user.role === "teacher" || user.role === "admin") redirect("/test-center/teaching");
-  if (!assignmentId || !/^[0-9a-f-]{36}$/i.test(assignmentId)) notFound();
-  const assignment = await diagnosticAssignment(user.id, assignmentId);
+  const assignment = await diagnosticAssignment(user.id, assignmentId && /^[0-9a-f-]{36}$/i.test(assignmentId) ? assignmentId : undefined);
   if (!assignment) notFound();
   const [instructions, timing, initial, history] = await Promise.all([
     diagnosticInstructions(), diagnosticListeningTiming(), latestDiagnosticAttemptState(user.id, assignment.id), diagnosticAssignmentHistory(user.id, assignment.id),

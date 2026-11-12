@@ -85,10 +85,17 @@ async function calculateSectionResult(client: PoolClient, attemptId: string, sec
   return { section, summary, review, answers: Object.fromEntries(answers) };
 }
 
-export async function diagnosticAssignment(actorId: string, assignmentId: string) {
+export async function diagnosticAssignment(actorId: string, assignmentId?: string) {
+  const assignmentFilter = assignmentId ? "a.id=$1 AND a.actor_id=$2 AND r.code=$3" : "a.actor_id=$1 AND r.code=$2";
+  const values = assignmentId ? [assignmentId, actorId, packageCode] : [actorId, packageCode];
   const result = await getPool().query(
-    "SELECT r.id,a.id AS assignment_id,r.code,r.version,r.title,r.status,COALESCE(a.assignment_title,r.title) AS assignment_title,a.listening_mode,a.delivery_scope,EXISTS(SELECT 1 FROM protefl_diagnostic_attempt d WHERE d.assignment_id=a.id AND d.archived_at IS NULL) AS has_attempt FROM protefl_resource_assignment a JOIN protefl_resource r ON r.id=a.resource_id WHERE a.id=$1 AND a.actor_id=$2 AND r.code=$3 AND r.kind='diagnostic_package' AND a.revoked_at IS NULL AND a.starts_at<=now() AND (a.ends_at IS NULL OR a.ends_at>now()) AND (r.status='published' OR EXISTS(SELECT 1 FROM protefl_diagnostic_attempt d WHERE d.assignment_id=a.id AND d.archived_at IS NULL)) LIMIT 1",
-    [assignmentId, actorId, packageCode],
+    `SELECT r.id,a.id AS assignment_id,r.code,r.version,r.title,r.status,COALESCE(a.assignment_title,r.title) AS assignment_title,a.listening_mode,a.delivery_scope,EXISTS(SELECT 1 FROM protefl_diagnostic_attempt d WHERE d.assignment_id=a.id AND d.archived_at IS NULL) AS has_attempt
+     FROM protefl_resource_assignment a JOIN protefl_resource r ON r.id=a.resource_id
+     WHERE ${assignmentFilter} AND r.kind='diagnostic_package' AND a.revoked_at IS NULL
+       AND a.starts_at<=now() AND (a.ends_at IS NULL OR a.ends_at>now())
+       AND (r.status='published' OR EXISTS(SELECT 1 FROM protefl_diagnostic_attempt d WHERE d.assignment_id=a.id AND d.archived_at IS NULL))
+     ORDER BY EXISTS(SELECT 1 FROM protefl_diagnostic_attempt d WHERE d.assignment_id=a.id AND d.status='in_progress' AND d.archived_at IS NULL) DESC, a.assigned_at DESC LIMIT 1`,
+    values,
   );
   const row = result.rows[0];
   return row ? { id: String(row.assignment_id), resourceId: String(row.id), code: row.code as string, version: Number(row.version), title: row.title as string, assignmentTitle: row.assignment_title as string, status: row.status as string, listeningMode: row.listening_mode as "autoplay" | "question_click", deliveryScope: row.delivery_scope as "full" | Section, hasAttempt: row.has_attempt === true } : null;
