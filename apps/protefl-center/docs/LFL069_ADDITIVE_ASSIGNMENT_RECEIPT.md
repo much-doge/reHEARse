@@ -47,8 +47,8 @@ verification gates. Raw page screenshots remain private source evidence only.
 |---|---|
 | Source | Migration 038 and assignment-aware adapters/UI committed under LFL-069 |
 | Type/test | `tsc --noEmit`; focused `postgres-resources.test.ts` (6 tests) |
-| Database | Pending additive migration/backup verification on dev1 |
-| Deployment | Pending dev1 image/migration and public health checks |
+| Database | Mode-0600 custom-format backup `/tmp/rehearse-dev1-lfl069-20261112-111810.dump` (2,487,081 bytes; `pg_restore --list` via PostgreSQL container); migration 038 applied once; 50 active assignments, 49 attempts, and 0 attempts without `assignment_id`; a rolled-back SQL canary created two same-resource assignments for one learner from different invites |
+| Deployment | Debian dev1 image `rehearse-app:10839a2`; local/public `/api/health` HTTP 200; logged-out teaching route 307; unauthenticated teaching history API 401; app container running with PostgreSQL untouched after migration |
 | Classroom | Not run |
 
 ## Rollback
