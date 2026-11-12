@@ -19,6 +19,11 @@ The teacher-only Word Studio review now opens directly on cards needing attentio
 - filters for Needs review, No response, Skipped, and All cards;
 - word search, assignment/learner context, response choice, role target, example sentence, and exposure status for each card.
 
+After operator feedback that the teacher roster still looked empty, each learner's
+attempt row now shows activity counts directly: presented, right, needs review,
+and still-open cards. The review action also carries the wrong-card count, so the
+teacher can see that an attempt has reviewable work before opening the detail panel.
+
 No vocabulary score, rank, or mastery value is introduced; this remains activity-level review data. Test Center score/result data remains bounded to the Test Center product.
 
 ## Verification
@@ -35,8 +40,9 @@ Authenticated browser visual review, classroom use, and the post-deploy teacher 
 
 ## PCT128 deployment evidence
 
-- Runtime image: `rehearse-app:bc24d25`.
+- Runtime image: `rehearse-app:d6989e0` (follow-up app-only replacement).
 - The app release was assembled from the retained `b3582dd` release plus the exact changed-file delta for this work; delta SHA-256: `87a3f94146830a7ec282983b57a40b6b72ce370b89aa5ddae648aa5091c19dc0`.
+- The follow-up roster-metrics delta from `bc24d25` was deployed without a migration; delta SHA-256: `ae5bbdd2715fc8d5dec4e3b7996339325478ec632a69d844d9b9241456451cbf`.
 - `rehearse-app-1`: healthy, zero restarts.
 - `rehearse-postgres-1`: healthy, zero restarts; no migration and no database recreation.
 - Counts after replacement: 90 users, 71 assignments, 93 diagnostic attempts, 7,794 diagnostic events, and 67 diagnostic results.
