@@ -14,11 +14,12 @@ export async function GET(request: Request) {
   if (!staff(user.role)) return Response.json({ error: "not_found" }, { status: 404, headers });
   const params = new URL(request.url).searchParams;
   const resourceId = params.get("resourceId");
+  const assignmentId = params.get("assignmentId");
   const candidateActorId = params.get("candidateActorId");
-  if (!resourceId || !candidateActorId || !/^[0-9a-f-]{36}$/i.test(resourceId) || !/^[0-9a-f-]{36}$/i.test(candidateActorId))
+  if (!resourceId || !assignmentId || !candidateActorId || !/^[0-9a-f-]{36}$/i.test(resourceId) || !/^[0-9a-f-]{36}$/i.test(assignmentId) || !/^[0-9a-f-]{36}$/i.test(candidateActorId))
     return Response.json({ error: "invalid_request" }, { status: 400, headers });
   try {
-    const candidate = await getManagedCandidateHistory(resourceId, candidateActorId, user.id, user.role as "teacher" | "admin");
+    const candidate = await getManagedCandidateHistory(resourceId, assignmentId, candidateActorId, user.id, user.role as "teacher" | "admin");
     return candidate ? Response.json({ candidate }, { headers }) : Response.json({ error: "not_found" }, { status: 404, headers });
   } catch {
     return Response.json({ error: "resource_unavailable" }, { status: 503, headers });
@@ -35,7 +36,7 @@ export async function POST(request: Request) {
   try {
     const raw = await request.text();
     if (raw.length > 1024) return Response.json({ error: "invalid_request" }, { status: 400, headers });
-    const body = JSON.parse(raw) as { action?: unknown; resourceId?: unknown; candidateActorId?: unknown; parentAttemptId?: unknown; section?: unknown; status?: unknown; listeningMode?: unknown; showListeningQuestionText?: unknown; deliveryScope?: unknown; inviteKind?: unknown; assignmentTitle?: unknown; tags?: unknown };
+    const body = JSON.parse(raw) as { action?: unknown; resourceId?: unknown; assignmentId?: unknown; candidateActorId?: unknown; parentAttemptId?: unknown; section?: unknown; status?: unknown; listeningMode?: unknown; showListeningQuestionText?: unknown; deliveryScope?: unknown; inviteKind?: unknown; assignmentTitle?: unknown; tags?: unknown };
     if (typeof body.resourceId !== "string" || !/^[0-9a-f-]{36}$/i.test(body.resourceId))
       return Response.json({ error: "invalid_request" }, { status: 400, headers });
     if (body.action === "issue_invite") {
@@ -66,18 +67,19 @@ export async function POST(request: Request) {
       return Response.json({ resource }, { headers });
     }
     if (body.action === "archive_candidate_attempts") {
-      if (typeof body.candidateActorId !== "string" || !/^[0-9a-f-]{36}$/i.test(body.candidateActorId))
+      if (typeof body.assignmentId !== "string" || !/^[0-9a-f-]{36}$/i.test(body.assignmentId) || typeof body.candidateActorId !== "string" || !/^[0-9a-f-]{36}$/i.test(body.candidateActorId))
         return Response.json({ error: "invalid_request" }, { status: 400, headers });
-      const archive = await archiveCandidateDiagnostic(body.resourceId, body.candidateActorId, user.id, user.role as "teacher" | "admin");
+      const archive = await archiveCandidateDiagnostic(body.resourceId, body.assignmentId, body.candidateActorId, user.id, user.role as "teacher" | "admin");
       return Response.json({ archive }, { headers });
     }
     if (body.action === "reset_candidate_section") {
-      if (typeof body.candidateActorId !== "string" || !/^[0-9a-f-]{36}$/i.test(body.candidateActorId)
+      if (typeof body.assignmentId !== "string" || !/^[0-9a-f-]{36}$/i.test(body.assignmentId)
+        || typeof body.candidateActorId !== "string" || !/^[0-9a-f-]{36}$/i.test(body.candidateActorId)
         || typeof body.parentAttemptId !== "string" || !/^[0-9a-f-]{36}$/i.test(body.parentAttemptId)
         || (body.section !== "listening" && body.section !== "structure" && body.section !== "reading"))
         return Response.json({ error: "invalid_request" }, { status: 400, headers });
       const restart = await restartCandidateDiagnosticSection(
-        body.resourceId, body.candidateActorId, body.parentAttemptId, body.section,
+        body.resourceId, body.assignmentId, body.candidateActorId, body.parentAttemptId, body.section,
         user.id, user.role as "teacher" | "admin",
       );
       return Response.json({ restart }, { headers });

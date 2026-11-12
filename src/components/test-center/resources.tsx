@@ -49,11 +49,11 @@ export function AssignedResources({ resources, canManage }: { resources: TestCen
       if (response.ok) { const data = await response.json() as { resources: TestCenterResource[] }; setItems(data.resources); }
     }} />}
     <section className="ptc-resource-list" aria-live="polite">
-      {items.length ? items.map((resource) => <article className="ptc-assigned-resource-card" key={resource.id}>
+      {items.length ? items.map((resource) => <article className="ptc-assigned-resource-card" key={`${resource.id}:${resource.assignmentId}`}>
         <div><span className="eyebrow">{resource.kind === "listening_form" ? "LISTENING PILOT" : "DIAGNOSTIC PACKAGE"} · VERSION {resource.version}</span>
           <h2>{resource.assignmentTitle}</h2>{resource.assignmentTitle !== resource.title && <p>{resource.title}</p>}<p>{canManage ? "This resource is assigned to your account." : resource.hasAttempt ? "Your previous attempt is available to continue or review." : `Assigned scope: ${resource.deliveryScope === "full" ? "Full diagnostic" : resource.deliveryScope === "structure" ? "Structure and Written Expression" : resource.deliveryScope[0].toUpperCase() + resource.deliveryScope.slice(1)}`}</p></div>
         {resource.kind === "listening_form" && <Link className="ptc-resource-open" href="/test-center/listening/2000-10">Open resource →</Link>}
-        {resource.kind === "diagnostic_package" && <Link className="ptc-resource-open" href="/test-center/diagnostic/ets-volume3-practice-test-a">Open diagnostic →</Link>}
+        {resource.kind === "diagnostic_package" && <Link className="ptc-resource-open" href={`/test-center/diagnostic/ets-volume3-practice-test-a?assignment=${encodeURIComponent(resource.assignmentId)}`}>Open diagnostic →</Link>}
       </article>) : <div className="ptc-resource-empty"><h2>No resources assigned yet</h2><p>When your teacher shares an access code, enter it above. Assigned resources will appear here.</p></div>}
     </section>
   </main>;
@@ -73,7 +73,7 @@ type AttemptHistory = {
   answeredQuestions?: Array<{ section: string; question: number; selected: string; answeredAt: string }>;
   retakes: Array<{ id: string; section: string; number: number; status: string; teacherIssuedRestart?: boolean; createdAt: string; completedAt: string | null; archivedAt: string | null; result: AttemptResult | null }>;
 };
-type ManagedCandidate = { actorId: string; name: string; email: string; assignmentTitle: string; deliveryScope: DeliveryScope; attempts: AttemptHistory[]; canResetPassword: boolean; attemptCount: number; retakeCount: number; answeredCount: number; historyLoaded: boolean };
+type ManagedCandidate = { assignmentId: string; actorId: string; name: string; email: string; assignmentTitle: string; deliveryScope: DeliveryScope; attempts: AttemptHistory[]; canResetPassword: boolean; attemptCount: number; retakeCount: number; answeredCount: number; historyLoaded: boolean };
 type ManagedResource = { id: string; code: string; version: number; kind: string; title: string; status: string; createdAt: string; tags: string[]; assignedCount: number; candidates?: ManagedCandidate[] };
 
 function resultLabel(result: AttemptResult | null) {
@@ -247,12 +247,12 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
   function toggleResource(resourceId: string, isOpen: boolean) {
     setResourceVisibility((current) => ({ ...current, [resourceId]: !isOpen }));
   }
-  async function loadCandidateHistory(resource: ManagedResource, candidate: ManagedCandidate) {
-    const key = `${resource.id}:${candidate.actorId}`;
-    if (candidateHistories[key] || historyBusy[key]) return;
+  async function loadCandidateHistory(resource: ManagedResource, candidate: ManagedCandidate, force = false) {
+    const key = `${resource.id}:${candidate.assignmentId}`;
+    if ((!force && candidateHistories[key]) || historyBusy[key]) return;
     setHistoryBusy((current) => ({ ...current, [key]: true }));
     try {
-      const params = new URLSearchParams({ resourceId: resource.id, candidateActorId: candidate.actorId });
+      const params = new URLSearchParams({ resourceId: resource.id, assignmentId: candidate.assignmentId, candidateActorId: candidate.actorId });
       const response = await fetch(`/api/test-center/teaching?${params.toString()}`, { cache: "no-store" });
       const data = await response.json() as { candidate?: ManagedCandidate; error?: string };
       if (!response.ok || !data.candidate) throw new Error("The candidate history could not be loaded.");
@@ -326,7 +326,7 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
     try {
       const response = await fetch("/api/test-center/teaching", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "archive_candidate_attempts", resourceId: resource.id, candidateActorId: candidate.actorId }),
+        body: JSON.stringify({ action: "archive_candidate_attempts", resourceId: resource.id, assignmentId: candidate.assignmentId, candidateActorId: candidate.actorId }),
       });
       const data = await response.json() as { archive?: { archivedAttempts: number; archivedAt: string } };
       if (!response.ok || !data.archive) throw new Error("The attempt could not be archived.");
@@ -351,7 +351,7 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
     try {
       const response = await fetch("/api/test-center/teaching", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "reset_candidate_section", resourceId: resource.id, candidateActorId: candidate.actorId, parentAttemptId: attempt.id, section }),
+        body: JSON.stringify({ action: "reset_candidate_section", resourceId: resource.id, assignmentId: candidate.assignmentId, candidateActorId: candidate.actorId, parentAttemptId: attempt.id, section }),
       });
       const data = await response.json() as { restart?: { attemptId: string; attemptNumber: number; sectionRetakeNumber: number; section: string; createdAt: string }; error?: string };
       if (!response.ok || !data.restart) throw new Error(data.error === "active_attempt_exists" ? "This learner already has an attempt in progress." : "The section could not be reset.");
@@ -454,12 +454,12 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
           <label className="ptc-hide-names"><input type="checkbox" checked={hideParticipantNames} onChange={(event) => setHideParticipantNames(event.target.checked)} /> Hide participant names <small>also hides email addresses on this screen</small></label>
         </div>
         {filteredCandidates(resource).map((candidate, candidateIndex) => {
-          const historyKey = `${resource.id}:${candidate.actorId}`;
+          const historyKey = `${resource.id}:${candidate.assignmentId}`;
           const history = candidateHistories[historyKey];
           const latest = candidate.attempts.filter((attempt) => !attempt.archivedAt).at(-1);
           const displayName = hideParticipantNames ? `Participant ${String(candidateIndex + 1).padStart(2, "0")}` : candidate.name;
           const displayEmail = hideParticipantNames ? "Identity hidden in this view" : candidate.email;
-          return <details className="ptc-candidate" key={candidate.actorId} onToggle={(event) => {
+          return <details className="ptc-candidate" key={candidate.assignmentId} onToggle={(event) => {
             if ((event.currentTarget as HTMLDetailsElement).open) void loadCandidateHistory(resource, candidate);
           }}>
             <summary>
@@ -471,6 +471,7 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
             </summary>
             <div className="ptc-candidate-history">
               {!history ? <p className="ptc-review-empty">{historyBusy[historyKey] ? "Loading immutable attempt and answer history…" : "Open this candidate to load their live and archived review."}</p> : <>
+              <div className="ptc-history-actions"><button className="secondary" disabled={historyBusy[historyKey]} onClick={() => void loadCandidateHistory(resource, candidate, true)}>{historyBusy[historyKey] ? "Refreshing…" : "Refresh live history"}</button><span>Refresh after a learner completes a reset to re-enable the next section control.</span></div>
               {history.canResetPassword && <div className="ptc-password-reset"><div><strong>Sign-in recovery</strong><p>Create a temporary password and sign this learner out of existing sessions. Their course records remain unchanged.</p></div><button disabled={busy !== null} onClick={() => void resetCandidatePassword(resource, history)}>{busy === `password:${candidate.actorId}` ? "Resetting…" : "Reset sign-in password"}</button></div>}
               {history.attempts.filter((attempt) => !attempt.archivedAt).length > 0 && <div className="ptc-candidate-reset"><div><strong>Restart {history.deliveryScope === "full" ? "the full diagnostic" : `${history.deliveryScope} only`}</strong><p>Archive this assignment’s current attempt lineage. All answers and results remain visible in this history.</p></div><button className="danger" disabled={busy !== null} onClick={() => void archiveCandidate(resource, history)}>{busy === `archive:${candidate.actorId}` ? "Archiving…" : "Archive current attempt and restart"}</button></div>}
               {history.attempts.filter((attempt) => !attempt.archivedAt).length === 0 && history.attempts.length > 0 && <p className="ptc-restart-ready">Current attempt archived · candidate is ready to start again.</p>}

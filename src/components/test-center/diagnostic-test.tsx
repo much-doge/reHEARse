@@ -145,7 +145,7 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, hist
     try {
       const response = await fetch("/api/test-center/diagnostic/attempt/" + assignment.code, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(action === "retake_section" ? { action, section: retakeSection, sourceAttemptId: parentAttemptId } : { action }),
+        body: JSON.stringify(action === "retake_section" ? { action, section: retakeSection, sourceAttemptId: parentAttemptId, assignmentId: assignment.id } : { action, assignmentId: assignment.id }),
       });
       const data = await parsePayload<{ attemptId?: string }>(response);
       if (!response.ok || !data.attemptId) throw new Error(data.error ?? "attempt_unavailable");

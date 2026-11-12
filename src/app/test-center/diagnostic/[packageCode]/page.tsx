@@ -8,15 +8,17 @@ import "@/components/test-center/diagnostic-test.css";
 
 export const dynamic = "force-dynamic";
 
-export default async function DiagnosticTestPage({ params }: { params: Promise<{ packageCode: string }> }) {
+export default async function DiagnosticTestPage({ params, searchParams }: { params: Promise<{ packageCode: string }>; searchParams: Promise<{ assignment?: string }> }) {
   const { packageCode } = await params;
+  const { assignment: assignmentId } = await searchParams;
   if (packageCode !== "ets-volume3-practice-test-a") notFound();
   const user = await requireUser("/test-center/diagnostic/" + packageCode);
   if (user.role === "teacher" || user.role === "admin") redirect("/test-center/teaching");
-  const assignment = await diagnosticAssignment(user.id);
+  if (!assignmentId || !/^[0-9a-f-]{36}$/i.test(assignmentId)) notFound();
+  const assignment = await diagnosticAssignment(user.id, assignmentId);
   if (!assignment) notFound();
   const [instructions, timing, initial, history] = await Promise.all([
-    diagnosticInstructions(), diagnosticListeningTiming(), latestDiagnosticAttemptState(user.id), diagnosticAssignmentHistory(user.id),
+    diagnosticInstructions(), diagnosticListeningTiming(), latestDiagnosticAttemptState(user.id, assignment.id), diagnosticAssignmentHistory(user.id, assignment.id),
   ]);
   return <main className="ptd-shell">
     <header className="ptd-header"><Link href="/test-center">← Test Center</Link><span>TOEFL-like Test Center</span><Link href="/dashboard">Dashboard</Link></header>

@@ -85,13 +85,13 @@ async function calculateSectionResult(client: PoolClient, attemptId: string, sec
   return { section, summary, review, answers: Object.fromEntries(answers) };
 }
 
-export async function diagnosticAssignment(actorId: string) {
+export async function diagnosticAssignment(actorId: string, assignmentId: string) {
   const result = await getPool().query(
-    "SELECT r.id,r.code,r.version,r.title,r.status,COALESCE(a.assignment_title,r.title) AS assignment_title,a.listening_mode,a.delivery_scope,EXISTS(SELECT 1 FROM protefl_diagnostic_attempt d WHERE d.resource_id=r.id AND d.actor_id=a.actor_id AND d.archived_at IS NULL) AS has_attempt FROM protefl_resource_assignment a JOIN protefl_resource r ON r.id=a.resource_id WHERE a.actor_id=$1 AND r.code=$2 AND r.kind='diagnostic_package' AND a.revoked_at IS NULL AND a.starts_at<=now() AND (a.ends_at IS NULL OR a.ends_at>now()) AND (r.status='published' OR EXISTS(SELECT 1 FROM protefl_diagnostic_attempt d WHERE d.resource_id=r.id AND d.actor_id=a.actor_id AND d.archived_at IS NULL)) LIMIT 1",
-    [actorId, packageCode],
+    "SELECT r.id,a.id AS assignment_id,r.code,r.version,r.title,r.status,COALESCE(a.assignment_title,r.title) AS assignment_title,a.listening_mode,a.delivery_scope,EXISTS(SELECT 1 FROM protefl_diagnostic_attempt d WHERE d.assignment_id=a.id AND d.archived_at IS NULL) AS has_attempt FROM protefl_resource_assignment a JOIN protefl_resource r ON r.id=a.resource_id WHERE a.id=$1 AND a.actor_id=$2 AND r.code=$3 AND r.kind='diagnostic_package' AND a.revoked_at IS NULL AND a.starts_at<=now() AND (a.ends_at IS NULL OR a.ends_at>now()) AND (r.status='published' OR EXISTS(SELECT 1 FROM protefl_diagnostic_attempt d WHERE d.assignment_id=a.id AND d.archived_at IS NULL)) LIMIT 1",
+    [assignmentId, actorId, packageCode],
   );
   const row = result.rows[0];
-  return row ? { id: String(row.id), code: row.code as string, version: Number(row.version), title: row.title as string, assignmentTitle: row.assignment_title as string, status: row.status as string, listeningMode: row.listening_mode as "autoplay" | "question_click", deliveryScope: row.delivery_scope as "full" | Section, hasAttempt: row.has_attempt === true } : null;
+  return row ? { id: String(row.assignment_id), resourceId: String(row.id), code: row.code as string, version: Number(row.version), title: row.title as string, assignmentTitle: row.assignment_title as string, status: row.status as string, listeningMode: row.listening_mode as "autoplay" | "question_click", deliveryScope: row.delivery_scope as "full" | Section, hasAttempt: row.has_attempt === true } : null;
 }
 
 export async function diagnosticInstructions() {
@@ -140,7 +140,7 @@ export async function teacherDiagnosticReviewItem(
     `SELECT d.id,d.package_version,d.status,d.archived_at,d.selected_questions,r.code,dr.result_data
      FROM protefl_diagnostic_attempt d
      JOIN protefl_resource r ON r.id=d.resource_id
-     JOIN protefl_resource_assignment a ON a.resource_id=d.resource_id AND a.actor_id=d.actor_id
+     JOIN protefl_resource_assignment a ON a.id=d.assignment_id
      LEFT JOIN protefl_diagnostic_result dr ON dr.attempt_id=d.id
      WHERE d.id=$1 AND d.resource_id=$2 AND d.actor_id=$3
        AND r.kind='diagnostic_package'
@@ -207,7 +207,7 @@ export async function teacherDiagnosticAudio(
     `SELECT d.id
      FROM protefl_diagnostic_attempt d
      JOIN protefl_resource r ON r.id=d.resource_id
-     JOIN protefl_resource_assignment a ON a.resource_id=d.resource_id AND a.actor_id=d.actor_id
+     JOIN protefl_resource_assignment a ON a.id=d.assignment_id
      WHERE d.id=$1 AND d.resource_id=$2 AND d.actor_id=$3 AND r.kind='diagnostic_package'
        AND a.revoked_at IS NULL AND ($5='admin' OR a.assigned_by=$4)
      LIMIT 1`,
@@ -231,65 +231,64 @@ export async function diagnosticAudio(actorId: string, id: string) {
   }
 }
 
-export async function latestDiagnosticAttemptState(actorId: string) {
+export async function latestDiagnosticAttemptState(actorId: string, assignmentId: string) {
   const active = await getPool().query(
-    "SELECT d.id FROM protefl_diagnostic_attempt d JOIN protefl_resource r ON r.id=d.resource_id WHERE d.actor_id=$1 AND r.code=$2 AND d.status='in_progress' AND d.archived_at IS NULL ORDER BY d.attempt_number DESC LIMIT 1",
-    [actorId, packageCode],
+    "SELECT d.id FROM protefl_diagnostic_attempt d WHERE d.assignment_id=$1 AND d.actor_id=$2 AND d.status='in_progress' AND d.archived_at IS NULL ORDER BY d.attempt_number DESC LIMIT 1",
+    [assignmentId, actorId],
   );
   if (active.rows[0]) return diagnosticAttemptState(actorId, String(active.rows[0].id));
   const full = await getPool().query(
-    "SELECT d.id FROM protefl_diagnostic_attempt d JOIN protefl_resource r ON r.id=d.resource_id JOIN protefl_resource_assignment a ON a.resource_id=d.resource_id AND a.actor_id=d.actor_id WHERE d.actor_id=$1 AND r.code=$2 AND d.scope='full' AND d.delivery_scope=a.delivery_scope AND d.archived_at IS NULL AND a.revoked_at IS NULL ORDER BY d.attempt_number DESC LIMIT 1",
-    [actorId, packageCode],
+    "SELECT d.id FROM protefl_diagnostic_attempt d WHERE d.assignment_id=$1 AND d.actor_id=$2 AND d.scope='full' AND d.archived_at IS NULL ORDER BY d.attempt_number DESC LIMIT 1",
+    [assignmentId, actorId],
   );
   return full.rows[0] ? diagnosticAttemptState(actorId, String(full.rows[0].id)) : null;
 }
 
-export async function diagnosticAssignmentHistory(actorId: string) {
+export async function diagnosticAssignmentHistory(actorId: string, assignmentId: string) {
   const result = await getPool().query(
     `SELECT d.id,d.attempt_number,d.status,d.scope,d.delivery_scope,d.created_at,d.completed_at,r.result_data
-     FROM protefl_diagnostic_attempt d JOIN protefl_resource_assignment a ON a.resource_id=d.resource_id AND a.actor_id=d.actor_id
-     JOIN protefl_resource p ON p.id=d.resource_id LEFT JOIN protefl_diagnostic_result r ON r.attempt_id=d.id
-     WHERE d.actor_id=$1 AND p.code=$2 AND d.archived_at IS NULL AND a.revoked_at IS NULL ORDER BY d.attempt_number DESC`, [actorId, packageCode],
+     FROM protefl_diagnostic_attempt d LEFT JOIN protefl_diagnostic_result r ON r.attempt_id=d.id
+     WHERE d.assignment_id=$1 AND d.actor_id=$2 AND d.archived_at IS NULL ORDER BY d.attempt_number DESC`, [assignmentId, actorId],
   );
   return result.rows.map((row) => ({ id: String(row.id), attemptNumber: Number(row.attempt_number), status: row.status as string, scope: row.scope as string, deliveryScope: row.delivery_scope as "full" | Section, createdAt: new Date(row.created_at).toISOString(), completedAt: row.completed_at ? new Date(row.completed_at).toISOString() : null, result: row.result_data ?? null }));
 }
 
 export async function diagnosticAttempt(actorId: string, id: string) {
   const result = await getPool().query(
-    "SELECT d.*,now() AS server_now FROM protefl_diagnostic_attempt d JOIN protefl_resource_assignment a ON a.resource_id=d.resource_id AND a.actor_id=d.actor_id JOIN protefl_resource r ON r.id=d.resource_id WHERE d.id=$1 AND d.actor_id=$2 AND d.archived_at IS NULL AND a.revoked_at IS NULL AND a.starts_at<=now() AND (a.ends_at IS NULL OR a.ends_at>now()) LIMIT 1",
+    "SELECT d.*,now() AS server_now FROM protefl_diagnostic_attempt d JOIN protefl_resource_assignment a ON a.id=d.assignment_id JOIN protefl_resource r ON r.id=d.resource_id WHERE d.id=$1 AND d.actor_id=$2 AND d.archived_at IS NULL AND a.revoked_at IS NULL AND a.starts_at<=now() AND (a.ends_at IS NULL OR a.ends_at>now()) LIMIT 1",
     [id, actorId],
   );
   return result.rows[0] ?? null;
 }
 
-export async function startOrResumeDiagnostic(actorId: string, retake = false) {
+export async function startOrResumeDiagnostic(actorId: string, assignmentId: string, retake = false) {
   const db = getPool();
   const client = await db.connect();
   try {
     await client.query("BEGIN");
     const access = (await client.query(
-      "SELECT r.id,r.status,r.version,a.listening_mode,a.show_listening_question_text,a.delivery_scope FROM protefl_resource_assignment a JOIN protefl_resource r ON r.id=a.resource_id WHERE a.actor_id=$1 AND r.code=$2 AND r.kind='diagnostic_package' AND a.revoked_at IS NULL AND a.starts_at<=now() AND (a.ends_at IS NULL OR a.ends_at>now()) FOR UPDATE OF a,r",
-      [actorId, packageCode],
+      "SELECT a.id AS assignment_id,r.id,r.status,r.version,a.listening_mode,a.show_listening_question_text,a.delivery_scope FROM protefl_resource_assignment a JOIN protefl_resource r ON r.id=a.resource_id WHERE a.id=$1 AND a.actor_id=$2 AND r.code=$3 AND r.kind='diagnostic_package' AND a.revoked_at IS NULL AND a.starts_at<=now() AND (a.ends_at IS NULL OR a.ends_at>now()) FOR UPDATE OF a,r",
+      [assignmentId, actorId, packageCode],
     )).rows[0];
     if (!access) throw new Error("resource_unavailable");
-    const active = (await client.query("SELECT id FROM protefl_diagnostic_attempt WHERE resource_id=$1 AND actor_id=$2 AND status='in_progress' AND archived_at IS NULL ORDER BY attempt_number DESC LIMIT 1 FOR UPDATE", [access.id, actorId])).rows[0];
+    const active = (await client.query("SELECT id FROM protefl_diagnostic_attempt WHERE assignment_id=$1 AND actor_id=$2 AND status='in_progress' AND archived_at IS NULL ORDER BY attempt_number DESC LIMIT 1 FOR UPDATE", [access.assignment_id, actorId])).rows[0];
     if (active) {
       await client.query("COMMIT");
       return { attemptId: String(active.id), resumed: true };
     }
-    const latest = (await client.query("SELECT id,attempt_number,status FROM protefl_diagnostic_attempt WHERE resource_id=$1 AND actor_id=$2 AND scope='full' AND delivery_scope=$3 AND archived_at IS NULL ORDER BY attempt_number DESC LIMIT 1 FOR UPDATE", [access.id, actorId, access.delivery_scope])).rows[0];
+    const latest = (await client.query("SELECT id,attempt_number,status FROM protefl_diagnostic_attempt WHERE assignment_id=$1 AND actor_id=$2 AND scope='full' AND archived_at IS NULL ORDER BY attempt_number DESC LIMIT 1 FOR UPDATE", [access.assignment_id, actorId])).rows[0];
     // Hiding a resource stops new starts and retakes, but does not strand an
     // already assigned candidate who needs to resume an interrupted attempt.
     if (access.status !== "published") throw new Error("resource_unavailable");
     if ((latest && (!retake || latest.status !== "completed")) || (!latest && retake)) throw new Error("attempt_unavailable");
-    const sequence = (await client.query("SELECT coalesce(max(attempt_number),0)::int AS number FROM protefl_diagnostic_attempt WHERE resource_id=$1 AND actor_id=$2", [access.id, actorId])).rows[0];
+    const sequence = (await client.query("SELECT coalesce(max(attempt_number),0)::int AS number FROM protefl_diagnostic_attempt WHERE assignment_id=$1 AND actor_id=$2", [access.assignment_id, actorId])).rows[0];
     const number = Number(sequence.number) + 1;
-    const primary = !(await client.query("SELECT 1 FROM protefl_diagnostic_attempt WHERE resource_id=$1 AND actor_id=$2 AND delivery_scope=$3 AND is_primary=true AND archived_at IS NULL LIMIT 1", [access.id, actorId, access.delivery_scope])).rowCount;
+    const primary = !(await client.query("SELECT 1 FROM protefl_diagnostic_attempt WHERE assignment_id=$1 AND actor_id=$2 AND is_primary=true AND archived_at IS NULL LIMIT 1", [access.assignment_id, actorId])).rowCount;
     const hashes = await pinnedPackageHashes();
     if (hashes.version !== Number(access.version)) throw new Error("resource_unavailable");
     const inserted = (await client.query(
-      "INSERT INTO protefl_diagnostic_attempt(resource_id,actor_id,attempt_number,is_primary,package_version,content_hash,answer_key_hash,score_table_hash,timing_map_hash,listening_mode,show_listening_question_text,delivery_scope,current_section) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING id",
-      [access.id, actorId, number, primary, access.version, hashes.contentHash, hashes.answerKeyHash, hashes.scoreTableHash, hashes.timingMapHash, access.listening_mode, access.show_listening_question_text, access.delivery_scope, access.delivery_scope === "full" ? "listening" : access.delivery_scope],
+      "INSERT INTO protefl_diagnostic_attempt(resource_id,assignment_id,actor_id,attempt_number,is_primary,package_version,content_hash,answer_key_hash,score_table_hash,timing_map_hash,listening_mode,show_listening_question_text,delivery_scope,current_section) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING id",
+      [access.id, access.assignment_id, actorId, number, primary, access.version, hashes.contentHash, hashes.answerKeyHash, hashes.scoreTableHash, hashes.timingMapHash, access.listening_mode, access.show_listening_question_text, access.delivery_scope, access.delivery_scope === "full" ? "listening" : access.delivery_scope],
     )).rows[0];
     await client.query("COMMIT");
     return { attemptId: String(inserted.id), resumed: false };
@@ -302,36 +301,36 @@ export async function startOrResumeDiagnostic(actorId: string, retake = false) {
   }
 }
 
-export async function startSectionRetake(actorId: string, sourceAttemptId: string, section: Section) {
+export async function startSectionRetake(actorId: string, assignmentId: string, sourceAttemptId: string, section: Section) {
   const client = await getPool().connect();
   try {
     await client.query("BEGIN");
     const source = (await client.query(
-      "SELECT id,scope,parent_attempt_id,status FROM protefl_diagnostic_attempt WHERE id=$1 AND actor_id=$2 AND archived_at IS NULL",
-      [sourceAttemptId, actorId],
+      "SELECT id,assignment_id,scope,parent_attempt_id,status FROM protefl_diagnostic_attempt WHERE id=$1 AND assignment_id=$2 AND actor_id=$3 AND archived_at IS NULL",
+      [sourceAttemptId, assignmentId, actorId],
     )).rows[0];
     if (!source || source.status !== "completed" || (source.scope !== "full" && source.scope !== section)) throw new Error("attempt_unavailable");
     const parentAttemptId = source.scope === "full" ? source.id : source.parent_attempt_id;
     const parent = (await client.query(
-      "SELECT d.*,r.status AS resource_status,r.version AS resource_version,a.listening_mode AS assigned_listening_mode FROM protefl_diagnostic_attempt d JOIN protefl_resource_assignment a ON a.resource_id=d.resource_id AND a.actor_id=d.actor_id JOIN protefl_resource r ON r.id=d.resource_id WHERE d.id=$1 AND d.actor_id=$2 AND d.scope='full' AND d.status='completed' AND d.archived_at IS NULL AND a.revoked_at IS NULL AND a.starts_at<=now() AND (a.ends_at IS NULL OR a.ends_at>now()) FOR UPDATE OF d,a,r",
+      "SELECT d.*,r.status AS resource_status,r.version AS resource_version,a.listening_mode AS assigned_listening_mode FROM protefl_diagnostic_attempt d JOIN protefl_resource_assignment a ON a.id=d.assignment_id JOIN protefl_resource r ON r.id=d.resource_id WHERE d.id=$1 AND d.actor_id=$2 AND d.scope='full' AND d.status='completed' AND d.archived_at IS NULL AND a.revoked_at IS NULL AND a.starts_at<=now() AND (a.ends_at IS NULL OR a.ends_at>now()) FOR UPDATE OF d,a,r",
       [parentAttemptId, actorId],
     )).rows[0];
     if (!parent || parent.resource_status !== "published") throw new Error("attempt_unavailable");
     const parentResult = (await client.query("SELECT result_data FROM protefl_diagnostic_result WHERE attempt_id=$1", [sourceAttemptId])).rows[0]?.result_data;
     const selectedQuestions = (parentResult?.review ?? []).filter((item: { section: string; correct: boolean }) => item.section === section && !item.correct).map((item: { question: number }) => Number(item.question));
     if (!selectedQuestions.length) throw new Error("no_missed_questions");
-    const active = (await client.query("SELECT id FROM protefl_diagnostic_attempt WHERE resource_id=$1 AND actor_id=$2 AND status='in_progress' AND archived_at IS NULL ORDER BY attempt_number DESC LIMIT 1 FOR UPDATE", [parent.resource_id, actorId])).rows[0];
+    const active = (await client.query("SELECT id FROM protefl_diagnostic_attempt WHERE assignment_id=$1 AND actor_id=$2 AND status='in_progress' AND archived_at IS NULL ORDER BY attempt_number DESC LIMIT 1 FOR UPDATE", [parent.assignment_id, actorId])).rows[0];
     if (active) {
       await client.query("COMMIT");
       return { attemptId: String(active.id), resumed: true };
     }
-    const sequence = (await client.query("SELECT coalesce(max(attempt_number),0)::int AS number FROM protefl_diagnostic_attempt WHERE resource_id=$1 AND actor_id=$2", [parent.resource_id, actorId])).rows[0];
+    const sequence = (await client.query("SELECT coalesce(max(attempt_number),0)::int AS number FROM protefl_diagnostic_attempt WHERE assignment_id=$1 AND actor_id=$2", [parent.assignment_id, actorId])).rows[0];
     const retake = (await client.query("SELECT coalesce(max(section_retake_number),0)::int AS number FROM protefl_diagnostic_attempt WHERE parent_attempt_id=$1 AND scope=$2", [parentAttemptId, section])).rows[0];
     const hashes = await pinnedPackageHashes();
     if (hashes.version !== Number(parent.resource_version)) throw new Error("attempt_unavailable");
     const inserted = (await client.query(
-      "INSERT INTO protefl_diagnostic_attempt(resource_id,actor_id,attempt_number,is_primary,package_version,content_hash,answer_key_hash,score_table_hash,timing_map_hash,listening_mode,scope,parent_attempt_id,section_retake_number,current_section,show_listening_question_text,selected_questions,delivery_scope) VALUES($1,$2,$3,false,$4,$5,$6,$7,$8,$9,$10,$11,$12,$10,$13,$14,$15) RETURNING id",
-      [parent.resource_id, actorId, Number(sequence.number) + 1, parent.package_version, hashes.contentHash, hashes.answerKeyHash, hashes.scoreTableHash, hashes.timingMapHash, parent.assigned_listening_mode, section, parentAttemptId, Number(retake.number) + 1, parent.show_listening_question_text, JSON.stringify(selectedQuestions), parent.delivery_scope],
+      "INSERT INTO protefl_diagnostic_attempt(resource_id,assignment_id,actor_id,attempt_number,is_primary,package_version,content_hash,answer_key_hash,score_table_hash,timing_map_hash,listening_mode,scope,parent_attempt_id,section_retake_number,current_section,show_listening_question_text,selected_questions,delivery_scope) VALUES($1,$2,$3,$4,false,$5,$6,$7,$8,$9,$10,$11,$12,$13,$11,$14,$15,$16) RETURNING id",
+      [parent.resource_id, parent.assignment_id, actorId, Number(sequence.number) + 1, parent.package_version, hashes.contentHash, hashes.answerKeyHash, hashes.scoreTableHash, hashes.timingMapHash, parent.assigned_listening_mode, section, parentAttemptId, Number(retake.number) + 1, parent.show_listening_question_text, JSON.stringify(selectedQuestions), parent.delivery_scope],
     )).rows[0];
     await client.query("COMMIT");
     return { attemptId: String(inserted.id), resumed: false };
@@ -346,6 +345,7 @@ export async function startSectionRetake(actorId: string, sourceAttemptId: strin
 
 export async function restartCandidateDiagnosticSection(
   resourceId: string,
+  assignmentId: string,
   candidateActorId: string,
   parentAttemptId: string,
   section: DiagnosticSection,
@@ -359,29 +359,30 @@ export async function restartCandidateDiagnosticSection(
       `SELECT d.*,r.status AS resource_status,r.version AS resource_version,
          a.listening_mode AS assigned_listening_mode,a.show_listening_question_text AS assigned_show_question_text
        FROM protefl_diagnostic_attempt d
-       JOIN protefl_resource_assignment a ON a.resource_id=d.resource_id AND a.actor_id=d.actor_id
+       JOIN protefl_resource_assignment a ON a.id=d.assignment_id
        JOIN protefl_resource r ON r.id=d.resource_id
-       WHERE d.id=$1 AND d.resource_id=$2 AND d.actor_id=$3
+       WHERE d.id=$1 AND d.resource_id=$2 AND d.assignment_id=$3 AND d.actor_id=$4
          AND d.scope='full' AND d.delivery_scope='full' AND d.parent_attempt_id IS NULL AND d.status='completed' AND d.archived_at IS NULL
          AND r.kind='diagnostic_package' AND r.status='published' AND a.revoked_at IS NULL
          AND a.starts_at<=now() AND (a.ends_at IS NULL OR a.ends_at>now())
-         AND ($5='admin' OR a.assigned_by=$4)
+         AND ($6='admin' OR a.assigned_by=$5)
        FOR UPDATE OF d,a,r`,
-      [parentAttemptId, resourceId, candidateActorId, staffActorId, staffRole],
+      [parentAttemptId, resourceId, assignmentId, candidateActorId, staffActorId, staffRole],
     )).rows[0];
     if (!parent) throw new Error("section_restart_unavailable");
 
     const active = await client.query(
       `SELECT id FROM protefl_diagnostic_attempt
-       WHERE resource_id=$1 AND actor_id=$2 AND status='in_progress' AND archived_at IS NULL
+       WHERE assignment_id=(SELECT assignment_id FROM protefl_diagnostic_attempt WHERE id=$1)
+         AND actor_id=$2 AND status='in_progress' AND archived_at IS NULL
        LIMIT 1 FOR UPDATE`,
-      [resourceId, candidateActorId],
+      [parentAttemptId, candidateActorId],
     );
     if (active.rowCount) throw new Error("active_attempt_exists");
 
     const sequence = (await client.query(
-      "SELECT coalesce(max(attempt_number),0)::int AS number FROM protefl_diagnostic_attempt WHERE resource_id=$1 AND actor_id=$2",
-      [resourceId, candidateActorId],
+      "SELECT coalesce(max(attempt_number),0)::int AS number FROM protefl_diagnostic_attempt WHERE assignment_id=(SELECT assignment_id FROM protefl_diagnostic_attempt WHERE id=$1) AND actor_id=$2",
+      [parentAttemptId, candidateActorId],
     )).rows[0];
     const restart = (await client.query(
       "SELECT coalesce(max(section_retake_number),0)::int AS number FROM protefl_diagnostic_attempt WHERE parent_attempt_id=$1 AND scope=$2",
@@ -393,13 +394,13 @@ export async function restartCandidateDiagnosticSection(
 
     const inserted = (await client.query(
       `INSERT INTO protefl_diagnostic_attempt(
-         resource_id,actor_id,attempt_number,is_primary,package_version,content_hash,answer_key_hash,
+         resource_id,assignment_id,actor_id,attempt_number,is_primary,package_version,content_hash,answer_key_hash,
          score_table_hash,timing_map_hash,listening_mode,scope,parent_attempt_id,section_retake_number,
          current_section,show_listening_question_text,selected_questions,delivery_scope,teacher_restarted_by
-       ) VALUES($1,$2,$3,false,$4,$5,$6,$7,$8,$9,$10,$11,$12,$10,$13,NULL,$14,$15)
+       ) VALUES($1,$2,$3,$4,false,$5,$6,$7,$8,$9,$10,$11,$12,$13,$11,$14,NULL,$15,$16)
        RETURNING id,attempt_number,section_retake_number,created_at`,
       [
-        resourceId, candidateActorId, Number(sequence.number) + 1, parent.package_version,
+        resourceId, parent.assignment_id, candidateActorId, Number(sequence.number) + 1, parent.package_version,
         parent.content_hash, parent.answer_key_hash, parent.score_table_hash, parent.timing_map_hash,
         parent.assigned_listening_mode, section, parentAttemptId, Number(restart.number) + 1,
         parent.assigned_show_question_text, parent.delivery_scope, staffActorId,
@@ -432,7 +433,7 @@ export async function applyDiagnosticAction(actorId: string, attemptId: string, 
   try {
     await client.query("BEGIN");
     const attempt = (await client.query(
-      "SELECT d.*,now() AS server_now FROM protefl_diagnostic_attempt d JOIN protefl_resource_assignment a ON a.resource_id=d.resource_id AND a.actor_id=d.actor_id JOIN protefl_resource r ON r.id=d.resource_id WHERE d.id=$1 AND d.actor_id=$2 AND d.status='in_progress' AND d.archived_at IS NULL AND a.revoked_at IS NULL AND a.starts_at<=now() AND (a.ends_at IS NULL OR a.ends_at>now()) FOR UPDATE OF d",
+      "SELECT d.*,now() AS server_now FROM protefl_diagnostic_attempt d JOIN protefl_resource_assignment a ON a.id=d.assignment_id JOIN protefl_resource r ON r.id=d.resource_id WHERE d.id=$1 AND d.actor_id=$2 AND d.status='in_progress' AND d.archived_at IS NULL AND a.revoked_at IS NULL AND a.starts_at<=now() AND (a.ends_at IS NULL OR a.ends_at>now()) FOR UPDATE OF d",
       [attemptId, actorId],
     )).rows[0];
     if (!attempt) throw new Error("attempt_unavailable");
@@ -629,8 +630,8 @@ export async function diagnosticAttemptState(actorId: string, attemptId: string)
     }
   }
   const primary = await getPool().query(
-      "SELECT d.id,r.result_data FROM protefl_diagnostic_attempt d JOIN protefl_diagnostic_result r ON r.attempt_id=d.id WHERE d.resource_id=$1 AND d.actor_id=$2 AND d.is_primary=true AND d.delivery_scope=$3 AND d.archived_at IS NULL",
-      [attempt.resource_id, actorId, attempt.delivery_scope],
+      "SELECT d.id,r.result_data FROM protefl_diagnostic_attempt d JOIN protefl_diagnostic_result r ON r.attempt_id=d.id WHERE d.assignment_id=$1 AND d.actor_id=$2 AND d.is_primary=true AND d.archived_at IS NULL",
+      [attempt.assignment_id, actorId],
   );
   if (primary.rows[0]) {
     state.primaryAttemptId = String(primary.rows[0].id);

@@ -23,6 +23,64 @@ and B, and are shown at the section start and at the relevant transition.
 Question navigation, timers, passages, retake selection, and review all operate
 on these structured records.
 
+## Reusable package template
+
+Copy this checklist into the new form's receipt before importing any content.
+It is a package template, not a screenshot or a one-off script log.
+
+```yaml
+package:
+  code: <stable-form-code>
+  version: <positive-integer>
+  title: <candidate-facing-title>
+  source: <owner-authorized-book/form/audio>
+  authorization_receipt: <work-id-or-private-receipt>
+  status: draft
+sections:
+  - id: listening
+    version: <section-version>
+    item_count: 50
+    parts: [A, B, C]
+    playback: [autoplay, question_click]
+    answer_window_ms: 12000
+    assets: {audio: <private-path-and-sha256>, timing_map: <metadata-file-and-sha256>}
+  - id: structure
+    version: <section-version>
+    item_count: 40
+    parts: [A, B]
+    duration_minutes: 25
+  - id: reading
+    version: <section-version>
+    item_count: 50
+    duration_minutes: 55
+    passages: <count-and-line-reference-policy>
+content:
+  questions: <editable-question-metadata>
+  directions: <section-and-part-directions>
+  answer_key: <server-only-key>
+  score_conversion: <server-only-source-backed-table-or-null>
+  page_index: <private-source-audit-map>
+integrity: {content_hash: <sha256>, answer_key_hash: <sha256>, score_table_hash: <sha256-or-null>, timing_map_hash: <sha256>}
+assignment:
+  identity_key: invite_id
+  scopes: [full, listening, structure, reading]
+  access_modes: [private, classroom]
+  additive_claim_rule: a new invite creates a new learner assignment; it never overwrites an active assignment
+verification: {content: pending, answer_keys: pending, audio: pending, layout: pending, access_control: pending, deployment: pending}
+```
+
+The assignment identity is part of the template. A learner may legitimately
+have two cards for the same package—for example, “November full diagnostic”
+and “November Reading review.” Each card has its own assignment ID, attempt
+lineage, pinned settings, and review history. Do not key candidate routes,
+attempts, or UI list items only by `(resource_id, actor_id)`.
+
+Before publication, replace every `pending` value with a receipt reference and
+record the exact package/version/content/key/score/timing hashes. Existing
+attempts remain pinned to their original assignment and package; a later
+template revision creates a new version or a new assignment rather than
+mutating live evidence.
+
 ## 1. Confirm source and package boundary
 
 1. Read D-027 and D035/D036 in `docs/DECISIONS.md`, this guide, the current

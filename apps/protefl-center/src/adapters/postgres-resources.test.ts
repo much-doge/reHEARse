@@ -14,6 +14,7 @@ import { restartCandidateDiagnosticSection } from "./postgres-diagnostic";
 const actor = "11111111-1111-4111-8111-111111111111";
 const staff = "22222222-2222-4222-8222-222222222222";
 const resource = "33333333-3333-4333-8333-333333333333";
+const assignment = "66666666-6666-4666-8666-666666666666";
 
 describe("assignment title pinning and diagnostic archive boundaries", () => {
   beforeEach(() => {
@@ -44,11 +45,11 @@ describe("assignment title pinning and diagnostic archive boundaries", () => {
       return { rowCount: 0, rows: [] };
     });
 
-    await expect(archiveCandidateDiagnostic(resource, actor, staff, "teacher")).rejects.toThrow("assignment_unavailable");
+    await expect(archiveCandidateDiagnostic(resource, assignment, actor, staff, "teacher")).rejects.toThrow("assignment_unavailable");
 
     const authorization = clientQuery.mock.calls.find(([sql]) => String(sql).includes("SELECT a.id FROM protefl_resource_assignment"));
     expect(authorization?.[0]).toContain("r.kind='diagnostic_package'");
-    expect(authorization?.[0]).toContain("a.assigned_by=$3");
+    expect(authorization?.[0]).toContain("a.assigned_by=$4");
     expect(clientQuery.mock.calls.some(([sql]) => String(sql).includes("INSERT INTO protefl_diagnostic_attempt_archive"))).toBe(false);
     expect(clientQuery).toHaveBeenCalledWith("ROLLBACK");
   });
@@ -62,7 +63,7 @@ describe("assignment title pinning and diagnostic archive boundaries", () => {
       return { rowCount: 3, rows: [] };
     });
 
-    const result = await archiveCandidateDiagnostic(resource, actor, staff, "admin");
+    const result = await archiveCandidateDiagnostic(resource, assignment, actor, staff, "admin");
 
     expect(result.archivedAttempts).toBe(3);
     const select = clientQuery.mock.calls.find(([sql]) => String(sql).includes("SELECT id FROM protefl_diagnostic_attempt"));
@@ -89,15 +90,15 @@ describe("assignment title pinning and diagnostic archive boundaries", () => {
       return { rowCount: 0, rows: [] };
     });
 
-    const result = await restartCandidateDiagnosticSection(resource, actor, parent, "structure", staff, "teacher");
+    const result = await restartCandidateDiagnosticSection(resource, assignment, actor, parent, "structure", staff, "teacher");
 
     expect(result).toMatchObject({ attemptNumber: 4, sectionRetakeNumber: 2, section: "structure" });
     const authorization = clientQuery.mock.calls.find(([sql]) => String(sql).includes("SELECT d.*,r.status AS resource_status"));
-    expect(authorization?.[0]).toContain("a.assigned_by=$4");
+    expect(authorization?.[0]).toContain("a.assigned_by=$5");
     expect(authorization?.[0]).toContain("d.delivery_scope='full'");
     const insert = clientQuery.mock.calls.find(([sql]) => String(sql).includes("INSERT INTO protefl_diagnostic_attempt"));
     expect(insert?.[0]).toContain("selected_questions,delivery_scope,teacher_restarted_by");
-    expect(insert?.[0]).toContain("$13,NULL,$14,$15");
+    expect(insert?.[0]).toContain("$15,$16");
     expect(insert?.[1]?.at(-1)).toBe(staff);
     expect(clientQuery).toHaveBeenCalledWith("COMMIT");
   });
@@ -111,7 +112,7 @@ describe("assignment title pinning and diagnostic archive boundaries", () => {
       return { rowCount: 0, rows: [] };
     });
 
-    await expect(restartCandidateDiagnosticSection(resource, actor, parent, "reading", staff, "admin")).rejects.toThrow("active_attempt_exists");
+    await expect(restartCandidateDiagnosticSection(resource, assignment, actor, parent, "reading", staff, "admin")).rejects.toThrow("active_attempt_exists");
     expect(clientQuery.mock.calls.some(([sql]) => String(sql).includes("INSERT INTO protefl_diagnostic_attempt"))).toBe(false);
     expect(clientQuery).toHaveBeenCalledWith("ROLLBACK");
   });

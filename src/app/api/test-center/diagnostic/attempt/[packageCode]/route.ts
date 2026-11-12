@@ -8,8 +8,8 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 const headers = { "Cache-Control": "private, no-store, max-age=0", "Vary": "Cookie" };
 const bodySchema = z.discriminatedUnion("action", [
-  z.object({ action: z.enum(["start", "retake"]) }),
-  z.object({ action: z.literal("retake_section"), sourceAttemptId: z.uuid(), section: z.enum(["listening", "structure", "reading"]) }),
+  z.object({ action: z.enum(["start", "retake"]), assignmentId: z.uuid() }),
+  z.object({ action: z.literal("retake_section"), assignmentId: z.uuid(), sourceAttemptId: z.uuid(), section: z.enum(["listening", "structure", "reading"]) }),
 ]);
 
 export async function POST(request: Request, { params }: { params: Promise<{ packageCode: string }> }) {
@@ -24,8 +24,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ pac
     const parsed = bodySchema.safeParse(JSON.parse(raw));
     if (!parsed.success) return Response.json({ error: "invalid_request" }, { status: 400, headers });
     const result = parsed.data.action === "retake_section"
-      ? await startSectionRetake(user.id, parsed.data.sourceAttemptId, parsed.data.section)
-      : await startOrResumeDiagnostic(user.id, parsed.data.action === "retake");
+      ? await startSectionRetake(user.id, parsed.data.assignmentId, parsed.data.sourceAttemptId, parsed.data.section)
+      : await startOrResumeDiagnostic(user.id, parsed.data.assignmentId, parsed.data.action === "retake");
     return Response.json(result, { headers });
   } catch (error) {
     const code = error instanceof Error ? error.message : "";

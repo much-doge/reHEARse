@@ -7,6 +7,7 @@ import { generateResourceCode, hashResourceCode, isValidResourceCode, normalizeR
 
 export type TestCenterResource = {
   id: string;
+  assignmentId: string;
   code: string;
   version: number;
   kind: "listening_form" | "diagnostic_package";
@@ -31,21 +32,21 @@ function generateTemporaryPassword() {
 
 export async function assignedResources(actorId: string): Promise<TestCenterResource[]> {
   const result = await getPool().query(
-    `SELECT r.id,r.code,r.version,r.kind,r.title,r.status,
+    `SELECT r.id,a.id AS assignment_id,r.code,r.version,r.kind,r.title,r.status,
        COALESCE(a.assignment_title,r.title) AS assignment_title,
        a.assigned_at,a.starts_at,a.ends_at,a.listening_mode,a.delivery_scope,
-            (EXISTS(SELECT 1 FROM protefl_attempt t WHERE t.actor_id=a.actor_id AND t.form_id=r.listening_form_id AND t.status<>'invalidated') OR EXISTS(SELECT 1 FROM protefl_diagnostic_attempt d WHERE d.actor_id=a.actor_id AND d.resource_id=r.id AND d.archived_at IS NULL)) AS has_attempt
+            (EXISTS(SELECT 1 FROM protefl_attempt t WHERE t.actor_id=a.actor_id AND t.form_id=r.listening_form_id AND t.status<>'invalidated') OR EXISTS(SELECT 1 FROM protefl_diagnostic_attempt d WHERE d.assignment_id=a.id AND d.archived_at IS NULL)) AS has_attempt
      FROM protefl_resource_assignment a
      JOIN protefl_resource r ON r.id=a.resource_id
      WHERE a.actor_id=$1 AND a.revoked_at IS NULL
        AND (a.ends_at IS NULL OR a.ends_at>now())
-       AND (r.status='published' OR (r.status='hidden' AND (EXISTS(SELECT 1 FROM protefl_attempt t WHERE t.actor_id=a.actor_id AND t.form_id=r.listening_form_id AND t.status<>'invalidated') OR EXISTS(SELECT 1 FROM protefl_diagnostic_attempt d WHERE d.actor_id=a.actor_id AND d.resource_id=r.id AND d.archived_at IS NULL))))
+       AND (r.status='published' OR (r.status='hidden' AND (EXISTS(SELECT 1 FROM protefl_attempt t WHERE t.actor_id=a.actor_id AND t.form_id=r.listening_form_id AND t.status<>'invalidated') OR EXISTS(SELECT 1 FROM protefl_diagnostic_attempt d WHERE d.assignment_id=a.id AND d.archived_at IS NULL))))
        AND (a.starts_at<=now())
      ORDER BY r.created_at DESC`,
     [actorId],
   );
   return result.rows.map((row) => ({
-    id: String(row.id), code: row.code, version: Number(row.version), kind: row.kind,
+    id: String(row.id), assignmentId: String(row.assignment_id), code: row.code, version: Number(row.version), kind: row.kind,
     title: row.title, assignmentTitle: row.assignment_title, status: row.status, assignedAt: new Date(row.assigned_at).toISOString(),
     startsAt: new Date(row.starts_at).toISOString(), endsAt: row.ends_at ? new Date(row.ends_at).toISOString() : null,
     hasAttempt: row.has_attempt === true, listeningMode: row.listening_mode, deliveryScope: row.delivery_scope,
@@ -92,23 +93,20 @@ export async function claimResource(actorId: string, rawCode: string): Promise<v
     const existingAssignment = await client.query(
       `SELECT id FROM protefl_resource_assignment
        WHERE resource_id=$1 AND actor_id=$2 AND revoked_at IS NULL
+         AND invite_id=$3
          AND starts_at<=now() AND (ends_at IS NULL OR ends_at>now())`,
-      [invite.resource_id, actorId],
+      [invite.resource_id, actorId, invite.id],
     );
     if (existingAssignment.rowCount) {
-      if (invite.invite_kind === "classroom" || (invite.claimed_at && invite.claimed_by === actorId)) {
-        await client.query("COMMIT");
-        return;
-      }
+      await client.query("COMMIT");
+      return;
     }
     if (invite.invite_kind === "private" && invite.claimed_at)
       throw new Error("invite_unavailable");
     await client.query(
       `INSERT INTO protefl_resource_assignment(resource_id,actor_id,assigned_by,invite_id,assignment_kind,listening_mode,show_listening_question_text,delivery_scope,assignment_title)
        VALUES($1,$2,$3,$4,'invite',$5,$6,$7,$8)
-       ON CONFLICT(resource_id,actor_id) WHERE revoked_at IS NULL DO UPDATE SET
-         assigned_by=excluded.assigned_by,invite_id=excluded.invite_id,assignment_kind='invite',listening_mode=excluded.listening_mode,
-         show_listening_question_text=excluded.show_listening_question_text,delivery_scope=excluded.delivery_scope,assignment_title=excluded.assignment_title,starts_at=now(),ends_at=NULL`,
+       ON CONFLICT(resource_id,actor_id,invite_id) WHERE revoked_at IS NULL AND invite_id IS NOT NULL DO NOTHING`,
       [invite.resource_id, actorId, invite.created_by, invite.id, invite.listening_mode, invite.show_listening_question_text, invite.delivery_scope, invite.assignment_title],
     );
     if (invite.invite_kind === "private")
@@ -130,6 +128,7 @@ type ManagedHistoryAttemptRow = {
   retakes?: Array<{ teacherIssuedRestart?: boolean; archivedAt?: string | null; status?: string; section: string; result?: unknown }>;
 };
 type ManagedCandidateHistoryRow = {
+  assignment_id: string;
   display_name: string;
   email: string;
   actor_id: string;
@@ -140,7 +139,7 @@ type ManagedCandidateHistoryRow = {
 };
 
 const managedCandidateHistoryQuery = `
-  SELECT a.resource_id,a.actor_id,a.delivery_scope,COALESCE(a.assignment_title,r.title) AS assignment_title,u.display_name,u.email,
+  SELECT a.id AS assignment_id,a.resource_id,a.actor_id,a.delivery_scope,COALESCE(a.assignment_title,r.title) AS assignment_title,u.display_name,u.email,
     ($2='admin' OR a.assigned_by=$1) AS can_reset_password,
     COALESCE(history.attempts,'[]'::jsonb) AS attempts
   FROM protefl_resource_assignment a
@@ -178,7 +177,7 @@ const managedCandidateHistoryQuery = `
     ) ORDER BY d.attempt_number) AS attempts
     FROM protefl_diagnostic_attempt d
     LEFT JOIN protefl_diagnostic_result result_row ON result_row.attempt_id=d.id
-    WHERE d.resource_id=a.resource_id AND d.actor_id=a.actor_id
+      WHERE d.assignment_id=a.id
       AND d.parent_attempt_id IS NULL
   ) history ON true
   WHERE a.revoked_at IS NULL`;
@@ -189,6 +188,7 @@ function mapManagedCandidateHistory(row: ManagedCandidateHistoryRow) {
     return { ...attempt, effectiveResult: attempt.result && resets.length ? effectiveDiagnosticResult(attempt.result, resets) : null };
   });
   return {
+    assignmentId: String(row.assignment_id),
     name: row.display_name as string,
     email: row.email as string,
     actorId: String(row.actor_id),
@@ -205,13 +205,14 @@ function mapManagedCandidateHistory(row: ManagedCandidateHistoryRow) {
 
 export async function getManagedCandidateHistory(
   resourceId: string,
+  assignmentId: string,
   candidateActorId: string,
   staffActorId: string,
   staffRole: "teacher" | "admin",
 ) {
   const result = await getPool().query(
-    `${managedCandidateHistoryQuery} AND a.resource_id=$3 AND a.actor_id=$4 LIMIT 1`,
-    [staffActorId, staffRole, resourceId, candidateActorId],
+    `${managedCandidateHistoryQuery} AND a.resource_id=$3 AND a.id=$4 AND a.actor_id=$5 LIMIT 1`,
+    [staffActorId, staffRole, resourceId, assignmentId, candidateActorId],
   );
   return result.rows[0] ? mapManagedCandidateHistory(result.rows[0]) : null;
 }
@@ -223,7 +224,7 @@ export async function listManagedResources(staffActorId: string, staffRole: "tea
      FROM protefl_resource r ORDER BY r.created_at DESC`,
   );
   const candidates = await getPool().query(
-    `SELECT a.resource_id,a.actor_id,a.delivery_scope,COALESCE(a.assignment_title,r.title) AS assignment_title,u.display_name,u.email,
+    `SELECT a.id AS assignment_id,a.resource_id,a.actor_id,a.delivery_scope,COALESCE(a.assignment_title,r.title) AS assignment_title,u.display_name,u.email,
        ($2='admin' OR a.assigned_by=$1) AS can_reset_password,
        COALESCE(stats.attempt_count,0)::int AS attempt_count,
        COALESCE(stats.retake_count,0)::int AS retake_count,
@@ -247,7 +248,7 @@ export async function listManagedResources(staffActorId: string, staffRole: "tea
                    (SELECT count(DISTINCT (e.section,e.question_number))::int FROM protefl_diagnostic_event e WHERE e.attempt_id=d.id AND e.event_type='answer') AS answered_count,
                    (SELECT count(*)::int FROM protefl_diagnostic_attempt retry WHERE retry.parent_attempt_id=d.id) AS retake_count
                  FROM protefl_diagnostic_attempt d
-                 WHERE d.resource_id=a.resource_id AND d.actor_id=a.actor_id AND d.parent_attempt_id IS NULL AND d.archived_at IS NULL
+                 WHERE d.assignment_id=a.id AND d.parent_attempt_id IS NULL AND d.archived_at IS NULL
                  ORDER BY d.attempt_number DESC LIMIT 1
                ) latest
                LEFT JOIN protefl_diagnostic_result latest_result ON latest_result.attempt_id=latest.id
@@ -257,7 +258,7 @@ export async function listManagedResources(staffActorId: string, staffRole: "tea
            (SELECT count(*)::int FROM protefl_diagnostic_attempt retry WHERE retry.parent_attempt_id=d.id) AS retake_count,
            (SELECT count(DISTINCT (e.section,e.question_number))::int FROM protefl_diagnostic_event e WHERE e.attempt_id=d.id AND e.event_type='answer') AS answered_count
          FROM protefl_diagnostic_attempt d
-         WHERE d.resource_id=a.resource_id AND d.actor_id=a.actor_id AND d.parent_attempt_id IS NULL
+         WHERE d.assignment_id=a.id AND d.parent_attempt_id IS NULL
        ) root
      ) stats ON true
      WHERE a.revoked_at IS NULL ORDER BY a.resource_id,u.display_name`,
@@ -269,6 +270,7 @@ export async function listManagedResources(staffActorId: string, staffRole: "tea
     tags: Array.isArray(row.tags) ? row.tags.map(String) : [],
     assignedCount: Number(row.assigned_count),
     candidates: candidates.rows.filter((candidate) => String(candidate.resource_id) === String(row.id)).map((candidate) => ({
+      assignmentId: String(candidate.assignment_id),
       name: candidate.display_name as string,
       email: candidate.email as string,
       actorId: String(candidate.actor_id),
@@ -318,23 +320,23 @@ export async function setResourceTags(resourceId: string, rawTags: string[], act
   }
 }
 
-export async function archiveCandidateDiagnostic(resourceId: string, candidateActorId: string, staffActorId: string, staffRole: "teacher" | "admin") {
+export async function archiveCandidateDiagnostic(resourceId: string, assignmentId: string, candidateActorId: string, staffActorId: string, staffRole: "teacher" | "admin") {
   const client = await getPool().connect();
   try {
     await client.query("BEGIN");
     const assignment = await client.query(
       `SELECT a.id FROM protefl_resource_assignment a
        JOIN protefl_resource r ON r.id=a.resource_id
-       WHERE a.resource_id=$1 AND a.actor_id=$2 AND a.revoked_at IS NULL
-         AND r.kind='diagnostic_package' AND ($4='admin' OR a.assigned_by=$3) FOR UPDATE OF a,r`,
-      [resourceId, candidateActorId, staffActorId, staffRole],
+       WHERE a.resource_id=$1 AND a.id=$2 AND a.actor_id=$3 AND a.revoked_at IS NULL
+         AND r.kind='diagnostic_package' AND ($5='admin' OR a.assigned_by=$4) FOR UPDATE OF a,r`,
+      [resourceId, assignmentId, candidateActorId, staffActorId, staffRole],
     );
     if (!assignment.rowCount) throw new Error("assignment_unavailable");
     const attempts = await client.query(
       `SELECT id FROM protefl_diagnostic_attempt
-       WHERE resource_id=$1 AND actor_id=$2 AND archived_at IS NULL
+       WHERE assignment_id=$1 AND actor_id=$2 AND archived_at IS NULL
        ORDER BY attempt_number FOR UPDATE`,
-      [resourceId, candidateActorId],
+      [assignmentId, candidateActorId],
     );
     if (!attempts.rowCount) throw new Error("attempt_unavailable");
     const archive = (await client.query(
@@ -345,8 +347,8 @@ export async function archiveCandidateDiagnostic(resourceId: string, candidateAc
     await client.query(
       `UPDATE protefl_diagnostic_attempt
        SET archived_at=$3,archived_by=$4,archive_batch_id=$5
-       WHERE resource_id=$1 AND actor_id=$2 AND archived_at IS NULL`,
-      [resourceId, candidateActorId, archive.archived_at, staffActorId, archive.id],
+       WHERE assignment_id=$1 AND actor_id=$2 AND archived_at IS NULL`,
+      [assignmentId, candidateActorId, archive.archived_at, staffActorId, archive.id],
     );
     await client.query("COMMIT");
     return { archivedAttempts: attempts.rowCount, archivedAt: new Date(archive.archived_at).toISOString() };
