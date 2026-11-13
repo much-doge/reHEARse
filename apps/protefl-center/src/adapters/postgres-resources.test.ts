@@ -8,7 +8,7 @@ const { clientQuery, connect, poolQuery } = vi.hoisted(() => ({
 vi.mock("@/adapters/db/client", () => ({ getPool: () => ({ connect, query: poolQuery }) }));
 vi.mock("@/adapters/identity/password", () => ({ hashPassword: vi.fn() }));
 
-import { archiveCandidateDiagnostic, claimResource } from "./postgres-resources";
+import { archiveCandidateDiagnostic, claimResource, getManagedQuestionAnalytics } from "./postgres-resources";
 import { restartCandidateDiagnosticSection } from "./postgres-diagnostic";
 
 const actor = "11111111-1111-4111-8111-111111111111";
@@ -78,7 +78,7 @@ describe("assignment title pinning and diagnostic archive boundaries", () => {
     const parent = "44444444-4444-4444-8444-444444444444";
     clientQuery.mockImplementation(async (sql: string) => {
       if (sql === "BEGIN" || sql === "COMMIT") return { rowCount: 0, rows: [] };
-      if (sql.includes("SELECT d.*,r.status AS resource_status")) return { rowCount: 1, rows: [{
+      if (sql.includes("SELECT d.*,r.code AS resource_code,r.status AS resource_status")) return { rowCount: 1, rows: [{
         id: parent, package_version: 1, resource_version: 1, content_hash: "content", answer_key_hash: "answers",
         score_table_hash: "scores", timing_map_hash: "timing", assigned_listening_mode: "autoplay",
         assigned_show_question_text: true, delivery_scope: "full",
@@ -93,7 +93,7 @@ describe("assignment title pinning and diagnostic archive boundaries", () => {
     const result = await restartCandidateDiagnosticSection(resource, assignment, actor, parent, "structure", staff, "teacher");
 
     expect(result).toMatchObject({ attemptNumber: 4, sectionRetakeNumber: 2, section: "structure" });
-    const authorization = clientQuery.mock.calls.find(([sql]) => String(sql).includes("SELECT d.*,r.status AS resource_status"));
+    const authorization = clientQuery.mock.calls.find(([sql]) => String(sql).includes("SELECT d.*,r.code AS resource_code,r.status AS resource_status"));
     expect(authorization?.[0]).toContain("a.assigned_by=$5");
     expect(authorization?.[0]).toContain("d.delivery_scope='full'");
     const insert = clientQuery.mock.calls.find(([sql]) => String(sql).includes("INSERT INTO protefl_diagnostic_attempt"));
@@ -107,7 +107,7 @@ describe("assignment title pinning and diagnostic archive boundaries", () => {
     const parent = "44444444-4444-4444-8444-444444444444";
     clientQuery.mockImplementation(async (sql: string) => {
       if (sql === "BEGIN" || sql === "COMMIT") return { rowCount: 0, rows: [] };
-      if (sql.includes("SELECT d.*,r.status AS resource_status")) return { rowCount: 1, rows: [{
+      if (sql.includes("SELECT d.*,r.code AS resource_code,r.status AS resource_status")) return { rowCount: 1, rows: [{
         id: parent, package_version: 1, resource_version: 1, content_hash: "content", answer_key_hash: "answers",
         score_table_hash: "scores", timing_map_hash: "timing", assigned_listening_mode: "autoplay",
         assigned_show_question_text: true, delivery_scope: "full",
@@ -122,5 +122,33 @@ describe("assignment title pinning and diagnostic archive boundaries", () => {
     await expect(restartCandidateDiagnosticSection(resource, assignment, actor, parent, "reading", staff, "admin")).resolves.toMatchObject({ section: "reading" });
     expect(clientQuery.mock.calls.some(([sql]) => String(sql).includes("INSERT INTO protefl_diagnostic_attempt"))).toBe(true);
     expect(clientQuery).toHaveBeenCalledWith("COMMIT");
+  });
+
+  it("selects the latest completed root when a newer root is still in progress", async () => {
+    poolQuery.mockImplementation(async (sql: string) => {
+      if (sql.includes("SELECT code FROM protefl_resource")) return { rowCount: 1, rows: [{ code: "ets-volume3-practice-test-a" }] };
+      return {
+        rowCount: 1,
+        rows: [{
+          id: "77777777-7777-4777-8777-777777777777",
+          assignment_id: assignment,
+          actor_id: actor,
+          status: "completed",
+          attempt_number: 1,
+          result_data: {
+            sections: { listening: { correct: 1, incorrect: 0, omitted: 49, total: 50 } },
+            review: [{ section: "listening", question: 1, selected: "A", correctAnswer: "A", correct: true }],
+          },
+          resets: [],
+        }],
+      };
+    });
+
+    const analytics = await getManagedQuestionAnalytics(resource, [assignment], staff, "teacher");
+
+    expect(analytics.completedAttempts).toBe(1);
+    const query = poolQuery.mock.calls.find(([sql]) => String(sql).includes("SELECT DISTINCT ON (d.assignment_id)"));
+    expect(query?.[0]).toContain("d.status='completed'");
+    expect(query?.[0]).toContain("root_result.result_data IS NOT NULL");
   });
 });

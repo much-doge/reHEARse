@@ -244,8 +244,11 @@ export async function getManagedQuestionAnalytics(
        ),'[]'::jsonb) AS resets
      FROM protefl_diagnostic_attempt d
      JOIN protefl_resource_assignment a ON a.id=d.assignment_id
+     JOIN protefl_resource r ON r.id=a.resource_id
      LEFT JOIN protefl_diagnostic_result root_result ON root_result.attempt_id=d.id
      WHERE d.parent_attempt_id IS NULL
+       AND d.status='completed'
+       AND root_result.result_data IS NOT NULL
        AND d.archived_at IS NULL
        AND a.resource_id=$1
        AND a.id=ANY($2::uuid[])
@@ -256,7 +259,6 @@ export async function getManagedQuestionAnalytics(
   );
   const completedResults: TeacherQuestionResult[] = [];
   for (const row of result.rows) {
-    if (row.status !== "completed" || !row.result_data) continue;
     const resets = (Array.isArray(row.resets) ? row.resets : []) as Array<{ id?: string; section?: string; result?: unknown }>;
     const fullResult = row.result_data as FullDiagnosticResult;
     const rootSource = { candidateActorId: String(row.actor_id), attemptId: String(row.id) };

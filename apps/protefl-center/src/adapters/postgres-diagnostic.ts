@@ -358,7 +358,7 @@ export async function startSectionRetake(actorId: string, assignmentId: string, 
     }
     const sequence = (await client.query("SELECT coalesce(max(attempt_number),0)::int AS number FROM protefl_diagnostic_attempt WHERE assignment_id=$1 AND actor_id=$2", [parent.assignment_id, actorId])).rows[0];
     const retake = (await client.query("SELECT coalesce(max(section_retake_number),0)::int AS number FROM protefl_diagnostic_attempt WHERE parent_attempt_id=$1 AND scope=$2", [parentAttemptId, section])).rows[0];
-    const hashes = await pinnedPackageHashes(String(source.code));
+    const hashes = await pinnedPackageHashes(String(source.code ?? defaultPackageCode));
     if (hashes.version !== Number(parent.resource_version)) throw new Error("attempt_unavailable");
     const inserted = (await client.query(
       "INSERT INTO protefl_diagnostic_attempt(resource_id,assignment_id,actor_id,attempt_number,is_primary,package_version,content_hash,answer_key_hash,score_table_hash,timing_map_hash,listening_mode,scope,parent_attempt_id,section_retake_number,current_section,show_listening_question_text,selected_questions,delivery_scope) VALUES($1,$2,$3,$4,false,$5,$6,$7,$8,$9,$10,$11,$12,$13,$11,$14,$15,$16) RETURNING id",
@@ -420,7 +420,7 @@ export async function restartCandidateDiagnosticSection(
       "SELECT coalesce(max(section_retake_number),0)::int AS number FROM protefl_diagnostic_attempt WHERE parent_attempt_id=$1 AND scope=$2",
       [parentAttemptId, section],
     )).rows[0];
-    const hashes = await pinnedPackageHashes(String(parent.resource_code));
+    const hashes = await pinnedPackageHashes(String(parent.resource_code ?? defaultPackageCode));
     if (hashes.version !== Number(parent.resource_version) || hashes.version !== Number(parent.package_version))
       throw new Error("section_restart_unavailable");
 
