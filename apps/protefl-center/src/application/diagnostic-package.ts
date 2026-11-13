@@ -8,6 +8,22 @@ export type DiagnosticPackageDescriptor = {
   candidatePath: string;
   supportedSections: readonly DiagnosticSection[];
   questionCounts: Readonly<Record<DiagnosticSection, number>>;
+  files: {
+    manifest: string;
+    instructions: string;
+    questions: string;
+    answerKey: string;
+    scoreConversion: string;
+    listeningPauses: string;
+    listeningQuestionMap: string;
+    listeningAudio: string;
+  };
+  resultVersions: {
+    full: string;
+    sectionAssignment: string;
+    sectionRetake: string;
+    sectionReset: string;
+  };
 };
 
 /**
@@ -22,6 +38,22 @@ const descriptors: Readonly<Record<string, DiagnosticPackageDescriptor>> = {
     candidatePath: "/test-center/diagnostic/ets-volume3-practice-test-a",
     supportedSections: ["listening", "structure", "reading"],
     questionCounts: { listening: 50, structure: 40, reading: 50 },
+    files: {
+      manifest: "package-manifest.json",
+      instructions: "metadata/instructions-practice-test-a-v1.json",
+      questions: "metadata/questions-practice-test-a-v1.json",
+      answerKey: "metadata/answer-key-practice-test-a-v1.json",
+      scoreConversion: "metadata/score-conversion-practice-test-a-v1.json",
+      listeningPauses: "metadata/listening-pauses-v1.json",
+      listeningQuestionMap: "metadata/listening-question-map-v1.json",
+      listeningAudio: "source/practice-test-a-listening.m4a",
+    },
+    resultVersions: {
+      full: "ets-volume3-practice-test-a.result.v1",
+      sectionAssignment: "ets-volume3-practice-test-a.section-assignment.v1",
+      sectionRetake: "ets-volume3-practice-test-a.section-retake.v1",
+      sectionReset: "ets-volume3-practice-test-a.section-reset.v1",
+    },
   },
 };
 

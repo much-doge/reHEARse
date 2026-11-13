@@ -15,10 +15,10 @@ export default async function DiagnosticTestPage({ params, searchParams }: { par
   if (!supportedDiagnosticPackage(packageCode)) notFound();
   const user = await requireUser("/test-center/diagnostic/" + packageCode);
   if (user.role === "teacher" || user.role === "admin") redirect("/test-center/teaching");
-  const assignment = await diagnosticAssignment(user.id, assignmentId && /^[0-9a-f-]{36}$/i.test(assignmentId) ? assignmentId : undefined);
+  const assignment = await diagnosticAssignment(user.id, assignmentId && /^[0-9a-f-]{36}$/i.test(assignmentId) ? assignmentId : undefined, packageCode);
   if (!assignment) notFound();
   const [instructions, timing, initial, history] = await Promise.all([
-    diagnosticInstructions(), diagnosticListeningTiming(), latestDiagnosticAttemptState(user.id, assignment.id), diagnosticAssignmentHistory(user.id, assignment.id),
+    diagnosticInstructions(packageCode), diagnosticListeningTiming(packageCode), latestDiagnosticAttemptState(user.id, assignment.id), diagnosticAssignmentHistory(user.id, assignment.id),
   ]);
   return <main className="ptd-shell">
     <header className="ptd-header"><Link href="/test-center">← Test Center</Link><span>TOEFL-like Test Center</span><Link href="/dashboard">Dashboard</Link></header>
