@@ -53,7 +53,7 @@ export function AssignedResources({ resources, canManage }: { resources: TestCen
         <div><span className="eyebrow">{resource.kind === "listening_form" ? "LISTENING PILOT" : "DIAGNOSTIC PACKAGE"} · VERSION {resource.version}</span>
           <h2>{resource.assignmentTitle}</h2>{resource.assignmentTitle !== resource.title && <p>{resource.title}</p>}<p>{canManage ? "This resource is assigned to your account." : resource.hasAttempt ? "Your previous attempt is available to continue or review." : `Assigned scope: ${resource.deliveryScope === "full" ? "Full diagnostic" : resource.deliveryScope === "structure" ? "Structure and Written Expression" : resource.deliveryScope[0].toUpperCase() + resource.deliveryScope.slice(1)}`}</p></div>
         {resource.kind === "listening_form" && <Link className="ptc-resource-open" href="/test-center/listening/2000-10">Open resource →</Link>}
-        {resource.kind === "diagnostic_package" && <Link className="ptc-resource-open" href={`/test-center/diagnostic/ets-volume3-practice-test-a?assignment=${encodeURIComponent(resource.assignmentId)}`}>Open diagnostic →</Link>}
+        {resource.kind === "diagnostic_package" && <Link className="ptc-resource-open" href={`/test-center/diagnostic/${encodeURIComponent(resource.code)}?assignment=${encodeURIComponent(resource.assignmentId)}`}>Open diagnostic →</Link>}
       </article>) : <div className="ptc-resource-empty"><h2>No resources assigned yet</h2><p>When your teacher shares an access code, enter it above. Assigned resources will appear here.</p></div>}
     </section>
   </main>;

@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { startOrResumeDiagnostic, startSectionRetake } from "@protefl/adapters/postgres-diagnostic";
+import { supportedDiagnosticPackage } from "@protefl/application/diagnostic-package";
 import { currentUser } from "@/lib/session";
 import { isSameOriginRequest } from "@/lib/same-origin";
 
@@ -17,7 +18,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ pac
   const user = await currentUser();
   if (!user) return Response.json({ error: "authentication_required" }, { status: 401, headers });
   const { packageCode } = await params;
-  if (packageCode !== "ets-volume3-practice-test-a") return Response.json({ error: "not_found" }, { status: 404, headers });
+  if (!supportedDiagnosticPackage(packageCode)) return Response.json({ error: "not_found" }, { status: 404, headers });
   try {
     const raw = await request.text();
     if (raw.length > 512) return Response.json({ error: "invalid_request" }, { status: 400, headers });
