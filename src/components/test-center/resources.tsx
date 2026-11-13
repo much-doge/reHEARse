@@ -215,7 +215,7 @@ function TeacherQuestionReveal({ item, resourceId, candidateActorId, attemptId }
   </article>;
 }
 
-function CohortQuestionRow({ section, row, resourceId, revealAnswers }: { section: "listening" | "structure" | "reading"; row: { question: number; seen: number; correct: number; incorrect: number; omitted: number; choices: Record<"A" | "B" | "C" | "D", number>; source?: { candidateActorId: string; attemptId: string } }; resourceId: string; revealAnswers: boolean }) {
+function CohortQuestionRow({ section, row, resourceId, revealAnswers, onRevealAnswersChange }: { section: "listening" | "structure" | "reading"; row: { question: number; seen: number; correct: number; incorrect: number; omitted: number; choices: Record<"A" | "B" | "C" | "D", number>; source?: { candidateActorId: string; attemptId: string } }; resourceId: string; revealAnswers: boolean; onRevealAnswersChange: (value: boolean) => void }) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [payload, setPayload] = useState<TeacherQuestionPayload | null>(null);
@@ -253,7 +253,7 @@ function CohortQuestionRow({ section, row, resourceId, revealAnswers }: { sectio
       <td>{row.seen && row.choices.A ? row.choices.A : "—"}</td><td>{row.seen && row.choices.B ? row.choices.B : "—"}</td><td>{row.seen && row.choices.C ? row.choices.C : "—"}</td><td>{row.seen && row.choices.D ? row.choices.D : "—"}</td>
     </tr>
     {open && payload && <tr className="ptc-question-detail-row"><td colSpan={9}><div className="ptc-question-detail-card" role="dialog" aria-label={`${title} question ${row.question}`}>
-      <header className="ptc-question-detail-header"><div><span className="eyebrow">{title.toUpperCase()} · QUESTION {row.question}</span><h4>Rendered question review</h4></div><button type="button" className="ptc-question-detail-close" onClick={() => setOpen(false)}>Close</button></header>
+      <header className="ptc-question-detail-header"><div><span className="eyebrow">{title.toUpperCase()} · QUESTION {row.question}</span><h4>Rendered question review</h4></div><div className="ptc-question-detail-actions"><label className="ptc-question-key-toggle"><input type="checkbox" checked={revealAnswers} onChange={(event) => onRevealAnswersChange(event.target.checked)} /> Reveal key &amp; correctness</label><button type="button" className="ptc-question-detail-close" onClick={() => setOpen(false)}>Close</button></div></header>
         <div className="ptc-question-detail-grid">
         <div className="ptc-question-detail-content">
           {payload.audio && <div className="ptc-teacher-audio-controls" aria-label="Listening audio review">{payload.audio.groupType === "question" ? <TeacherAudioButton label="question" startMs={payload.audio.questionStartMs} endMs={payload.audio.questionEndMs} resourceId={resourceId} candidateActorId={row.source!.candidateActorId} attemptId={row.source!.attemptId} /> : <><TeacherAudioButton label={payload.audio.groupType === "conversation" ? "dialogue" : "talk"} startMs={payload.audio.contextStartMs} endMs={payload.audio.contextEndMs} resourceId={resourceId} candidateActorId={row.source!.candidateActorId} attemptId={row.source!.attemptId} /><TeacherAudioButton label="question" startMs={payload.audio.questionStartMs} endMs={payload.audio.questionEndMs} resourceId={resourceId} candidateActorId={row.source!.candidateActorId} attemptId={row.source!.attemptId} /></>}</div>}
@@ -301,7 +301,7 @@ function effectiveAttemptResult(attempt: AttemptHistory) {
 function QuestionAnalytics({ resourceId, assignmentIds }: { resourceId: string; assignmentIds: string[] }) {
   const [analytics, setAnalytics] = useState<TeacherQuestionAnalytics | null>(null);
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
-  const [revealAnswers, setRevealAnswers] = useState(false);
+  const [revealedQuestions, setRevealedQuestions] = useState<Record<string, boolean>>({});
   const assignmentKey = assignmentIds.join(",");
   useEffect(() => {
     const controller = new AbortController();
@@ -324,14 +324,14 @@ function QuestionAnalytics({ resourceId, assignmentIds }: { resourceId: string; 
   if (state === "error") return <section className="ptc-question-analytics" aria-label="Question-level response analytics"><div className="ptc-question-analytics-heading"><div><p className="eyebrow">QUESTION DETAIL</p><h6>Per-question response distribution</h6></div></div><p className="ptc-response-empty">Question-level analytics could not be loaded for this filtered cohort. Try refreshing the assignment.</p></section>;
   if (!analytics) return null;
   return <section className="ptc-question-analytics" aria-label="Question-level response analytics">
-    <div className="ptc-question-analytics-heading"><div><p className="eyebrow">QUESTION DETAIL</p><h6>Per-question response distribution</h6></div><div className="ptc-question-analytics-tools"><span>{analytics.completedAttempts ? `${analytics.completedAttempts} completed result${analytics.completedAttempts === 1 ? "" : "s"} in this view` : "No completed results in this view"}</span><label><input type="checkbox" checked={revealAnswers} onChange={(event) => setRevealAnswers(event.target.checked)} /> Reveal answer key and correctness</label></div></div>
+    <div className="ptc-question-analytics-heading"><div><p className="eyebrow">QUESTION DETAIL</p><h6>Per-question response distribution</h6></div><span>{analytics.completedAttempts ? `${analytics.completedAttempts} completed result${analytics.completedAttempts === 1 ? "" : "s"} in this view` : "No completed results in this view"}</span></div>
     {!analytics.hasQuestionReview ? <p className="ptc-response-empty">No question-level review is available in the completed result records for this filtered cohort.</p> : <div className="ptc-question-analytics-sections">{(["listening", "structure", "reading"] as const).map((section) => {
       const value = analytics.sections[section];
       const rows = value.rows;
       const title = section === "structure" ? "Structure and Written Expression" : section === "listening" ? "Listening Comprehension" : "Reading Comprehension";
       return <details className="ptc-question-analytics-section" key={section}>
         <summary><span><strong>{title}</strong><small>{value.questions} questions · {value.correct} correct · {value.incorrect} incorrect · {value.omitted} omitted</small></span><b>Show questions</b></summary>
-        <div className="ptc-question-table-wrap"><table className="ptc-question-table"><caption>{title}: select a numbered row to open the rendered item and cohort answer percentages</caption><thead><tr><th scope="col">Q</th><th scope="col">Seen</th><th scope="col">Correct</th><th scope="col">Wrong</th><th scope="col">Omitted</th><th scope="col">A</th><th scope="col">B</th><th scope="col">C</th><th scope="col">D</th></tr></thead><tbody>{rows.map((row) => <CohortQuestionRow key={`${section}-${row.question}`} section={section} row={row} resourceId={resourceId} revealAnswers={revealAnswers} />)}</tbody></table></div>
+        <div className="ptc-question-table-wrap"><table className="ptc-question-table"><caption>{title}: select a numbered row to open the rendered item and cohort answer percentages</caption><thead><tr><th scope="col">Q</th><th scope="col">Seen</th><th scope="col">Correct</th><th scope="col">Wrong</th><th scope="col">Omitted</th><th scope="col">A</th><th scope="col">B</th><th scope="col">C</th><th scope="col">D</th></tr></thead><tbody>{rows.map((row) => { const key = `${section}:${row.question}`; return <CohortQuestionRow key={`${section}-${row.question}`} section={section} row={row} resourceId={resourceId} revealAnswers={Boolean(revealedQuestions[key])} onRevealAnswersChange={(value) => setRevealedQuestions((current) => ({ ...current, [key]: value }))} />; })}</tbody></table></div>
       </details>;
     })}</div>}
   </section>;
