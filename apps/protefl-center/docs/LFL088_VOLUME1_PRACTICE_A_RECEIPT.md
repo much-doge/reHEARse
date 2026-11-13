@@ -1,6 +1,6 @@
 # LFL-088 — ETS TOEFL ITP Level 1 Volume 1 Practice Test A
 
-Status: source_complete
+Status: deployed
 
 ## Objective
 
@@ -89,17 +89,51 @@ The final package directory will be additive, for example
   Practice Test A source pages, and the importer is retained at
   `scripts/bootstrap-volume1-practice-a.py` for reproducible future packages.
 
-## Remaining gates
+## Deployment evidence (2026-11-13)
 
-- The catalogue descriptor and additive migration 042 exist, but the database
-  resource remains `draft` until the package publication gates are approved.
-- Deployment, authenticated candidate/teacher journey checks, and classroom
-  playback verification have not been performed in this turn. No existing
-  Volume 3 package or attempt was changed.
+- Release commit: `891b8f9` (`feat(test-center): bootstrap Volume 1 Practice Test A`).
+- Target: Consumer PCT 128, release tree
+  `/opt/rehearse/.releases/891b8f9`.
+- Runtime image: `rehearse-app:891b8f9`; the app container is healthy and the
+  Postgres container remained healthy during the rollout.
+- The slim release archive was transferred over the Proxmox transport and its
+  SHA-256 was verified on the guest as
+  `3a220492bf89c8e1e97e6ea720060d03979739ce03296264e3b6873812481954`.
+- Additive migration `042_seed_volume1_practice_test_a.sql` applied at
+  `2026-11-13 08:28:21.964755+00`.
+- A pre-migration custom-format backup was created at
+  `/opt/rehearse/.secrets/lfl088-pre-migration-891b8f9.dump` (mode `600`,
+  3,199,249 bytes) and validated with `pg_restore --list`.
+- The resource is published in the database as
+  `ets-volume1-practice-test-a | published | version 1`, with zero assignments
+  created by this rollout. Existing counts were unchanged:
+  `app_user=93`, `protefl_resource_assignment=75`,
+  `protefl_diagnostic_attempt=94`, `protefl_diagnostic_event=7825`,
+  `protefl_diagnostic_result=67`.
+- The guest health endpoint returned HTTP 200 with `health.v1`; the public
+  health endpoint also returned HTTP 200. Signed-out Test Center pages redirect
+  to login and the unauthenticated audio endpoint returns HTTP 401 with
+  private/no-store headers.
+- The new package's source PDF, metadata, and MP3 are present inside the
+  running app image. The MP3 route now advertises `audio/mpeg`, while existing
+  M4A packages retain `audio/mp4`.
+
+## Remaining verification gates
+
+- No authenticated browser session was available in this rollout, so a full
+  signed-in teacher/candidate journey and classroom audio playback spot-check
+  remain explicitly unverified. The signed-out access-control boundary,
+  database publication, runtime assets, and health checks are verified.
+- The first listening cue remains the structural `142000 ms` anchor from the
+  source alignment audit; confirm that cue in a real classroom playback before
+  issuing learner codes.
 
 ## Safety and rollback
 
 The work is additive. Existing `ets-volume3-practice-test-a` resources,
-assignments, package files, and attempts remain untouched. If the new package
-fails any gate, it stays unregistered/hidden and can be removed or corrected
-without changing existing runtime data.
+assignments, package files, and attempts remain untouched. To roll back the
+application only, redeploy the previous known-good app image
+`rehearse-app:b04cd97`; leave migration 042 applied because it is additive. If
+database recovery is ever required, use the validated backup
+`/opt/rehearse/.secrets/lfl088-pre-migration-891b8f9.dump` under the normal
+restore procedure rather than deleting rows by hand.
