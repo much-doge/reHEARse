@@ -382,7 +382,10 @@ export async function startSectionRetake(actorId: string, assignmentId: string, 
     const parentResult = (await client.query("SELECT result_data FROM protefl_diagnostic_result WHERE attempt_id=$1", [sourceAttemptId])).rows[0]?.result_data;
     const selectedQuestions = (parentResult?.review ?? []).filter((item: { section: string; correct: boolean }) => item.section === section && !item.correct).map((item: { question: number }) => Number(item.question));
     if (!selectedQuestions.length) throw new Error("no_missed_questions");
-    const active = (await client.query("SELECT id FROM protefl_diagnostic_attempt WHERE assignment_id=$1 AND actor_id=$2 AND status='in_progress' AND archived_at IS NULL ORDER BY attempt_number DESC LIMIT 1 FOR UPDATE", [parent.assignment_id, actorId])).rows[0];
+    // Section retakes are independent lanes. Resume only an active retake for
+    // the requested section; an active Listening retake must not hijack a
+    // learner who just selected Structure or Reading.
+    const active = (await client.query("SELECT id FROM protefl_diagnostic_attempt WHERE assignment_id=$1 AND actor_id=$2 AND scope=$3 AND status='in_progress' AND archived_at IS NULL ORDER BY attempt_number DESC LIMIT 1 FOR UPDATE", [parent.assignment_id, actorId, section])).rows[0];
     if (active) {
       await client.query("COMMIT");
       return { attemptId: String(active.id), resumed: true };
