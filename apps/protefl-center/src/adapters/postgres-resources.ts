@@ -296,7 +296,8 @@ export async function listManagedResources(staffActorId: string, staffRole: "tea
        COALESCE(stats.attempt_count,0)::int AS attempt_count,
        COALESCE(stats.retake_count,0)::int AS retake_count,
        COALESCE(stats.answered_count,0)::int AS answered_count,
-       stats.latest_attempt
+       stats.latest_attempt,
+       stats.latest_completed_attempt
      FROM protefl_resource_assignment a
      JOIN app_user u ON u.id=a.actor_id
      JOIN protefl_resource r ON r.id=a.resource_id
@@ -319,7 +320,23 @@ export async function listManagedResources(staffActorId: string, staffRole: "tea
                  ORDER BY d.attempt_number DESC LIMIT 1
                ) latest
                LEFT JOIN protefl_diagnostic_result latest_result ON latest_result.attempt_id=latest.id
-              ) AS latest_attempt
+              ) AS latest_attempt,
+              (SELECT jsonb_build_object(
+                 'id',completed.id,'number',completed.attempt_number,'status',completed.status,'scope',completed.scope,'deliveryScope',completed.delivery_scope,
+                 'createdAt',completed.created_at,'completedAt',completed.completed_at,'archivedAt',completed.archived_at,
+                 'result',completed_result.result_data,'answeredCount',completed.answered_count,'retakeCount',completed.retake_count
+               )
+               FROM (
+                 SELECT d.id,d.attempt_number,d.status,d.scope,d.delivery_scope,d.created_at,d.completed_at,d.archived_at,
+                   (SELECT count(DISTINCT (e.section,e.question_number))::int FROM protefl_diagnostic_event e WHERE e.attempt_id=d.id AND e.event_type='answer') AS answered_count,
+                   (SELECT count(*)::int FROM protefl_diagnostic_attempt retry WHERE retry.parent_attempt_id=d.id) AS retake_count
+                 FROM protefl_diagnostic_attempt d
+                 JOIN protefl_diagnostic_result completed_result ON completed_result.attempt_id=d.id
+                 WHERE d.assignment_id=a.id AND d.parent_attempt_id IS NULL AND d.status='completed' AND d.archived_at IS NULL
+                 ORDER BY d.attempt_number DESC LIMIT 1
+               ) completed
+               LEFT JOIN protefl_diagnostic_result completed_result ON completed_result.attempt_id=completed.id
+              ) AS latest_completed_attempt
        FROM (
          SELECT d.id,
            (SELECT count(*)::int FROM protefl_diagnostic_attempt retry WHERE retry.parent_attempt_id=d.id) AS retake_count,
@@ -347,6 +364,7 @@ export async function listManagedResources(staffActorId: string, staffRole: "tea
       deliveryScope: candidate.delivery_scope as "full" | "listening" | "structure" | "reading",
       assignmentTitle: candidate.assignment_title as string,
       attempts: candidate.latest_attempt ? [{ ...candidate.latest_attempt, retakes: [], answeredQuestions: [] }] : [],
+      latestCompletedAttempt: candidate.latest_completed_attempt ? { ...candidate.latest_completed_attempt, retakes: [], answeredQuestions: [] } : null,
       attemptCount: Number(candidate.attempt_count),
       retakeCount: Number(candidate.retake_count),
       answeredCount: Number(candidate.answered_count),

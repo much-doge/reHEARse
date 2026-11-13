@@ -85,7 +85,7 @@ type AttemptHistory = {
   answeredQuestions?: Array<{ section: string; question: number; selected: string; answeredAt: string }>;
   retakes: Array<{ id: string; section: string; number: number; status: string; teacherIssuedRestart?: boolean; createdAt: string; completedAt: string | null; archivedAt: string | null; result: AttemptResult | null }>;
 };
-type ManagedCandidate = { assignmentId: string; actorId: string; name: string; email: string; assignmentTitle: string; deliveryScope: DeliveryScope; attempts: AttemptHistory[]; canResetPassword: boolean; attemptCount: number; retakeCount: number; answeredCount: number; historyLoaded: boolean };
+type ManagedCandidate = { assignmentId: string; actorId: string; name: string; email: string; assignmentTitle: string; deliveryScope: DeliveryScope; attempts: AttemptHistory[]; latestCompletedAttempt?: AttemptHistory | null; canResetPassword: boolean; attemptCount: number; retakeCount: number; answeredCount: number; historyLoaded: boolean };
 type ManagedResource = { id: string; code: string; version: number; kind: string; title: string; status: string; createdAt: string; tags: string[]; assignedCount: number; candidates?: ManagedCandidate[] };
 type TeacherQuestionAnalytics = {
   completedAttempts: number;
@@ -342,7 +342,7 @@ function CohortSnapshot({ resourceId, candidates }: { resourceId: string; candid
   const inProgress = latest.filter((attempt) => attempt.status === "in_progress").length;
   const answered = candidates.reduce((total, candidate) => total + candidate.answeredCount, 0);
   const retakes = candidates.reduce((total, candidate) => total + candidate.retakeCount, 0);
-  const completedResults = latest.filter((attempt) => attempt.status === "completed").map(effectiveAttemptResult).filter((result): result is AttemptResult => Boolean(result));
+  const completedResults = candidates.map((candidate) => candidate.latestCompletedAttempt ?? candidate.attempts.filter((attempt) => !attempt.archivedAt && attempt.status === "completed").at(-1)).filter((attempt): attempt is AttemptHistory => Boolean(attempt)).map(effectiveAttemptResult).filter((result): result is AttemptResult => Boolean(result));
   const responseTotals = completedResults.reduce((totals, result) => {
     const summary = result.total ?? result.summary;
     if (summary) {
