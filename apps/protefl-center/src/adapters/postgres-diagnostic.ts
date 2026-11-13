@@ -95,7 +95,7 @@ async function calculateSectionResult(client: PoolClient, attemptId: string, sec
   return { section, summary, review, answers: Object.fromEntries(answers) };
 }
 
-export async function diagnosticAssignment(actorId: string, assignmentId?: string, requestedPackageCode = defaultPackageCode) {
+export async function diagnosticAssignment(actorId: string, assignmentId: string | undefined, requestedPackageCode: string) {
   packageDescriptor(requestedPackageCode);
   const assignmentFilter = assignmentId ? "a.id=$1 AND a.actor_id=$2 AND r.code=$3" : "a.actor_id=$1 AND r.code=$2";
   const values = assignmentId ? [assignmentId, actorId, requestedPackageCode] : [actorId, requestedPackageCode];
@@ -112,12 +112,12 @@ export async function diagnosticAssignment(actorId: string, assignmentId?: strin
   return row ? { id: String(row.assignment_id), resourceId: String(row.id), code: row.code as string, version: Number(row.version), title: row.title as string, assignmentTitle: row.assignment_title as string, status: row.status as string, listeningMode: row.listening_mode as "autoplay" | "question_click", deliveryScope: row.delivery_scope as "full" | Section, hasAttempt: row.has_attempt === true } : null;
 }
 
-export async function diagnosticInstructions(requestedPackageCode = defaultPackageCode) {
+export async function diagnosticInstructions(requestedPackageCode: string) {
   const descriptor = packageDescriptor(requestedPackageCode);
   return packageJson<DiagnosticInstructions>(descriptor.code, descriptor.files.instructions);
 }
 
-export async function diagnosticListeningTiming(requestedPackageCode = defaultPackageCode) {
+export async function diagnosticListeningTiming(requestedPackageCode: string) {
   const descriptor = packageDescriptor(requestedPackageCode);
   const [timing, questionMap] = await Promise.all([
     packageJson<{ audioDurationMs: number; pauses: Array<{ question: number; answerWindowStartMs: number; answerWindowEndMs: number; durationMs: number }> }>(descriptor.code, descriptor.files.listeningPauses),
@@ -288,7 +288,7 @@ export async function diagnosticAttempt(actorId: string, id: string) {
   return result.rows[0] ?? null;
 }
 
-export async function startOrResumeDiagnostic(actorId: string, assignmentId: string, retake = false, requestedPackageCode = defaultPackageCode) {
+export async function startOrResumeDiagnostic(actorId: string, assignmentId: string, requestedPackageCode: string, retake = false) {
   packageDescriptor(requestedPackageCode);
   const db = getPool();
   const client = await db.connect();

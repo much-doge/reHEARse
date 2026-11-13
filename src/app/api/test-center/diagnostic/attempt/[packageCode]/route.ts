@@ -26,7 +26,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ pac
     if (!parsed.success) return Response.json({ error: "invalid_request" }, { status: 400, headers });
     const result = parsed.data.action === "retake_section"
       ? await startSectionRetake(user.id, parsed.data.assignmentId, parsed.data.sourceAttemptId, parsed.data.section)
-      : await startOrResumeDiagnostic(user.id, parsed.data.assignmentId, parsed.data.action === "retake", packageCode);
+      : await startOrResumeDiagnostic(user.id, parsed.data.assignmentId, packageCode, parsed.data.action === "retake");
     return Response.json(result, { headers });
   } catch (error) {
     const code = error instanceof Error ? error.message : "";
