@@ -104,6 +104,7 @@ function VocabularyContextualPlay({ assignmentId, initialRun }: { assignmentId: 
   const [feedback, setFeedback] = useState<{ selected: Part; correct: boolean; expected: Part } | null>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const answerTapRef = useRef<{ part: Part; at: number } | null>(null);
   const current = run.exposures.find((item) => item.exposureId === run.currentExposureId)
     ?? [...run.exposures].reverse().find((item) => item.status === "open")
     ?? run.exposures.at(-1);
@@ -131,6 +132,20 @@ function VocabularyContextualPlay({ assignmentId, initialRun }: { assignmentId: 
       setFeedback({ selected: part, correct: result.isCorrect, expected: result.expectedPart });
     } catch { setMessage("Your response did not save. Please try again."); }
     finally { setBusy(false); }
+  }
+
+  function tapAnsweredPart(part: Part, now: number) {
+    if (!shownFeedback || shownFeedback.selected !== part || busy) return;
+    const previous = answerTapRef.current;
+    if (previous?.part === part && now - previous.at <= 550) {
+      answerTapRef.current = null;
+      void next();
+      return;
+    }
+    answerTapRef.current = { part, at: now };
+    window.setTimeout(() => {
+      if (answerTapRef.current?.part === part && answerTapRef.current.at === now) answerTapRef.current = null;
+    }, 600);
   }
 
   async function skip() {
@@ -189,7 +204,7 @@ function VocabularyContextualPlay({ assignmentId, initialRun }: { assignmentId: 
       </section>
       <aside className="vocab-context-answer">
         <p className="vocab-kicker">YOUR MOVE</p><h2>What role does it play?</h2><p>Choose once. The next encounter always starts clean.</p>
-        <div className="vocab-part-buttons vocab-single-choice">{parts.map((part) => <button key={part} onClick={() => void answer(part)} disabled={busy || Boolean(shownFeedback)} className={`${shownFeedback?.selected === part ? "selected" : ""}${shownFeedback && shownFeedback.expected === part ? " expected" : ""}${shownFeedback?.selected === part && !shownFeedback.correct ? " incorrect" : ""}`}>{part}<span>{part === "Noun" ? "names a person, place, thing, or idea" : part === "Verb" ? "expresses an action or state" : part === "Adjective" ? "describes a noun" : "adds detail to an action or description"}</span></button>)}</div>
+        <div className="vocab-part-buttons vocab-single-choice">{parts.map((part) => <button key={part} onClick={(event) => shownFeedback ? tapAnsweredPart(part, event.timeStamp) : void answer(part)} disabled={busy || Boolean(shownFeedback && shownFeedback.selected !== part)} className={`${shownFeedback?.selected === part ? "selected" : ""}${shownFeedback && shownFeedback.expected === part ? " expected" : ""}${shownFeedback?.selected === part && !shownFeedback.correct ? " incorrect" : ""}`}>{part}<span>{part === "Noun" ? "names a person, place, thing, or idea" : part === "Verb" ? "expresses an action or state" : part === "Adjective" ? "describes a noun" : "adds detail to an action or description"}</span></button>)}</div>
         {shownFeedback && <div className={`vocab-feedback ${shownFeedback.correct ? "right" : "wrong"}`} role="status" aria-live="polite"><span className="vocab-feedback-icon">{shownFeedback.correct ? "✦" : "↻"}</span><div><strong>{shownFeedback.correct ? "Exactly right." : "Not this time."}</strong><p>{shownFeedback.correct ? <>The highlighted word works as <b>{shownFeedback.expected}</b> in this sentence.</> : <>Here it works as <b>{shownFeedback.expected}</b>. You’ll meet it again after a few different words.</>}</p></div></div>}
         <div className="vocab-context-actions">{!shownFeedback ? <button className="vocab-skip-button" disabled={busy} onClick={() => void skip()}>{busy ? "Saving…" : "Not sure · skip for now"}</button> : <button className="vocab-next-button" disabled={busy} onClick={() => void next()}>{busy ? "Opening…" : run.exposures.length >= run.stats.dailyTarget ? "Finish this set →" : "Next word →"}</button>}</div>
         {message && <p className="vocab-status" role="status">{message}</p>}
@@ -211,6 +226,7 @@ function VocabularyLegacyPlay({ assignmentId, initialRun }: { assignmentId: stri
   const [message, setMessage] = useState("");
   const [celebrate, setCelebrate] = useState(false);
   const openedRef = useRef("");
+  const answerTapRef = useRef<{ part: Part; at: number } | null>(null);
   const fetchRun = useCallback(async (attemptId?: string) => {
     const query = new URLSearchParams({ assignmentId });
     if (attemptId) query.set("attemptId", attemptId);
@@ -247,8 +263,23 @@ function VocabularyLegacyPlay({ assignmentId, initialRun }: { assignmentId: stri
     const saved = previous?.selectedParts ?? [];
     setSelected(saved); setFeedback(previous ? { correct: previous.isCorrect, partial: !previous.isCorrect && saved.length > 0 && saved.every((part) => nextCard.partsOfSpeech.includes(part)), expected: nextCard.partsOfSpeech } : null); setMessage(""); setCelebrate(false);
   }
-  async function togglePart(part: Part) {
+  async function togglePart(part: Part, eventTime?: number) {
     if (!run || !card || busy || isDone || !run.openCounts[card.id]) return;
+    if (feedback && selected.includes(part)) {
+      const now = eventTime ?? 0;
+      const previous = answerTapRef.current;
+      if (previous?.part === part && now - previous.at <= 550) {
+        answerTapRef.current = null;
+        if (index < run.cards.length - 1) go(index + 1);
+        else void finish();
+        return;
+      }
+      answerTapRef.current = { part, at: now };
+      window.setTimeout(() => {
+        if (answerTapRef.current?.part === part && answerTapRef.current.at === now) answerTapRef.current = null;
+      }, 600);
+      return;
+    }
     const next = selected.includes(part) ? selected.filter((value) => value !== part) : [...selected, part];
     if (!next.length) return;
     setSelected(next); setFeedback(null); setCelebrate(false); setMessage("");
@@ -289,7 +320,7 @@ function VocabularyLegacyPlay({ assignmentId, initialRun }: { assignmentId: stri
       </section>
       <aside className="vocab-answer-panel">
         <p className="vocab-kicker">YOUR MOVE</p><h2>Which roles fit?</h2><p>Tap each part of speech this word can play.</p>
-        <div className="vocab-part-buttons">{parts.map((part) => <button key={part} aria-pressed={selected.includes(part)} onClick={() => void togglePart(part)} disabled={isDone || busy} className={`${selected.includes(part) ? "selected" : ""}${feedback?.expected.includes(part) ? " expected" : ""}`}>{part}<span>{part === "Noun" ? "a person, place, thing, or idea" : part === "Verb" ? "an action or state" : part === "Adjective" ? "describes a noun" : "adds detail to an action or statement"}</span></button>)}</div>
+        <div className="vocab-part-buttons">{parts.map((part) => <button key={part} aria-pressed={selected.includes(part)} onClick={(event) => void togglePart(part, event.timeStamp)} disabled={isDone || busy} className={`${selected.includes(part) ? "selected" : ""}${feedback?.expected.includes(part) ? " expected" : ""}`}>{part}<span>{part === "Noun" ? "a person, place, thing, or idea" : part === "Verb" ? "an action or state" : part === "Adjective" ? "describes a noun" : "adds detail to an action or statement"}</span></button>)}</div>
         <div className="vocab-inline-nav" aria-label="Card actions"><button disabled={index === 0 || busy} onClick={() => go(index - 1)}>← Previous</button>{index < run.cards.length - 1 ? <button className="next" disabled={busy} onClick={() => go(index + 1)}>Next →</button> : isDone ? <button className="next" disabled={busy} onClick={() => void nextRound(false)}>Next 12 words →</button> : <button className="finish" disabled={busy} onClick={() => void finish()}>{busy ? "Saving…" : "Finish round ✓"}</button>}</div>
         {feedback && <div className={`vocab-feedback${feedback.correct || feedback.partial ? " right" : " wrong"}`} role="status" aria-live="polite"><span className="vocab-feedback-icon">{feedback.correct ? "✦" : feedback.partial ? "＋" : "↻"}</span><div><strong>{feedback.correct ? "That’s it. Nice read." : feedback.partial ? "That role fits." : "Not quite — try another role."}</strong><p>{feedback.correct ? <>Exactly: <b>{feedback.expected.join(" + ")}</b>. Keep the rhythm going.</> : feedback.partial ? "There’s another role to find. Tap it to complete your answer." : "Change your selection and try again."}</p></div></div>}
         {feedback && card.example && card.partsOfSpeech.length === 1 && <div className="vocab-example"><p className="vocab-kicker">WORD IN CONTEXT</p><p>{card.example.sentence.slice(0, card.example.highlightStart)}<strong>{card.example.sentence.slice(card.example.highlightStart, card.example.highlightStart + card.example.highlightLength)}</strong>{card.example.sentence.slice(card.example.highlightStart + card.example.highlightLength)}</p>{card.example.source === "wordnet-3.0" && <small>WordNet 3.0 · Princeton University · <a href="/WORDNET-3.0-LICENSE.txt" target="_blank" rel="noreferrer">license</a></small>}</div>}
