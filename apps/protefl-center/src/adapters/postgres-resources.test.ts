@@ -8,7 +8,7 @@ const { clientQuery, connect, poolQuery } = vi.hoisted(() => ({
 vi.mock("@/adapters/db/client", () => ({ getPool: () => ({ connect, query: poolQuery }) }));
 vi.mock("@/adapters/identity/password", () => ({ hashPassword: vi.fn() }));
 
-import { archiveCandidateDiagnostic, claimResource, getManagedQuestionAnalytics, listManagedResources } from "./postgres-resources";
+import { archiveCandidateDiagnostic, claimResource, getManagedQuestionAnalytics, issueResourceInvite, listManagedResources } from "./postgres-resources";
 import { restartCandidateDiagnosticSection } from "./postgres-diagnostic";
 
 const actor = "11111111-1111-4111-8111-111111111111";
@@ -28,6 +28,22 @@ describe("assignment title pinning and diagnostic archive boundaries", () => {
     await expect(listManagedResources(staff, "teacher")).resolves.toEqual([]);
 
     expect(poolQuery.mock.calls[0]?.[0]).toContain("r.status='published' AND r.kind='diagnostic_package'");
+  });
+
+  it("lets a teacher issue a code for a published package before it has assignments", async () => {
+    clientQuery.mockImplementation(async (sql: string) => {
+      if (sql === "BEGIN" || sql === "COMMIT") return { rowCount: 0, rows: [] };
+      if (sql.includes("SELECT r.id,r.status,r.kind")) return { rowCount: 1, rows: [{ id: resource, status: "published", kind: "diagnostic_package" }] };
+      if (sql.includes("INSERT INTO protefl_resource_invite")) return { rowCount: 1, rows: [{ id: "77777777-7777-4777-8777-777777777777" }] };
+      return { rowCount: 1, rows: [] };
+    });
+
+    const result = await issueResourceInvite(resource, staff, "teacher", "Volume 1 classroom");
+
+    expect(result).toMatchObject({ assignmentTitle: "Volume 1 classroom", deliveryScope: "full", inviteKind: "private" });
+    const select = clientQuery.mock.calls.find(([sql]) => String(sql).includes("SELECT r.id,r.status,r.kind"));
+    expect(select?.[0]).toContain("r.status='published' AND r.kind='diagnostic_package'");
+    expect(clientQuery).toHaveBeenCalledWith("COMMIT");
   });
 
   it.each(["private", "classroom"] as const)("copies the invite title when a %s code is claimed", async (inviteKind) => {

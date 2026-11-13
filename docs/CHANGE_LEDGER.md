@@ -1,5 +1,7 @@
 # Change ledger
 
+| LFL-092 | planned | Let teachers issue access codes and maintain staff labels for a globally published diagnostic package that has no assignments yet | The new published package is discoverable but code creation still applies the old creator/assignment ownership predicate; add the published diagnostic discovery permission to the teacher-side mutation boundary without changing learner access or attempts | `apps/protefl-center/src/adapters/postgres-resources.ts`; `apps/protefl-center/src/adapters/postgres-resources.test.ts` |
+
 | LFL-091 | planned | Let a learner double-tap the selected flashcard answer after feedback to advance to the next card without moving to the distant Next control | The selected answer remains the only advance target; the first tap after feedback arms the shortcut and a second tap within the short gesture window advances or completes the round, while other answer choices remain available for correction | `src/components/vocabulary/vocabulary.tsx`; `src/components/vocabulary/vocabulary.css` |
 
 | LFL-090 | planned | Add a teacher-controlled answer-key reveal mode to rendered cohort question review, defaulting to hidden across Listening, Structure, and Reading | The teacher needs to explain items before exposing the key; the default must keep correct-option styling, key labels, and per-question correct/wrong outcome hidden while preserving the neutral choice distribution | `src/components/test-center/resources.tsx`; `src/components/test-center/resources.css` |

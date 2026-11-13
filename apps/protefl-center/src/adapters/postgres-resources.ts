@@ -411,7 +411,7 @@ export async function setResourceTags(resourceId: string, rawTags: string[], act
     const resource = (await client.query(
       `UPDATE protefl_resource AS r SET tags=$2,updated_at=now()
        WHERE r.id=$1
-         AND ($4='admin' OR r.created_by=$3
+         AND ($4='admin' OR (r.status='published' AND r.kind='diagnostic_package') OR r.created_by=$3
            OR EXISTS (SELECT 1 FROM protefl_resource_assignment a WHERE a.resource_id=r.id AND a.assigned_by=$3)
            OR EXISTS (SELECT 1 FROM protefl_resource_invite i WHERE i.resource_id=r.id AND i.created_by=$3))
        RETURNING r.id,r.tags`,
@@ -538,7 +538,7 @@ export async function issueResourceInvite(
       `SELECT r.id,r.status,r.kind
        FROM protefl_resource r
        WHERE r.id=$1
-         AND ($3='admin' OR r.created_by=$2
+         AND ($3='admin' OR (r.status='published' AND r.kind='diagnostic_package') OR r.created_by=$2
            OR EXISTS (SELECT 1 FROM protefl_resource_assignment a WHERE a.resource_id=r.id AND a.assigned_by=$2)
            OR EXISTS (SELECT 1 FROM protefl_resource_invite i WHERE i.resource_id=r.id AND i.created_by=$2))
        FOR UPDATE`,
@@ -572,7 +572,7 @@ export async function setResourceStatus(resourceId: string, status: string, acto
     const result = await client.query(
       `UPDATE protefl_resource SET status=$2,published_at=CASE WHEN $2='published' THEN COALESCE(published_at,now()) ELSE published_at END,updated_at=now()
        WHERE id=$1 AND status IN ('draft','published','hidden')
-         AND ($4='admin' OR created_by=$3
+         AND ($4='admin' OR (status='published' AND kind='diagnostic_package') OR created_by=$3
            OR EXISTS (SELECT 1 FROM protefl_resource_assignment a WHERE a.resource_id=protefl_resource.id AND a.assigned_by=$3)
            OR EXISTS (SELECT 1 FROM protefl_resource_invite i WHERE i.resource_id=protefl_resource.id AND i.created_by=$3))
        RETURNING id,code,status`, [resourceId, status, actorId, staffRole],
