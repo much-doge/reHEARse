@@ -3,6 +3,17 @@ import { describe, expect, it } from "vitest";
 import { diagnosticPackage, diagnosticPackageCodes, diagnosticPackagePath, supportedDiagnosticPackage } from "./diagnostic-package";
 
 describe("diagnostic package catalogue", () => {
+  it("exposes the Volume 1 Practice Test A descriptor", () => {
+    const descriptor = diagnosticPackage("ets-volume1-practice-test-a");
+    expect(descriptor?.supportedSections).toEqual(["listening", "structure", "reading"]);
+    expect(descriptor?.questionCounts).toEqual({ listening: 50, structure: 40, reading: 50 });
+    expect(descriptor?.privateSourceFiles).toEqual([
+      "source/ets-toefl-itp-level1-volume1.pdf",
+      "source/ets-toefl-itp-level1-volume1-layout.txt",
+    ]);
+    expect(diagnosticPackagePath(descriptor!.code)).toContain("apps/protefl-center/content/ets-volume1-practice-test-a-v1");
+  });
+
   it("exposes the published Practice Test A descriptor", () => {
     const descriptor = diagnosticPackage("ets-volume3-practice-test-a");
     expect(descriptor?.supportedSections).toEqual(["listening", "structure", "reading"]);
@@ -19,6 +30,6 @@ describe("diagnostic package catalogue", () => {
   });
 
   it("keeps the catalogue enumerable for future package registration", () => {
-    expect(diagnosticPackageCodes()).toEqual(["ets-volume3-practice-test-a"]);
+    expect(diagnosticPackageCodes()).toEqual(["ets-volume1-practice-test-a", "ets-volume3-practice-test-a"]);
   });
 });

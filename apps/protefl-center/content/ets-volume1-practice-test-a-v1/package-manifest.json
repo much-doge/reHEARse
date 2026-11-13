@@ -1,0 +1,76 @@
+{
+  "package": "ets-volume1-practice-test-a",
+  "version": 1,
+  "form": "Practice Test A",
+  "sourceBook": "ETS TOEFL ITP Level 1 Practice Tests, Volume 1",
+  "audio": {
+    "path": "source/practice-test-a-listening.mp3",
+    "durationMs": 2094962,
+    "codec": "mp3",
+    "sampleRateHz": 44100,
+    "channels": 2,
+    "bitRate": "128000"
+  },
+  "sourceFiles": [
+    {
+      "path": "README.md",
+      "bytes": 256,
+      "sha256": "3940fdd8d789233d0995b83cda4bc6e48c943d826db63949a5f4cb0957a2b01a"
+    },
+    {
+      "path": "metadata/questions-practice-test-a-v1.json",
+      "bytes": 101916,
+      "sha256": "9a659335899a6b8e4886ffbab53ddca79b309171ac03abe22c1268bd788cb05d"
+    },
+    {
+      "path": "metadata/instructions-practice-test-a-v1.json",
+      "bytes": 1951,
+      "sha256": "464f7320f1d32684e843ad0182d664e7d9a77c7b706ed5ebee066f335b11f097"
+    },
+    {
+      "path": "metadata/answer-key-practice-test-a-v1.json",
+      "bytes": 1736,
+      "sha256": "a445e9953afeb6ab728ddf9d2e5dfa1bdbc4236dd5b97b7e92ab6db1e5a43c60"
+    },
+    {
+      "path": "metadata/page-index-v1.json",
+      "bytes": 1474,
+      "sha256": "e0dabfc1f05d08d0489a7cf0c936ffb176515cce876899dabb158fe17c0298e2"
+    },
+    {
+      "path": "metadata/score-conversion-practice-test-a-v1.json",
+      "bytes": 1491,
+      "sha256": "2e7b5fe967a2c4df7dcff3b6f36a0ad419f1d0e1e36f45909bedb61ac4d900ba"
+    },
+    {
+      "path": "metadata/listening-pauses-v1.json",
+      "bytes": 6924,
+      "sha256": "f4d246ad512dcbd5afb810a1e8f96ee15e1ee9791c10acf59bbf50d0fdb5af23"
+    },
+    {
+      "path": "metadata/listening-question-map-v1.json",
+      "bytes": 14007,
+      "sha256": "f9f39388f1e189387412c4b9f2d01cc4e62a79849baca51b71ab64f7ad658a1a"
+    },
+    {
+      "path": "metadata/listening-alignment-audit-v1.json",
+      "bytes": 331,
+      "sha256": "fb5756d55d2540dcc812e61ccadcde377d9a55a9e00dcac3a3f40aca8eb669c6"
+    },
+    {
+      "path": "source/ets-toefl-itp-level1-volume1.pdf",
+      "bytes": 866818,
+      "sha256": "603d87f834193a2aed1824cff050c254a5dd1c25e870af6bb8ccb6779c509eeb"
+    },
+    {
+      "path": "source/ets-toefl-itp-level1-volume1-layout.txt",
+      "bytes": 200836,
+      "sha256": "775039b89606d53446f06b7ca872d0ef41577adbb3b9f611148cdd350e72e76a"
+    },
+    {
+      "path": "source/practice-test-a-listening.mp3",
+      "bytes": 33520365,
+      "sha256": "2875dc2a063332e6d987a19e5f4cc08ec5fbe81bded0e50f10be49c4e857355f"
+    }
+  ]
+}

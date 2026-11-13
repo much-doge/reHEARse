@@ -1,6 +1,6 @@
 # LFL-088 — ETS TOEFL ITP Level 1 Volume 1 Practice Test A
 
-Status: planning
+Status: source_complete
 
 ## Objective
 
@@ -69,15 +69,33 @@ The final package directory will be additive, for example
    content, key, audio, layout, access-control, review-state, and deployment
    gates are complete.
 
-## Current known gaps
+## Source-complete evidence
 
-- The supplied recording has not yet been duration/hash/codec audited.
-- Listening transcript/script alignment and 50 answer windows are not yet
-  mapped.
-- Volume 1 Test A content, answer key, score table, and page map are not yet
-  transcribed into editable metadata.
-- No application registration, database migration, deployment, or classroom
-  verification has been performed for this package.
+- The source PDF is copied byte-for-byte to
+  `content/ets-volume1-practice-test-a-v1/source/ets-toefl-itp-level1-volume1.pdf`
+  and the owner-supplied MP3 is copied byte-for-byte to
+  `source/practice-test-a-listening.mp3`; the manifest records size and SHA-256
+  for both.
+- The generated package contains 50 Listening items, 15 Structure Part A
+  completion items, 25 Structure Part B underlined-token items, 50 Reading
+  items, and five line-preserving passages. The package verifier passed all
+  counts, A–D option checks, blanks, underlined choices, and 50 listening maps.
+- The listening map preserves the 50 native answer windows detected with
+  `ffmpeg silencedetect` at `-42 dB`/4 seconds. Part B groups are 31–34 and
+  35–38; Part C talks are 39–42, 43–46, and 47–50. The first cue is recorded as
+  a structural 142000 ms anchor and still requires classroom playback
+  confirmation.
+- The answer key and score-conversion table are transcribed from the Volume 1
+  Practice Test A source pages, and the importer is retained at
+  `scripts/bootstrap-volume1-practice-a.py` for reproducible future packages.
+
+## Remaining gates
+
+- The catalogue descriptor and additive migration 042 exist, but the database
+  resource remains `draft` until the package publication gates are approved.
+- Deployment, authenticated candidate/teacher journey checks, and classroom
+  playback verification have not been performed in this turn. No existing
+  Volume 3 package or attempt was changed.
 
 ## Safety and rollback
 

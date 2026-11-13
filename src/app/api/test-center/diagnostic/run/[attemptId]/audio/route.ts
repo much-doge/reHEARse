@@ -1,4 +1,4 @@
-import { diagnosticAudio } from "@protefl/adapters/postgres-diagnostic";
+import { diagnosticAudio, diagnosticAudioContentType } from "@protefl/adapters/postgres-diagnostic";
 import { currentUser } from "@/lib/session";
 import { z } from "zod";
 
@@ -13,10 +13,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ atte
   if (!z.uuid().safeParse(attemptId).success) return Response.json({ error: "not_found" }, { status: 404, headers });
   const data = await diagnosticAudio(user.id, attemptId);
   if (!data) return Response.json({ error: "not_found" }, { status: 404, headers });
+  const contentType = (await diagnosticAudioContentType(user.id, attemptId)) ?? "audio/mp4";
   const range = request.headers.get("range")?.match(/^bytes=(\d+)-(\d*)$/);
   const start = range ? Number(range[1]) : 0;
   const end = Math.min(range?.[2] ? Number(range[2]) : data.byteLength - 1, data.byteLength - 1);
   if (range && (start > end || start >= data.byteLength)) return new Response(null, { status: 416, headers: { ...headers, "Content-Range": "bytes */" + data.byteLength } });
   const body = range ? data.subarray(start, end + 1) : data;
-  return new Response(body, { status: range ? 206 : 200, headers: { ...headers, "Content-Type": "audio/mp4", "Content-Length": String(body.byteLength), ...(range ? { "Content-Range": "bytes " + start + "-" + end + "/" + data.byteLength } : {}) } });
+  return new Response(body, { status: range ? 206 : 200, headers: { ...headers, "Content-Type": contentType, "Content-Length": String(body.byteLength), ...(range ? { "Content-Range": "bytes " + start + "-" + end + "/" + data.byteLength } : {}) } });
 }

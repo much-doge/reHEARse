@@ -43,6 +43,9 @@ function packageDescriptor(code = defaultPackageCode): DiagnosticPackageDescript
 function packageRoot(code = defaultPackageCode) {
   return diagnosticPackagePath(code) ?? join(process.cwd(), "apps/protefl-center/content/__missing__");
 }
+function audioContentType(file: string) {
+  return file.toLowerCase().endsWith(".mp3") ? "audio/mpeg" : "audio/mp4";
+}
 async function packageJson<T>(code: string, name: string): Promise<T> {
   return JSON.parse(await readFile(join(/*turbopackIgnore: true*/ packageRoot(code), name), "utf8")) as T;
 }
@@ -246,6 +249,27 @@ export async function teacherDiagnosticAudio(
   }
 }
 
+export async function teacherDiagnosticAudioContentType(
+  staffActorId: string,
+  staffRole: "teacher" | "admin",
+  resourceId: string,
+  candidateActorId: string,
+  attemptId: string,
+) {
+  const authorized = await getPool().query(
+    `SELECT r.code
+     FROM protefl_diagnostic_attempt d
+     JOIN protefl_resource r ON r.id=d.resource_id
+     JOIN protefl_resource_assignment a ON a.id=d.assignment_id
+     WHERE d.id=$1 AND d.resource_id=$2 AND d.actor_id=$3 AND r.kind='diagnostic_package'
+       AND a.revoked_at IS NULL AND ($5='admin' OR a.assigned_by=$4)
+     LIMIT 1`,
+    [attemptId, resourceId, candidateActorId, staffActorId, staffRole],
+  );
+  const descriptor = diagnosticPackage(String(authorized.rows[0]?.code ?? ""));
+  return descriptor ? audioContentType(descriptor.files.listeningAudio) : null;
+}
+
 export async function diagnosticAudio(actorId: string, id: string) {
   const attempt = await diagnosticAttempt(actorId, id);
   if (!attempt || attempt.current_section !== "listening" || !attempt.listening_started_at) return null;
@@ -256,6 +280,13 @@ export async function diagnosticAudio(actorId: string, id: string) {
   } catch {
     return null;
   }
+}
+
+export async function diagnosticAudioContentType(actorId: string, id: string) {
+  const attempt = await diagnosticAttempt(actorId, id);
+  if (!attempt || attempt.current_section !== "listening" || !attempt.listening_started_at) return null;
+  const descriptor = diagnosticPackage(String(attempt.resource_code ?? ""));
+  return descriptor ? audioContentType(descriptor.files.listeningAudio) : null;
 }
 
 export async function latestDiagnosticAttemptState(actorId: string, assignmentId: string) {

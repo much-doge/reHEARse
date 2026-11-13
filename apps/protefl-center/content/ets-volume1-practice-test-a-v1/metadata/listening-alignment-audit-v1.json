@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "method": "Structural alignment using the source script, the supplied recording, and ffmpeg-detected answer windows.",
+  "quietWindowCount": 50,
+  "answerWindowTargetMs": 12000,
+  "status": "sequence_aligned",
+  "scope": "Source-complete structural alignment; classroom playback still requires verification."
+}

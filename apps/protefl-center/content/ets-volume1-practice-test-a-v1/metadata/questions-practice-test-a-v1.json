@@ -1,0 +1,3978 @@
+{
+  "listening": [
+    {
+      "number": 1,
+      "prompt": "What does the woman mean?",
+      "options": {
+        "A": "There are many different airline fares available.",
+        "B": "Travel agents are all the same.",
+        "C": "It matters where tickets are issued.",
+        "D": "It makes no difference where the tickets are purchased."
+      },
+      "sourcePage": 20,
+      "part": "A"
+    },
+    {
+      "number": 2,
+      "prompt": "What does the woman imply about the apples?",
+      "options": {
+        "A": "They should be picked before they’re ripe.",
+        "B": "They should have been picked already.",
+        "C": "They’ll get picked when they turn a certain color.",
+        "D": "They won’t be picked until next year."
+      },
+      "sourcePage": 20,
+      "part": "A"
+    },
+    {
+      "number": 3,
+      "prompt": "What does the man imply?",
+      "options": {
+        "A": "A two-bedroom apartment may be too expensive.",
+        "B": "The woman should not move off campus.",
+        "C": "The woman should pay the rent by check.",
+        "D": "The university has a list of rental properties."
+      },
+      "sourcePage": 20,
+      "part": "A"
+    },
+    {
+      "number": 4,
+      "prompt": "What does the woman mean?",
+      "options": {
+        "A": "The man often flatters Judy.",
+        "B": "Judy is thinking about getting her hair cut.",
+        "C": "She hasn’t seen Judy’s new haircut.",
+        "D": "She agrees with the man about Judy’s appearance."
+      },
+      "sourcePage": 20,
+      "part": "A"
+    },
+    {
+      "number": 5,
+      "prompt": "What will the woman probably be doing at 6:45?",
+      "options": {
+        "A": "Watching a movie.",
+        "B": "Talking on the phone.",
+        "C": "Picking up her friends.",
+        "D": "Eating dinner."
+      },
+      "sourcePage": 20,
+      "part": "A"
+    },
+    {
+      "number": 6,
+      "prompt": "What does the woman suggest the man do?",
+      "options": {
+        "A": "Notify the post office of his new address.",
+        "B": "Check to see if the mail has arrived.",
+        "C": "Send the letter by special delivery.",
+        "D": "Answer the letters after he moves."
+      },
+      "sourcePage": 20,
+      "part": "A"
+    },
+    {
+      "number": 7,
+      "prompt": "What does the man imply?",
+      "options": {
+        "A": "He doesn’t like his new glasses.",
+        "B": "His regular glasses are being repaired.",
+        "C": "He thinks his eyesight is improving.",
+        "D": "He’s decided to go without glasses."
+      },
+      "sourcePage": 20,
+      "part": "A"
+    },
+    {
+      "number": 8,
+      "prompt": "What will the speakers probably do?",
+      "options": {
+        "A": "Talk to Dr. Boyd about an assignment.",
+        "B": "Return their books to the library.",
+        "C": "Meet Dr. Boyd at the library.",
+        "D": "Make an appointment with their teacher on Friday."
+      },
+      "sourcePage": 20,
+      "part": "A"
+    },
+    {
+      "number": 9,
+      "prompt": "What does the man imply?",
+      "options": {
+        "A": "There is no orange juice in the machine.",
+        "B": "He doesn’t like orange juice.",
+        "C": "He prefers milk to orange juice.",
+        "D": "The machine is broken."
+      },
+      "sourcePage": 21,
+      "part": "A"
+    },
+    {
+      "number": 10,
+      "prompt": "What does the woman mean?",
+      "options": {
+        "A": "The man shouldn’t take the new job.",
+        "B": "She’s sorry the man isn’t being promoted.",
+        "C": "It isn’t easy to keep secrets at work.",
+        "D": "She won’t tell anyone about the man’s promotion."
+      },
+      "sourcePage": 21,
+      "part": "A"
+    },
+    {
+      "number": 11,
+      "prompt": "What does the man mean?",
+      "options": {
+        "A": "He has made other plans for lunch.",
+        "B": "He has already eaten his lunch.",
+        "C": "He’d like to ask Bill to join them.",
+        "D": "He’s meeting Bill in the cafeteria tomorrow."
+      },
+      "sourcePage": 21,
+      "part": "A"
+    },
+    {
+      "number": 12,
+      "prompt": "What is the woman doing?",
+      "options": {
+        "A": "Complaining about the man’s behavior.",
+        "B": "Repeating an insensitive remark.",
+        "C": "Denying her involvement in an argument.",
+        "D": "Accepting the man’s apology."
+      },
+      "sourcePage": 21,
+      "part": "A"
+    },
+    {
+      "number": 13,
+      "prompt": "What does the woman mean?",
+      "options": {
+        "A": "The man may use the telephone soon.",
+        "B": "The man should hurry.",
+        "C": "She’ll call George for the man.",
+        "D": "She’s waiting for a call."
+      },
+      "sourcePage": 21,
+      "part": "A"
+    },
+    {
+      "number": 14,
+      "prompt": "What does the man imply about Professor Thomson?",
+      "options": {
+        "A": "She’s difficult to understand.",
+        "B": "She gives longer assignments than Professor Brown.",
+        "C": "Her lectures are interesting.",
+        "D": "Her class meets more often than Professor Brown’s."
+      },
+      "sourcePage": 21,
+      "part": "A"
+    },
+    {
+      "number": 15,
+      "prompt": "What does the woman mean?",
+      "options": {
+        "A": "The exam had more sections than she expected.",
+        "B": "She was surprised that the exam was so difficult.",
+        "C": "Part of the exam was easier than she expected.",
+        "D": "She didn’t have time to study for the exam."
+      },
+      "sourcePage": 21,
+      "part": "A"
+    },
+    {
+      "number": 16,
+      "prompt": "What does the man mean?",
+      "options": {
+        "A": "He’s only finished half of his lunch.",
+        "B": "He’s going to eat soon.",
+        "C": "He’ll continue to work until he finishes.",
+        "D": "He’ll start working half an hour from now."
+      },
+      "sourcePage": 21,
+      "part": "A"
+    },
+    {
+      "number": 17,
+      "prompt": "What does the woman mean?",
+      "options": {
+        "A": "The bank was closed when she got there.",
+        "B": "The bank stayed open later than usual.",
+        "C": "She was able to do her banking.",
+        "D": "She didn’t have enough time to go to the bank."
+      },
+      "sourcePage": 22,
+      "part": "A"
+    },
+    {
+      "number": 18,
+      "prompt": "What can be inferred from the conversation?",
+      "options": {
+        "A": "The man has to sign his name.",
+        "B": "The woman will give the man an information kit.",
+        "C": "The woman can’t find the list.",
+        "D": "The man has already paid to attend the conference."
+      },
+      "sourcePage": 22,
+      "part": "A"
+    },
+    {
+      "number": 19,
+      "prompt": "What does the woman mean?",
+      "options": {
+        "A": "She doesn’t know the way.",
+        "B": "The café is near the information desk.",
+        "C": "The man should get his own map.",
+        "D": "The café isn’t marked on the map."
+      },
+      "sourcePage": 22,
+      "part": "A"
+    },
+    {
+      "number": 20,
+      "prompt": "What does the man mean?",
+      "options": {
+        "A": "He’d like to get a ride from the woman.",
+        "B": "He lives very near the woman.",
+        "C": "He doesn’t want to go downtown.",
+        "D": "He thinks the woman is going the wrong way."
+      },
+      "sourcePage": 22,
+      "part": "A"
+    },
+    {
+      "number": 21,
+      "prompt": "What does the man mean?",
+      "options": {
+        "A": "He’ll see the woman at the dentist’s office.",
+        "B": "He’ll miss seeing the woman at work.",
+        "C": "He’ll try to make arrangements for the woman.",
+        "D": "He’ll schedule a different dental appointment."
+      },
+      "sourcePage": 22,
+      "part": "A"
+    },
+    {
+      "number": 22,
+      "prompt": "What does the man mean?",
+      "options": {
+        "A": "The woman should avoid getting cold.",
+        "B": "It’s easy to get sick in cold weather.",
+        "C": "The woman should get more rest.",
+        "D": "Dressing warmly can prevent illness."
+      },
+      "sourcePage": 22,
+      "part": "A"
+    },
+    {
+      "number": 23,
+      "prompt": "What does the woman imply?",
+      "options": {
+        "A": "The man won’t be ready for tonight’s class.",
+        "B": "The man will not be able to go to the store before class.",
+        "C": "She’ll take the man to the mall tonight.",
+        "D": "The class schedule has been changed."
+      },
+      "sourcePage": 22,
+      "part": "A"
+    },
+    {
+      "number": 24,
+      "prompt": "What can be inferred from the conversation?",
+      "options": {
+        "A": "Richard often goes home early.",
+        "B": "The woman expected Richard to be at home.",
+        "C": "Richard should not leave work early.",
+        "D": "The woman called Richard 30 minutes ago."
+      },
+      "sourcePage": 22,
+      "part": "A"
+    },
+    {
+      "number": 25,
+      "prompt": "What does the woman mean?",
+      "options": {
+        "A": "She doesn’t have time to buy groceries now.",
+        "B": "The store will probably go out of business soon.",
+        "C": "She hopes the store hasn’t already closed.",
+        "D": "The store on the corner has inconvenient hours."
+      },
+      "sourcePage": 23,
+      "part": "A"
+    },
+    {
+      "number": 26,
+      "prompt": "What does the woman imply?",
+      "options": {
+        "A": "The man’s house has no electricity.",
+        "B": "The TV’s plug might be broken.",
+        "C": "The man can’t afford to fix the TV.",
+        "D": "The TV might not need to be fixed."
+      },
+      "sourcePage": 23,
+      "part": "A"
+    },
+    {
+      "number": 27,
+      "prompt": "What will the man do?",
+      "options": {
+        "A": "Get a new computer for the woman.",
+        "B": "Ask Gary to move the woman’s furniture.",
+        "C": "Find out if a bigger office is available.",
+        "D": "Request a new chair for the woman."
+      },
+      "sourcePage": 23,
+      "part": "A"
+    },
+    {
+      "number": 28,
+      "prompt": "What does the man imply?",
+      "options": {
+        "A": "The supervisor hasn’t explained what he needs to do.",
+        "B": "His work is viewed favorably.",
+        "C": "He’s impressed by his supervisor.",
+        "D": "His back problems have affected his work recently."
+      },
+      "sourcePage": 23,
+      "part": "A"
+    },
+    {
+      "number": 29,
+      "prompt": "What does the man imply?",
+      "options": {
+        "A": "The slide projector has been repaired.",
+        "B": "The room is ready for the meeting.",
+        "C": "He’ll take care of the slide projector after lunch.",
+        "D": "Everyone is waiting for the meeting to begin."
+      },
+      "sourcePage": 23,
+      "part": "A"
+    },
+    {
+      "number": 30,
+      "prompt": "What does the woman suggest the man do?",
+      "options": {
+        "A": "Wear a blue jacket.",
+        "B": "Dress warmly.",
+        "C": "Wear something cool.",
+        "D": "Wear cotton pants."
+      },
+      "sourcePage": 23,
+      "part": "A"
+    },
+    {
+      "number": 31,
+      "prompt": "Why does Steve visit the counselor?",
+      "options": {
+        "A": "To get help in finding a new college.",
+        "B": "To change his major.",
+        "C": "To fill out an application for college.",
+        "D": "To find out how to change dormitories."
+      },
+      "sourcePage": 25,
+      "part": "B"
+    },
+    {
+      "number": 32,
+      "prompt": "What is the one possible problem the counselor points out to Steve?",
+      "options": {
+        "A": "A small school does not offer a wide range of courses.",
+        "B": "His tuition will not be refunded.",
+        "C": "Changing majors involves a lot of paperwork.",
+        "D": "He may not be able to transfer all his credits."
+      },
+      "sourcePage": 25,
+      "part": "B"
+    },
+    {
+      "number": 33,
+      "prompt": "What is Steve’s main problem in adjusting to his college?",
+      "options": {
+        "A": "He doesn’t like his professors.",
+        "B": "His classes are too difficult.",
+        "C": "He can’t transfer his credits from his previous school.",
+        "D": "He doesn’t get along with his roommate."
+      },
+      "sourcePage": 25,
+      "part": "B"
+    },
+    {
+      "number": 34,
+      "prompt": "Where will Steve probably go to get his problem solved?",
+      "options": {
+        "A": "The registrar’s office.",
+        "B": "The admissions office.",
+        "C": "The housing office.",
+        "D": "The math department."
+      },
+      "sourcePage": 25,
+      "part": "B"
+    },
+    {
+      "number": 35,
+      "prompt": "Why does the man congratulate the woman?",
+      "options": {
+        "A": "She has won a literary award.",
+        "B": "She has been profiled in a literary journal.",
+        "C": "Her novel has sold very well.",
+        "D": "Her contract with a publisher has been extended."
+      },
+      "sourcePage": 25,
+      "part": "B"
+    },
+    {
+      "number": 36,
+      "prompt": "Who is the main character in Tales of Deception?",
+      "options": {
+        "A": "A criminal.",
+        "B": "A poet.",
+        "C": "A radio announcer.",
+        "D": "A police officer."
+      },
+      "sourcePage": 25,
+      "part": "B"
+    },
+    {
+      "number": 37,
+      "prompt": "Why does the man ask the woman about her work habits?",
+      "options": {
+        "A": "To learn more about her research findings.",
+        "B": "To learn how she writes so many books.",
+        "C": "To find out how she learned to write poetry.",
+        "D": "To find ways to improve his own writing."
+      },
+      "sourcePage": 25,
+      "part": "B"
+    },
+    {
+      "number": 38,
+      "prompt": "Why does the woman carry a notebook?",
+      "options": {
+        "A": "To take notes for newspaper articles.",
+        "B": "To keep track of the number of hours she spends writing.",
+        "C": "To record ideas she has when she is not at her desk.",
+        "D": "To document evidence for a police investigation."
+      },
+      "sourcePage": 25,
+      "part": "B"
+    },
+    {
+      "number": 39,
+      "prompt": "What is the talk mainly about?",
+      "options": {
+        "A": "Preparing for a hurricane.",
+        "B": "Damage caused by a hurricane.",
+        "C": "Coastal weather patterns.",
+        "D": "Evacuation procedures."
+      },
+      "sourcePage": 27,
+      "part": "C"
+    },
+    {
+      "number": 40,
+      "prompt": "What organization provided the information for the announcement?",
+      "options": {
+        "A": "The navy.",
+        "B": "A government weather agency.",
+        "C": "State police headquarters.",
+        "D": "A local shelter."
+      },
+      "sourcePage": 27,
+      "part": "C"
+    },
+    {
+      "number": 41,
+      "prompt": "What should people do before hurricane season begins?",
+      "options": {
+        "A": "Cover windows.",
+        "B": "Buy a supply of food and water.",
+        "C": "Locate the nearest shelter.",
+        "D": "Leave coastal areas."
+      },
+      "sourcePage": 27,
+      "part": "C"
+    },
+    {
+      "number": 42,
+      "prompt": "According to the announcement, why should people fill their cars with fuel before a hurricane?",
+      "options": {
+        "A": "Gas stations might not be open.",
+        "B": "Fuel might increase in price.",
+        "C": "They may need to drive neighbors to shelters.",
+        "D": "There may be long lines at the gas stations."
+      },
+      "sourcePage": 27,
+      "part": "C"
+    },
+    {
+      "number": 43,
+      "prompt": "What does the speaker mainly discuss?",
+      "options": {
+        "A": "The economic impact of mail delivery on rural areas.",
+        "B": "A comparison of urban and rural mail delivery.",
+        "C": "Government mail delivery in cities.",
+        "D": "The introduction of mail delivery in rural areas."
+      },
+      "sourcePage": 27,
+      "part": "C"
+    },
+    {
+      "number": 44,
+      "prompt": "What is true of mail delivery in the early nineteenth century?",
+      "options": {
+        "A": "It was paid for by the United States Congress.",
+        "B": "It was run by private companies.",
+        "C": "It was regulated by the government.",
+        "D": "It was mainly for farmers."
+      },
+      "sourcePage": 27,
+      "part": "C"
+    },
+    {
+      "number": 45,
+      "prompt": "According to the speaker, what problem did farmers face with early mail service?",
+      "options": {
+        "A": "Many post office locations were inconvenient.",
+        "B": "Bad roads delayed mail delivery.",
+        "C": "The postal rates were too high.",
+        "D": "There were not enough mail carriers to deliver mail."
+      },
+      "sourcePage": 27,
+      "part": "C"
+    },
+    {
+      "number": 46,
+      "prompt": "How did many city residents react when farmers first requested mail delivery?",
+      "options": {
+        "A": "They were indifferent to it.",
+        "B": "They thought it should have been done long before.",
+        "C": "They thought it was unnecessary.",
+        "D": "They thought it had to be accepted despite its cost."
+      },
+      "sourcePage": 27,
+      "part": "C"
+    },
+    {
+      "number": 47,
+      "prompt": "What is the lecture mainly about?",
+      "options": {
+        "A": "The properties of quartz crystals.",
+        "B": "A method of identifying minerals.",
+        "C": "The life of Friedrich Mohs.",
+        "D": "A famous collection of minerals."
+      },
+      "sourcePage": 27,
+      "part": "C"
+    },
+    {
+      "number": 48,
+      "prompt": "What aspect of a mineral is the Mohs’ scale used to identify?",
+      "options": {
+        "A": "Its estimated value.",
+        "B": "Its crystalline structure.",
+        "C": "Its chemical composition.",
+        "D": "Its relative hardness."
+      },
+      "sourcePage": 28,
+      "part": "C"
+    },
+    {
+      "number": 49,
+      "prompt": "What does the teacher ask the class to do?",
+      "options": {
+        "A": "Collect some minerals as homework.",
+        "B": "Identify the tools he is using.",
+        "C": "Apply the information given in the talk.",
+        "D": "Pass their papers to the front of the room. This is the e Stop work on S Press play on the Read the directions for Sec DO NOT read or work on any other section o"
+      },
+      "sourcePage": 28,
+      "part": "C"
+    },
+    {
+      "number": 50,
+      "prompt": "According to the teacher, when might the hardness of the same mineral seem to vary?",
+      "options": {
+        "A": "When it is scratched in different directions.",
+        "B": "When greater pressure is applied.",
+        "C": "When its surface is scratched too frequently.",
+        "D": "When the tester uses the wrong tools. nd of Section 1. ection 1 now. audio file. tion 2 and begin work. f the test during the next 25 minutes."
+      },
+      "sourcePage": 28,
+      "part": "C"
+    }
+  ],
+  "structure": {
+    "completion": [
+      {
+        "number": 1,
+        "prompt": "Since the early 1950’s, _____ throughout the world has more than doubled.",
+        "options": {
+          "A": "the demand for food",
+          "B": "there is demand for food",
+          "C": "if food is in demand",
+          "D": "food, a demand that"
+        },
+        "sourcePage": 31
+      },
+      {
+        "number": 2,
+        "prompt": "Even though he did not attend school until he was twelve, Dr. Samuel C.C. Ting was _____ the Nobel Prize in Physics in 1976.",
+        "options": {
+          "A": "won",
+          "B": "the winning",
+          "C": "the winner of",
+          "D": "to be won"
+        },
+        "sourcePage": 31
+      },
+      {
+        "number": 3,
+        "prompt": "Gas particles move _____ when the gas is hot than when it is cold.",
+        "options": {
+          "A": "fast",
+          "B": "faster",
+          "C": "as fast",
+          "D": "fastest"
+        },
+        "sourcePage": 31
+      },
+      {
+        "number": 4,
+        "prompt": "The different colors of _____ the different temperatures of the stars’ surfaces.",
+        "options": {
+          "A": "the stars indicate",
+          "B": "indicating stars",
+          "C": "the indication that the stars",
+          "D": "stars indicating that"
+        },
+        "sourcePage": 31
+      },
+      {
+        "number": 5,
+        "prompt": "As a country develops from an agricultural to an industrial economy, the attitudes, values, structures, and functions of the family _____.",
+        "options": {
+          "A": "the change",
+          "B": "which change",
+          "C": "change",
+          "D": "changing"
+        },
+        "sourcePage": 31
+      },
+      {
+        "number": 6,
+        "prompt": "Only a few sounds produced by insects are heard by humans _____ most of the sounds are pitched either too low or too high.",
+        "options": {
+          "A": "in spite of",
+          "B": "because",
+          "C": "as a result of",
+          "D": "instead of"
+        },
+        "sourcePage": 31
+      },
+      {
+        "number": 7,
+        "prompt": "The ordinary chair _____ in countless shapes, sizes, styles, and materials.",
+        "options": {
+          "A": "has been made",
+          "B": "to be made",
+          "C": "is making",
+          "D": "been making"
+        },
+        "sourcePage": 31
+      },
+      {
+        "number": 8,
+        "prompt": "For 125 years after _____ initial use at Harvard in 1642, the Bachelor of Arts degree was the only degree awarded by colleges in the United States.",
+        "options": {
+          "A": "its",
+          "B": "it was",
+          "C": "being",
+          "D": "when"
+        },
+        "sourcePage": 31
+      },
+      {
+        "number": 9,
+        "prompt": "Since the Sun illuminates half the surface of the Moon, only half the surface _____ can be seen from the Earth.",
+        "options": {
+          "A": "most",
+          "B": "much",
+          "C": "with more",
+          "D": "at most"
+        },
+        "sourcePage": 32
+      },
+      {
+        "number": 10,
+        "prompt": "The novels of Constance Fenimore Woolson, _____, have special interest for their regional settings.",
+        "options": {
+          "A": "in a nineteenth-century writer",
+          "B": "a nineteenth-century writer",
+          "C": "the nineteenth-century writing",
+          "D": "wrote about the nineteenth century"
+        },
+        "sourcePage": 32
+      },
+      {
+        "number": 11,
+        "prompt": "_____ Oklahoma is important as a farming state, it is even more important for its rich oil deposits.",
+        "options": {
+          "A": "By",
+          "B": "Although",
+          "C": "In order for",
+          "D": "Concerning"
+        },
+        "sourcePage": 32
+      },
+      {
+        "number": 12,
+        "prompt": "No animal seems _____ on a diet of peat moss.",
+        "options": {
+          "A": "survived",
+          "B": "can survive",
+          "C": "of surviving",
+          "D": "able to survive"
+        },
+        "sourcePage": 32
+      },
+      {
+        "number": 13,
+        "prompt": "The upper part in a harmonic arrangement _____ by mixed voices is usually written for a soprano voice.",
+        "options": {
+          "A": "to be sung",
+          "B": "as singing",
+          "C": "to be singing",
+          "D": "was sung"
+        },
+        "sourcePage": 32
+      },
+      {
+        "number": 14,
+        "prompt": "The first school _____ the state of Washington was opened at old Fort Vancouver in 1832.",
+        "options": {
+          "A": "is now",
+          "B": "is that in",
+          "C": "what is that",
+          "D": "in what is now"
+        },
+        "sourcePage": 32
+      },
+      {
+        "number": 15,
+        "prompt": "Radio, _____, developed from the theories and experiments of many people.",
+        "options": {
+          "A": "like other many inventions",
+          "B": "like many other inventions",
+          "C": "inventions like many other",
+          "D": "many other like inventions"
+        },
+        "sourcePage": 32
+      }
+    ],
+    "errorIdentification": [
+      {
+        "number": 16,
+        "tokens": [
+          {
+            "text": "While"
+          },
+          {
+            "text": "attempting"
+          },
+          {
+            "text": "to"
+          },
+          {
+            "text": "fly"
+          },
+          {
+            "text": "hers",
+            "choice": "A"
+          },
+          {
+            "text": "plane"
+          },
+          {
+            "text": "around",
+            "choice": "B"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "world"
+          },
+          {
+            "text": "in"
+          },
+          {
+            "text": "1937",
+            "choice": "C"
+          },
+          {
+            "text": ","
+          },
+          {
+            "text": "Amelia"
+          },
+          {
+            "text": "Earhart"
+          },
+          {
+            "text": "mysteriously",
+            "choice": "D"
+          },
+          {
+            "text": "disappeared"
+          },
+          {
+            "text": "."
+          }
+        ],
+        "options": {
+          "A": "hers",
+          "B": "around",
+          "C": "1937",
+          "D": "mysteriously"
+        },
+        "sourcePage": 34
+      },
+      {
+        "number": 17,
+        "tokens": [
+          {
+            "text": "Richard"
+          },
+          {
+            "text": "Wright’s"
+          },
+          {
+            "text": "Uncle"
+          },
+          {
+            "text": "Tom’s"
+          },
+          {
+            "text": "Children"
+          },
+          {
+            "text": ","
+          },
+          {
+            "text": "a"
+          },
+          {
+            "text": "collection"
+          },
+          {
+            "text": "of"
+          },
+          {
+            "text": "short",
+            "choice": "A"
+          },
+          {
+            "text": "stories",
+            "choice": "A"
+          },
+          {
+            "text": ","
+          },
+          {
+            "text": "were",
+            "choice": "B"
+          },
+          {
+            "text": "a"
+          },
+          {
+            "text": "critical",
+            "choice": "C"
+          },
+          {
+            "text": "success",
+            "choice": "C"
+          },
+          {
+            "text": "when"
+          },
+          {
+            "text": "it"
+          },
+          {
+            "text": "appeared",
+            "choice": "D"
+          },
+          {
+            "text": "in"
+          },
+          {
+            "text": "1938"
+          },
+          {
+            "text": "."
+          }
+        ],
+        "options": {
+          "A": "short stories",
+          "B": "were",
+          "C": "critical success",
+          "D": "appeared"
+        },
+        "sourcePage": 34
+      },
+      {
+        "number": 18,
+        "tokens": [
+          {
+            "text": "The"
+          },
+          {
+            "text": "principle"
+          },
+          {
+            "text": "on"
+          },
+          {
+            "text": "which"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "boat"
+          },
+          {
+            "text": "called"
+          },
+          {
+            "text": "a"
+          },
+          {
+            "text": "hydrofoil"
+          },
+          {
+            "text": "is"
+          },
+          {
+            "text": "designed"
+          },
+          {
+            "text": "is"
+          },
+          {
+            "text": "identically",
+            "choice": "A"
+          },
+          {
+            "text": "to"
+          },
+          {
+            "text": "that",
+            "choice": "B"
+          },
+          {
+            "text": "demonstrated",
+            "choice": "B"
+          },
+          {
+            "text": "by"
+          },
+          {
+            "text": "an"
+          },
+          {
+            "text": "airplane",
+            "choice": "C"
+          },
+          {
+            "text": "wing",
+            "choice": "C"
+          },
+          {
+            "text": "moving"
+          },
+          {
+            "text": "through"
+          },
+          {
+            "text": "air",
+            "choice": "D"
+          },
+          {
+            "text": "."
+          }
+        ],
+        "options": {
+          "A": "identically",
+          "B": "that demonstrated",
+          "C": "airplane wing",
+          "D": "air"
+        },
+        "sourcePage": 34
+      },
+      {
+        "number": 19,
+        "tokens": [
+          {
+            "text": "Migrating"
+          },
+          {
+            "text": "butterflies",
+            "choice": "A"
+          },
+          {
+            "text": "can"
+          },
+          {
+            "text": "travel",
+            "choice": "B"
+          },
+          {
+            "text": "long"
+          },
+          {
+            "text": "distant",
+            "choice": "C"
+          },
+          {
+            "text": "over",
+            "choice": "D"
+          },
+          {
+            "text": "water"
+          },
+          {
+            "text": "."
+          }
+        ],
+        "options": {
+          "A": "butterflies",
+          "B": "travel",
+          "C": "distant",
+          "D": "over"
+        },
+        "sourcePage": 34
+      },
+      {
+        "number": 20,
+        "tokens": [
+          {
+            "text": "During"
+          },
+          {
+            "text": "a",
+            "choice": "A"
+          },
+          {
+            "text": "early",
+            "choice": "A"
+          },
+          {
+            "text": "period"
+          },
+          {
+            "text": "in"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "settlement"
+          },
+          {
+            "text": "of"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "western"
+          },
+          {
+            "text": "United"
+          },
+          {
+            "text": "States"
+          },
+          {
+            "text": ","
+          },
+          {
+            "text": "pioneers"
+          },
+          {
+            "text": "claimed"
+          },
+          {
+            "text": "parts",
+            "choice": "B"
+          },
+          {
+            "text": "of"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "wilderness"
+          },
+          {
+            "text": "by"
+          },
+          {
+            "text": "marking",
+            "choice": "C"
+          },
+          {
+            "text": "trees"
+          },
+          {
+            "text": "to"
+          },
+          {
+            "text": "establish",
+            "choice": "D"
+          },
+          {
+            "text": "a"
+          },
+          {
+            "text": "boundary"
+          },
+          {
+            "text": "."
+          }
+        ],
+        "options": {
+          "A": "a early",
+          "B": "parts",
+          "C": "marking",
+          "D": "establish"
+        },
+        "sourcePage": 34
+      },
+      {
+        "number": 21,
+        "tokens": [
+          {
+            "text": "All",
+            "choice": "A"
+          },
+          {
+            "text": "digital"
+          },
+          {
+            "text": "computers"
+          },
+          {
+            "text": "use",
+            "choice": "B"
+          },
+          {
+            "text": "binary"
+          },
+          {
+            "text": ","
+          },
+          {
+            "text": "or"
+          },
+          {
+            "text": "two-valued"
+          },
+          {
+            "text": ","
+          },
+          {
+            "text": "digits"
+          },
+          {
+            "text": "instead",
+            "choice": "C"
+          },
+          {
+            "text": "than"
+          },
+          {
+            "text": "decimal"
+          },
+          {
+            "text": ","
+          },
+          {
+            "text": "or"
+          },
+          {
+            "text": "ten-valued"
+          },
+          {
+            "text": ","
+          },
+          {
+            "text": "digits"
+          },
+          {
+            "text": "to",
+            "choice": "D"
+          },
+          {
+            "text": "represent",
+            "choice": "D"
+          },
+          {
+            "text": "and"
+          },
+          {
+            "text": "store"
+          },
+          {
+            "text": "data"
+          },
+          {
+            "text": "."
+          }
+        ],
+        "options": {
+          "A": "All",
+          "B": "use",
+          "C": "instead",
+          "D": "to represent"
+        },
+        "sourcePage": 34
+      },
+      {
+        "number": 22,
+        "tokens": [
+          {
+            "text": "An",
+            "choice": "A"
+          },
+          {
+            "text": "ambassador",
+            "choice": "A"
+          },
+          {
+            "text": "serves",
+            "choice": "B"
+          },
+          {
+            "text": "as"
+          },
+          {
+            "text": "a"
+          },
+          {
+            "text": "nation’s"
+          },
+          {
+            "text": "highest-ranking"
+          },
+          {
+            "text": "diplomacy",
+            "choice": "C"
+          },
+          {
+            "text": "in"
+          },
+          {
+            "text": "another"
+          },
+          {
+            "text": "country",
+            "choice": "D"
+          },
+          {
+            "text": "."
+          }
+        ],
+        "options": {
+          "A": "An ambassador",
+          "B": "serves",
+          "C": "diplomacy",
+          "D": "country"
+        },
+        "sourcePage": 34
+      },
+      {
+        "number": 23,
+        "tokens": [
+          {
+            "text": "Early",
+            "choice": "A"
+          },
+          {
+            "text": "adolescence"
+          },
+          {
+            "text": "is"
+          },
+          {
+            "text": "a"
+          },
+          {
+            "text": "developmental",
+            "choice": "B"
+          },
+          {
+            "text": "phase"
+          },
+          {
+            "text": "consisting"
+          },
+          {
+            "text": "of"
+          },
+          {
+            "text": "rapid",
+            "choice": "C"
+          },
+          {
+            "text": "changes"
+          },
+          {
+            "text": "in"
+          },
+          {
+            "text": "behavior"
+          },
+          {
+            "text": ","
+          },
+          {
+            "text": "psychological",
+            "choice": "D"
+          },
+          {
+            "text": ","
+          },
+          {
+            "text": "and"
+          },
+          {
+            "text": "hormones"
+          },
+          {
+            "text": "."
+          }
+        ],
+        "options": {
+          "A": "Early",
+          "B": "developmental",
+          "C": "rapid",
+          "D": "psychological"
+        },
+        "sourcePage": 34
+      },
+      {
+        "number": 24,
+        "tokens": [
+          {
+            "text": "Knowledge",
+            "choice": "A"
+          },
+          {
+            "text": "from"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "frontiers"
+          },
+          {
+            "text": "of"
+          },
+          {
+            "text": "research",
+            "choice": "B"
+          },
+          {
+            "text": "genetic",
+            "choice": "B"
+          },
+          {
+            "text": "will"
+          },
+          {
+            "text": "increasingly"
+          },
+          {
+            "text": "pose"
+          },
+          {
+            "text": "difficult",
+            "choice": "C"
+          },
+          {
+            "text": "problems"
+          },
+          {
+            "text": "for"
+          },
+          {
+            "text": "policy"
+          },
+          {
+            "text": "makers"
+          },
+          {
+            "text": "and"
+          },
+          {
+            "text": "for"
+          },
+          {
+            "text": "society"
+          },
+          {
+            "text": "in",
+            "choice": "D"
+          },
+          {
+            "text": "general",
+            "choice": "D"
+          },
+          {
+            "text": "."
+          }
+        ],
+        "options": {
+          "A": "Knowledge",
+          "B": "research genetic",
+          "C": "difficult",
+          "D": "in general"
+        },
+        "sourcePage": 34
+      },
+      {
+        "number": 25,
+        "tokens": [
+          {
+            "text": "Pictures"
+          },
+          {
+            "text": "called",
+            "choice": "A"
+          },
+          {
+            "text": "glass",
+            "choice": "A"
+          },
+          {
+            "text": "mosaics",
+            "choice": "A"
+          },
+          {
+            "text": "are"
+          },
+          {
+            "text": "made"
+          },
+          {
+            "text": "by"
+          },
+          {
+            "text": "setting",
+            "choice": "B"
+          },
+          {
+            "text": "small"
+          },
+          {
+            "text": "pieces"
+          },
+          {
+            "text": "of"
+          },
+          {
+            "text": "colors",
+            "choice": "C"
+          },
+          {
+            "text": "glass"
+          },
+          {
+            "text": "into",
+            "choice": "D"
+          },
+          {
+            "text": "fresh"
+          },
+          {
+            "text": "plaster"
+          },
+          {
+            "text": "."
+          }
+        ],
+        "options": {
+          "A": "called glass mosaics",
+          "B": "setting",
+          "C": "colors",
+          "D": "into"
+        },
+        "sourcePage": 35
+      },
+      {
+        "number": 26,
+        "tokens": [
+          {
+            "text": "Approximately"
+          },
+          {
+            "text": "every",
+            "choice": "A"
+          },
+          {
+            "text": "nineteen",
+            "choice": "A"
+          },
+          {
+            "text": "month",
+            "choice": "A"
+          },
+          {
+            "text": "Venus"
+          },
+          {
+            "text": "and"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "Sun"
+          },
+          {
+            "text": "reach"
+          },
+          {
+            "text": "their",
+            "choice": "B"
+          },
+          {
+            "text": "greatest"
+          },
+          {
+            "text": "angular"
+          },
+          {
+            "text": "separation",
+            "choice": "C"
+          },
+          {
+            "text": "in",
+            "choice": "D"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "solar"
+          },
+          {
+            "text": "system"
+          },
+          {
+            "text": "."
+          }
+        ],
+        "options": {
+          "A": "every nineteen month",
+          "B": "their",
+          "C": "separation",
+          "D": "in"
+        },
+        "sourcePage": 35
+      },
+      {
+        "number": 27,
+        "tokens": [
+          {
+            "text": "Anthropologists"
+          },
+          {
+            "text": "recently"
+          },
+          {
+            "text": "have"
+          },
+          {
+            "text": "found",
+            "choice": "A"
+          },
+          {
+            "text": "evidence",
+            "choice": "A"
+          },
+          {
+            "text": "that"
+          },
+          {
+            "text": ","
+          },
+          {
+            "text": "centuries"
+          },
+          {
+            "text": "ago"
+          },
+          {
+            "text": ","
+          },
+          {
+            "text": "Inuits"
+          },
+          {
+            "text": "used",
+            "choice": "B"
+          },
+          {
+            "text": "to",
+            "choice": "B"
+          },
+          {
+            "text": "entering",
+            "choice": "B"
+          },
+          {
+            "text": "their"
+          },
+          {
+            "text": "subterranean"
+          },
+          {
+            "text": "homes"
+          },
+          {
+            "text": "through"
+          },
+          {
+            "text": "tunnels"
+          },
+          {
+            "text": ","
+          },
+          {
+            "text": "which"
+          },
+          {
+            "text": "helped",
+            "choice": "C"
+          },
+          {
+            "text": "keep",
+            "choice": "C"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "cold"
+          },
+          {
+            "text": "out"
+          },
+          {
+            "text": "and"
+          },
+          {
+            "text": "the",
+            "choice": "D"
+          },
+          {
+            "text": "heat",
+            "choice": "D"
+          },
+          {
+            "text": "in"
+          },
+          {
+            "text": "."
+          }
+        ],
+        "options": {
+          "A": "found evidence",
+          "B": "used to entering",
+          "C": "helped keep",
+          "D": "the heat"
+        },
+        "sourcePage": 35
+      },
+      {
+        "number": 28,
+        "tokens": [
+          {
+            "text": "The",
+            "choice": "A"
+          },
+          {
+            "text": "tree"
+          },
+          {
+            "text": "porcupine"
+          },
+          {
+            "text": "is"
+          },
+          {
+            "text": "found",
+            "choice": "B"
+          },
+          {
+            "text": "in"
+          },
+          {
+            "text": "wooded"
+          },
+          {
+            "text": "areas",
+            "choice": "C"
+          },
+          {
+            "text": "throughout"
+          },
+          {
+            "text": "most"
+          },
+          {
+            "text": "from",
+            "choice": "D"
+          },
+          {
+            "text": "North"
+          },
+          {
+            "text": "America"
+          },
+          {
+            "text": "."
+          }
+        ],
+        "options": {
+          "A": "The",
+          "B": "found",
+          "C": "areas",
+          "D": "from"
+        },
+        "sourcePage": 35
+      },
+      {
+        "number": 29,
+        "tokens": [
+          {
+            "text": "To"
+          },
+          {
+            "text": "date"
+          },
+          {
+            "text": ","
+          },
+          {
+            "text": "only"
+          },
+          {
+            "text": "a"
+          },
+          {
+            "text": "small"
+          },
+          {
+            "text": "percentage"
+          },
+          {
+            "text": "of"
+          },
+          {
+            "text": "all"
+          },
+          {
+            "text": "glass"
+          },
+          {
+            "text": "manufactured",
+            "choice": "A"
+          },
+          {
+            "text": "in"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "United"
+          },
+          {
+            "text": "States"
+          },
+          {
+            "text": "is",
+            "choice": "B"
+          },
+          {
+            "text": "recycled",
+            "choice": "B"
+          },
+          {
+            "text": ","
+          },
+          {
+            "text": "but"
+          },
+          {
+            "text": "markets"
+          },
+          {
+            "text": "for"
+          },
+          {
+            "text": "recycled"
+          },
+          {
+            "text": "glass"
+          },
+          {
+            "text": "that",
+            "choice": "C"
+          },
+          {
+            "text": "are",
+            "choice": "C"
+          },
+          {
+            "text": "growing",
+            "choice": "D"
+          },
+          {
+            "text": "steadily",
+            "choice": "D"
+          },
+          {
+            "text": "."
+          }
+        ],
+        "options": {
+          "A": "manufactured",
+          "B": "is recycled",
+          "C": "that are",
+          "D": "growing steadily"
+        },
+        "sourcePage": 35
+      },
+      {
+        "number": 30,
+        "tokens": [
+          {
+            "text": "The"
+          },
+          {
+            "text": "oceans",
+            "choice": "A"
+          },
+          {
+            "text": "are"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "major",
+            "choice": "B"
+          },
+          {
+            "text": "source",
+            "choice": "B"
+          },
+          {
+            "text": "of"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "atmospheric",
+            "choice": "C"
+          },
+          {
+            "text": "moisture"
+          },
+          {
+            "text": "that"
+          },
+          {
+            "text": "is"
+          },
+          {
+            "text": "obtained"
+          },
+          {
+            "text": "through"
+          },
+          {
+            "text": "evaporator",
+            "choice": "D"
+          },
+          {
+            "text": "."
+          }
+        ],
+        "options": {
+          "A": "oceans",
+          "B": "major source",
+          "C": "atmospheric",
+          "D": "evaporator"
+        },
+        "sourcePage": 35
+      },
+      {
+        "number": 31,
+        "tokens": [
+          {
+            "text": "Only",
+            "choice": "A"
+          },
+          {
+            "text": "those"
+          },
+          {
+            "text": "insects"
+          },
+          {
+            "text": "with"
+          },
+          {
+            "text": "high",
+            "choice": "B"
+          },
+          {
+            "text": "developed",
+            "choice": "B"
+          },
+          {
+            "text": ","
+          },
+          {
+            "text": "multilensed"
+          },
+          {
+            "text": "eyes"
+          },
+          {
+            "text": "have",
+            "choice": "C"
+          },
+          {
+            "text": "good"
+          },
+          {
+            "text": "color",
+            "choice": "D"
+          },
+          {
+            "text": "vision"
+          },
+          {
+            "text": "."
+          }
+        ],
+        "options": {
+          "A": "Only",
+          "B": "high developed",
+          "C": "have",
+          "D": "color"
+        },
+        "sourcePage": 35
+      },
+      {
+        "number": 32,
+        "tokens": [
+          {
+            "text": "The"
+          },
+          {
+            "text": "Earth’s"
+          },
+          {
+            "text": "atmosphere"
+          },
+          {
+            "text": "functions",
+            "choice": "A"
+          },
+          {
+            "text": "much"
+          },
+          {
+            "text": "like"
+          },
+          {
+            "text": "a"
+          },
+          {
+            "text": "giant"
+          },
+          {
+            "text": "greenhouse"
+          },
+          {
+            "text": ","
+          },
+          {
+            "text": "admitting"
+          },
+          {
+            "text": "sunlight"
+          },
+          {
+            "text": "between",
+            "choice": "B"
+          },
+          {
+            "text": "outer"
+          },
+          {
+            "text": "space"
+          },
+          {
+            "text": "but",
+            "choice": "C"
+          },
+          {
+            "text": "preventing"
+          },
+          {
+            "text": "heat"
+          },
+          {
+            "text": "from"
+          },
+          {
+            "text": "escaping",
+            "choice": "D"
+          },
+          {
+            "text": "."
+          }
+        ],
+        "options": {
+          "A": "functions",
+          "B": "between",
+          "C": "but",
+          "D": "escaping"
+        },
+        "sourcePage": 35
+      },
+      {
+        "number": 33,
+        "tokens": [
+          {
+            "text": "The"
+          },
+          {
+            "text": "almond"
+          },
+          {
+            "text": "tree"
+          },
+          {
+            "text": "which",
+            "choice": "A"
+          },
+          {
+            "text": "produces",
+            "choice": "A"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "oldest",
+            "choice": "B"
+          },
+          {
+            "text": "species"
+          },
+          {
+            "text": "of"
+          },
+          {
+            "text": "nut"
+          },
+          {
+            "text": "and"
+          },
+          {
+            "text": "is"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "most"
+          },
+          {
+            "text": "widely",
+            "choice": "C"
+          },
+          {
+            "text": "grown",
+            "choice": "C"
+          },
+          {
+            "text": "of"
+          },
+          {
+            "text": "all"
+          },
+          {
+            "text": "nut",
+            "choice": "D"
+          },
+          {
+            "text": "trees",
+            "choice": "D"
+          },
+          {
+            "text": "."
+          }
+        ],
+        "options": {
+          "A": "which produces",
+          "B": "oldest",
+          "C": "widely grown",
+          "D": "nut trees"
+        },
+        "sourcePage": 35
+      },
+      {
+        "number": 34,
+        "tokens": [
+          {
+            "text": "Fran"
+          },
+          {
+            "text": "Tannenbaum"
+          },
+          {
+            "text": ","
+          },
+          {
+            "text": "a"
+          },
+          {
+            "text": "paleontology"
+          },
+          {
+            "text": "student"
+          },
+          {
+            "text": "doing",
+            "choice": "A"
+          },
+          {
+            "text": "summer"
+          },
+          {
+            "text": "fieldwork"
+          },
+          {
+            "text": ","
+          },
+          {
+            "text": "found",
+            "choice": "B"
+          },
+          {
+            "text": "a"
+          },
+          {
+            "text": "completely",
+            "choice": "C"
+          },
+          {
+            "text": "seventy-five-million-year-old"
+          },
+          {
+            "text": "fossil",
+            "choice": "D"
+          },
+          {
+            "text": "egg",
+            "choice": "D"
+          },
+          {
+            "text": "near"
+          },
+          {
+            "text": "Chateau"
+          },
+          {
+            "text": ","
+          },
+          {
+            "text": "Montana"
+          },
+          {
+            "text": "."
+          }
+        ],
+        "options": {
+          "A": "doing",
+          "B": "found",
+          "C": "completely",
+          "D": "fossil egg"
+        },
+        "sourcePage": 36
+      },
+      {
+        "number": 35,
+        "tokens": [
+          {
+            "text": "Fencing"
+          },
+          {
+            "text": ","
+          },
+          {
+            "text": "originally"
+          },
+          {
+            "text": "developed"
+          },
+          {
+            "text": "as"
+          },
+          {
+            "text": "a"
+          },
+          {
+            "text": "sport"
+          },
+          {
+            "text": "in",
+            "choice": "A"
+          },
+          {
+            "text": "fourteenth",
+            "choice": "A"
+          },
+          {
+            "text": "century",
+            "choice": "A"
+          },
+          {
+            "text": ","
+          },
+          {
+            "text": "was"
+          },
+          {
+            "text": "included",
+            "choice": "B"
+          },
+          {
+            "text": "in",
+            "choice": "B"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "first",
+            "choice": "C"
+          },
+          {
+            "text": "modern",
+            "choice": "C"
+          },
+          {
+            "text": "Olympic"
+          },
+          {
+            "text": "Games"
+          },
+          {
+            "text": "of",
+            "choice": "D"
+          },
+          {
+            "text": "1896",
+            "choice": "D"
+          },
+          {
+            "text": "."
+          }
+        ],
+        "options": {
+          "A": "in fourteenth century",
+          "B": "included in",
+          "C": "first modern",
+          "D": "of 1896"
+        },
+        "sourcePage": 36
+      },
+      {
+        "number": 36,
+        "tokens": [
+          {
+            "text": "Depth",
+            "choice": "A"
+          },
+          {
+            "text": "within"
+          },
+          {
+            "text": "ancient",
+            "choice": "B"
+          },
+          {
+            "text": "tombs"
+          },
+          {
+            "text": ","
+          },
+          {
+            "text": "3"
+          },
+          {
+            "text": ","
+          },
+          {
+            "text": "000-year-old"
+          },
+          {
+            "text": "peanuts"
+          },
+          {
+            "text": "have",
+            "choice": "C"
+          },
+          {
+            "text": "been",
+            "choice": "C"
+          },
+          {
+            "text": "found",
+            "choice": "C"
+          },
+          {
+            "text": "alongside",
+            "choice": "D"
+          },
+          {
+            "text": "mummies"
+          },
+          {
+            "text": "."
+          }
+        ],
+        "options": {
+          "A": "Depth",
+          "B": "ancient",
+          "C": "have been found",
+          "D": "alongside"
+        },
+        "sourcePage": 36
+      },
+      {
+        "number": 37,
+        "tokens": [
+          {
+            "text": "Art"
+          },
+          {
+            "text": "Nouveau"
+          },
+          {
+            "text": "developed"
+          },
+          {
+            "text": "in",
+            "choice": "A"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "1890’s"
+          },
+          {
+            "text": "when"
+          },
+          {
+            "text": "artists"
+          },
+          {
+            "text": "did",
+            "choice": "B"
+          },
+          {
+            "text": "a",
+            "choice": "B"
+          },
+          {
+            "text": "conscious",
+            "choice": "C"
+          },
+          {
+            "text": "effort"
+          },
+          {
+            "text": "to"
+          },
+          {
+            "text": "break"
+          },
+          {
+            "text": "with"
+          },
+          {
+            "text": "what"
+          },
+          {
+            "text": "they"
+          },
+          {
+            "text": "regarded"
+          },
+          {
+            "text": "as"
+          },
+          {
+            "text": "worn-out"
+          },
+          {
+            "text": "formulas"
+          },
+          {
+            "text": "of"
+          },
+          {
+            "text": "the",
+            "choice": "D"
+          },
+          {
+            "text": "past",
+            "choice": "D"
+          },
+          {
+            "text": "."
+          }
+        ],
+        "options": {
+          "A": "in",
+          "B": "did a",
+          "C": "conscious",
+          "D": "the past"
+        },
+        "sourcePage": 36
+      },
+      {
+        "number": 38,
+        "tokens": [
+          {
+            "text": "The"
+          },
+          {
+            "text": "most"
+          },
+          {
+            "text": "widely"
+          },
+          {
+            "text": "cultivated"
+          },
+          {
+            "text": "all",
+            "choice": "A"
+          },
+          {
+            "text": "of",
+            "choice": "A"
+          },
+          {
+            "text": "fruit"
+          },
+          {
+            "text": "trees"
+          },
+          {
+            "text": ","
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "apple"
+          },
+          {
+            "text": "is"
+          },
+          {
+            "text": "second"
+          },
+          {
+            "text": "only",
+            "choice": "B"
+          },
+          {
+            "text": "to"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "grape"
+          },
+          {
+            "text": "in"
+          },
+          {
+            "text": "its"
+          },
+          {
+            "text": "importance",
+            "choice": "C"
+          },
+          {
+            "text": "as",
+            "choice": "D"
+          },
+          {
+            "text": "a"
+          },
+          {
+            "text": "temperate-zone"
+          },
+          {
+            "text": "fruit"
+          },
+          {
+            "text": "."
+          }
+        ],
+        "options": {
+          "A": "all of",
+          "B": "only",
+          "C": "importance",
+          "D": "as"
+        },
+        "sourcePage": 36
+      },
+      {
+        "number": 39,
+        "tokens": [
+          {
+            "text": "Pawnbroking"
+          },
+          {
+            "text": ","
+          },
+          {
+            "text": "or"
+          },
+          {
+            "text": "making",
+            "choice": "A"
+          },
+          {
+            "text": "loans",
+            "choice": "A"
+          },
+          {
+            "text": "to"
+          },
+          {
+            "text": "customers"
+          },
+          {
+            "text": "who"
+          },
+          {
+            "text": "pledge",
+            "choice": "B"
+          },
+          {
+            "text": "personal",
+            "choice": "C"
+          },
+          {
+            "text": "or",
+            "choice": "C"
+          },
+          {
+            "text": "household"
+          },
+          {
+            "text": "goods"
+          },
+          {
+            "text": "as"
+          },
+          {
+            "text": "security"
+          },
+          {
+            "text": ","
+          },
+          {
+            "text": "is"
+          },
+          {
+            "text": "one"
+          },
+          {
+            "text": "of"
+          },
+          {
+            "text": "the"
+          },
+          {
+            "text": "oldest",
+            "choice": "D"
+          },
+          {
+            "text": "trade",
+            "choice": "D"
+          },
+          {
+            "text": "known"
+          },
+          {
+            "text": "."
+          }
+        ],
+        "options": {
+          "A": "making loans",
+          "B": "pledge",
+          "C": "personal or",
+          "D": "oldest trade"
+        },
+        "sourcePage": 36
+      },
+      {
+        "number": 40,
+        "tokens": [
+          {
+            "text": "Of",
+            "choice": "A"
+          },
+          {
+            "text": "1901"
+          },
+          {
+            "text": "to"
+          },
+          {
+            "text": "1914"
+          },
+          {
+            "text": ","
+          },
+          {
+            "text": "acclaimed"
+          },
+          {
+            "text": "actor"
+          },
+          {
+            "text": "Douglas"
+          },
+          {
+            "text": "Fairbanks"
+          },
+          {
+            "text": "appeared"
+          },
+          {
+            "text": "on"
+          },
+          {
+            "text": "stage",
+            "choice": "B"
+          },
+          {
+            "text": "in"
+          },
+          {
+            "text": "a",
+            "choice": "C"
+          },
+          {
+            "text": "series",
+            "choice": "C"
+          },
+          {
+            "text": "of"
+          },
+          {
+            "text": "light",
+            "choice": "D"
+          },
+          {
+            "text": "comedies",
+            "choice": "D"
+          },
+          {
+            "text": "."
+          }
+        ],
+        "options": {
+          "A": "Of",
+          "B": "stage",
+          "C": "a series",
+          "D": "light comedies"
+        },
+        "sourcePage": 36
+      }
+    ]
+  },
+  "reading": {
+    "passages": [
+      {
+        "id": "reading-1-10",
+        "questions": [
+          1,
+          10
+        ],
+        "sourcePage": 40,
+        "lines": [
+          {
+            "text": "The ballpoint pen is the universal writing instrument of the twentieth century.",
+            "line": null,
+            "paragraphStart": true
+          },
+          {
+            "text": "When the tiny metal ball at the writing tip is drawn across a sheet of paper, it",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "rotates within a housing at the end of an ink reservoir and is coated with ink,",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "which it transfers to the paper.",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "The first ballpoint pen was invented by John Loud in 1888. Loud has been",
+            "line": 5,
+            "paragraphStart": false
+          },
+          {
+            "text": "working on a design for a nonleaking pen to mark leather and fabrics and,",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "although his cumbersome design was similar in essence to the modern item, it",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "was never manufactured in large quantities and the patent was allowed to expire.",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "The first workable design was patented in 1938 and became widely accepted in",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "1942 when the United States Army required a pen that would not leak in high-",
+            "line": 10,
+            "paragraphStart": false
+          },
+          {
+            "text": "flying aircraft.",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "The ball of the pen is fitted into a socket so that it rotates freely. Several",
+            "line": null,
+            "paragraphStart": true
+          },
+          {
+            "text": "internal ducts in the socket feed ink to the ball; the other end of the socket is",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "fitted onto a metal or plastic tube that contains the ink. When the ball is pressed",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "on paper and moved, the capillary action draws the ink from the reservoir. In",
+            "line": 15,
+            "paragraphStart": false
+          },
+          {
+            "text": "effect, the ball functions as a valve to prevent overflow, and on rotation it acts as a",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "suction pump drawing out the ink.",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "One problem was that as some of the ink ran out, a partial vacuum was",
+            "line": null,
+            "paragraphStart": true
+          },
+          {
+            "text": "formed between the back of the ball and ink reservoir, which cut off the supply.",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "This was solved by making a small hole at the far end of the reservoir. As the ink",
+            "line": 20,
+            "paragraphStart": false
+          },
+          {
+            "text": "at the tip is sucked out, more ink from the tube is drawn into the socket to fill its",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "place, the vacuum being prevented by air that is drawn through the vent.",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "Disposable ballpoints have improved considerably in efficiency and reliability",
+            "line": null,
+            "paragraphStart": true
+          },
+          {
+            "text": "since 1938. Further improvements made recently include the production of a pen",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "that writes at any angle, even upside down, and the development of a new ink",
+            "line": 25,
+            "paragraphStart": false
+          },
+          {
+            "text": "that is erasable.",
+            "line": null,
+            "paragraphStart": false
+          }
+        ]
+      },
+      {
+        "id": "reading-11-20",
+        "questions": [
+          11,
+          20
+        ],
+        "sourcePage": 44,
+        "lines": [
+          {
+            "text": "By the 1920’s in the United States, great change had been made in daily life",
+            "line": null,
+            "paragraphStart": true
+          },
+          {
+            "text": "by an accumulation of inventions that had been produced in increasing numbers",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "since the Civil War. These technological innovations created what, in effect, was a",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "social revolution.",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "Improvements in communications served to knit more closely citizens of",
+            "line": 5,
+            "paragraphStart": false
+          },
+          {
+            "text": "diverse ethnic and political backgrounds. Rapid printing presses, typesetting",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "devices, and page-plate processes made printed matter more widely accessible.",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "The telephone simplified person-to-person communication. The phonograph,",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "the silent motion picture, the radio, and the sound picture for the first time made",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "auditory and visual impact simultaneously possible over the whole country and",
+            "line": 10,
+            "paragraphStart": false
+          },
+          {
+            "text": "had the inevitable, and perhaps undesirable, effect of establishing a trend to",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "national conformity in thought and feeling. One could call this revolution the",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "nationalization of thought and taste.",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "Improvements in transportation made all parts of the country less remote from",
+            "line": null,
+            "paragraphStart": true
+          },
+          {
+            "text": "each other when measured by the time required to go from one place to another.",
+            "line": 15,
+            "paragraphStart": false
+          },
+          {
+            "text": "Bicycles and trolleys put the nation on wheels. Then the automobile provided the",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "means for speed and mobility, now so dear to Americans, and brought a demand",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "for better highways. By the 1920’s cargo trucks were beginning to cut into railroad",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "revenues, and the latest wonder, the airplane, was a fairly common sight.",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "The transport revolution was made possible by the development and",
+            "line": 20,
+            "paragraphStart": false
+          },
+          {
+            "text": "perfection of new engines and motors. The internal-combustion engine, using",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "gasoline or oil, could be built in compact power units admirably suited to",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "automobiles, aircraft, and boats. The use of electricity, generated by water power",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "or coal-burning plants, simplified the problems of mechanical power for industrial",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "use and made electrical illumination commonplace in cities, indoors and out.",
+            "line": 25,
+            "paragraphStart": false
+          },
+          {
+            "text": "Electricity also powered an increasing variety of domestic appliances.",
+            "line": null,
+            "paragraphStart": false
+          }
+        ]
+      },
+      {
+        "id": "reading-21-30",
+        "questions": [
+          21,
+          30
+        ],
+        "sourcePage": 48,
+        "lines": [
+          {
+            "text": "Astronomers have long used direct photography to gather large amounts of",
+            "line": null,
+            "paragraphStart": true
+          },
+          {
+            "text": "information from telescopes. To do this, they have special light-sensitive coatings",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "on glass plates, whose size depends on the type of telescope employed. Certain",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "wide-field telescopes commonly required very large glass plates. These plates do",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "not bend, can be measured accurately, and can preserve information over a long",
+            "line": 5,
+            "paragraphStart": false
+          },
+          {
+            "text": "period of time, providing a record that an astronomer at a later time can examine.",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "However, even though long time exposures increase the amount of light striking",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "the plate so that very faint objects in the sky eventually show up clearly, even the",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "most sensitive plates convert only a small percent of the photons striking them",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "into an image. For this reason, photography cannot make very efficient use of",
+            "line": 10,
+            "paragraphStart": false
+          },
+          {
+            "text": "short time exposures on a telescope. Despite this inefficiency, photography is still",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "very useful because it works as a two-dimensional detector covering a large area",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "at a telescope’s focus. Hence, the information contained in a single photograph",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "can be enormous, especially when the photograph is taken with wide-field",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "telescopes.",
+            "line": 15,
+            "paragraphStart": false
+          },
+          {
+            "text": "Today, the technology of newer radio and x-ray telescopes has allowed",
+            "line": null,
+            "paragraphStart": true
+          },
+          {
+            "text": "astronomers to view images otherwise invisible to the eye, and direct",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "photography is now used less often to gather images. Today’s astronomers can",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "study an enhanced view of a telescope’s focus on a television monitor; and in",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "most cases, the data can later be converted by computer into digital form. This",
+            "line": 20,
+            "paragraphStart": false
+          },
+          {
+            "text": "procedure, called image processing, plays a central role in astronomy today.",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "Using false colors, the computer can display images of information otherwise",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "undetectable to the unaided eye. These colors are false in the sense that they are",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "not the actual colors of the object in the visual range of the spectrum. Rather,",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "they are codes to a specific property, such as the x-ray emissions from stars.",
+            "line": 25,
+            "paragraphStart": false
+          }
+        ]
+      },
+      {
+        "id": "reading-31-39",
+        "questions": [
+          31,
+          39
+        ],
+        "sourcePage": 52,
+        "lines": [
+          {
+            "text": "The artistic movement known as Impressionism was first identified in 1874",
+            "line": null,
+            "paragraphStart": true
+          },
+          {
+            "text": "when a group of artists, dissatisfied with the reception of their works by the",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "academic art establishment of their period, chose to hold a separate exhibition of",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "their paintings.",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "Despite obvious differences in style, all of these painters were connected",
+            "line": 5,
+            "paragraphStart": false
+          },
+          {
+            "text": "by an ability to catch a moment and preserve it on canvas, and in their belief",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "in the importance of that moment. They readily accepted and made use of the",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "technological advances available to them, and in the end became recognized",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "as proponents of one of the most significant movements in the history of art, a",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "movement that produced an aesthetic revolution in art.",
+            "line": 10,
+            "paragraphStart": false
+          },
+          {
+            "text": "Several technological breakthroughs were responsible, to some degree, for",
+            "line": null,
+            "paragraphStart": true
+          },
+          {
+            "text": "the creation and execution of the new Impressionist style. One of these was the",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "invention of a new brush that gave artists greater control. Another useful invention",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "was the collapsible tin tube. This easily reclosed container preserved the oil paint",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "in a stable condition without altering the color. It was a great improvement over",
+            "line": 15,
+            "paragraphStart": false
+          },
+          {
+            "text": "animal bladders, which had been used for centuries to hold oil paint. The new",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "tube was portable and made it possible for artists to work outside. This freedom",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "made it possible for Impressionist paintings to “capture the moment,” giving them",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "a feeling of immediacy.",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "Another innovation was color. Nineteenth-century chemists had created a new",
+            "line": 20,
+            "paragraphStart": false
+          },
+          {
+            "text": "palette of colors, derived from cola tar and other substances. These were first used",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "by textile manufacturers and then adopted by artists. They included some of the",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "brighter colors – new shades of blue, green, and yellow, whose tones gave the",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "Impressionist paintings their characteristic shimmering quality.",
+            "line": null,
+            "paragraphStart": false
+          }
+        ]
+      },
+      {
+        "id": "reading-40-50",
+        "questions": [
+          40,
+          50
+        ],
+        "sourcePage": 56,
+        "lines": [
+          {
+            "text": "Radiocarbon dating and tree-ring dating, in combination, have provided",
+            "line": null,
+            "paragraphStart": true
+          },
+          {
+            "text": "a very powerful tool to establish a time spectrum for more recent dates in the",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "past. The initial idea for dating by tree rings can be traced back to 1811. Modern",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "scientific tree-ring dating, dendrochronology, stems from pioneering work in",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "early 1900’s.",
+            "line": 5,
+            "paragraphStart": false
+          },
+          {
+            "text": "Usually, but not always, trees produce one ring each year. This ring is formed",
+            "line": null,
+            "paragraphStart": true
+          },
+          {
+            "text": "by the cambium, which lies between the old wood and the bark. In spring,",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "wood cells with large lumens are manufactured, but in summer and autumn,",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "the cells become smaller and more thick-walled until with the onset of winter",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "the production of a new cell stops. The same process is repeated the following",
+            "line": 10,
+            "paragraphStart": false
+          },
+          {
+            "text": "year. In this way a year’s growth (annual ring) is imprinted as new wood. The",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "demarcation line between summer and autumn wood of the previous year, with",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "its characteristic small cells, and the spring wood of the year following, with its",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "large cells, enables annual rings to be counted relatively easily.",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "Growth rings, however, are not always the same thickness. They vary for",
+            "line": 15,
+            "paragraphStart": false
+          },
+          {
+            "text": "several reasons. Environmental factors rigidly control the degree of growth of an",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "annual ring or determine whether, in fact, an annual ring appears at all in any",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "particular year. Thus in a specific locale or, more accurately, a specific climatic",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "province, tree-ring counts will reflect climatic conditions and variations due to",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "inequalities of climate from year to year. In years with abnormal drought, for",
+            "line": 20,
+            "paragraphStart": false
+          },
+          {
+            "text": "example, narrow rings are produced and sometimes no ring at all. In this way a",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "fossil record is imprinted for as long as the wood remains intact. From this pattern",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "a historical template can be constructed to correlate one set of growth rings in",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "one tree with a set of growth rings in another tree or piece of timber.",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "Another important factor is that tree-ring growth varies with age of the tree.",
+            "line": 25,
+            "paragraphStart": false
+          },
+          {
+            "text": "As the tree matures, the rings become narrower, and this results in the central",
+            "line": null,
+            "paragraphStart": false
+          },
+          {
+            "text": "rings being wider than those on the outer part of the tree.",
+            "line": null,
+            "paragraphStart": false
+          }
+        ]
+      }
+    ],
+    "questions": [
+      {
+        "number": 1,
+        "prompt": "The word “it” in line 2 refers to",
+        "options": {
+          "A": "paper",
+          "B": "ink reservoir",
+          "C": "writing instrument",
+          "D": "ball"
+        },
+        "sourcePage": 41
+      },
+      {
+        "number": 2,
+        "prompt": "The word “housing” in line 3 is closest in meaning to",
+        "options": {
+          "A": "point",
+          "B": "residence",
+          "C": "case",
+          "D": "orbit"
+        },
+        "sourcePage": 41
+      },
+      {
+        "number": 3,
+        "prompt": "It can be inferred from the passage that there was interest in designing a new type of pen because the old ones",
+        "options": {
+          "A": "were too big",
+          "B": "were expensive",
+          "C": "leaked",
+          "D": "cracked"
+        },
+        "sourcePage": 41
+      },
+      {
+        "number": 4,
+        "prompt": "The word “expire” in line 8 is closest in meaning to",
+        "options": {
+          "A": "end",
+          "B": "change",
+          "C": "copy",
+          "D": "expand"
+        },
+        "sourcePage": 41
+      },
+      {
+        "number": 5,
+        "prompt": "It can be inferred that the ballpoint pen first gained popularity among",
+        "options": {
+          "A": "military personnel",
+          "B": "businesspeople",
+          "C": "scientists",
+          "D": "artists"
+        },
+        "sourcePage": 41
+      },
+      {
+        "number": 6,
+        "prompt": "Which of the following statements is true of the ball in a ballpoint pen?",
+        "options": {
+          "A": "It is fitted directly into the tube.",
+          "B": "It controls the flow of ink.",
+          "C": "It has a small hole.",
+          "D": "It contains a reservoir of ink."
+        },
+        "sourcePage": 41
+      },
+      {
+        "number": 7,
+        "prompt": "The author mentions a “suction pump” in line 17 to indicate a function of the",
+        "options": {
+          "A": "reservoir",
+          "B": "plastic tube",
+          "C": "socket",
+          "D": "ball"
+        },
+        "sourcePage": 41
+      },
+      {
+        "number": 8,
+        "prompt": "The word “which” in line 19 refers to",
+        "options": {
+          "A": "supply",
+          "B": "back of the ball",
+          "C": "partial vacuum",
+          "D": "ink reservoir"
+        },
+        "sourcePage": 41
+      },
+      {
+        "number": 9,
+        "prompt": "What was the purpose of the small hole mentioned in line 20?",
+        "options": {
+          "A": "To drain off excess ink",
+          "B": "To improve ink flow to the tip of the pen",
+          "C": "To reduce the amount of air in the pen",
+          "D": "To allow the reservoir to be refilled"
+        },
+        "sourcePage": 41
+      },
+      {
+        "number": 10,
+        "prompt": "Until recently one limitation of ballpoint pens was",
+        "options": {
+          "A": "their inability to function upside down",
+          "B": "the cost of replacing empty reservoirs",
+          "C": "the fragility of the point",
+          "D": "corrosion due to the ink"
+        },
+        "sourcePage": 42
+      },
+      {
+        "number": 11,
+        "prompt": "The passage focuses on the United States in the 1920’s primarily in terms of the",
+        "options": {
+          "A": "creativity of American inventors",
+          "B": "decline in social relationships",
+          "C": "influence of technology on society",
+          "D": "negative side of technological progress"
+        },
+        "sourcePage": 45
+      },
+      {
+        "number": 12,
+        "prompt": "The word “knit” in line 5 is closest in meaning to",
+        "options": {
+          "A": "unite",
+          "B": "attract",
+          "C": "inform",
+          "D": "study"
+        },
+        "sourcePage": 45
+      },
+      {
+        "number": 13,
+        "prompt": "The word “accessible” in line 7 is closest in meaning to",
+        "options": {
+          "A": "understandable",
+          "B": "read",
+          "C": "printed",
+          "D": "available"
+        },
+        "sourcePage": 45
+      },
+      {
+        "number": 14,
+        "prompt": "According to the author, expanded communications led to a decrease in",
+        "options": {
+          "A": "individuality",
+          "B": "travel",
+          "C": "patriotism",
+          "D": "entertainment"
+        },
+        "sourcePage": 45
+      },
+      {
+        "number": 15,
+        "prompt": "The words “each other” in line 15 refer to",
+        "options": {
+          "A": "improvements in transportation",
+          "B": "parts of the country",
+          "C": "bicycles and trolleys",
+          "D": "better highways"
+        },
+        "sourcePage": 45
+      },
+      {
+        "number": 16,
+        "prompt": "The word “mobility” in line 17 is closest in meaning to",
+        "options": {
+          "A": "excitement",
+          "B": "movement",
+          "C": "modernity",
+          "D": "control"
+        },
+        "sourcePage": 45
+      },
+      {
+        "number": 17,
+        "prompt": "According to the passage, which of the following modes of transportation was negatively affected by motor vehicles?",
+        "options": {
+          "A": "Trolleys",
+          "B": "Bicycles",
+          "C": "Trains",
+          "D": "Airplanes"
+        },
+        "sourcePage": 45
+      },
+      {
+        "number": 18,
+        "prompt": "The passage suggests that a major advantage of the internal-combustion engine was its",
+        "options": {
+          "A": "safety",
+          "B": "size",
+          "C": "durability",
+          "D": "price"
+        },
+        "sourcePage": 45
+      },
+      {
+        "number": 19,
+        "prompt": "The author identifies all of the following as contributors to the “social revolution” of the 1920’s EXCEPT",
+        "options": {
+          "A": "improved communication",
+          "B": "improved transportation",
+          "C": "improvements resulting from electricity",
+          "D": "improvements in the arts"
+        },
+        "sourcePage": 46
+      },
+      {
+        "number": 20,
+        "prompt": "Where in the passage does the author give an example of a technological advance that led to a demand for improvement in another area?",
+        "options": {
+          "A": "Lines 6-7",
+          "B": "Lines 16-17",
+          "C": "Lines 21-23",
+          "D": "Line 26"
+        },
+        "sourcePage": 46
+      },
+      {
+        "number": 21,
+        "prompt": "What is the main topic of the passage?",
+        "options": {
+          "A": "The use of false colors in image processing",
+          "B": "The use of wide-field telescopes in astronomy",
+          "C": "New astronomical theories",
+          "D": "Methods used by astronomers to obtain information"
+        },
+        "sourcePage": 49
+      },
+      {
+        "number": 22,
+        "prompt": "The word “employed” in line 3 is closest in meaning to",
+        "options": {
+          "A": "measured",
+          "B": "inspected",
+          "C": "used",
+          "D": "purchased"
+        },
+        "sourcePage": 49
+      },
+      {
+        "number": 23,
+        "prompt": "The word “efficient” in line 10 is closest in meaning to",
+        "options": {
+          "A": "productive",
+          "B": "frequent",
+          "C": "objective",
+          "D": "visible"
+        },
+        "sourcePage": 49
+      },
+      {
+        "number": 24,
+        "prompt": "Which of the following is NOT mentioned as an advantage of glass-plate photographs?",
+        "options": {
+          "A": "They can be measured accurately.",
+          "B": "They can capture the images of faint objects.",
+          "C": "They can be stored for a long time.",
+          "D": "They can be processed quickly."
+        },
+        "sourcePage": 49
+      },
+      {
+        "number": 25,
+        "prompt": "Astronomers most probably use direct photography less frequently today than in the past because",
+        "options": {
+          "A": "glass plates are no longer available",
+          "B": "only a small amount of information is contained in a single photograph",
+          "C": "alternate ways of observing images have been developed",
+          "D": "photographic data deteriorates quickly"
+        },
+        "sourcePage": 49
+      },
+      {
+        "number": 26,
+        "prompt": "What is image processing?",
+        "options": {
+          "A": "The process of light waves striking a glass plate",
+          "B": "A way to produce images more quickly",
+          "C": "A reevaluation of old photographs",
+          "D": "A way computers can present data for analysis"
+        },
+        "sourcePage": 49
+      },
+      {
+        "number": 27,
+        "prompt": "The word “undetectable” in line 23 is closest in meaning to",
+        "options": {
+          "A": "immense",
+          "B": "inferior",
+          "C": "imperceptible",
+          "D": "intolerable"
+        },
+        "sourcePage": 49
+      },
+      {
+        "number": 28,
+        "prompt": "Why do computer-generated images use false colors?",
+        "options": {
+          "A": "The real objects are too bright to look at.",
+          "B": "The computer screens have a limited range of colors.",
+          "C": "The properties represented in the image are not otherwise visible.",
+          "D": "The colors are used to convert black-and-white photographs."
+        },
+        "sourcePage": 50
+      },
+      {
+        "number": 29,
+        "prompt": "Why does the author mention “x-ray emissions” in line 25?",
+        "options": {
+          "A": "To discuss the measurement of energy flow",
+          "B": "To emphasize the precision of direct photography",
+          "C": "To provide an example of what false colors represent",
+          "D": "To compare the properties of color and movement"
+        },
+        "sourcePage": 50
+      },
+      {
+        "number": 30,
+        "prompt": "Where in the passage does the author mention a disadvantage of photography?",
+        "options": {
+          "A": "Lines 1-3",
+          "B": "Lines 7-11",
+          "C": "Lines 18-21",
+          "D": "Lines 24-25"
+        },
+        "sourcePage": 50
+      },
+      {
+        "number": 31,
+        "prompt": "What did the group of Impressionist artists do in 1874?",
+        "options": {
+          "A": "They radically changed their style of painting.",
+          "B": "They held their own exhibition.",
+          "C": "They adopted new techniques and technologies.",
+          "D": "They refused to paint anything that year."
+        },
+        "sourcePage": 53
+      },
+      {
+        "number": 32,
+        "prompt": "The word “it” in line 6 refers to",
+        "options": {
+          "A": "style",
+          "B": "moment",
+          "C": "ability",
+          "D": "canvas"
+        },
+        "sourcePage": 53
+      },
+      {
+        "number": 33,
+        "prompt": "The word “readily” in line 7 is closest in meaning to",
+        "options": {
+          "A": "purposely",
+          "B": "cautiously",
+          "C": "cleverly",
+          "D": "eagerly"
+        },
+        "sourcePage": 53
+      },
+      {
+        "number": 34,
+        "prompt": "According to the passage, Impressionism is regarded historically as",
+        "options": {
+          "A": "a significant, revolutionary movement",
+          "B": "an innovative yet minor style",
+          "C": "an unenlightened, radical phase",
+          "D": "a traditional form of nineteenth-century painting"
+        },
+        "sourcePage": 53
+      },
+      {
+        "number": 35,
+        "prompt": "In line 15 the word “It” refers to",
+        "options": {
+          "A": "container",
+          "B": "condition",
+          "C": "oil paint",
+          "D": "color"
+        },
+        "sourcePage": 53
+      },
+      {
+        "number": 36,
+        "prompt": "Which of the following words does NOT refer to something that holds paint?",
+        "options": {
+          "A": "Bladder",
+          "B": "Tube",
+          "C": "Condition",
+          "D": "Container"
+        },
+        "sourcePage": 53
+      },
+      {
+        "number": 37,
+        "prompt": "What contribution did chemists make to the Impressionist movement?",
+        "options": {
+          "A": "New textiles",
+          "B": "Better canvases",
+          "C": "Additional colors",
+          "D": "Tin tubes"
+        },
+        "sourcePage": 53
+      },
+      {
+        "number": 38,
+        "prompt": "It can be inferred that Impressionist paintings differed from other nineteenth-century paintings in terms of which of the following?",
+        "options": {
+          "A": "The size of the canvas",
+          "B": "The brightness of the colors",
+          "C": "The value of the painting",
+          "D": "The talent of the artists"
+        },
+        "sourcePage": 53
+      },
+      {
+        "number": 39,
+        "prompt": "Where in the passage does the author mention two new technologies available to artists in the nineteenth century?",
+        "options": {
+          "A": "First paragraph",
+          "B": "Second paragraph",
+          "C": "Third paragraph",
+          "D": "Fourth paragraph"
+        },
+        "sourcePage": 54
+      },
+      {
+        "number": 40,
+        "prompt": "What does the passage mainly discuss?",
+        "options": {
+          "A": "The effect of drought on tree-ring growth",
+          "B": "The history of dating trees",
+          "C": "The problems of tree-ring dating",
+          "D": "The formation of growth rings in trees"
+        },
+        "sourcePage": 57
+      },
+      {
+        "number": 41,
+        "prompt": "The word “stems” in line 4 is closest in meaning to",
+        "options": {
+          "A": "distinguishes",
+          "B": "recovers",
+          "C": "derives",
+          "D": "returns"
+        },
+        "sourcePage": 57
+      },
+      {
+        "number": 42,
+        "prompt": "The approximate age of a tree can be determined by",
+        "options": {
+          "A": "counting the rings",
+          "B": "analyzing the structure of the cells",
+          "C": "examining the cambium",
+          "D": "measuring the width of the rings"
+        },
+        "sourcePage": 57
+      },
+      {
+        "number": 43,
+        "prompt": "The word “onset” in line 9 is closest in meaning to",
+        "options": {
+          "A": "beginning",
+          "B": "coldness",
+          "C": "difficulty",
+          "D": "darkness"
+        },
+        "sourcePage": 57
+      },
+      {
+        "number": 44,
+        "prompt": "The word “enables” in line 14 is closest in meaning to",
+        "options": {
+          "A": "combines",
+          "B": "forces",
+          "C": "encourages",
+          "D": "allows"
+        },
+        "sourcePage": 57
+      },
+      {
+        "number": 45,
+        "prompt": "The word “They” in line 15 refers to",
+        "options": {
+          "A": "large cells",
+          "B": "growth rings",
+          "C": "several reasons",
+          "D": "environmental factors"
+        },
+        "sourcePage": 57
+      },
+      {
+        "number": 46,
+        "prompt": "According to the passage, the production of rings from year to year in any given tree is",
+        "options": {
+          "A": "random",
+          "B": "predetermined",
+          "C": "variable",
+          "D": "accelerated"
+        },
+        "sourcePage": 57
+      },
+      {
+        "number": 47,
+        "prompt": "The word “reflect” in line 19 is closest in meaning to",
+        "options": {
+          "A": "indicate",
+          "B": "affect",
+          "C": "confuse",
+          "D": "limit"
+        },
+        "sourcePage": 57
+      },
+      {
+        "number": 48,
+        "prompt": "A narrow growth ring between two wide growth rings would probably indicate",
+        "options": {
+          "A": "an unusually warm winter",
+          "B": "the death of an old tree",
+          "C": "unfavorable climatic conditions during a single year",
+          "D": "wood cells that had grown to be very large"
+        },
+        "sourcePage": 57
+      },
+      {
+        "number": 49,
+        "prompt": "Which of the following terms is defined in the passage?",
+        "options": {
+          "A": "dendrochronology (line 4)",
+          "B": "lumens (line 8)",
+          "C": "drought (line 20)",
+          "D": "template (line 23)"
+        },
+        "sourcePage": 57
+      },
+      {
+        "number": 50,
+        "prompt": "The phrase “this pattern” in line 22 refers to",
+        "options": {
+          "A": "the change of seasons",
+          "B": "different climates in different places",
+          "C": "the destruction of trees a forests",
+          "D": "variation in the thickness tree rings This is the If you finish in less than 55 minutes Do NOT read or work on any When you are ready to check your answe booklet to determine which questions y"
+        },
+        "sourcePage": 58
+      }
+    ]
+  }
+}

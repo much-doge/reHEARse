@@ -33,6 +33,33 @@ export type DiagnosticPackageDescriptor = {
  * it has an explicit descriptor here.
  */
 const descriptors: Readonly<Record<string, DiagnosticPackageDescriptor>> = {
+  "ets-volume1-practice-test-a": {
+    code: "ets-volume1-practice-test-a",
+    directory: "ets-volume1-practice-test-a-v1",
+    candidatePath: "/test-center/diagnostic/ets-volume1-practice-test-a",
+    supportedSections: ["listening", "structure", "reading"],
+    questionCounts: { listening: 50, structure: 40, reading: 50 },
+    files: {
+      manifest: "package-manifest.json",
+      instructions: "metadata/instructions-practice-test-a-v1.json",
+      questions: "metadata/questions-practice-test-a-v1.json",
+      answerKey: "metadata/answer-key-practice-test-a-v1.json",
+      scoreConversion: "metadata/score-conversion-practice-test-a-v1.json",
+      listeningPauses: "metadata/listening-pauses-v1.json",
+      listeningQuestionMap: "metadata/listening-question-map-v1.json",
+      listeningAudio: "source/practice-test-a-listening.mp3",
+    },
+    privateSourceFiles: [
+      "source/ets-toefl-itp-level1-volume1.pdf",
+      "source/ets-toefl-itp-level1-volume1-layout.txt",
+    ],
+    resultVersions: {
+      full: "ets-volume1-practice-test-a.result.v1",
+      sectionAssignment: "ets-volume1-practice-test-a.section-assignment.v1",
+      sectionRetake: "ets-volume1-practice-test-a.section-retake.v1",
+      sectionReset: "ets-volume1-practice-test-a.section-reset.v1",
+    },
+  },
   "ets-volume3-practice-test-a": {
     code: "ets-volume3-practice-test-a",
     directory: "ets-volume3-practice-test-a-v1",

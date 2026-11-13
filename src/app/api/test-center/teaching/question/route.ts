@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { teacherDiagnosticReviewItem, teacherDiagnosticAudio } from "@protefl/adapters/postgres-diagnostic";
+import { teacherDiagnosticReviewItem, teacherDiagnosticAudio, teacherDiagnosticAudioContentType } from "@protefl/adapters/postgres-diagnostic";
 import { currentUser } from "@/lib/session";
 import { isSameOriginRequest } from "@/lib/same-origin";
 
@@ -58,6 +58,7 @@ export async function GET(request: Request) {
   if (!parsed.success) return Response.json({ error: "not_found" }, { status: 404, headers: headersBase });
   const data = await teacherDiagnosticAudio(user.id, user.role, parsed.data.resourceId, parsed.data.candidateActorId, parsed.data.attemptId);
   if (!data) return Response.json({ error: "not_found" }, { status: 404, headers: headersBase });
+  const contentType = (await teacherDiagnosticAudioContentType(user.id, user.role, parsed.data.resourceId, parsed.data.candidateActorId, parsed.data.attemptId)) ?? "audio/mp4";
   const range = request.headers.get("range")?.match(/^bytes=(\d+)-(\d*)$/);
   const start = range ? Number(range[1]) : 0;
   const end = Math.min(range?.[2] ? Number(range[2]) : data.byteLength - 1, data.byteLength - 1);
@@ -69,6 +70,7 @@ export async function GET(request: Request) {
     status: range ? 206 : 200,
     headers: {
       ...headers,
+      "Content-Type": contentType,
       "Content-Length": String(body.byteLength),
       ...(range ? { "Content-Range": `bytes ${start}-${end}/${data.byteLength}` } : {}),
     },
