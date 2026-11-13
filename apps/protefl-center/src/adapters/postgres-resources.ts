@@ -3,6 +3,7 @@ import { createHash, randomInt } from "node:crypto";
 import { getPool } from "@/adapters/db/client";
 import { effectiveDiagnosticResult, type CompletedSectionReset, type FullDiagnosticResult } from "../application/diagnostic-effective-result";
 import { aggregateTeacherQuestionAnalytics, type TeacherQuestionAnalytics, type TeacherQuestionResult } from "../application/teacher-question-analytics";
+import { diagnosticPackage } from "../application/diagnostic-package";
 import { hashPassword } from "@/adapters/identity/password";
 import { generateResourceCode, hashResourceCode, isValidResourceCode, normalizeResourceCode } from "../application/resource-code";
 
@@ -225,7 +226,10 @@ export async function getManagedQuestionAnalytics(
   staffActorId: string,
   staffRole: "teacher" | "admin",
 ): Promise<TeacherQuestionAnalytics> {
-  if (!assignmentIds.length) return aggregateTeacherQuestionAnalytics([]);
+  const resource = await getPool().query("SELECT code FROM protefl_resource WHERE id=$1 AND kind='diagnostic_package'", [resourceId]);
+  const packageCode = String(resource.rows[0]?.code ?? "");
+  if (!diagnosticPackage(packageCode)) throw new Error("resource_unavailable");
+  if (!assignmentIds.length) return aggregateTeacherQuestionAnalytics([], packageCode);
   const result = await getPool().query(
     `SELECT DISTINCT ON (d.assignment_id)
        d.id,d.assignment_id,d.actor_id,d.status,d.attempt_number,root_result.result_data,
@@ -267,7 +271,7 @@ export async function getManagedQuestionAnalytics(
       completedResults.push({ ...resultData, review: resultData.review?.map((item) => ({ ...item, source: rootSource })) });
     }
   }
-  return aggregateTeacherQuestionAnalytics(completedResults);
+  return aggregateTeacherQuestionAnalytics(completedResults, packageCode);
 }
 
 export async function listManagedResources(staffActorId: string, staffRole: "teacher" | "admin") {

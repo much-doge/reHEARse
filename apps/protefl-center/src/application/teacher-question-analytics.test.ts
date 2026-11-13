@@ -25,5 +25,14 @@ describe("aggregateTeacherQuestionAnalytics", () => {
     expect(result.sections.listening.rows[1]).toMatchObject({ seen: 1, correct: 0, incorrect: 1, choices: { B: 1 } });
     expect(result.sections.listening.rows[2]).toMatchObject({ seen: 1, correct: 0, incorrect: 0, omitted: 1 });
   });
+
+  it("uses the registered package counts instead of a dashboard constant", () => {
+    const result = aggregateTeacherQuestionAnalytics([], "ets-volume3-practice-test-a");
+    expect(result.sections).toMatchObject({
+      listening: { questions: 50 },
+      structure: { questions: 40 },
+      reading: { questions: 50 },
+    });
+  });
 });
 

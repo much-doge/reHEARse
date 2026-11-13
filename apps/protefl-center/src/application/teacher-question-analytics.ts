@@ -1,3 +1,5 @@
+import { diagnosticPackage } from "./diagnostic-package";
+
 type Section = "listening" | "structure" | "reading";
 type Choice = "A" | "B" | "C" | "D";
 type SectionSummary = { correct: number; incorrect: number; omitted: number; total: number };
@@ -34,7 +36,6 @@ export type TeacherQuestionAnalytics = {
   sections: Record<Section, TeacherQuestionSection>;
 };
 
-const questionCounts: Record<Section, number> = { listening: 50, structure: 40, reading: 50 };
 const sections: Section[] = ["listening", "structure", "reading"];
 const choices: Choice[] = ["A", "B", "C", "D"];
 
@@ -42,18 +43,21 @@ function emptyRow(question: number): TeacherQuestionRow {
   return { question, seen: 0, correct: 0, incorrect: 0, omitted: 0, choices: { A: 0, B: 0, C: 0, D: 0 } };
 }
 
-function emptySection(section: Section): TeacherQuestionSection {
+function emptySection(section: Section, questionCounts: Record<Section, number>): TeacherQuestionSection {
   return {
     questions: questionCounts[section], correct: 0, incorrect: 0, omitted: 0,
     rows: Array.from({ length: questionCounts[section] }, (_, index) => emptyRow(index + 1)),
   };
 }
 
-export function aggregateTeacherQuestionAnalytics(results: TeacherQuestionResult[]): TeacherQuestionAnalytics {
+export function aggregateTeacherQuestionAnalytics(results: TeacherQuestionResult[], packageCode = "ets-volume3-practice-test-a"): TeacherQuestionAnalytics {
+  const descriptor = diagnosticPackage(packageCode);
+  if (!descriptor) throw new Error("package_not_registered");
+  const questionCounts = descriptor.questionCounts as Record<Section, number>;
   const output: TeacherQuestionAnalytics = {
     completedAttempts: results.length,
     hasQuestionReview: false,
-    sections: { listening: emptySection("listening"), structure: emptySection("structure"), reading: emptySection("reading") },
+    sections: { listening: emptySection("listening", questionCounts), structure: emptySection("structure", questionCounts), reading: emptySection("reading", questionCounts) },
   };
 
   results.forEach((result) => {
