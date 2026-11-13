@@ -16,7 +16,7 @@ describe("aggregateTeacherQuestionAnalytics", () => {
         section: "listening", summary: { correct: 1, incorrect: 0, omitted: 0, total: 50 },
         review: [{ section: "listening", question: 1, selected: "C", correctAnswer: "C", correct: true }],
       },
-    ]);
+    ], "ets-volume3-practice-test-a");
     expect(result.completedAttempts).toBe(2);
     expect(result.sections.listening.questions).toBe(50);
     expect(result.sections.structure.questions).toBe(40);

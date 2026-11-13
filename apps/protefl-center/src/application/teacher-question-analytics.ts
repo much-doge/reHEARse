@@ -50,7 +50,7 @@ function emptySection(section: Section, questionCounts: Record<Section, number>)
   };
 }
 
-export function aggregateTeacherQuestionAnalytics(results: TeacherQuestionResult[], packageCode = "ets-volume3-practice-test-a"): TeacherQuestionAnalytics {
+export function aggregateTeacherQuestionAnalytics(results: TeacherQuestionResult[], packageCode: string): TeacherQuestionAnalytics {
   const descriptor = diagnosticPackage(packageCode);
   if (!descriptor) throw new Error("package_not_registered");
   const questionCounts = descriptor.questionCounts as Record<Section, number>;
