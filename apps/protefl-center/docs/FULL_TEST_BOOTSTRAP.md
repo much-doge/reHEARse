@@ -69,6 +69,20 @@ assignment:
 verification: {content: pending, answer_keys: pending, audio: pending, layout: pending, access_control: pending, deployment: pending}
 ```
 
+The reusable structural gate is:
+
+```bash
+python3 apps/protefl-center/scripts/verify-diagnostic-package.py \
+  apps/protefl-center/content/<package-directory>
+```
+
+The verifier reads the package manifest, answer-key section lengths, structured
+questions/options, Structure blanks/underlines, and Listening timing/map files
+from the supplied package. It does not assume Practice Test A's form name,
+question totals, passage count, or filenames. A package may still be kept as a
+partial source checkpoint (for example Listening-only) until its descriptor and
+publication gates are complete.
+
 The assignment identity is part of the template. A learner may legitimately
 have two cards for the same package—for example, “November full diagnostic”
 and “November Reading review.” Each card has its own assignment ID, attempt
