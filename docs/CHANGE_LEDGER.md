@@ -1,6 +1,6 @@
 # Change ledger
 
-| LFL-095 | planned | Allow the same learner to receive and open multiple assignments for the same diagnostic package, including repeated full and section-only assignments, by removing the stale pre-LFL-069 attempt-number uniqueness boundary and adding regression coverage | Pending migration, focused assignment/diagnostic tests, deployment backup, and PCT128 verification | `docs/LFL095_REPEAT_DIAGNOSTIC_ASSIGNMENTS_RECEIPT.md` |
+| LFL-095 | deployed | Allow the same learner to receive and open multiple assignments for the same diagnostic package, including repeated full and section-only assignments, by removing the stale pre-LFL-069 attempt-number uniqueness boundary and adding regression coverage | Source commit `8c26678`; migration 044 applied in PCT128; app `rehearse-app:f384658` remained healthy without restart; synthetic transaction proved attempt 1 can be inserted for both a second full and section assignment; public health HTTP 200 | `docs/LFL095_REPEAT_DIAGNOSTIC_ASSIGNMENTS_RECEIPT.md` |
 
 | LFL-094 | deployed | Audit every vocabulary card's contextual part-of-speech label against its example sentence, correct source/example mismatches without rewriting learner history, and add a concise context-label note for learners and teachers | Source-complete at `f384658`; deployed in PCT128 as `rehearse-app:f384658`; migration `043_vocabulary_pos_context_v5.sql` applied; public `/api/health` HTTP 200; prior v4 assignment/attempt evidence preserved | `docs/LFL094_VOCABULARY_POS_AUDIT_RECEIPT.md` |
 
