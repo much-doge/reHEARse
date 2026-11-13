@@ -1,6 +1,6 @@
 # LFL-096 assignment-behaviour sweep
 
-Status: source-complete; deployment pending
+Status: deployed to PCT128; authenticated learner/teacher journey remains pending
 
 ## Scope
 
@@ -49,4 +49,21 @@ the deployed fix for repeated package assignments.
 - Focused adapter/resource/delivery tests: 20 passed.
 - Full Vitest suite: 55 files, 210 tests passed.
 - Changed-file ESLint and repository TypeScript passed.
-- PCT128 deployment and live health verification: pending.
+- Source commit: `c7c8329`.
+- PCT128 app-only image: `rehearse-app:c7c8329`, image digest
+  `sha256:305fdea307abea6fcba9d24cd413317339cc87c98561f272a206759886be4881`.
+- The release was built from the isolated tree
+  `/opt/rehearse/.releases/c7c8329`; the dirty operator checkout and its
+  unrelated edits were not used or modified. Only the app service was
+  recreated. No migration or database write was performed.
+- `rehearse-app-1` and `rehearse-postgres-1` are healthy with zero restarts.
+- In-guest LAN and public `/api/health` both returned HTTP 200 with
+  `{"status":"ok","service":"rehearse","contractVersion":"health.v1"}`.
+- Signed-out `/test-center/teaching` returned HTTP 307 and unauthenticated
+  `/api/test-center/resources` returned HTTP 401.
+- Existing assignments, active attempts, historical attempts, events, and
+  results were not rewritten. Authenticated browser and classroom checks remain
+  operator-side verification items.
+
+Rollback is app-only to the retained `rehearse-app:f384658` image; no database
+rollback is required.
