@@ -1,6 +1,6 @@
 # Change ledger
 
-| LFL-094 | planned | Audit every vocabulary card's contextual part-of-speech label against its example sentence, correct source/example mismatches without rewriting learner history, and add a concise context-label note for learners and teachers | Pending source audit, package versioning, focused tests, and deployment evidence | `docs/LFL094_VOCABULARY_POS_AUDIT_RECEIPT.md` |
+| LFL-094 | deployed | Audit every vocabulary card's contextual part-of-speech label against its example sentence, correct source/example mismatches without rewriting learner history, and add a concise context-label note for learners and teachers | Source-complete at `f384658`; deployed in PCT128 as `rehearse-app:f384658`; migration `043_vocabulary_pos_context_v5.sql` applied; public `/api/health` HTTP 200; prior v4 assignment/attempt evidence preserved | `docs/LFL094_VOCABULARY_POS_AUDIT_RECEIPT.md` |
 
 | LFL-093 | deployed | Move the answer-key reveal control into each rendered teacher question item so explanation mode is reachable without scrolling back to the analytics header | Inline per-question control now keeps key/correctness hidden by default and reveals only the opened item across Listening, Structure, and Reading; ESLint, TypeScript, diff check, Next build, PCT128 image `rehearse-app:e344174`, and public health 200 passed | `docs/LFL093_INLINE_ANSWER_REVEAL_RECEIPT.md`; `src/components/test-center/resources.tsx`; `src/components/test-center/resources.css`; `e344174` |
 
