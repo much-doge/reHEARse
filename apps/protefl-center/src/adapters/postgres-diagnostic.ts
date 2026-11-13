@@ -44,7 +44,7 @@ function packageRoot(code = defaultPackageCode) {
   return diagnosticPackagePath(code) ?? join(process.cwd(), "apps/protefl-center/content/__missing__");
 }
 async function packageJson<T>(code: string, name: string): Promise<T> {
-  return JSON.parse(await readFile(join(packageRoot(code), name), "utf8")) as T;
+  return JSON.parse(await readFile(join(/*turbopackIgnore: true*/ packageRoot(code), name), "utf8")) as T;
 }
 async function pinnedPackageHashes(code = defaultPackageCode) {
   const descriptor = packageDescriptor(code);
@@ -240,7 +240,7 @@ export async function teacherDiagnosticAudio(
   const descriptor = diagnosticPackage(String(authorized.rows[0].code));
   if (!descriptor) return null;
   try {
-    return await readFile(join(packageRoot(descriptor.code), descriptor.files.listeningAudio));
+    return await readFile(join(/*turbopackIgnore: true*/ packageRoot(descriptor.code), descriptor.files.listeningAudio));
   } catch {
     return null;
   }
@@ -252,7 +252,7 @@ export async function diagnosticAudio(actorId: string, id: string) {
   const descriptor = diagnosticPackage(String(attempt.resource_code ?? ""));
   if (!descriptor) return null;
   try {
-    return await readFile(join(packageRoot(descriptor.code), descriptor.files.listeningAudio));
+    return await readFile(join(/*turbopackIgnore: true*/ packageRoot(descriptor.code), descriptor.files.listeningAudio));
   } catch {
     return null;
   }

@@ -1,39 +1,26 @@
 import type { NextConfig } from "next";
+import { diagnosticPackageCodes, diagnosticPackage } from "./apps/protefl-center/src/application/diagnostic-package";
+
+const registeredDiagnosticPackages = diagnosticPackageCodes()
+  .map((code) => diagnosticPackage(code))
+  .filter((descriptor): descriptor is NonNullable<typeof descriptor> => Boolean(descriptor));
+const diagnosticPackageAssets = registeredDiagnosticPackages.flatMap((descriptor) =>
+  Object.values(descriptor.files).map((file) => `./apps/protefl-center/content/${descriptor.directory}/${file}`),
+);
+const diagnosticPrivateSourceFiles = registeredDiagnosticPackages.flatMap((descriptor) =>
+  descriptor.privateSourceFiles.map((file) => `./apps/protefl-center/content/${descriptor.directory}/${file}`),
+);
 
 const nextConfig: NextConfig = {
   output: "standalone",
   poweredByHeader: false,
   outputFileTracingIncludes: {
-    "/test-center/diagnostic/*": [
-      "./apps/protefl-center/content/ets-volume3-practice-test-a-v1/source/practice-test-a-listening.m4a",
-      "./apps/protefl-center/content/ets-volume3-practice-test-a-v1/package-manifest.json",
-      "./apps/protefl-center/content/ets-volume3-practice-test-a-v1/metadata/answer-key-practice-test-a-v1.json",
-      "./apps/protefl-center/content/ets-volume3-practice-test-a-v1/metadata/instructions-practice-test-a-v1.json",
-      "./apps/protefl-center/content/ets-volume3-practice-test-a-v1/metadata/listening-pauses-v1.json",
-      "./apps/protefl-center/content/ets-volume3-practice-test-a-v1/metadata/listening-question-map-v1.json",
-      "./apps/protefl-center/content/ets-volume3-practice-test-a-v1/metadata/questions-practice-test-a-v1.json",
-      "./apps/protefl-center/content/ets-volume3-practice-test-a-v1/metadata/score-conversion-practice-test-a-v1.json",
-    ],
-    "/api/test-center/diagnostic/**/*": [
-      "./apps/protefl-center/content/ets-volume3-practice-test-a-v1/source/practice-test-a-listening.m4a",
-      "./apps/protefl-center/content/ets-volume3-practice-test-a-v1/package-manifest.json",
-      "./apps/protefl-center/content/ets-volume3-practice-test-a-v1/metadata/answer-key-practice-test-a-v1.json",
-      "./apps/protefl-center/content/ets-volume3-practice-test-a-v1/metadata/instructions-practice-test-a-v1.json",
-      "./apps/protefl-center/content/ets-volume3-practice-test-a-v1/metadata/listening-pauses-v1.json",
-      "./apps/protefl-center/content/ets-volume3-practice-test-a-v1/metadata/listening-question-map-v1.json",
-      "./apps/protefl-center/content/ets-volume3-practice-test-a-v1/metadata/questions-practice-test-a-v1.json",
-      "./apps/protefl-center/content/ets-volume3-practice-test-a-v1/metadata/score-conversion-practice-test-a-v1.json",
-    ],
+    "/test-center/diagnostic/*": diagnosticPackageAssets,
+    "/api/test-center/diagnostic/**/*": diagnosticPackageAssets,
   },
   outputFileTracingExcludes: {
-    "/test-center/diagnostic/*": [
-      "./apps/protefl-center/content/ets-volume3-practice-test-a-v1/source/ets-toefl-itp-volume-3.pdf",
-      "./apps/protefl-center/content/ets-volume3-practice-test-a-v1/source/ets-toefl-itp-volume-3-layout.txt",
-    ],
-    "/api/test-center/diagnostic/**/*": [
-      "./apps/protefl-center/content/ets-volume3-practice-test-a-v1/source/ets-toefl-itp-volume-3.pdf",
-      "./apps/protefl-center/content/ets-volume3-practice-test-a-v1/source/ets-toefl-itp-volume-3-layout.txt",
-    ],
+    "/test-center/diagnostic/*": diagnosticPrivateSourceFiles,
+    "/api/test-center/diagnostic/**/*": diagnosticPrivateSourceFiles,
   },
   async headers() {
     const privateNoStore = [

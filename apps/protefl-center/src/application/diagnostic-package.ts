@@ -18,6 +18,7 @@ export type DiagnosticPackageDescriptor = {
     listeningQuestionMap: string;
     listeningAudio: string;
   };
+  privateSourceFiles: readonly string[];
   resultVersions: {
     full: string;
     sectionAssignment: string;
@@ -48,6 +49,7 @@ const descriptors: Readonly<Record<string, DiagnosticPackageDescriptor>> = {
       listeningQuestionMap: "metadata/listening-question-map-v1.json",
       listeningAudio: "source/practice-test-a-listening.m4a",
     },
+    privateSourceFiles: ["source/ets-toefl-itp-volume-3.pdf", "source/ets-toefl-itp-volume-3-layout.txt"],
     resultVersions: {
       full: "ets-volume3-practice-test-a.result.v1",
       sectionAssignment: "ets-volume3-practice-test-a.section-assignment.v1",

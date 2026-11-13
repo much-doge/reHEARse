@@ -7,6 +7,10 @@ describe("diagnostic package catalogue", () => {
     const descriptor = diagnosticPackage("ets-volume3-practice-test-a");
     expect(descriptor?.supportedSections).toEqual(["listening", "structure", "reading"]);
     expect(descriptor?.questionCounts).toEqual({ listening: 50, structure: 40, reading: 50 });
+    expect(descriptor?.privateSourceFiles).toEqual([
+      "source/ets-toefl-itp-volume-3.pdf",
+      "source/ets-toefl-itp-volume-3-layout.txt",
+    ]);
     expect(diagnosticPackagePath(descriptor!.code)).toContain("apps/protefl-center/content/ets-volume3-practice-test-a-v1");
   });
 
