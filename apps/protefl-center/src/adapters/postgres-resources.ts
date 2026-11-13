@@ -284,6 +284,7 @@ export async function listManagedResources(staffActorId: string, staffRole: "tea
           AND ($2='admin' OR a.assigned_by=$1)) AS assigned_count
      FROM protefl_resource r
      WHERE $2='admin'
+        OR (r.status='published' AND r.kind='diagnostic_package')
         OR r.created_by=$1
         OR EXISTS (SELECT 1 FROM protefl_resource_assignment owned WHERE owned.resource_id=r.id AND owned.assigned_by=$1)
         OR EXISTS (SELECT 1 FROM protefl_resource_invite owned WHERE owned.resource_id=r.id AND owned.created_by=$1)

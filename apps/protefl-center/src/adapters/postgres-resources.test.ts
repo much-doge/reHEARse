@@ -8,7 +8,7 @@ const { clientQuery, connect, poolQuery } = vi.hoisted(() => ({
 vi.mock("@/adapters/db/client", () => ({ getPool: () => ({ connect, query: poolQuery }) }));
 vi.mock("@/adapters/identity/password", () => ({ hashPassword: vi.fn() }));
 
-import { archiveCandidateDiagnostic, claimResource, getManagedQuestionAnalytics } from "./postgres-resources";
+import { archiveCandidateDiagnostic, claimResource, getManagedQuestionAnalytics, listManagedResources } from "./postgres-resources";
 import { restartCandidateDiagnosticSection } from "./postgres-diagnostic";
 
 const actor = "11111111-1111-4111-8111-111111111111";
@@ -20,6 +20,14 @@ describe("assignment title pinning and diagnostic archive boundaries", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     connect.mockResolvedValue({ query: clientQuery, release: vi.fn() });
+  });
+
+  it("lets teachers see published diagnostic packages before the first code is issued", async () => {
+    poolQuery.mockResolvedValueOnce({ rowCount: 0, rows: [] }).mockResolvedValueOnce({ rowCount: 0, rows: [] });
+
+    await expect(listManagedResources(staff, "teacher")).resolves.toEqual([]);
+
+    expect(poolQuery.mock.calls[0]?.[0]).toContain("r.status='published' AND r.kind='diagnostic_package'");
   });
 
   it.each(["private", "classroom"] as const)("copies the invite title when a %s code is claimed", async (inviteKind) => {
