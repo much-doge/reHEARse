@@ -6,11 +6,14 @@ import packageV1Json from "../../../content/vocabulary/toefl-itp-full-frequency.
 import packageV2Json from "../../../content/vocabulary/toefl-itp-full-frequency.v2.json";
 import packageV3Json from "../../../content/vocabulary/toefl-itp-full-frequency.v3.json";
 import packageV4Json from "../../../content/vocabulary/toefl-itp-full-frequency.v4.json";
+import packageV5Json from "../../../content/vocabulary/toefl-itp-full-frequency.v5.json";
 
 type Part = "Noun" | "Verb" | "Adjective" | "Adverb";
 type Card = { id: string; headword: string; targetPart?: Part; partsOfSpeech: Part[]; classification: string[]; teachingFocus: string[]; priority: string[]; frequencyBand: string[]; frequencyReference: string[]; wordForms: string[]; bookOccurrences: number | null; bookTestCoverage: number | null; skillOccurrences: { listening: number; structure: number; reading: number }; sourceRows: number; example?: { sentence: string; highlightStart: number; highlightLength: number; source: "wordnet-3.0" | "rehearse-original" | "rehearse-authored" } };
 type Package = { contractVersion: string; version: number; id: string; title: string; prompt: string; sourceNote: string; cardCount: number; cards: Card[] };
-const packageByVersion = new Map<number, Package>([[1, packageV1Json as Package], [2, packageV2Json as Package], [3, packageV3Json as Package], [4, packageV4Json as Package]]);
+const packageByVersion = new Map<number, Package>([[1, packageV1Json as Package], [2, packageV2Json as Package], [3, packageV3Json as Package], [4, packageV4Json as Package], [5, packageV5Json as Package]]);
+const contextualPackageMinimum = 4;
+const isContextualPackage = (version: number) => version >= contextualPackageMinimum;
 const roundSize = 20;
 const reviewIntervalsDays = [1, 3, 7, 14];
 const separationHeadwords = 6;
@@ -61,7 +64,7 @@ async function ensureQueue(client: PoolClient, assignmentId: string, pack: Packa
   const generation = Number(generationResult.rows[0].n);
   await client.query(
     `INSERT INTO vocabulary_queue_lineage (id,assignment_id,generation,package_version,seed)
-     VALUES ($1,$2,$3,4,$4)`, [lineageId, assignmentId, generation, seed],
+     VALUES ($1,$2,$3,$4,$5)`, [lineageId, assignmentId, generation, pack.version, seed],
   );
   await client.query(
     `INSERT INTO vocabulary_queue_lineage_event (assignment_id,lineage_id,event_type,reason)
@@ -70,7 +73,7 @@ async function ensureQueue(client: PoolClient, assignmentId: string, pack: Packa
   const unseenOrder = deterministicOrder(pack.cards.map((card) => card.id), seed);
   const inserted = await client.query(
     `INSERT INTO vocabulary_practice_queue (assignment_id,package_version,lineage_id,seed,unseen_order)
-     VALUES ($1,4,$2,$3,$4::jsonb) RETURNING *`, [assignmentId, lineageId, seed, JSON.stringify(unseenOrder)],
+     VALUES ($1,$2,$3,$4,$5::jsonb) RETURNING *`, [assignmentId, pack.version, lineageId, seed, JSON.stringify(unseenOrder)],
   );
   return inserted.rows[0] as QueueRow;
 }
@@ -163,8 +166,9 @@ async function createV4Attempt(client: PoolClient, assignmentId: string, learner
     [assignmentId, learnerId],
   );
   if (!assignment.rows[0]) throw new VocabularyError("assignment_unavailable", 404);
-  if (Number(assignment.rows[0].package_version) !== 4) throw new VocabularyError("package_unavailable", 503);
-  const pack = vocabularyPackage(4);
+  const packageVersion = Number(assignment.rows[0].package_version);
+  if (!isContextualPackage(packageVersion)) throw new VocabularyError("package_unavailable", 503);
+  const pack = vocabularyPackage(packageVersion);
   const queue = await ensureQueue(client, assignmentId, pack);
   await archiveLegacyAttempt(client, assignmentId, queue.lineage_id);
   const latest = await client.query(
@@ -178,9 +182,9 @@ async function createV4Attempt(client: PoolClient, assignmentId: string, learner
   const numberResult = await client.query("SELECT COALESCE(max(attempt_number),0)+1 AS n FROM vocabulary_attempt WHERE assignment_id=$1", [assignmentId]);
   const inserted = await client.query(
     `INSERT INTO vocabulary_attempt (assignment_id,attempt_number,previous_attempt_id,package_version,card_order,status)
-     VALUES ($1,$2,$3,4,'[]'::jsonb,'active')
+     VALUES ($1,$2,$3,$4,'[]'::jsonb,'active')
      RETURNING id,attempt_number,previous_attempt_id,package_version,card_order,status,created_at,completed_at`,
-    [assignmentId, Number(numberResult.rows[0].n), latest.rows[0]?.id ?? null],
+    [assignmentId, Number(numberResult.rows[0].n), latest.rows[0]?.id ?? null, pack.version],
   );
   await client.query("UPDATE vocabulary_practice_queue SET batch_exposure_count=0,current_exposure_id=NULL,updated_at=now() WHERE assignment_id=$1", [assignmentId]);
   const freshQueue = (await client.query("SELECT * FROM vocabulary_practice_queue WHERE assignment_id=$1 FOR UPDATE", [assignmentId])).rows[0] as QueueRow;
@@ -192,7 +196,7 @@ async function resolveV4Exposure(client: PoolClient, learnerId: string, attemptI
   const attempt = await client.query(
     `SELECT t.id,t.assignment_id,t.card_order,a.package_version
      FROM vocabulary_attempt t JOIN vocabulary_assignment a ON a.id=t.assignment_id
-     WHERE t.id=$1 AND a.learner_id=$2 AND a.revoked_at IS NULL AND t.status='active' AND t.package_version=4 FOR UPDATE`,
+     WHERE t.id=$1 AND a.learner_id=$2 AND a.revoked_at IS NULL AND t.status='active' AND t.package_version >= 4 FOR UPDATE`,
     [attemptId, learnerId],
   );
   if (!attempt.rows[0]) throw new VocabularyError("attempt_unavailable", 404);
@@ -208,7 +212,7 @@ async function resolveV4Exposure(client: PoolClient, learnerId: string, attemptI
   if (!presented.rows[0]) throw new VocabularyError("exposure_unavailable", 404);
   const existing = await client.query("SELECT event_type FROM vocabulary_practice_event WHERE exposure_id=$1 AND event_type IN ('answered','skipped')", [exposureId]);
   if (existing.rowCount) throw new VocabularyError("exposure_already_resolved");
-  const card = vocabularyPackage(4).cards.find((item) => item.id === String(presented.rows[0].card_id));
+  const card = vocabularyPackage(Number(attempt.rows[0].package_version)).cards.find((item) => item.id === String(presented.rows[0].card_id));
   if (!card) throw new VocabularyError("package_unavailable", 503);
   const expected = card.targetPart ?? card.partsOfSpeech[0];
   const isCorrect = kind === "answered" && chosenPart === expected;
@@ -255,7 +259,7 @@ async function advanceV4Batch(client: PoolClient, learnerId: string, attemptId: 
   const attempt = await client.query(
     `SELECT t.assignment_id,t.card_order FROM vocabulary_attempt t
      JOIN vocabulary_assignment a ON a.id=t.assignment_id
-     WHERE t.id=$1 AND a.learner_id=$2 AND a.revoked_at IS NULL AND t.status='active' AND t.package_version=4 FOR UPDATE`,
+     WHERE t.id=$1 AND a.learner_id=$2 AND a.revoked_at IS NULL AND t.status='active' AND t.package_version >= 4 FOR UPDATE`,
     [attemptId, learnerId],
   );
   if (!attempt.rows[0]) throw new VocabularyError("attempt_unavailable", 404);
@@ -274,7 +278,8 @@ async function advanceV4Batch(client: PoolClient, learnerId: string, attemptId: 
   }
   await client.query("UPDATE vocabulary_practice_queue SET current_exposure_id=NULL WHERE assignment_id=$1", [assignmentId]);
   const cleared = (await client.query("SELECT * FROM vocabulary_practice_queue WHERE assignment_id=$1 FOR UPDATE", [assignmentId])).rows[0] as QueueRow;
-  const next = await presentNextV4Exposure(client, assignmentId, attemptId, cleared, vocabularyPackage(4));
+  const packageVersion = Number((await client.query("SELECT package_version FROM vocabulary_attempt WHERE id=$1", [attemptId])).rows[0]?.package_version ?? 4);
+  const next = await presentNextV4Exposure(client, assignmentId, attemptId, cleared, vocabularyPackage(packageVersion));
   return { completed: false, nextExposureId: next?.exposureId ?? null };
 }
 
@@ -439,7 +444,15 @@ async function archiveLegacyAttempt(client: PoolClient, assignmentId: string, li
 }
 
 async function v4AttemptState(client: PoolClient, learnerId: string, assignmentId: string, requestedAttemptId?: string) {
-  const pack = vocabularyPackage(4);
+  const versionResult = await client.query(
+    requestedAttemptId
+      ? "SELECT package_version FROM vocabulary_attempt WHERE id=$1 AND assignment_id=$2"
+      : "SELECT package_version FROM vocabulary_assignment WHERE id=$1 AND learner_id=$2 AND revoked_at IS NULL",
+    requestedAttemptId ? [requestedAttemptId, assignmentId] : [assignmentId, learnerId],
+  );
+  const packageVersion = Number(versionResult.rows[0]?.package_version ?? 4);
+  if (!isContextualPackage(packageVersion)) throw new VocabularyError("package_unavailable", 503);
+  const pack = vocabularyPackage(packageVersion);
   let queue = await ensureQueue(client, assignmentId, pack);
   await archiveLegacyAttempt(client, assignmentId, queue.lineage_id);
   let runResult;
@@ -448,7 +461,7 @@ async function v4AttemptState(client: PoolClient, learnerId: string, assignmentI
       `SELECT t.id,t.attempt_number,t.previous_attempt_id,t.card_order,t.status,t.created_at,t.completed_at,
          a.assignment_title,t.package_version
        FROM vocabulary_attempt t JOIN vocabulary_assignment a ON a.id=t.assignment_id
-       WHERE t.id=$1 AND t.assignment_id=$2 AND a.learner_id=$3 AND a.revoked_at IS NULL AND t.package_version=4`,
+       WHERE t.id=$1 AND t.assignment_id=$2 AND a.learner_id=$3 AND a.revoked_at IS NULL AND t.package_version >= 4`,
       [requestedAttemptId, assignmentId, learnerId],
     );
     if (!runResult.rows[0]) throw new VocabularyError("attempt_unavailable", 404);
@@ -460,7 +473,7 @@ async function v4AttemptState(client: PoolClient, learnerId: string, assignmentI
        WHERE t.assignment_id=$1 AND a.learner_id=$2 AND a.revoked_at IS NULL AND t.status<>'archived'
        ORDER BY t.attempt_number DESC LIMIT 1`, [assignmentId, learnerId],
     );
-    if (!runResult.rows[0] || Number(runResult.rows[0].package_version) < 4) {
+    if (!runResult.rows[0] || !isContextualPackage(Number(runResult.rows[0].package_version))) {
       const created = await createV4Attempt(client, assignmentId, learnerId,
         runResult.rows[0] && runResult.rows[0].status === "completed" ? String(runResult.rows[0].id) : null);
       runResult = { rows: [created] };
@@ -500,7 +513,7 @@ async function v4AttemptState(client: PoolClient, learnerId: string, assignmentI
     attempt: { id: String(run.id), number: Number(run.attempt_number), previousAttemptId: run.previous_attempt_id ? String(run.previous_attempt_id) : null,
       status: run.status as string, createdAt: new Date(run.created_at).toISOString(), completedAt: run.completed_at ? new Date(run.completed_at).toISOString() : null,
       cardOrder: run.card_order as string[] },
-    packageVersion: 4, isContextualQueue: true, lineageId: String(activeQueue.lineage_id),
+    packageVersion: pack.version, isContextualQueue: true, lineageId: String(activeQueue.lineage_id),
     batchExposureCount: Number(activeQueue.batch_exposure_count), currentExposureId: activeQueue.current_exposure_id,
     exposures, stats: await practiceStats(client, assignmentId, String(activeQueue.lineage_id)), prompt: pack.prompt,
   };
@@ -510,7 +523,7 @@ async function attemptState(client: PoolClient, learnerId: string, assignmentId:
   if (attemptId) {
     const version = await client.query("SELECT package_version FROM vocabulary_attempt WHERE id=$1 AND assignment_id=$2", [attemptId, assignmentId]);
     if (!version.rows[0]) throw new VocabularyError("attempt_unavailable", 404);
-    if (Number(version.rows[0].package_version) < 4) return legacyAttemptState(client, learnerId, assignmentId, attemptId);
+    if (!isContextualPackage(Number(version.rows[0].package_version))) return legacyAttemptState(client, learnerId, assignmentId, attemptId);
   }
   return v4AttemptState(client, learnerId, assignmentId, attemptId);
 }
@@ -681,10 +694,10 @@ export async function teacherVocabularyAssignments(staffId: string, role: "teach
        COALESCE(jsonb_agg(jsonb_build_object('id',a.id,'learnerId',a.learner_id,'name',u.display_name,'email',u.email,'createdAt',a.created_at,
          'attempts',(SELECT COALESCE(jsonb_agg(jsonb_build_object(
            'id',t.id,'number',t.attempt_number,'status',t.status,'createdAt',t.created_at,'completedAt',t.completed_at,'archivedAt',t.archived_at,
-           'presented',CASE WHEN t.package_version=4 THEN (SELECT count(*)::int FROM vocabulary_practice_event p WHERE p.attempt_id=t.id AND p.event_type='presented') ELSE (SELECT count(*)::int FROM vocabulary_event e WHERE e.attempt_id=t.id AND e.event_type='opened') END,
-           'right',CASE WHEN t.package_version=4 THEN (SELECT count(*)::int FROM vocabulary_practice_event p WHERE p.attempt_id=t.id AND p.event_type='answered' AND p.is_correct=true) ELSE (SELECT count(*)::int FROM vocabulary_event e WHERE e.attempt_id=t.id AND e.event_type='answered' AND e.is_correct=true) END,
-           'wrong',CASE WHEN t.package_version=4 THEN (SELECT count(*)::int FROM vocabulary_practice_event p WHERE p.attempt_id=t.id AND p.event_type='answered' AND p.is_correct=false) ELSE (SELECT count(*)::int FROM vocabulary_event e WHERE e.attempt_id=t.id AND e.event_type='answered' AND e.is_correct=false) END,
-           'open',CASE WHEN t.package_version=4 THEN (SELECT count(*)::int FROM vocabulary_practice_event p WHERE p.attempt_id=t.id AND p.event_type='presented' AND NOT EXISTS (SELECT 1 FROM vocabulary_practice_event r WHERE r.exposure_id=p.exposure_id AND r.event_type IN ('answered','skipped'))) ELSE (SELECT count(*)::int FROM vocabulary_event e WHERE e.attempt_id=t.id AND e.event_type='opened' AND NOT EXISTS (SELECT 1 FROM vocabulary_event r WHERE r.attempt_id=t.id AND r.card_id=e.card_id AND r.event_type='answered')) END
+           'presented',CASE WHEN t.package_version >= 4 THEN (SELECT count(*)::int FROM vocabulary_practice_event p WHERE p.attempt_id=t.id AND p.event_type='presented') ELSE (SELECT count(*)::int FROM vocabulary_event e WHERE e.attempt_id=t.id AND e.event_type='opened') END,
+           'right',CASE WHEN t.package_version >= 4 THEN (SELECT count(*)::int FROM vocabulary_practice_event p WHERE p.attempt_id=t.id AND p.event_type='answered' AND p.is_correct=true) ELSE (SELECT count(*)::int FROM vocabulary_event e WHERE e.attempt_id=t.id AND e.event_type='answered' AND e.is_correct=true) END,
+           'wrong',CASE WHEN t.package_version >= 4 THEN (SELECT count(*)::int FROM vocabulary_practice_event p WHERE p.attempt_id=t.id AND p.event_type='answered' AND p.is_correct=false) ELSE (SELECT count(*)::int FROM vocabulary_event e WHERE e.attempt_id=t.id AND e.event_type='answered' AND e.is_correct=false) END,
+           'open',CASE WHEN t.package_version >= 4 THEN (SELECT count(*)::int FROM vocabulary_practice_event p WHERE p.attempt_id=t.id AND p.event_type='presented' AND NOT EXISTS (SELECT 1 FROM vocabulary_practice_event r WHERE r.exposure_id=p.exposure_id AND r.event_type IN ('answered','skipped'))) ELSE (SELECT count(*)::int FROM vocabulary_event e WHERE e.attempt_id=t.id AND e.event_type='opened' AND NOT EXISTS (SELECT 1 FROM vocabulary_event r WHERE r.attempt_id=t.id AND r.card_id=e.card_id AND r.event_type='answered')) END
          ) ORDER BY t.attempt_number DESC),'[]'::jsonb) FROM vocabulary_attempt t WHERE t.assignment_id=a.id)
        )) FILTER (WHERE a.id IS NOT NULL),'[]'::jsonb) AS candidates
      FROM vocabulary_invite i LEFT JOIN vocabulary_assignment a ON a.invite_id=i.id
@@ -706,7 +719,7 @@ export async function teacherVocabularyReview(staffId: string, role: "teacher" |
   if (!attempt.rows[0]) throw new VocabularyError("attempt_unavailable", 404);
   const pack = vocabularyPackage(Number(attempt.rows[0].package_version));
   const cardById = new Map(pack.cards.map((card) => [card.id, card]));
-  if (Number(attempt.rows[0].package_version) === 4) {
+  if (isContextualPackage(Number(attempt.rows[0].package_version))) {
     const events = await getPool().query(
       `SELECT p.exposure_id,p.card_id,p.exposure_kind,p.queue_sequence,p.created_at AS presented_at,
          r.event_type AS resolution_type,r.selected_part,r.is_correct,r.created_at AS resolved_at
@@ -758,20 +771,20 @@ export async function resetVocabularyAssignment(staffId: string, role: "teacher"
       [assignmentId, staffId, role],
     );
     if (!allowed.rows[0]) throw new VocabularyError("assignment_unavailable", 404);
-    if (Number(allowed.rows[0].package_version) === 4) {
+    if (isContextualPackage(Number(allowed.rows[0].package_version))) {
       const queueResult = await client.query("SELECT * FROM vocabulary_practice_queue WHERE assignment_id=$1 FOR UPDATE", [assignmentId]);
       const oldQueue = queueResult.rows[0] as QueueRow | undefined;
       if (!oldQueue) throw new VocabularyError("attempt_unavailable", 404);
       const archived = await client.query(
         `UPDATE vocabulary_attempt SET status='archived',archived_at=now(),archived_by=$2
-         WHERE assignment_id=$1 AND package_version=4 AND status<>'archived' RETURNING id`, [assignmentId, staffId],
+         WHERE assignment_id=$1 AND package_version >= 4 AND status<>'archived' RETURNING id`, [assignmentId, staffId],
       );
       const nextGeneration = await client.query("SELECT COALESCE(max(generation),0)+1 AS n FROM vocabulary_queue_lineage WHERE assignment_id=$1", [assignmentId]);
       const newLineageId = randomUUID();
       const seed = randomBytes(32).toString("hex");
       await client.query(
         `INSERT INTO vocabulary_queue_lineage (id,assignment_id,generation,package_version,seed)
-         VALUES ($1,$2,$3,4,$4)`, [newLineageId, assignmentId, Number(nextGeneration.rows[0].n), seed],
+         VALUES ($1,$2,$3,$4,$5)`, [newLineageId, assignmentId, Number(nextGeneration.rows[0].n), Number(allowed.rows[0].package_version), seed],
       );
       await client.query(
         `INSERT INTO vocabulary_queue_lineage_event (assignment_id,lineage_id,event_type,actor_id,related_lineage_id,reason)
@@ -787,7 +800,7 @@ export async function resetVocabularyAssignment(staffId: string, role: "teacher"
         `UPDATE vocabulary_practice_queue SET lineage_id=$2,seed=$3,unseen_order=$4::jsonb,pending_retries='[]'::jsonb,
            recent_headwords='{}',headword_sequence=0,exposure_sequence=0,unseen_since_revisit=0,
            batch_exposure_count=0,current_exposure_id=NULL,updated_at=now() WHERE assignment_id=$1`,
-        [assignmentId, newLineageId, seed, JSON.stringify(deterministicOrder(vocabularyPackage(4).cards.map((card) => card.id), seed))],
+        [assignmentId, newLineageId, seed, JSON.stringify(deterministicOrder(vocabularyPackage(Number(allowed.rows[0].package_version)).cards.map((card) => card.id), seed))],
       );
       await client.query("COMMIT");
       return { archivedAttemptId: archived.rows[0] ? String(archived.rows[0].id) : null, archivedLineageId: oldQueue.lineage_id, newLineageId };
