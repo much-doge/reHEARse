@@ -324,7 +324,17 @@ export async function listManagedResources(staffActorId: string, staffRole: "tea
               (SELECT jsonb_build_object(
                  'id',completed.id,'number',completed.attempt_number,'status',completed.status,'scope',completed.scope,'deliveryScope',completed.delivery_scope,
                  'createdAt',completed.created_at,'completedAt',completed.completed_at,'archivedAt',completed.archived_at,
-                 'result',completed_result.result_data,'answeredCount',completed.answered_count,'retakeCount',completed.retake_count
+                 'result',completed_result.result_data,'answeredCount',completed.answered_count,'retakeCount',completed.retake_count,
+                 'retakes',COALESCE((
+                   SELECT jsonb_agg(jsonb_build_object(
+                     'id',retry.id,'section',retry.scope,'number',retry.section_retake_number,'status',retry.status,
+                     'teacherIssuedRestart',(retry.teacher_restarted_by IS NOT NULL),'createdAt',retry.created_at,
+                     'completedAt',retry.completed_at,'archivedAt',retry.archived_at,'result',retry_result.result_data
+                   ) ORDER BY retry.attempt_number)
+                   FROM protefl_diagnostic_attempt retry
+                   LEFT JOIN protefl_diagnostic_result retry_result ON retry_result.attempt_id=retry.id
+                   WHERE retry.parent_attempt_id=completed.id
+                 ),'[]'::jsonb)
                )
                FROM (
                  SELECT d.id,d.attempt_number,d.status,d.scope,d.delivery_scope,d.created_at,d.completed_at,d.archived_at,
@@ -355,21 +365,30 @@ export async function listManagedResources(staffActorId: string, staffRole: "tea
     title: row.title, status: row.status, createdAt: new Date(row.created_at).toISOString(),
     tags: Array.isArray(row.tags) ? row.tags.map(String) : [],
     assignedCount: Number(row.assigned_count),
-    candidates: candidates.rows.filter((candidate) => String(candidate.resource_id) === String(row.id)).map((candidate) => ({
-      assignmentId: String(candidate.assignment_id),
-      name: candidate.display_name as string,
-      email: candidate.email as string,
-      actorId: String(candidate.actor_id),
-      canResetPassword: candidate.can_reset_password === true,
-      deliveryScope: candidate.delivery_scope as "full" | "listening" | "structure" | "reading",
-      assignmentTitle: candidate.assignment_title as string,
-      attempts: candidate.latest_attempt ? [{ ...candidate.latest_attempt, retakes: [], answeredQuestions: [] }] : [],
-      latestCompletedAttempt: candidate.latest_completed_attempt ? { ...candidate.latest_completed_attempt, retakes: [], answeredQuestions: [] } : null,
-      attemptCount: Number(candidate.attempt_count),
-      retakeCount: Number(candidate.retake_count),
-      answeredCount: Number(candidate.answered_count),
-      historyLoaded: false,
-    })),
+    candidates: candidates.rows.filter((candidate) => String(candidate.resource_id) === String(row.id)).map((candidate) => {
+      const latestCompletedAttempt = candidate.latest_completed_attempt ? { ...candidate.latest_completed_attempt } : null;
+      if (latestCompletedAttempt?.result && Array.isArray(latestCompletedAttempt.retakes)) {
+        const resets = latestCompletedAttempt.retakes
+          .filter((retry: { teacherIssuedRestart?: boolean; archivedAt?: string | null; status?: string; section?: string; result?: unknown }) => retry.teacherIssuedRestart && !retry.archivedAt && retry.status === "completed" && retry.result && (retry.section === "listening" || retry.section === "structure" || retry.section === "reading"))
+          .map((retry: { section: "listening" | "structure" | "reading"; result: unknown }) => ({ section: retry.section, result: retry.result })) as CompletedSectionReset[];
+        latestCompletedAttempt.effectiveResult = resets.length ? effectiveDiagnosticResult(latestCompletedAttempt.result as FullDiagnosticResult, resets) : null;
+      }
+      return {
+        assignmentId: String(candidate.assignment_id),
+        name: candidate.display_name as string,
+        email: candidate.email as string,
+        actorId: String(candidate.actor_id),
+        canResetPassword: candidate.can_reset_password === true,
+        deliveryScope: candidate.delivery_scope as "full" | "listening" | "structure" | "reading",
+        assignmentTitle: candidate.assignment_title as string,
+        attempts: candidate.latest_attempt ? [{ ...candidate.latest_attempt, retakes: [], answeredQuestions: [] }] : [],
+        latestCompletedAttempt,
+        attemptCount: Number(candidate.attempt_count),
+        retakeCount: Number(candidate.retake_count),
+        answeredCount: Number(candidate.answered_count),
+        historyLoaded: false,
+      };
+    }),
   }));
 }
 
