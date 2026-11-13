@@ -1,5 +1,7 @@
 # Change ledger
 
+| LFL-088 | planning | Bootstrap an owner-authorized ETS TOEFL ITP Level 1 Volume 1 Practice Test A package in the bounded Test Center, using the supplied recording and editable Listening, Structure, and Reading content | Source package and audio inventory started; implementation, answer-key audit, audio alignment, application registration, deployment, and classroom verification pending | `apps/protefl-center/docs/LFL088_VOLUME1_PRACTICE_A_RECEIPT.md` |
+
 | LFL-087 | source_complete | Require exported diagnostic loader/start boundaries to receive an explicit registered package code instead of silently defaulting to Practice Test A | Changed-path ESLint, TypeScript, focused package/resource tests (12 passed), and `git diff --check` passed; no database or learner-data changes; deployment pending | `apps/protefl-center/src/adapters/postgres-diagnostic.ts`; `src/app/api/test-center/diagnostic/attempt/[packageCode]/route.ts`; `docs/LFL087_EXPLICIT_PACKAGE_BOUNDARY_RECEIPT.md` |
 
 | LFL-086 | source_complete | Remove the implicit Practice Test A fallback from teacher analytics aggregation so every cohort query must supply and validate its registered package code | Changed-path ESLint, TypeScript, analytics/resource tests (9 passed), and `git diff --check` passed; no database or learner-data changes; deployment pending | `apps/protefl-center/src/application/teacher-question-analytics.ts`; `apps/protefl-center/src/application/teacher-question-analytics.test.ts`; `docs/LFL086_ANALYTICS_PACKAGE_REQUIRED_RECEIPT.md` |
