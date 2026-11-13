@@ -155,7 +155,11 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, hist
       focusedSequenceIndex.current = 0; focusedAnswerRemaining.current = 12_000;
       setFocusedSequenceRunning(false); setFocusedSequencePosition(0); setFocusedAnswerQuestion(null); setFocusedAnswerDeadline(null); setFocusedPausedAnswerRemaining(12_000);
     } catch (error) {
-      setMessage(error instanceof Error && error.message === "no_missed_questions" ? "There are no missed questions in this section to retry." : "The diagnostic could not be opened. Check your assignment and try again.");
+      setMessage(error instanceof Error && error.message === "no_missed_questions"
+        ? "There are no missed questions in this section to retry."
+        : error instanceof Error && error.message === "assignment_scope_conflict"
+          ? "This assignment has an older attempt recorded under a different section scope. Ask your teacher for a fresh access code; the earlier attempt remains preserved in history."
+          : "The diagnostic could not be opened. Check your assignment and try again.");
     } finally { setBusy(false); }
   }
 

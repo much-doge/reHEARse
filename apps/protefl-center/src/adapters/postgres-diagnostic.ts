@@ -4,7 +4,7 @@ import { join } from "node:path";
 import type { PoolClient } from "pg";
 
 import { getPool } from "@/adapters/db/client";
-import { completesAfterSection } from "../application/diagnostic-delivery";
+import { attemptMatchesAssignmentScope, completesAfterSection } from "../application/diagnostic-delivery";
 import { effectiveDiagnosticResult, type CompletedSectionReset, type FullDiagnosticResult } from "../application/diagnostic-effective-result";
 import { convertedSectionRange, convertedTotalRange, type ScoreRangeRow } from "../application/diagnostic-scoring";
 
@@ -278,12 +278,16 @@ export async function startOrResumeDiagnostic(actorId: string, assignmentId: str
       [assignmentId, actorId, packageCode],
     )).rows[0];
     if (!access) throw new Error("resource_unavailable");
-    const active = (await client.query("SELECT id FROM protefl_diagnostic_attempt WHERE assignment_id=$1 AND actor_id=$2 AND status='in_progress' AND archived_at IS NULL ORDER BY attempt_number DESC LIMIT 1 FOR UPDATE", [access.assignment_id, actorId])).rows[0];
+    const active = (await client.query("SELECT id,delivery_scope FROM protefl_diagnostic_attempt WHERE assignment_id=$1 AND actor_id=$2 AND status='in_progress' AND archived_at IS NULL AND delivery_scope=$3 ORDER BY attempt_number DESC LIMIT 1 FOR UPDATE", [access.assignment_id, actorId, access.delivery_scope])).rows[0];
     if (active) {
+      if (!attemptMatchesAssignmentScope(active.delivery_scope, access.delivery_scope)) throw new Error("assignment_scope_conflict");
       await client.query("COMMIT");
       return { attemptId: String(active.id), resumed: true };
     }
-    const latest = (await client.query("SELECT id,attempt_number,status FROM protefl_diagnostic_attempt WHERE assignment_id=$1 AND actor_id=$2 AND scope='full' AND archived_at IS NULL ORDER BY attempt_number DESC LIMIT 1 FOR UPDATE", [access.assignment_id, actorId])).rows[0];
+    const conflictingActive = (await client.query("SELECT delivery_scope FROM protefl_diagnostic_attempt WHERE assignment_id=$1 AND actor_id=$2 AND status='in_progress' AND archived_at IS NULL ORDER BY attempt_number DESC LIMIT 1 FOR UPDATE", [access.assignment_id, actorId])).rows[0];
+    if (conflictingActive && !attemptMatchesAssignmentScope(conflictingActive.delivery_scope, access.delivery_scope)) throw new Error("assignment_scope_conflict");
+    const latest = (await client.query("SELECT id,attempt_number,status,delivery_scope FROM protefl_diagnostic_attempt WHERE assignment_id=$1 AND actor_id=$2 AND scope='full' AND archived_at IS NULL ORDER BY attempt_number DESC LIMIT 1 FOR UPDATE", [access.assignment_id, actorId])).rows[0];
+    if (latest && !attemptMatchesAssignmentScope(latest.delivery_scope, access.delivery_scope)) throw new Error("assignment_scope_conflict");
     // Hiding a resource stops new starts and retakes, but does not strand an
     // already assigned candidate who needs to resume an interrupted attempt.
     if (access.status !== "published") throw new Error("resource_unavailable");

@@ -29,7 +29,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ pac
     return Response.json(result, { headers });
   } catch (error) {
     const code = error instanceof Error ? error.message : "";
-    if (code === "no_missed_questions") return Response.json({ error: code }, { status: 409, headers });
+    if (code === "no_missed_questions" || code === "assignment_scope_conflict") return Response.json({ error: code }, { status: 409, headers });
     const limited = code === "attempt_unavailable";
     return Response.json({ error: limited ? "attempt_unavailable" : "resource_unavailable" }, { status: limited ? 409 : 404, headers });
   }

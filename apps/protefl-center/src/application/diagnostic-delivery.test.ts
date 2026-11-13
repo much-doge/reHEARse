@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { completesAfterSection, nextFullDiagnosticSection } from "./diagnostic-delivery";
+import { attemptMatchesAssignmentScope, completesAfterSection, nextFullDiagnosticSection } from "./diagnostic-delivery";
 
 describe("diagnostic delivery scope", () => {
   it("keeps the full diagnostic in its ordered three-section sequence", () => {
@@ -16,5 +16,11 @@ describe("diagnostic delivery scope", () => {
 
   it.each(["listening", "structure", "reading"] as const)("completes a focused %s retake independently", (section) => {
     expect(completesAfterSection(section, "full", section)).toBe(true);
+  });
+
+  it.each(["listening", "structure", "reading"] as const)("reuses a %s attempt only for the same assignment scope", (section) => {
+    expect(attemptMatchesAssignmentScope(section, section)).toBe(true);
+    expect(attemptMatchesAssignmentScope("full", section)).toBe(false);
+    expect(attemptMatchesAssignmentScope(section, "full")).toBe(false);
   });
 });
