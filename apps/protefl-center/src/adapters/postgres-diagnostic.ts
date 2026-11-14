@@ -4,7 +4,7 @@ import { join } from "node:path";
 import type { PoolClient } from "pg";
 
 import { getPool } from "@/adapters/db/client";
-import { attemptMatchesAssignmentScope, completesAfterSection } from "../application/diagnostic-delivery";
+import { attemptMatchesAssignmentScope, completesAfterSection, listeningAudioCompleted, listeningAudioPositionAllowed } from "../application/diagnostic-delivery";
 import { effectiveDiagnosticResult, type CompletedSectionReset, type FullDiagnosticResult } from "../application/diagnostic-effective-result";
 import { convertedSectionRange, convertedTotalRange, type ScoreRangeRow } from "../application/diagnostic-scoring";
 import { diagnosticPackage, diagnosticPackagePath, type DiagnosticPackageDescriptor } from "../application/diagnostic-package";
@@ -542,11 +542,11 @@ export async function applyDiagnosticAction(actorId: string, attemptId: string, 
       if (action.section === "reading" && (!attempt.reading_started_at || new Date(attempt.reading_deadline_at).getTime() < new Date(attempt.server_now).getTime())) throw new Error("action_unavailable");
       eventType = "answer"; section = action.section; question = action.question; choice = action.choice;
     } else if (action.type === "audio_played") {
-      if (attempt.current_section !== "listening" || !attempt.listening_started_at || !validQuestion("listening", action.question, descriptor.code) || !Number.isInteger(action.positionMs) || action.positionMs < 0 || action.positionMs > 2102073) throw new Error("action_unavailable");
+      const timeline = await packageJson<{ audioDurationMs: number; pauses: Array<{ question: number; answerWindowStartMs: number }> }>(descriptor.code, descriptor.files.listeningPauses);
+      if (attempt.current_section !== "listening" || !attempt.listening_started_at || !validQuestion("listening", action.question, descriptor.code) || !listeningAudioPositionAllowed(action.positionMs, timeline.audioDurationMs)) throw new Error("action_unavailable");
       const selectedQuestions = Array.isArray(attempt.selected_questions) ? attempt.selected_questions.map(Number) as number[] : null;
       if (selectedQuestions && !selectedQuestions.includes(action.question)) throw new Error("action_unavailable");
       if (attempt.listening_mode === "autoplay") {
-        const timeline = await packageJson<{ audioDurationMs: number; pauses: Array<{ question: number; answerWindowStartMs: number }> }>(descriptor.code, descriptor.files.listeningPauses);
         const expected = timeline.pauses[action.question - 1];
         const prior = await client.query("SELECT question_number FROM protefl_diagnostic_event WHERE attempt_id=$1 AND event_type='audio_played' AND event_data->>'final' IS DISTINCT FROM 'true' ORDER BY id DESC LIMIT 1", [attemptId]);
         const lastQuestion = Number(prior.rows[0]?.question_number ?? 0);
@@ -576,7 +576,8 @@ export async function applyDiagnosticAction(actorId: string, attemptId: string, 
             const progress = await client.query("SELECT max((event_data->>'positionMs')::int) AS position FROM protefl_diagnostic_event WHERE attempt_id=$1 AND event_type='audio_played'", [attemptId]);
             const audioPosition = Number(progress.rows[0].position ?? 0);
             const elapsed = new Date(attempt.server_now).getTime() - new Date(attempt.listening_started_at).getTime();
-            if (audioPosition < 2_101_073 || elapsed < 2_101_073) throw new Error("listening_incomplete");
+            const timeline = await packageJson<{ audioDurationMs: number }>(descriptor.code, descriptor.files.listeningPauses);
+            if (!listeningAudioCompleted(audioPosition, elapsed, timeline.audioDurationMs)) throw new Error("listening_incomplete");
           }
         }
         section = "listening";

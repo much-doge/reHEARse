@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { attemptMatchesAssignmentScope, completesAfterSection, nextFullDiagnosticSection } from "./diagnostic-delivery";
+import { attemptMatchesAssignmentScope, completesAfterSection, listeningAudioCompleted, listeningAudioPositionAllowed, nextFullDiagnosticSection } from "./diagnostic-delivery";
 
 describe("diagnostic delivery scope", () => {
   it("keeps the full diagnostic in its ordered three-section sequence", () => {
@@ -22,5 +22,11 @@ describe("diagnostic delivery scope", () => {
     expect(attemptMatchesAssignmentScope(section, section)).toBe(true);
     expect(attemptMatchesAssignmentScope("full", section)).toBe(false);
     expect(attemptMatchesAssignmentScope(section, "full")).toBe(false);
+  });
+
+  it("accepts the final position for shorter packages instead of using a stale global duration", () => {
+    expect(listeningAudioPositionAllowed(2_094_962, 2_094_962)).toBe(true);
+    expect(listeningAudioCompleted(2_094_962, 2_094_900, 2_094_962)).toBe(true);
+    expect(listeningAudioCompleted(2_094_000, 2_094_900, 2_094_962)).toBe(false);
   });
 });

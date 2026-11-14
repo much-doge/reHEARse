@@ -28,3 +28,12 @@ export function nextFullDiagnosticSection(section: DiagnosticSection): Diagnosti
   if (section === "structure") return "reading";
   return "completed";
 }
+
+/** Keep package-specific audio validation tolerant of a final timeupdate tick. */
+export function listeningAudioPositionAllowed(positionMs: number, audioDurationMs: number) {
+  return Number.isInteger(positionMs) && positionMs >= 0 && positionMs <= audioDurationMs + 1_000;
+}
+
+export function listeningAudioCompleted(audioPositionMs: number, elapsedMs: number, audioDurationMs: number) {
+  return audioPositionMs >= audioDurationMs || elapsedMs >= audioDurationMs;
+}
