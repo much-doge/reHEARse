@@ -1,6 +1,6 @@
 # LFL-098 Reading workspace sweep
 
-Status: source-complete; deployment pending
+Status: deployed to PCT128; authenticated responsive inspection pending
 
 ## Scope
 
@@ -43,4 +43,17 @@ some browsers.
 - Full Vitest suite: 55 files, 210 tests passed.
 - Next production build passed locally.
 - `git diff --check` passed.
-- Deployment and authenticated responsive browser inspection remain pending.
+- Source commit: `d21d502` (`fix(test-center): fill reading passage workspace`).
+- PCT128 release tree: `/opt/rehearse/.releases/d21d502`.
+- Runtime image: `rehearse-app:d21d502` (`sha256:54952ca65a3b839fa830ef34e1c08e5085b761f0a715db164829dcebc4a00ef3`).
+- Deployment was app-only (`docker compose up -d --no-deps app`); no migration,
+  database write, attempt rewrite, answer change, or timer change was performed.
+- Runtime checks after deployment: app healthy, PostgreSQL healthy, both restart
+  counts 0, LAN `/api/health` HTTP 200, public `/api/health` HTTP 200,
+  signed-out `/test-center/teaching` HTTP 307, and unauthenticated
+  `/api/test-center/resources` HTTP 401.
+- Application startup logs show a clean Next.js ready state. Authenticated
+  responsive browser inspection remains pending; HTTP checks do not prove the
+  learner touch/trackpad journey.
+- Rollback is app-only: redeploy the previous `rehearse-app:70395bd` image from
+  its release tree if the new reading layout must be withdrawn.
