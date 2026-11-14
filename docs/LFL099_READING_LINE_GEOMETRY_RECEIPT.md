@@ -1,6 +1,6 @@
 # LFL-099 Reading line geometry
 
-Status: source-complete; deployment pending
+Status: deployed to PCT128; authenticated responsive inspection pending
 
 ## Scope
 
@@ -25,4 +25,17 @@ normalization or line reconstruction is performed.
 - Full Vitest suite: 55 files, 210 tests passed.
 - Next production build passed locally.
 - `git diff --check` passed.
-- Deployment and authenticated responsive browser inspection remain pending.
+- Source commit: `1360204` (`fix(test-center): preserve reading line geometry on zoom`).
+- PCT128 release tree: `/opt/rehearse/.releases/1360204`.
+- Runtime image: `rehearse-app:1360204` (`sha256:cc203de2945e3e0a87783b05d3b77f21aa682f2ea01fd0b7990a601a07617f02`).
+- Deployment was app-only (`docker compose up -d --no-deps app`); no migration,
+  database write, attempt rewrite, answer change, or timer change was performed.
+- Runtime checks after deployment: app healthy, PostgreSQL healthy, both restart
+  counts 0, LAN `/api/health` HTTP 200, public `/api/health` HTTP 200,
+  signed-out `/test-center/teaching` HTTP 307, and unauthenticated
+  `/api/test-center/resources` HTTP 401.
+- Application startup logs show a clean Next.js ready state. Authenticated
+  responsive browser inspection remains pending; HTTP checks do not prove the
+  learner touch/trackpad journey.
+- Rollback is app-only: redeploy the previous `rehearse-app:d21d502` image from
+  its release tree if the line-geometry change must be withdrawn.
