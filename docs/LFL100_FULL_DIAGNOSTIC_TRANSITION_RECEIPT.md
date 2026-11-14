@@ -1,6 +1,6 @@
 # LFL-100 Full diagnostic transition
 
-Status: source-complete; deployment pending
+Status: deployed to PCT128; authenticated full-test journey pending
 
 ## Scope
 
@@ -31,7 +31,19 @@ package's duration.
 - Changed-path ESLint passed.
 - Repository TypeScript passed.
 - Full Vitest suite: 55 files, 211 tests passed.
-- Next production build passed locally before this source patch; a fresh build
-  is required for the deployment image.
+- Next production build passed locally.
 - `git diff --check` passed.
-- Deployment and authenticated full-test browser journey remain pending.
+- Source commit: `dde63e5` (`fix(test-center): restore package-specific diagnostic transitions`).
+- PCT128 release tree: `/opt/rehearse/.releases/dde63e5`.
+- Runtime image: `rehearse-app:dde63e5` (`sha256:de407e147a18276a34d819cf494747d30ed43dabf477a285493b7cacea4794a5`).
+- Deployment was app-only (`docker compose up -d --no-deps app`); no migration,
+  database write, attempt rewrite, answer change, or timer change was performed.
+- Runtime checks after deployment: app healthy, PostgreSQL healthy, both restart
+  counts 0, LAN `/api/health` HTTP 200, public `/api/health` HTTP 200,
+  signed-out `/test-center/teaching` HTTP 307, and unauthenticated
+  `/api/test-center/resources` HTTP 401.
+- Application startup logs show a clean Next.js ready state. Authenticated
+  candidate playback through all three sections remains the final classroom
+  verification boundary.
+- Rollback is app-only: redeploy the previous `rehearse-app:1360204` image from
+  its release tree if this transition fix must be withdrawn.
