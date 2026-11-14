@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent, type WheelEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent } from "react";
 import { useRouter } from "next/navigation";
 
 import { serverNowAt } from "./server-clock";
@@ -611,19 +611,29 @@ function clampPassageZoom(next: number) {
 
 function ReadingPassage({ passage }: { passage: Passage }) {
   const [zoom, setZoom] = useState(1);
+  const passageSurfaceRef = useRef<HTMLDivElement>(null);
   const pointers = useRef(new Map<number, { x: number; y: number }>());
   const pinchDistance = useRef<number | null>(null);
   const adjustZoom = useCallback((delta: number) => setZoom((value) => clampPassageZoom(value + delta)), []);
+  useEffect(() => {
+    const surface = passageSurfaceRef.current;
+    if (!surface) return;
+    const handleNativeWheel = (event: globalThis.WheelEvent) => {
+      // Browser pinch gestures are exposed as Ctrl/Meta+wheel in desktop
+      // browsers. A non-passive listener prevents the gesture from reaching
+      // page-level zoom while keeping ordinary passage scrolling unchanged.
+      if (!event.ctrlKey && !event.metaKey) return;
+      event.preventDefault();
+      event.stopPropagation();
+      const delta = Math.max(-.1, Math.min(.1, -event.deltaY * .0025));
+      if (delta) adjustZoom(delta);
+    };
+    surface.addEventListener("wheel", handleNativeWheel, { passive: false });
+    return () => surface.removeEventListener("wheel", handleNativeWheel);
+  }, [adjustZoom]);
   const distanceBetweenPointers = () => {
     const [first, second] = [...pointers.current.values()];
     return first && second ? Math.hypot(first.x - second.x, first.y - second.y) : null;
-  };
-  const handleWheel = (event: WheelEvent<HTMLDivElement>) => {
-    // Trackpad pinch gestures arrive as a Ctrl+wheel event in Chromium and
-    // Firefox. Keep ordinary wheel scrolling untouched.
-    if (!event.ctrlKey) return;
-    event.preventDefault();
-    adjustZoom(event.deltaY < 0 ? .05 : -.05);
   };
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.pointerType !== "touch") return;
@@ -642,11 +652,12 @@ function ReadingPassage({ passage }: { passage: Passage }) {
   };
   const clearPointer = (event: PointerEvent<HTMLDivElement>) => {
     if (event.pointerType !== "touch") return;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
     pointers.current.delete(event.pointerId);
     if (pointers.current.size < 2) pinchDistance.current = null;
   };
   const passageStyle = { "--ptd-passage-zoom": zoom } as CSSProperties;
-  return <article className="ptd-reading-passage"><header><span>PASSAGE</span><strong>Questions {passage.questions[0]}–{passage.questions[1]}</strong><div className="ptd-reading-passage-tools" aria-label="Passage text size"><button type="button" onClick={() => adjustZoom(-.1)} aria-label="Zoom out">−</button><output aria-live="polite">{Math.round(zoom * 100)}%</output><button type="button" onClick={() => adjustZoom(.1)} aria-label="Zoom in">+</button></div></header><div style={passageStyle} onWheel={handleWheel} onPointerDown={handlePointerDown} onPointerMove={handlePointerMove} onPointerUp={clearPointer} onPointerCancel={clearPointer}>{passage.lines.map((line, index) => <p className={line.paragraphStart ? "paragraph-start" : ""} key={index}>{line.line && <span className="line-number">{line.line}</span>}{line.text}</p>)}</div></article>;
+  return <article className="ptd-reading-passage"><header><span>PASSAGE</span><strong>Questions {passage.questions[0]}–{passage.questions[1]}</strong><div className="ptd-reading-passage-tools" aria-label="Passage text size"><button type="button" onClick={() => adjustZoom(-.1)} aria-label="Zoom out">−</button><output aria-live="polite">{Math.round(zoom * 100)}%</output><button type="button" onClick={() => adjustZoom(.1)} aria-label="Zoom in">+</button></div></header><div ref={passageSurfaceRef} style={passageStyle} onPointerDown={handlePointerDown} onPointerMove={handlePointerMove} onPointerUp={clearPointer} onPointerCancel={clearPointer}>{passage.lines.map((line, index) => <p className={line.paragraphStart ? "paragraph-start" : ""} key={index}>{line.line && <span className="line-number">{line.line}</span>}{line.text}</p>)}</div></article>;
 }
 
 function ScoreSummary({ result, title }: { result: Result; title: string }) {
