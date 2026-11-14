@@ -1,6 +1,6 @@
 # LFL-097 Reading zoom and layout
 
-Status: source-complete; deployment pending
+Status: deployed to PCT128; authenticated responsive inspection pending
 
 ## Scope
 
@@ -32,4 +32,17 @@ the navigator stays in its own column instead of overlapping the passage.
 - Repository TypeScript passed.
 - Full Vitest suite: 55 files, 210 tests passed.
 - Next production build passed locally.
-- PCT128 deployment and responsive browser inspection: pending.
+- Source commit: `70395bd` (`fix(test-center): make reading passage zoom usable`).
+- PCT128 release tree: `/opt/rehearse/.releases/70395bd`.
+- Runtime image: `rehearse-app:70395bd` (`sha256:11a00b6e79caee66c5aaec2a0c218edb57e24fc9ea016dced35e2a66152b68e4`).
+- Deployment was app-only (`docker compose up -d --no-deps app`); no migration,
+  database write, attempt rewrite, or answer/timer change was performed.
+- Runtime checks after deployment: app healthy, PostgreSQL healthy, app restart
+  count 0, PostgreSQL restart count 0, LAN `/api/health` HTTP 200, public
+  `/api/health` HTTP 200, signed-out `/test-center/teaching` HTTP 307, and
+  unauthenticated `/api/test-center/resources` HTTP 401.
+- Application startup logs show a clean Next.js ready state. Authenticated
+  browser/responsive inspection remains pending; the HTTP checks do not prove a
+  learner journey or touch-device rendering.
+- Rollback is app-only: redeploy the previous `rehearse-app:c7c8329` image
+  from its release tree if the new reading layout must be withdrawn.
