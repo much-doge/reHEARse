@@ -45,7 +45,7 @@
 .ptd-player-bar { display:flex; flex-wrap:wrap; align-items:center; gap:16px; margin:0 0 18px; padding:14px; border:1px solid var(--ptd-line); border-radius:16px; background:#fff; color:#51675b; font-size:.9rem; }
 .ptd-player-bar .ptd-primary { min-height:42px; }
 .ptd-workspace { display:grid; grid-template-columns:minmax(0,1fr) 300px; align-items:start; gap:18px; }
-.ptd-question-content { min-width:0; }
+.ptd-question-content { min-width:0; overflow:hidden; }
 .ptd-question-stage { display:grid; gap:18px; }
 .ptd-question-stage.has-passage { grid-template-columns:minmax(0,1.3fr) minmax(320px,.7fr); align-items:start; }
 .ptd-test-section:has(.ptd-reading-passage) .ptd-question-stage.has-passage { display:flex; flex-direction:column; }
@@ -88,16 +88,16 @@
 .ptd-option-cards button[aria-pressed=true] { border-color:#24644d; background:#e4f1e6; box-shadow:0 0 0 2px #24644d20; }
 .ptd-option-cards button[aria-pressed=true]>span { background:#24644d; color:#fff; }
 .ptd-option-cards button:disabled { cursor:default; opacity:1; }
-.ptd-reading-passage { width:100%; min-height:440px; height:min(66vh,760px); max-height:calc(100vh - 150px); overflow:hidden; resize:both; }
+.ptd-reading-passage { box-sizing:border-box; width:100%; max-width:100%; min-width:0; min-height:440px; height:min(66vh,760px); max-height:calc(100vh - 150px); overflow:hidden; resize:vertical; }
 .ptd-reading-passage>header { position:sticky; top:0; z-index:1; padding:18px 22px 14px; background:#f5f8f1; }
-.ptd-reading-passage>header { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.ptd-reading-passage>header { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
 .ptd-reading-passage-tools { display:flex; align-items:center; gap:6px; }
 .ptd-reading-passage-tools button { width:30px; height:30px; border:1px solid #c8d9c8; border-radius:8px; background:#fff; color:#2e634b; font:800 .95rem/1 system-ui,sans-serif; cursor:pointer; }
 .ptd-reading-passage-tools output { min-width:44px; color:#5d7769; font-size:.72rem; font-weight:750; text-align:center; }
-.ptd-reading-passage>div { height:calc(100% - 58px); overflow:auto; padding:30px clamp(28px,5vw,72px) 42px; }
-.ptd-reading-passage p { position:relative; margin:0; color:#1f3028; font:500 1.08rem/1.8 Georgia,"Times New Roman",serif; }
+.ptd-reading-passage>div { box-sizing:border-box; height:calc(100% - 58px); max-width:100%; min-width:0; overflow:auto; overscroll-behavior:contain; padding:30px clamp(28px,5vw,72px) 42px; touch-action:pan-y; }
+.ptd-reading-passage p { position:relative; margin:0; color:#1f3028; font-family:Georgia,"Times New Roman",serif; font-size:calc(1.08rem * var(--ptd-passage-zoom, 1)); font-weight:500; line-height:1.8; }
 .ptd-reading-passage p.paragraph-start:not(:first-child) { margin-top:1.15em; text-indent:1.75em; }
-.ptd-reading-passage .line-number { position:absolute; right:calc(100% + 18px); color:#789083; font:750 .72rem/2.05 var(--font-sans,sans-serif); }
+.ptd-reading-passage .line-number { position:absolute; right:calc(100% + 18px); color:#789083; font-family:var(--font-sans,sans-serif); font-size:calc(.72rem * var(--ptd-passage-zoom, 1)); font-weight:750; line-height:2.05; }
 .ptd-answer-panel { position:sticky; top:18px; padding:19px; border:1px solid var(--ptd-line); border-radius:20px; background:#fff; box-shadow:0 10px 30px #1f34250d; }
 .ptd-current-question { display:flex; align-items:baseline; gap:7px; padding-bottom:14px; border-bottom:1px solid #e7ece5; }
 .ptd-current-question span { margin-right:auto; color:#718378; font-size:.68rem; font-weight:850; letter-spacing:.14em; }
@@ -225,7 +225,7 @@
   .ptd-question-card { padding:20px 16px; }
   .ptd-listening-context-preview { padding:15px; }
   .ptd-listening-context-preview>header { align-items:flex-start; flex-direction:column; gap:4px; }
-  .ptd-reading-passage p { font-size:1rem; }
+  .ptd-reading-passage p { font-size:calc(1rem * var(--ptd-passage-zoom, 1)); }
   .ptd-question-card h2,.ptd-question-card .ptd-completion-prompt,.ptd-error-sentence { font-size:1.25rem; }
   .ptd-option-cards button { grid-template-columns:38px minmax(0,1fr); gap:10px; padding:10px; }
   .ptd-option-cards button>span { width:34px; height:34px; }

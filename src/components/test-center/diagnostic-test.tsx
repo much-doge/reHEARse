@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent, type WheelEvent } from "react";
 import { useRouter } from "next/navigation";
 
 import { serverNowAt } from "./server-clock";
@@ -605,9 +605,48 @@ function renderQuestionPrompt(prompt: string) {
   return <>{before}<span className="ptd-sentence-blank" aria-label="missing part"><span>missing part</span></span>{after}</>;
 }
 
+function clampPassageZoom(next: number) {
+  return Math.max(.85, Math.min(1.5, Number(next.toFixed(2))));
+}
+
 function ReadingPassage({ passage }: { passage: Passage }) {
   const [zoom, setZoom] = useState(1);
-  return <article className="ptd-reading-passage"><header><span>PASSAGE</span><strong>Questions {passage.questions[0]}–{passage.questions[1]}</strong><div className="ptd-reading-passage-tools" aria-label="Passage text size"><button type="button" onClick={() => setZoom((value) => Math.max(.85, Number((value - .1).toFixed(1))))} aria-label="Zoom out">−</button><output>{Math.round(zoom * 100)}%</output><button type="button" onClick={() => setZoom((value) => Math.min(1.5, Number((value + .1).toFixed(1))))} aria-label="Zoom in">+</button></div></header><div style={{ fontSize: `${zoom}em` }}>{passage.lines.map((line, index) => <p className={line.paragraphStart ? "paragraph-start" : ""} key={index}>{line.line && <span className="line-number">{line.line}</span>}{line.text}</p>)}</div></article>;
+  const pointers = useRef(new Map<number, { x: number; y: number }>());
+  const pinchDistance = useRef<number | null>(null);
+  const adjustZoom = useCallback((delta: number) => setZoom((value) => clampPassageZoom(value + delta)), []);
+  const distanceBetweenPointers = () => {
+    const [first, second] = [...pointers.current.values()];
+    return first && second ? Math.hypot(first.x - second.x, first.y - second.y) : null;
+  };
+  const handleWheel = (event: WheelEvent<HTMLDivElement>) => {
+    // Trackpad pinch gestures arrive as a Ctrl+wheel event in Chromium and
+    // Firefox. Keep ordinary wheel scrolling untouched.
+    if (!event.ctrlKey) return;
+    event.preventDefault();
+    adjustZoom(event.deltaY < 0 ? .05 : -.05);
+  };
+  const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    if (event.pointerType !== "touch") return;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    if (pointers.current.size === 2) pinchDistance.current = distanceBetweenPointers();
+  };
+  const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    if (event.pointerType !== "touch" || !pointers.current.has(event.pointerId)) return;
+    pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    const nextDistance = distanceBetweenPointers();
+    if (nextDistance === null || pinchDistance.current === null) return;
+    event.preventDefault();
+    adjustZoom((nextDistance - pinchDistance.current) / 240);
+    pinchDistance.current = nextDistance;
+  };
+  const clearPointer = (event: PointerEvent<HTMLDivElement>) => {
+    if (event.pointerType !== "touch") return;
+    pointers.current.delete(event.pointerId);
+    if (pointers.current.size < 2) pinchDistance.current = null;
+  };
+  const passageStyle = { "--ptd-passage-zoom": zoom } as CSSProperties;
+  return <article className="ptd-reading-passage"><header><span>PASSAGE</span><strong>Questions {passage.questions[0]}–{passage.questions[1]}</strong><div className="ptd-reading-passage-tools" aria-label="Passage text size"><button type="button" onClick={() => adjustZoom(-.1)} aria-label="Zoom out">−</button><output aria-live="polite">{Math.round(zoom * 100)}%</output><button type="button" onClick={() => adjustZoom(.1)} aria-label="Zoom in">+</button></div></header><div style={passageStyle} onWheel={handleWheel} onPointerDown={handlePointerDown} onPointerMove={handlePointerMove} onPointerUp={clearPointer} onPointerCancel={clearPointer}>{passage.lines.map((line, index) => <p className={line.paragraphStart ? "paragraph-start" : ""} key={index}>{line.line && <span className="line-number">{line.line}</span>}{line.text}</p>)}</div></article>;
 }
 
 function ScoreSummary({ result, title }: { result: Result; title: string }) {
