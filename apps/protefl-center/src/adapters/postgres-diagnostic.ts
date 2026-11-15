@@ -776,6 +776,20 @@ export async function diagnosticAttemptState(actorId: string, attemptId: string)
     state.primaryAttemptId = String(primary.rows[0].id);
     if (attempt.is_primary !== true) state.primaryResult = primary.rows[0].result_data;
   }
+  const rootAttemptId = attempt.parent_attempt_id ? String(attempt.parent_attempt_id) : String(attempt.id);
+  const pendingResets = await getPool().query(
+    `SELECT id,attempt_number,scope,section_retake_number,current_section,created_at
+       FROM protefl_diagnostic_attempt
+      WHERE parent_attempt_id=$1 AND actor_id=$2 AND teacher_restarted_by IS NOT NULL
+        AND status='in_progress' AND archived_at IS NULL
+      ORDER BY attempt_number`,
+    [rootAttemptId, actorId],
+  );
+  state.pendingSectionResets = pendingResets.rows.map((row) => ({
+    id: String(row.id), attemptNumber: Number(row.attempt_number), section: row.scope as Section,
+    sectionRetakeNumber: Number(row.section_retake_number), currentSection: row.current_section as Section,
+    createdAt: new Date(row.created_at).toISOString(),
+  }));
   if (attempt.scope === "full" && attempt.status === "completed") {
     const retakes = await getPool().query(
       "SELECT d.id,d.scope,d.section_retake_number,d.completed_at,d.teacher_restarted_by,r.result_data FROM protefl_diagnostic_attempt d JOIN protefl_diagnostic_result r ON r.attempt_id=d.id WHERE d.parent_attempt_id=$1 AND d.status='completed' AND d.archived_at IS NULL ORDER BY d.completed_at,d.attempt_number",

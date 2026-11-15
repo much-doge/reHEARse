@@ -27,6 +27,7 @@ type DiagnosticState = {
   answers: Record<string, string>; heardListeningQuestions: number[]; lastListeningPositionMs: number;
   selectedQuestions?: number[] | null; showListeningQuestionText?: boolean;
   teacherIssuedRestart?: boolean;
+  pendingSectionResets?: Array<{ id: string; attemptNumber: number; section: Section; sectionRetakeNumber: number; currentSection: Section; createdAt: string }>;
   result?: Result; effectiveResult?: Result; primaryResult?: Result; sectionAssignmentResult?: SectionRetakeResult; sectionRetakeResult?: SectionRetakeResult; sectionRetakes?: SectionRetakeHistory[];
 };
 type Directions = {
@@ -248,6 +249,12 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, acti
     setQuestion(state?.selectedQuestions?.[0] ?? 1);
     if (audioRef.current && state?.currentSection === "listening" && state.lastListeningPositionMs > 0)
       audioRef.current.currentTime = state.lastListeningPositionMs / 1000;
+  }
+
+  async function openAttempt(attemptId: string) {
+    const opened = await refresh(attemptId);
+    setQuestion(opened?.selectedQuestions?.[0] ?? 1);
+    setReviewOpen(false);
   }
 
   async function chooseAnswer(name: Section, number: number, choice: string) {
@@ -484,9 +491,9 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, acti
       {assignedSections.includes("structure") && <article><span>02</span><h2>Structure and Written Expression</h2><p>40 questions · 25 minutes</p><small>Complete sentences, then identify underlined errors</small></article>}
       {assignedSections.includes("reading") && <article><span>03</span><h2>Reading</h2><p>50 questions · 55 minutes</p><small>Five passages with preserved line references</small></article>}
     </div>
-    {activeAttempts.length > 1 && <section className="ptd-active-attempts" aria-label="Active section work"><p className="ptd-kicker">WORK IN PROGRESS</p><h2>Choose what to continue</h2><p>Your teacher has assigned more than one section reset. Open one section at a time; each attempt remains saved separately.</p><div>{activeAttempts.map((attempt) => <button className="ptd-secondary" key={attempt.id} onClick={() => void refresh(attempt.id)}><strong>{attempt.scope === "full" ? "Full diagnostic" : labels[attempt.scope]}{attempt.sectionRetakeNumber ? ` · Reset ${attempt.sectionRetakeNumber}` : ""}</strong><span>Question flow: {attempt.currentSection === "completed" ? "Review" : labels[attempt.currentSection as Section] ?? attempt.currentSection}</span></button>)}</div></section>}
+    {activeAttempts.length > 0 && <section className="ptd-active-attempts" aria-label="Active section work"><p className="ptd-kicker">WORK IN PROGRESS</p><h2>{activeAttempts.length === 1 ? "Continue your assigned work" : "Choose what to continue"}</h2><p>{activeAttempts.length === 1 ? "Your saved attempt opens at the section where you stopped." : "Your teacher has assigned more than one section reset. Open one section at a time; each attempt remains saved separately."}</p><div>{activeAttempts.map((attempt) => <button className="ptd-secondary" key={attempt.id} onClick={() => void openAttempt(attempt.id)}><strong>{attempt.scope === "full" ? "Full diagnostic" : labels[attempt.scope]}{attempt.sectionRetakeNumber ? ` · Reset ${attempt.sectionRetakeNumber}` : ""}</strong><span>Question flow: {attempt.currentSection === "completed" ? "Review" : labels[attempt.currentSection as Section] ?? attempt.currentSection}</span></button>)}</div></section>}
     {message && <p className="ptd-error" role="alert">{message}</p>}
-    <button className="ptd-primary" disabled={busy} onClick={() => void createAttempt("start")}>{busy ? "Opening…" : assignment.deliveryScope === "full" ? "Begin diagnostic" : `Begin ${labels[assignment.deliveryScope]}`}</button>
+    {activeAttempts.length === 0 && <button className="ptd-primary" disabled={busy} onClick={() => void createAttempt("start")}>{busy ? "Opening…" : assignment.deliveryScope === "full" ? "Begin diagnostic" : `Begin ${labels[assignment.deliveryScope]}`}</button>}
   </section>{history.length > 0 && <section className="ptd-history"><p className="ptd-kicker">YOUR RECORD</p><h2>Previous attempts</h2>{history.map((attempt) => <article key={attempt.id}><div><strong>Attempt {attempt.attemptNumber}</strong><span>{attempt.status === "completed" ? "Completed" : "In progress"} · {new Date(attempt.createdAt).toLocaleDateString()}</span></div><span>{attempt.result?.total ? `${attempt.result.total.correct}/${attempt.result.total.questions} correct` : attempt.result?.summary ? `${attempt.result.summary.correct}/${attempt.result.summary.total} correct` : "Not completed"}</span><button className="ptd-secondary" onClick={() => void refresh(attempt.id)}>Open record</button></article>)}</section>}</>;
   }
 
@@ -712,6 +719,7 @@ function DiagnosticResults({ state, busy, reviewOpen, setReviewOpen, reviewFilte
     <div className="ptd-result-actions">
       <button className="ptd-primary" onClick={() => setReviewOpen(!reviewOpen)}>{reviewOpen ? "Close answer review" : "Review answers"}</button>
     </div>
+    {!!state.pendingSectionResets?.length && <section className="ptd-active-attempts" aria-label="Pending teacher section resets"><p className="ptd-kicker">TEACHER-ASSIGNED RESETS</p><h2>Sections waiting for you</h2><p>Each reset is a complete section attempt. Your current result updates only after that section is finished.</p><div>{state.pendingSectionResets.map((reset) => <button className="ptd-secondary" key={reset.id} onClick={() => onOpenAttempt(reset.id)}><strong>{labels[reset.section]} · Reset {reset.sectionRetakeNumber}</strong><span>Continue {labels[reset.currentSection]}</span></button>)}</div></section>}
     <section className="ptd-section-retakes">
       <div><p className="ptd-kicker">FOCUSED RETAKES</p><h2>Try one section again</h2><p>Each retake is saved separately. It does not replace or increase the result above.</p></div>
       <div className="ptd-retake-buttons">{(["listening", "structure", "reading"] as const).map((name) => { const missed = result.review.filter((item) => item.section === name && !item.correct).length; return <button className="ptd-secondary" disabled={busy || missed === 0} key={name} onClick={() => onSectionRetake(name)}>Retry missed items · {labels[name]} ({missed})</button>; })}</div>
@@ -747,7 +755,7 @@ function SectionRetakeResults({ state, result, standalone = false, busy, onAgain
       <div className="ptd-retake-stat-grid"><span><strong>{summary.incorrect}</strong> Incorrect</span><span><strong>{summary.omitted}</strong> Omitted</span><span><strong>{summary.converted ? `${summary.converted[0]}–${summary.converted[1]}` : "—"}</strong> Converted range</span></div>
     </section>
     <p className="ptd-score-note">{standalone ? "This result is saved in your attempt history. A retry includes only questions you missed or omitted and does not replace this result." : "This retake is recorded separately. Your completed assigned result has not changed."}</p>
-    <div className="ptd-result-actions"><button className="ptd-primary" onClick={onBack}>{standalone ? "Back to Test Center" : "Back to complete result"}</button><button className="ptd-secondary" disabled={busy || summary.incorrect + summary.omitted === 0} onClick={onAgain}>{busy ? "Starting…" : summary.incorrect + summary.omitted === 0 ? "No missed questions" : "Retry missed questions"}</button></div>
+    <div className="ptd-result-actions"><button className="ptd-primary" onClick={onBack}>{standalone ? "Back to Test Center" : state.teacherIssuedRestart ? "Open updated full result" : "Back to complete result"}</button><button className="ptd-secondary" disabled={busy || summary.incorrect + summary.omitted === 0} onClick={onAgain}>{busy ? "Starting…" : summary.incorrect + summary.omitted === 0 ? "No missed questions" : "Retry missed questions"}</button></div>
     <div className="ptd-review">
       <div className="ptd-review-toolbar"><div><h2>Answer review</h2><p>Open any question to compare your response with the answer key.</p></div><label>Show <select value={filter} onChange={(event) => setFilter(event.target.value as "incorrect" | "all")}><option value="incorrect">Incorrect and omitted</option><option value="all">All questions</option></select></label></div>
       <div className="ptd-review-list">{review.map((item) => <button key={item.question} className={selected?.question === item.question ? "active" : ""} onClick={() => setSelected(item)}><span>Question {item.question}</span><strong>{item.correct ? "Correct" : item.selected ? "Incorrect" : "Omitted"}</strong></button>)}</div>
