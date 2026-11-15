@@ -131,6 +131,105 @@ type TeacherQuestionPayload = {
   audio?: { groupId: string; groupType: "question" | "conversation" | "talk"; contextStartMs: number; contextEndMs: number; questionStartMs: number; questionEndMs: number };
 };
 
+type TeacherHighlightSegment = {
+  text: string;
+  line?: number | null;
+  paragraphStart?: boolean;
+  className?: string;
+  block?: boolean;
+};
+
+type TeacherHighlightRange = { start: number; end: number };
+
+function TeacherHighlightSurface({ segments, heading, className = "" }: { segments: TeacherHighlightSegment[]; heading?: React.ReactNode; className?: string }) {
+  const surfaceRef = useRef<HTMLDivElement>(null);
+  const [ranges, setRanges] = useState<TeacherHighlightRange[]>([]);
+  const [selection, setSelection] = useState<TeacherHighlightRange | null>(null);
+
+  function textNodes() {
+    const surface = surfaceRef.current;
+    if (!surface) return [];
+    const walker = document.createTreeWalker(surface, NodeFilter.SHOW_TEXT);
+    const nodes: Text[] = [];
+    let node = walker.nextNode();
+    while (node) {
+      if ((node.parentElement?.closest("[data-teacher-highlight-text]") ?? null) !== null) nodes.push(node as Text);
+      node = walker.nextNode();
+    }
+    return nodes;
+  }
+
+  function pointOffset(node: Node, offset: number) {
+    const nodes = textNodes();
+    let total = 0;
+    for (const textNode of nodes) {
+      if (textNode === node) return total + Math.min(offset, textNode.data.length);
+      total += textNode.data.length;
+    }
+    return null;
+  }
+
+  function captureSelection() {
+    const surface = surfaceRef.current;
+    const browserSelection = window.getSelection();
+    if (!surface || !browserSelection || browserSelection.rangeCount === 0 || browserSelection.isCollapsed) return;
+    const range = browserSelection.getRangeAt(0);
+    if (!surface.contains(range.commonAncestorContainer)) return;
+    const start = pointOffset(range.startContainer, range.startOffset);
+    const end = pointOffset(range.endContainer, range.endOffset);
+    if (start === null || end === null || end <= start) return;
+    setSelection({ start, end });
+  }
+
+  function addSelection() {
+    if (!selection) return;
+    setRanges((current) => mergeHighlightRanges([...current, selection]));
+    setSelection(null);
+    window.getSelection()?.removeAllRanges();
+  }
+
+  const textLengthBefore = (index: number) => segments.slice(0, index).reduce((length, segment) => length + segment.text.length, 0);
+  return <article className={`ptc-teacher-highlight-surface ${className}`.trim()}>
+    {heading && <header>{heading}</header>}
+    <div className="ptc-teacher-highlight-toolbar" role="toolbar" aria-label="Teacher text highlighting">
+      <span>{selection ? "Text selected" : ranges.length ? `${ranges.length} highlight${ranges.length === 1 ? "" : "s"}` : "Select text to highlight"}</span>
+      <button type="button" disabled={!selection} onMouseDown={(event) => event.preventDefault()} onClick={addSelection}>Highlight selection</button>
+      <button type="button" className="secondary" disabled={!ranges.length} onClick={() => setRanges([])}>Clear</button>
+    </div>
+    <div className="ptc-teacher-highlight-body" ref={surfaceRef} onMouseUp={captureSelection} onTouchEnd={captureSelection}>
+      {segments.map((segment, index) => {
+        const content = renderHighlightedText(segment.text, textLengthBefore(index), ranges);
+        if (segment.block === false) return <span data-teacher-highlight-text key={index} className={segment.className}>{content}</span>;
+        return <p className={`${segment.paragraphStart ? "paragraph-start " : ""}${segment.className ?? ""}`.trim()} key={index}>{segment.line !== undefined && segment.line !== null && <span className="ptc-teacher-line-number">{segment.line}</span>}<span data-teacher-highlight-text>{content}</span></p>;
+      })}
+    </div>
+  </article>;
+}
+
+function renderHighlightedText(text: string, offset: number, ranges: TeacherHighlightRange[]) {
+  const segments: React.ReactNode[] = [];
+  let cursor = 0;
+  const relevant = ranges.filter((range) => range.end > offset && range.start < offset + text.length).sort((left, right) => left.start - right.start);
+  for (const range of relevant) {
+    const start = Math.max(0, range.start - offset);
+    const end = Math.min(text.length, range.end - offset);
+    if (start > cursor) segments.push(text.slice(cursor, start));
+    if (end > start) segments.push(<mark key={`${offset}-${start}-${end}`}>{text.slice(start, end)}</mark>);
+    cursor = Math.max(cursor, end);
+  }
+  if (cursor < text.length) segments.push(text.slice(cursor));
+  return segments;
+}
+
+function mergeHighlightRanges(ranges: TeacherHighlightRange[]) {
+  return ranges.sort((left, right) => left.start - right.start).reduce<TeacherHighlightRange[]>((merged, range) => {
+    const previous = merged.at(-1);
+    if (previous && range.start <= previous.end) previous.end = Math.max(previous.end, range.end);
+    else merged.push({ ...range });
+    return merged;
+  }, []);
+}
+
 function TeacherAudioButton({ label, startMs, endMs, resourceId, candidateActorId, attemptId }: { label: string; startMs: number; endMs: number; resourceId: string; candidateActorId: string; attemptId: string }) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
@@ -205,10 +304,10 @@ function TeacherQuestionReveal({ item, resourceId, candidateActorId, attemptId }
           <TeacherAudioButton label="question" startMs={payload.audio.questionStartMs} endMs={payload.audio.questionEndMs} resourceId={resourceId} candidateActorId={candidateActorId} attemptId={attemptId} />
         </>}
       </div>}
-      {payload.passage && <article className="ptc-teacher-passage"><header>PASSAGE · Questions {payload.passage.questions[0]}–{payload.passage.questions[1]}</header>{payload.passage.lines.map((line, index) => <p className={line.paragraphStart ? "paragraph-start" : ""} key={index}>{line.line && <span>{line.line}</span>}{line.text}</p>)}</article>}
+      {payload.passage && <TeacherHighlightSurface className="ptc-teacher-passage" heading={<>PASSAGE · Questions {payload.passage.questions[0]}–{payload.passage.questions[1]}</>} segments={payload.passage.lines} />}
       <div className="ptc-teacher-question-card">
         <header><span>{item.section === "structure" ? `PART ${payload.part === "completion" ? "A · SENTENCE COMPLETION" : "B · ERROR IDENTIFICATION"}` : item.section === "listening" ? `PART ${payload.item.part ?? ""} · LISTENING` : "READING COMPREHENSION"}</span><b>Question {item.question}</b></header>
-        {groupedTokens ? <p className="ptc-teacher-error-sentence">{groupedTokens.map((token, index) => <span className={token.choice ? "is-underlined" : ""} key={index}>{token.text}{index < groupedTokens.length - 1 ? " " : ""}</span>)}</p> : <h5>{payload.item.prompt?.replace("_____", "________")}</h5>}
+        {groupedTokens ? <TeacherHighlightSurface className="ptc-teacher-inline-highlight" segments={groupedTokens.map((token, index) => ({ text: token.text + (index < groupedTokens.length - 1 ? " " : ""), className: token.choice ? "ptc-teacher-underlined-token" : "", block: false }))} /> : <TeacherHighlightSurface className="ptc-teacher-inline-highlight" segments={[{ text: payload.item.prompt?.replace("_____", "________") ?? "", block: false }]} />}
         <div className="ptc-teacher-options">{(["A", "B", "C", "D"] as const).map((choice) => <div className={choice === payload.question.correctAnswer ? "is-key" : choice === payload.question.selected ? "is-response" : ""} key={choice}><b>{choice}</b><span>{payload.item.options[choice]}</span></div>)}</div>
       </div>
     </div>}
@@ -257,8 +356,8 @@ function CohortQuestionRow({ section, row, resourceId, revealAnswers, onRevealAn
         <div className="ptc-question-detail-grid">
         <div className="ptc-question-detail-content">
           {payload.audio && <div className="ptc-teacher-audio-controls" aria-label="Listening audio review">{payload.audio.groupType === "question" ? <TeacherAudioButton label="question" startMs={payload.audio.questionStartMs} endMs={payload.audio.questionEndMs} resourceId={resourceId} candidateActorId={row.source!.candidateActorId} attemptId={row.source!.attemptId} /> : <><TeacherAudioButton label={payload.audio.groupType === "conversation" ? "dialogue" : "talk"} startMs={payload.audio.contextStartMs} endMs={payload.audio.contextEndMs} resourceId={resourceId} candidateActorId={row.source!.candidateActorId} attemptId={row.source!.attemptId} /><TeacherAudioButton label="question" startMs={payload.audio.questionStartMs} endMs={payload.audio.questionEndMs} resourceId={resourceId} candidateActorId={row.source!.candidateActorId} attemptId={row.source!.attemptId} /></>}</div>}
-          {payload.passage && <article className="ptc-teacher-passage"><header>PASSAGE · Questions {payload.passage.questions[0]}–{payload.passage.questions[1]}</header>{payload.passage.lines.map((line, index) => <p className={line.paragraphStart ? "paragraph-start" : ""} key={index}>{line.line && <span>{line.line}</span>}{line.text}</p>)}</article>}
-          <div className="ptc-teacher-question-card"><header><span>{section === "structure" ? `PART ${payload.part === "completion" ? "A · SENTENCE COMPLETION" : "B · ERROR IDENTIFICATION"}` : section === "listening" ? `PART ${payload.item.part ?? ""} · LISTENING` : "READING COMPREHENSION"}</span><b>Question {row.question}</b></header>{groupedTokens ? <p className="ptc-teacher-error-sentence">{groupedTokens.map((token, index) => <span className={token.choice ? "is-underlined" : ""} key={index}>{token.text}{index < groupedTokens.length - 1 ? " " : ""}</span>)}</p> : <h5>{payload.item.prompt?.replace("_____", "________")}</h5>}<div className="ptc-teacher-options">{(["A", "B", "C", "D"] as const).map((choice) => <div className={revealAnswers && choice === payload.question.correctAnswer ? "is-key" : ""} key={choice}><b>{choice}</b><span>{payload.item.options[choice]}</span></div>)}</div></div>
+          {payload.passage && <TeacherHighlightSurface className="ptc-teacher-passage" heading={<>PASSAGE · Questions {payload.passage.questions[0]}–{payload.passage.questions[1]}</>} segments={payload.passage.lines} />}
+          <div className="ptc-teacher-question-card"><header><span>{section === "structure" ? `PART ${payload.part === "completion" ? "A · SENTENCE COMPLETION" : "B · ERROR IDENTIFICATION"}` : section === "listening" ? `PART ${payload.item.part ?? ""} · LISTENING` : "READING COMPREHENSION"}</span><b>Question {row.question}</b></header>{groupedTokens ? <TeacherHighlightSurface className="ptc-teacher-inline-highlight" segments={groupedTokens.map((token, index) => ({ text: token.text + (index < groupedTokens.length - 1 ? " " : ""), className: token.choice ? "ptc-teacher-underlined-token" : "", block: false }))} /> : <TeacherHighlightSurface className="ptc-teacher-inline-highlight" segments={[{ text: payload.item.prompt?.replace("_____", "________") ?? "", block: false }]} />}<div className="ptc-teacher-options">{(["A", "B", "C", "D"] as const).map((choice) => <div className={revealAnswers && choice === payload.question.correctAnswer ? "is-key" : ""} key={choice}><b>{choice}</b><span>{payload.item.options[choice]}</span></div>)}</div></div>
         </div>
         <aside className="ptc-question-distribution"><p className="eyebrow">COHORT ANSWERS</p><h5>How learners answered</h5><p className="ptc-question-distribution-note">Percentages use answered responses for this question. Omitted responses are shown separately.</p>{(["A", "B", "C", "D"] as const).map((choice) => { const count = row.choices[choice]; const percentage = answered ? Math.round((count / answered) * 100) : 0; return <div className="ptc-choice-distribution" key={choice}><div><strong>{choice}</strong><span>{percentage}% · {count} response{count === 1 ? "" : "s"}</span></div><div className="ptc-choice-bar"><span style={{ width: `${percentage}%` }} /></div></div>; })}<div className="ptc-omitted-distribution"><strong>{row.omitted}</strong><span>omitted · {row.seen ? Math.round((row.omitted / row.seen) * 100) : 0}% of attempts</span></div>{revealAnswers ? <div className="ptc-question-outcome"><strong>{row.correct} correct · {row.incorrect} wrong</strong><span>{row.seen} recorded attempt{row.seen === 1 ? "" : "s"}</span></div> : <p className="ptc-question-key-hidden">Correctness hidden for explanation mode.</p>}</aside>
       </div>
