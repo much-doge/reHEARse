@@ -67,6 +67,10 @@ function validQuestion(section: Section, number: number, code = defaultPackageCo
 }
 const answerQuery = "SELECT DISTINCT ON(section,question_number) section,question_number,answer_choice FROM protefl_diagnostic_event WHERE attempt_id=$1 AND event_type='answer' ORDER BY section,question_number,id DESC";
 
+export function isStandaloneSectionAttempt(attempt: Pick<{ scope: string; delivery_scope: string; parent_attempt_id: unknown }, "scope" | "delivery_scope" | "parent_attempt_id">) {
+  return attempt.scope !== "full" && !attempt.parent_attempt_id && attempt.delivery_scope === attempt.scope;
+}
+
 async function calculateSectionResult(client: PoolClient, attemptId: string, section: Section) {
   const attempt = (await client.query("SELECT selected_questions,r.code FROM protefl_diagnostic_attempt d JOIN protefl_resource r ON r.id=d.resource_id WHERE d.id=$1", [attemptId])).rows[0];
   const descriptor = packageDescriptor(String(attempt?.code ?? defaultPackageCode));
@@ -763,10 +767,23 @@ export async function diagnosticAttemptState(actorId: string, attemptId: string)
   if (attempt.status === "completed") {
     const result = await getPool().query("SELECT result_data FROM protefl_diagnostic_result WHERE attempt_id=$1", [attemptId]);
     if (result.rows[0]) {
-      if (attempt.scope !== "full") state.sectionRetakeResult = result.rows[0].result_data;
+      if (isStandaloneSectionAttempt(attempt)) state.sectionAssignmentResult = result.rows[0].result_data;
+      else if (attempt.scope !== "full") state.sectionRetakeResult = result.rows[0].result_data;
       else if (attempt.delivery_scope !== "full") state.sectionAssignmentResult = result.rows[0].result_data;
       else state.result = result.rows[0].result_data;
     }
+  }
+  if (attempt.status === "completed" && isStandaloneSectionAttempt(attempt)) {
+    const latestSectionReset = await getPool().query(
+      `SELECT r.result_data
+         FROM protefl_diagnostic_attempt d
+         JOIN protefl_diagnostic_result r ON r.attempt_id=d.id
+        WHERE d.parent_attempt_id=$1 AND d.actor_id=$2 AND d.scope=$3
+          AND d.teacher_restarted_by IS NOT NULL AND d.status='completed' AND d.archived_at IS NULL
+        ORDER BY d.completed_at DESC,d.attempt_number DESC LIMIT 1`,
+      [attempt.id, actorId, attempt.scope],
+    );
+    if (latestSectionReset.rows[0]) state.sectionAssignmentResult = latestSectionReset.rows[0].result_data;
   }
   const primary = await getPool().query(
       "SELECT d.id,r.result_data FROM protefl_diagnostic_attempt d JOIN protefl_diagnostic_result r ON r.attempt_id=d.id WHERE d.assignment_id=$1 AND d.actor_id=$2 AND d.is_primary=true AND d.archived_at IS NULL",

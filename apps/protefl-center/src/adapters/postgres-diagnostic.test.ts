@@ -8,7 +8,7 @@ const { clientQuery, connect, poolQuery } = vi.hoisted(() => ({
 
 vi.mock("@/adapters/db/client", () => ({ getPool: () => ({ connect, query: poolQuery }) }));
 
-import { diagnosticWorkspace, startSectionRetake } from "./postgres-diagnostic";
+import { diagnosticWorkspace, isStandaloneSectionAttempt, startSectionRetake } from "./postgres-diagnostic";
 
 const actor = "11111111-1111-4111-8111-111111111111";
 const assignment = "22222222-2222-4222-8222-222222222222";
@@ -20,6 +20,13 @@ describe("diagnostic section retake assignment boundaries", () => {
     vi.clearAllMocks();
     connect.mockResolvedValue({ query: clientQuery, release: vi.fn() });
     poolQuery.mockReset();
+  });
+
+  it("classifies a section-only root separately from a child reset", () => {
+    expect(isStandaloneSectionAttempt({ scope: "reading", delivery_scope: "reading", parent_attempt_id: null })).toBe(true);
+    expect(isStandaloneSectionAttempt({ scope: "reading", delivery_scope: "full", parent_attempt_id: null })).toBe(false);
+    expect(isStandaloneSectionAttempt({ scope: "reading", delivery_scope: "reading", parent_attempt_id: source })).toBe(false);
+    expect(isStandaloneSectionAttempt({ scope: "full", delivery_scope: "full", parent_attempt_id: null })).toBe(false);
   });
 
   it("does not resume an active retake from a different section", async () => {
