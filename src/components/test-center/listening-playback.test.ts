@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { listeningContextQuestionsAtPosition, listeningQuestionAtPosition, listeningQuestionCueMs } from "./listening-playback";
+import { listeningContextQuestionsAtPosition, listeningQuestionAtPosition, listeningQuestionCueMs, listeningRecoveryPosition } from "./listening-playback";
 
 const timing = [
   { question: 30, groupId: "part-a", groupType: "question", questionAudioStartMs: 900, contextStartMs: 900, answerWindowStartMs: 1_000, answerWindowEndMs: 1_100 },
@@ -21,6 +21,14 @@ describe("Listening timing transitions", () => {
   it("keeps only selected questions for a focused group", () => {
     expect(listeningContextQuestionsAtPosition(timing, 1_250, [32, 33])).toEqual([32, 33]);
     expect(listeningQuestionAtPosition(timing, 8_800, [32, 33])).toBe(32);
+  });
+
+  it("rewinds only within the current mapped question or group context", () => {
+    expect(listeningRecoveryPosition(timing, 8_800)).toBe(8_700);
+    expect(listeningRecoveryPosition(timing, 8_800, 5_000)).toBe(8_700);
+    expect(listeningRecoveryPosition(timing, 1_250)).toBe(1_200);
+    expect(listeningRecoveryPosition(timing, 1_500)).toBe(1_500);
+    expect(listeningRecoveryPosition(timing, 9_050)).toBe(8_700);
   });
 });
 

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, 
 import { useRouter } from "next/navigation";
 
 import { serverNowAt } from "./server-clock";
-import { listeningContextQuestionsAtPosition, listeningQuestionAtPosition, type ListeningTimingQuestion } from "./listening-playback";
+import { listeningContextQuestionsAtPosition, listeningQuestionAtPosition, listeningRecoveryPosition, type ListeningTimingQuestion } from "./listening-playback";
 
 type Section = "listening" | "structure" | "reading";
 type DeliveryScope = "full" | Section;
@@ -114,6 +114,7 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, acti
   const heardRef = useRef(new Set(state?.heardListeningQuestions ?? []));
   const timeoutSent = useRef<string | null>(null);
   const lastResumeWriteAt = useRef(0);
+  const recoveryPending = useRef(true);
   const clockAnchor = useRef({ server: new Date(serverTime).getTime(), monotonic: 0 });
   const section = state?.currentSection;
   const focusedAutoplay = state?.scope === "listening" && state.listeningMode === "autoplay" && !!state.selectedQuestions?.length;
@@ -164,6 +165,7 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, acti
       });
       const data = await parsePayload<{ attemptId?: string }>(response);
       if (!response.ok || !data.attemptId) throw new Error(data.error ?? "attempt_unavailable");
+      recoveryPending.current = true;
       const opened = await refresh(data.attemptId);
       setQuestion(opened?.selectedQuestions?.[0] ?? 1); setReviewOpen(false);
       if (focusedAdvanceTimer.current) clearTimeout(focusedAdvanceTimer.current);
@@ -191,18 +193,23 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, acti
     const sync = async () => {
       if (document.visibilityState !== "visible") {
         persistListeningPosition();
+        recoveryPending.current = true;
         return;
       }
       const restored = await refresh(state.id);
       if (restored) restoreListeningPosition(restored);
     };
+    const markPageRecovery = () => {
+      persistListeningPosition();
+      recoveryPending.current = true;
+    };
     document.addEventListener("visibilitychange", sync);
     window.addEventListener("pageshow", sync);
-    window.addEventListener("pagehide", persistListeningPosition);
+    window.addEventListener("pagehide", markPageRecovery);
     return () => {
       document.removeEventListener("visibilitychange", sync);
       window.removeEventListener("pageshow", sync);
-      window.removeEventListener("pagehide", persistListeningPosition);
+      window.removeEventListener("pagehide", markPageRecovery);
     };
     // Keep one visibility listener per attempt; the callbacks read the latest refs/state when invoked.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -281,12 +288,23 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, acti
     let localPosition = 0;
     try { localPosition = Number(localStorage.getItem(listeningResumeKey(next.id)) ?? 0); } catch { /* browser storage can be unavailable */ }
     const positionMs = Math.max(Number(next.lastListeningPositionMs ?? 0), Number.isFinite(localPosition) ? localPosition : 0);
-    if (positionMs <= 0 || audio.currentTime > positionMs - 1_500) return;
-    audio.currentTime = positionMs / 1000;
-    setAudioNow(positionMs);
+    if (positionMs <= 0) {
+      recoveryPending.current = false;
+      return;
+    }
+    const recovering = recoveryPending.current;
+    const targetMs = recovering
+      ? listeningRecoveryPosition(timing.questions as ListeningTimingQuestion[], positionMs)
+      : positionMs;
+    recoveryPending.current = false;
+    const currentMs = Math.round(audio.currentTime * 1000);
+    if (recovering ? Math.abs(currentMs - targetMs) < 500 : currentMs > targetMs - 1_500) return;
+    audio.currentTime = targetMs / 1000;
+    setAudioNow(targetMs);
   }
 
   async function openAttempt(attemptId: string) {
+    recoveryPending.current = true;
     const opened = await refresh(attemptId);
     setQuestion(opened?.selectedQuestions?.[0] ?? 1);
     setReviewOpen(false);
