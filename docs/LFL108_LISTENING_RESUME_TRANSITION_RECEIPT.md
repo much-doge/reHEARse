@@ -47,6 +47,18 @@ and was intentionally not modified.
 - Next production build: passed.
 - `git diff --check`: passed.
 
+## Deployment
+
+- App-only release deployed on PCT128 from `b2162cd` using the isolated
+  worktree `/opt/rehearse/.releases/b2162cd`.
+- Image: `rehearse-app:b2162cd`
+- Image digest: `sha256:1e6098dea128c98e4325f2342abed6b441176285910c54f00ac4c799ed04ee02`
+- App container: healthy, restart count 0.
+- PostgreSQL: healthy and left running; no migration or recreation performed.
+- LAN and public `/api/health`: HTTP 200.
+- Signed-out `/test-center/teaching`: HTTP 307.
+- Unauthenticated `/api/test-center/resources`: HTTP 401.
+
 Authenticated mobile/browser resume behavior and classroom audio audibility
 remain deployment/classroom verification items, not claims made by these local
 checks.
