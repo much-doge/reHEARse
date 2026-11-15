@@ -7,7 +7,8 @@ on:
     - cron: "*/5 * * * *"
   workflow_dispatch:
 
-permissions: {}
+permissions:
+  contents: read
 
 concurrency:
   group: external-service-health
@@ -23,6 +24,10 @@ jobs:
       REHEARSE_HEALTH_URL: ${{ vars.REHEARSE_HEALTH_URL || 'https://rehearse.najala.org/api/health' }}
       HC_REHEARSE_PING_URL: ${{ secrets.HC_REHEARSE_PING_URL }}
     steps:
+      - name: Check out the monitoring template
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Probe services and send signals
         shell: bash
         run: |
