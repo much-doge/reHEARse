@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "services": [
+    {
+      "id": "rehearse",
+      "label": "reHEARse",
+      "endpointEnv": "REHEARSE_HEALTH_URL",
+      "pingSecretEnv": "HC_REHEARSE_PING_URL",
+      "required": true
+    }
+  ]
+}
