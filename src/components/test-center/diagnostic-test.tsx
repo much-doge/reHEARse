@@ -504,7 +504,7 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, acti
     busy={busy}
     onAgain={() => void createAttempt("retake_section", state.deliveryScope as Section, state.id)}
     onBack={() => router.push("/test-center")}
-  /><AttemptHistoryPanel history={history} currentId={state.id} onOpen={(id) => void refresh(id)} /></>;
+  /><AttemptHistoryPanel history={history} currentId={state.id} onOpen={(id) => void openAttempt(id)} /></>;
 
   if (state.status === "completed" && state.scope !== "full" && state.sectionRetakeResult) return <><SectionRetakeResults
     state={state}
@@ -512,7 +512,7 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, acti
     busy={busy}
     onAgain={() => void createAttempt("retake_section", state.scope as Section, state.id)}
     onBack={() => { if (state.parentAttemptId) { void refresh(state.parentAttemptId); setQuestion(1); setReviewOpen(false); } }}
-  /><AttemptHistoryPanel history={history} currentId={state.id} onOpen={(id) => void refresh(id)} /></>;
+  /><AttemptHistoryPanel history={history} currentId={state.id} onOpen={(id) => void openAttempt(id)} /></>;
 
   if (state.status === "completed" && state.result) return <DiagnosticResults
     state={state}
@@ -523,7 +523,7 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, acti
     setReviewFilter={setReviewFilter}
     onSectionRetake={(name) => void createAttempt("retake_section", name, state.id)}
     history={history}
-    onOpenAttempt={(id) => { void refresh(id); setReviewOpen(false); }}
+    onOpenAttempt={(id) => { void openAttempt(id); setReviewOpen(false); }}
   />;
 
   if (section && section !== "completed" && !sectionStarted && sectionInstruction) return <section className="ptd-section-intro">
@@ -543,7 +543,7 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, acti
 
   if (section === "listening") return <section className="ptd-test-section">
     <div className="ptd-section-bar"><div><p className="ptd-kicker">{state.scope !== "full" ? `LISTENING RETAKE ${state.sectionRetakeNumber}` : state.deliveryScope === "full" ? "SECTION 1 OF 3" : "ASSIGNED SECTION"}</p><h1>Listening Comprehension</h1></div><span className="ptd-mode-pill">{state.listeningMode === "autoplay" ? "Autoplay" : "Question-by-question audio"}</span></div>
-    <AttemptHistoryPanel history={history} currentId={state.id} onOpen={(id) => void refresh(id)} />
+    <AttemptHistoryPanel history={history} currentId={state.id} onOpen={(id) => void openAttempt(id)} />
     <audio ref={audioRef} src={"/api/test-center/diagnostic/run/" + state.id + "/audio"} preload="auto" onTimeUpdate={focusedAutoplay ? onFocusedAutoplayTime : state.listeningMode === "autoplay" ? onAutoplayTime : onSegmentTime} onLoadedMetadata={() => { if (!focusedAutoplay && state.listeningMode === "autoplay" && state.lastListeningPositionMs > 0 && audioRef.current) audioRef.current.currentTime = state.lastListeningPositionMs / 1000; }} onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onEnded={() => { setPlaying(false); if (focusedAutoplay && segmentRef.current) finishFocusedAudioSegment(); else if (state.listeningMode === "autoplay") void finishListening(); }} />
     {focusedAutoplay && <div className="ptd-player-bar"><button className="ptd-primary" disabled={busy} onClick={toggleFocusedAutoplay}>{focusedSequenceRunning ? "Pause sequence" : "Play / resume sequence"}</button><span>{Math.floor(audioNow / 60_000)}:{String(Math.floor(audioNow / 1000) % 60).padStart(2, "0")}</span><span>Question {focusedSequencePosition + 1} of {state.selectedQuestions?.length ?? 0} missed questions</span></div>}
     {!focusedAutoplay && state.listeningMode === "autoplay" && <div className="ptd-player-bar"><button className="ptd-primary" disabled={busy} onClick={() => {
@@ -561,7 +561,7 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, acti
     <div className="ptd-section-bar"><div><p className="ptd-kicker">{state.scope !== "full" ? `${labels[section].toUpperCase()} RETAKE ${state.sectionRetakeNumber}` : state.deliveryScope === "full" ? `SECTION ${section === "structure" ? "2" : "3"} OF 3` : "ASSIGNED SECTION"}</p><h1>{labels[section]}</h1></div>
       <div className={"ptd-countdown" + ((remaining ?? 0) < 60_000 ? " urgent" : "")}><span>TIME REMAINING</span><strong>{formatRemaining(remaining ?? 0)}</strong></div>
     </div>
-    <AttemptHistoryPanel history={history} currentId={state.id} onOpen={(id) => void refresh(id)} />
+    <AttemptHistoryPanel history={history} currentId={state.id} onOpen={(id) => void openAttempt(id)} />
     <div className="ptd-in-test-direction"><span>{section === "structure" ? question <= 15 ? "PART A · SENTENCE COMPLETION" : "PART B · WRITTEN EXPRESSION" : "READING DIRECTIONS"}</span><p>{section === "structure" ? question <= 15 ? instructions.structure.partA : instructions.structure.partB : instructions.reading.overview + " " + instructions.reading.basis}</p></div>
     {message && <p className="ptd-error" role="alert">{message}</p>}
     {renderQuestionPanel(section)}

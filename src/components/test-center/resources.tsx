@@ -549,7 +549,7 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "reset_candidate_section", resourceId: resource.id, assignmentId: candidate.assignmentId, candidateActorId: candidate.actorId, parentAttemptId: attempt.id, section }),
       });
-      const data = await response.json() as { restart?: { attemptId: string; attemptNumber: number; sectionRetakeNumber: number; section: string; createdAt: string }; error?: string };
+      const data = await response.json() as { restart?: { attemptId: string; attemptNumber: number; sectionRetakeNumber: number; section: string; createdAt: string; existing?: boolean }; error?: string };
       if (!response.ok || !data.restart) throw new Error(data.error === "active_attempt_exists" ? "This learner already has an attempt in progress." : "The section could not be reset.");
       setResources((current) => current.map((item) => item.id !== resource.id ? item : {
         ...item,
@@ -565,7 +565,9 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
           }),
         }),
       }));
-      setMessage(`${label} was reset for ${candidate.name}. Their next visit will open the complete section.`);
+      setMessage(data.restart.existing
+        ? `${label} is already in progress for ${candidate.name}. Their next visit will open the saved section reset.`
+        : `${label} was reset for ${candidate.name}. Their next visit will open the complete section.`);
     } catch (error) { setMessage(error instanceof Error ? error.message : "The section could not be reset."); }
     finally { setBusy(null); }
   }
@@ -687,9 +689,16 @@ export function ResourceManager({ resources: initial }: { resources: ManagedReso
                 </details>
                 {attempt.effectiveResult && <details className="ptc-answer-review"><summary>Original completed result</summary><AttemptResultSummary result={attempt.result} /></details>}
                 {(attempt.effectiveResult ?? attempt.result) && <details className="ptc-answer-review"><summary>Missed questions and answer key · current score</summary><MissedQuestions result={attempt.effectiveResult ?? attempt.result} resourceId={resource.id} candidateActorId={history.actorId} attemptId={attempt.id} /></details>}
-                {!attempt.archivedAt && attempt.status === "completed" && attempt.scope === "full" && attempt.deliveryScope === "full" && (() => {
-                  const resetInProgress = (section: "listening" | "structure" | "reading") => history.attempts.some((record) => !record.archivedAt && record.retakes.some((retake) => retake.section === section && !retake.archivedAt && retake.status === "in_progress"));
-                  return <div className="ptc-section-reset"><div><strong>Reset one section</strong><p>{"The learner will redo every question in that section. Its completed result will update the current recalculated score; ordinary missed-item retakes never change it. Each section can be reset independently."}</p></div><div>{(["listening", "structure", "reading"] as const).map((section) => <button className="secondary" disabled={busy !== null || resetInProgress(section)} key={section} onClick={() => void resetCandidateSection(resource, history, attempt, section)}>{busy === `section:${attempt.id}:${section}` ? "Resetting…" : resetInProgress(section) ? `${section === "structure" ? "Structure" : section[0].toUpperCase() + section.slice(1)} reset in progress` : `Reset ${section === "structure" ? "Structure" : section[0].toUpperCase() + section.slice(1)}`}</button>)}</div></div>;
+                {!attempt.archivedAt && (attempt.scope === "full" || attempt.scope === attempt.deliveryScope) && (() => {
+                  const allSections = ["listening", "structure", "reading"] as const;
+                  const eligibleSections = attempt.deliveryScope === "full" ? allSections : [attempt.deliveryScope] as const;
+                  const resetInProgress = (section: "listening" | "structure" | "reading") => attempt.retakes.some((retake) => retake.teacherIssuedRestart && retake.section === section && !retake.archivedAt && retake.status === "in_progress");
+                  const canReset = attempt.status === "completed";
+                  return <div className={`ptc-section-reset${canReset ? "" : " is-unavailable"}`}><div><strong>{canReset ? "Reset one section" : "Section resets"}</strong><p>{canReset ? "The learner will redo every question in the selected section. A completed reset updates only that section in the current recalculated score; the original result remains in history." : "Section resets become available after this diagnostic attempt is completed. The current answers remain available in live review."}</p></div><div>{eligibleSections.map((section) => {
+                    const sectionLabel = section === "structure" ? "Structure" : section[0].toUpperCase() + section.slice(1);
+                    const active = resetInProgress(section);
+                    return <button className="secondary" disabled={busy !== null || !canReset || active} key={section} onClick={() => void resetCandidateSection(resource, history, attempt, section)}>{busy === `section:${attempt.id}:${section}` ? "Resetting…" : active ? `${sectionLabel} reset in progress` : canReset ? `Reset ${sectionLabel}` : `${sectionLabel} reset unavailable`}</button>;
+                  })}</div></div>;
                 })()}
                 {attempt.retakes.length > 0 && <div className="ptc-retake-history"><h4>Section retakes</h4>{attempt.retakes.map((retake) => <article className={retake.archivedAt ? "is-archived" : ""} key={`${retake.section}-${retake.number}`}>
                   <header><strong>{retake.section} {retake.teacherIssuedRestart ? "reset" : "retake"} {retake.number}</strong><span>{retake.archivedAt ? "Archived" : retake.status === "completed" ? resultLabel(retake.result) ?? "Completed" : "In progress"}</span><time dateTime={retake.archivedAt ?? retake.completedAt ?? retake.createdAt}>{retake.archivedAt ? `Archived ${new Date(retake.archivedAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}` : new Date(retake.completedAt ?? retake.createdAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}</time></header>

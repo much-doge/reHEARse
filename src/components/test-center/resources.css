@@ -284,6 +284,8 @@
 .ptc-section-reset strong { display:block; margin-bottom:.25rem; }
 .ptc-section-reset p { margin:0; color:#617269; font-size:.78rem; line-height:1.45; }
 .ptc-section-reset>div:last-child { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.5rem; }
+.ptc-section-reset.is-unavailable { border-color:#d8e0d8; background:#f7faf6; }
+.ptc-section-reset.is-unavailable button { cursor:not-allowed; opacity:.58; }
 @media (max-width:780px) { .ptc-section-reset { grid-template-columns:1fr; } .ptc-section-reset>div:last-child { grid-template-columns:1fr; } }
 @media(max-width:900px) { .ptc-candidate-tools { grid-template-columns:repeat(2,minmax(0,1fr)); } .ptc-candidate>summary { grid-template-columns:minmax(0,1fr) minmax(125px,1fr); } .ptc-expand-label { grid-column:2; justify-self:end; } }
 @media(max-width:700px) { .ptc-cohort-metrics,.ptc-response-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); } .ptc-response-section-grid { grid-template-columns:1fr; } .ptc-history-actions { align-items:stretch; flex-direction:column; } }
