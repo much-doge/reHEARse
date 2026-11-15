@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, 
 import { useRouter } from "next/navigation";
 
 import { serverNowAt } from "./server-clock";
+import { listeningContextQuestionsAtPosition, listeningQuestionAtPosition, type ListeningTimingQuestion } from "./listening-playback";
 
 type Section = "listening" | "structure" | "reading";
 type DeliveryScope = "full" | Section;
@@ -112,6 +113,7 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, acti
   const snappedListeningQuestion = useRef(0);
   const heardRef = useRef(new Set(state?.heardListeningQuestions ?? []));
   const timeoutSent = useRef<string | null>(null);
+  const lastResumeWriteAt = useRef(0);
   const clockAnchor = useRef({ server: new Date(serverTime).getTime(), monotonic: 0 });
   const section = state?.currentSection;
   const focusedAutoplay = state?.scope === "listening" && state.listeningMode === "autoplay" && !!state.selectedQuestions?.length;
@@ -186,15 +188,24 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, acti
   // background timer can never pause Structure or Reading time on the client.
   useEffect(() => {
     if (!state?.id) return;
-    const sync = () => {
-      if (document.visibilityState === "visible") void refresh(state.id);
+    const sync = async () => {
+      if (document.visibilityState !== "visible") {
+        persistListeningPosition();
+        return;
+      }
+      const restored = await refresh(state.id);
+      if (restored) restoreListeningPosition(restored);
     };
     document.addEventListener("visibilitychange", sync);
     window.addEventListener("pageshow", sync);
+    window.addEventListener("pagehide", persistListeningPosition);
     return () => {
       document.removeEventListener("visibilitychange", sync);
       window.removeEventListener("pageshow", sync);
+      window.removeEventListener("pagehide", persistListeningPosition);
     };
+    // Keep one visibility listener per attempt; the callbacks read the latest refs/state when invoked.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh, state?.id]);
 
   useEffect(() => {
@@ -251,6 +262,30 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, acti
       audioRef.current.currentTime = state.lastListeningPositionMs / 1000;
   }
 
+  function listeningResumeKey(attemptId: string) {
+    return "ptd:listening-resume:" + attemptId;
+  }
+
+  function persistListeningPosition() {
+    const audio = audioRef.current;
+    if (!audio || state?.currentSection !== "listening" || state.listeningMode !== "autoplay" || !Number.isFinite(audio.currentTime) || audio.currentTime <= 0) return;
+    const nowMs = Date.now();
+    if (nowMs - lastResumeWriteAt.current < 750) return;
+    lastResumeWriteAt.current = nowMs;
+    try { localStorage.setItem(listeningResumeKey(state.id), String(Math.round(audio.currentTime * 1000))); } catch { /* browser storage can be unavailable */ }
+  }
+
+  function restoreListeningPosition(next: DiagnosticState) {
+    const audio = audioRef.current;
+    if (!audio || next.currentSection !== "listening" || next.listeningMode !== "autoplay") return;
+    let localPosition = 0;
+    try { localPosition = Number(localStorage.getItem(listeningResumeKey(next.id)) ?? 0); } catch { /* browser storage can be unavailable */ }
+    const positionMs = Math.max(Number(next.lastListeningPositionMs ?? 0), Number.isFinite(localPosition) ? localPosition : 0);
+    if (positionMs <= 0 || audio.currentTime > positionMs - 1_500) return;
+    audio.currentTime = positionMs / 1000;
+    setAudioNow(positionMs);
+  }
+
   async function openAttempt(attemptId: string) {
     const opened = await refresh(attemptId);
     setQuestion(opened?.selectedQuestions?.[0] ?? 1);
@@ -285,17 +320,14 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, acti
     if (!element) return;
     const current = Math.round(element.currentTime * 1000);
     setAudioNow(current);
-    const active = timing.questions.find((item) => {
-      const beginsWithLongContext = item.groupType !== "question" && item.questionAudioStartMs === item.contextStartMs;
-      const spokenQuestionCue = beginsWithLongContext
-        ? Math.max(item.questionAudioStartMs, item.answerWindowStartMs - 7_000)
-        : item.questionAudioStartMs;
-      return current >= spokenQuestionCue && current < item.answerWindowEndMs;
-    });
-    if (active && snappedListeningQuestion.current !== active.question) {
-      snappedListeningQuestion.current = active.question;
-      setQuestion(active.question);
+    const contextQuestions = listeningContextQuestionsAtPosition(timing.questions as ListeningTimingQuestion[], current, state?.selectedQuestions);
+    const activeQuestion = listeningQuestionAtPosition(timing.questions as ListeningTimingQuestion[], current, state?.selectedQuestions);
+    const displayQuestion = contextQuestions[0] ?? activeQuestion;
+    if (displayQuestion && snappedListeningQuestion.current !== displayQuestion) {
+      snappedListeningQuestion.current = displayQuestion;
+      setQuestion(displayQuestion);
     }
+    persistListeningPosition();
     const answerWindow = timing.pauses.find((pause) => current >= pause.answerWindowStartMs && current < pause.answerWindowEndMs);
     if (answerWindow) void reportAudio(answerWindow.question, answerWindow.answerWindowStartMs);
   }
@@ -426,14 +458,8 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, acti
   }
 
   function listeningContextQuestions() {
-    if (section !== "listening" || state?.listeningMode !== "autoplay") return [];
-    const currentTiming = timing.questions.find((item) => item.question === question);
-    if (!currentTiming || currentTiming.groupType === "question") return [];
-    const group = timing.questions.filter((item) => item.groupId === currentTiming.groupId);
-    const first = group[0];
-    if (!first || audioNow < first.contextStartMs || audioNow >= first.answerWindowStartMs) return [];
-    const selected = state.selectedQuestions?.length ? new Set(state.selectedQuestions) : null;
-    return group.filter((item) => !selected || selected.has(item.question)).map((item) => item.question);
+    if (section !== "listening") return [];
+    return listeningContextQuestionsAtPosition(timing.questions as ListeningTimingQuestion[], audioNow, state?.selectedQuestions);
   }
 
   const sectionInstruction = section === "listening" ? instructions.listening : section === "structure" ? instructions.structure : section === "reading" ? instructions.reading : null;
@@ -544,7 +570,7 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, acti
   if (section === "listening") return <section className="ptd-test-section">
     <div className="ptd-section-bar"><div><p className="ptd-kicker">{state.scope !== "full" ? `LISTENING RETAKE ${state.sectionRetakeNumber}` : state.deliveryScope === "full" ? "SECTION 1 OF 3" : "ASSIGNED SECTION"}</p><h1>Listening Comprehension</h1></div><span className="ptd-mode-pill">{state.listeningMode === "autoplay" ? "Autoplay" : "Question-by-question audio"}</span></div>
     <AttemptHistoryPanel history={history} currentId={state.id} onOpen={(id) => void openAttempt(id)} />
-    <audio ref={audioRef} src={"/api/test-center/diagnostic/run/" + state.id + "/audio"} preload="auto" onTimeUpdate={focusedAutoplay ? onFocusedAutoplayTime : state.listeningMode === "autoplay" ? onAutoplayTime : onSegmentTime} onLoadedMetadata={() => { if (!focusedAutoplay && state.listeningMode === "autoplay" && state.lastListeningPositionMs > 0 && audioRef.current) audioRef.current.currentTime = state.lastListeningPositionMs / 1000; }} onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onEnded={() => { setPlaying(false); if (focusedAutoplay && segmentRef.current) finishFocusedAudioSegment(); else if (state.listeningMode === "autoplay") void finishListening(); }} />
+    <audio ref={audioRef} src={"/api/test-center/diagnostic/run/" + state.id + "/audio"} preload="auto" onTimeUpdate={focusedAutoplay ? onFocusedAutoplayTime : state.listeningMode === "autoplay" ? onAutoplayTime : onSegmentTime} onLoadedMetadata={() => { if (!focusedAutoplay) restoreListeningPosition(state); }} onPlay={() => setPlaying(true)} onPause={() => { setPlaying(false); persistListeningPosition(); }} onEnded={() => { setPlaying(false); persistListeningPosition(); if (focusedAutoplay && segmentRef.current) finishFocusedAudioSegment(); else if (state.listeningMode === "autoplay") void finishListening(); }} />
     {focusedAutoplay && <div className="ptd-player-bar"><button className="ptd-primary" disabled={busy} onClick={toggleFocusedAutoplay}>{focusedSequenceRunning ? "Pause sequence" : "Play / resume sequence"}</button><span>{Math.floor(audioNow / 60_000)}:{String(Math.floor(audioNow / 1000) % 60).padStart(2, "0")}</span><span>Question {focusedSequencePosition + 1} of {state.selectedQuestions?.length ?? 0} missed questions</span></div>}
     {!focusedAutoplay && state.listeningMode === "autoplay" && <div className="ptd-player-bar"><button className="ptd-primary" disabled={busy} onClick={() => {
       if (!audioRef.current) return;
@@ -552,7 +578,13 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, acti
       else { void audioRef.current.play().then(() => setPlaying(true)); }
     }}>{playing ? "Pause audio" : "Play / resume audio"}</button><span>{Math.floor(audioNow / 60_000)}:{String(Math.floor(audioNow / 1000) % 60).padStart(2, "0")}</span><span>Question {activeListeningWindow?.question ?? question} of 50</span></div>}
     {state.listeningMode === "question_click" && <div className="ptd-player-bar"><span>Audio heard · {state.heardListeningQuestions.filter((number) => !state.selectedQuestions?.length || state.selectedQuestions.includes(number)).length} of {state.selectedQuestions?.length ?? 50} questions</span>{state.heardListeningQuestions.filter((number) => !state.selectedQuestions?.length || state.selectedQuestions.includes(number)).length >= (state.selectedQuestions?.length ?? 50) && <button className="ptd-primary" disabled={busy} onClick={() => void act({ type: "finish_section" })}>{state.scope !== "full" ? "Finish Listening retake" : state.deliveryScope === "full" ? "Continue to Structure" : "Finish Listening"}</button>}</div>}
-    {listeningDirectionStarts(state).includes(question) && <div className="ptd-part-direction"><span>PART {question <= 30 ? "A" : question <= 37 ? "B" : "C"} · DIRECTIONS</span><p>{question <= 30 ? instructions.listening.partA : question <= 37 ? instructions.listening.partB : instructions.listening.partC}</p></div>}
+    {(() => {
+      const contextQuestions = listeningContextQuestions();
+      const firstAudio = timing.questions.find((item) => item.question === (state.selectedQuestions?.[0] ?? 1));
+      const isInitialDirections = !!firstAudio && audioNow < firstAudio.questionAudioStartMs;
+      const isGroupTransition = contextQuestions.length > 0;
+      return listeningDirectionStarts(state).includes(question) && (isInitialDirections || isGroupTransition) ? <div className="ptd-part-direction"><span>PART {question <= 30 ? "A" : question <= 37 ? "B" : "C"} · DIRECTIONS</span><p>{question <= 30 ? instructions.listening.partA : question <= 37 ? instructions.listening.partB : instructions.listening.partC}</p></div> : null;
+    })()}
     {message && <p className="ptd-error" role="alert">{message}</p>}
     {renderQuestionPanel("listening")}
   </section>;
