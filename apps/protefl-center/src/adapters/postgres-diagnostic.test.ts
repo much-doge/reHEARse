@@ -1,13 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { clientQuery, connect } = vi.hoisted(() => ({
+const { clientQuery, connect, poolQuery } = vi.hoisted(() => ({
   clientQuery: vi.fn(),
   connect: vi.fn(),
+  poolQuery: vi.fn(),
 }));
 
-vi.mock("@/adapters/db/client", () => ({ getPool: () => ({ connect }) }));
+vi.mock("@/adapters/db/client", () => ({ getPool: () => ({ connect, query: poolQuery }) }));
 
-import { startSectionRetake } from "./postgres-diagnostic";
+import { diagnosticWorkspace, startSectionRetake } from "./postgres-diagnostic";
 
 const actor = "11111111-1111-4111-8111-111111111111";
 const assignment = "22222222-2222-4222-8222-222222222222";
@@ -18,6 +19,7 @@ describe("diagnostic section retake assignment boundaries", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     connect.mockResolvedValue({ query: clientQuery, release: vi.fn() });
+    poolQuery.mockReset();
   });
 
   it("does not resume an active retake from a different section", async () => {
@@ -51,5 +53,19 @@ describe("diagnostic section retake assignment boundaries", () => {
     expect(activeLookup?.[0]).toContain("scope=$3");
     expect(activeLookup?.[1]).toEqual([assignment, actor, "reading"]);
     expect(clientQuery).toHaveBeenCalledWith("COMMIT");
+  });
+
+  it("returns every active attempt for a learner assignment instead of picking one child", async () => {
+    poolQuery.mockResolvedValueOnce({ rowCount: 2, rows: [
+      { id: source, attempt_number: 2, status: "in_progress", scope: "structure", delivery_scope: "full", parent_attempt_id: "root", section_retake_number: 1, current_section: "structure", created_at: new Date("2026-11-15T01:00:00Z"), completed_at: null },
+      { id: retake, attempt_number: 3, status: "in_progress", scope: "reading", delivery_scope: "full", parent_attempt_id: "root", section_retake_number: 1, current_section: "reading", created_at: new Date("2026-11-15T01:01:00Z"), completed_at: null },
+    ] });
+
+    await expect(diagnosticWorkspace(actor, assignment)).resolves.toEqual([
+      expect.objectContaining({ id: source, scope: "structure", currentSection: "structure" }),
+      expect.objectContaining({ id: retake, scope: "reading", currentSection: "reading" }),
+    ]);
+    expect(poolQuery.mock.calls[0]?.[0]).toContain("d.status='in_progress'");
+    expect(poolQuery.mock.calls[0]?.[0]).toContain("d.archived_at IS NULL");
   });
 });

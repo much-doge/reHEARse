@@ -39,6 +39,18 @@ type Props = {
   instructions: Directions;
   timing: Timing;
   initial: Record<string, unknown> | null;
+  activeAttempts: Array<{
+    id: string;
+    attemptNumber: number;
+    status: "in_progress" | "completed";
+    scope: "full" | Section;
+    deliveryScope: DeliveryScope;
+    parentAttemptId: string | null;
+    sectionRetakeNumber: number | null;
+    currentSection: "listening" | "structure" | "reading" | "completed";
+    createdAt: string;
+    completedAt: string | null;
+  }>;
   history: Array<{ id: string; attemptNumber: number; status: string; scope: string; deliveryScope: DeliveryScope; createdAt: string; completedAt: string | null; result: { total?: { correct: number; questions: number }; summary?: { correct: number; total: number } } | null }>;
 };
 type StandardItem = { number: number; prompt: string; options: Record<"A" | "B" | "C" | "D", string>; part?: "A" | "B" | "C" };
@@ -72,7 +84,7 @@ async function parsePayload<T>(response: Response): Promise<T & { error?: string
   return response.json() as Promise<T & { error?: string }>;
 }
 
-export function DiagnosticTest({ assignment, instructions, timing, initial, history }: Props) {
+export function DiagnosticTest({ assignment, instructions, timing, initial, activeAttempts, history }: Props) {
   const router = useRouter();
   const initialState = initial as DiagnosticState | null;
   const [state, setState] = useState<DiagnosticState | null>(initialState);
@@ -472,6 +484,7 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, hist
       {assignedSections.includes("structure") && <article><span>02</span><h2>Structure and Written Expression</h2><p>40 questions · 25 minutes</p><small>Complete sentences, then identify underlined errors</small></article>}
       {assignedSections.includes("reading") && <article><span>03</span><h2>Reading</h2><p>50 questions · 55 minutes</p><small>Five passages with preserved line references</small></article>}
     </div>
+    {activeAttempts.length > 1 && <section className="ptd-active-attempts" aria-label="Active section work"><p className="ptd-kicker">WORK IN PROGRESS</p><h2>Choose what to continue</h2><p>Your teacher has assigned more than one section reset. Open one section at a time; each attempt remains saved separately.</p><div>{activeAttempts.map((attempt) => <button className="ptd-secondary" key={attempt.id} onClick={() => void refresh(attempt.id)}><strong>{attempt.scope === "full" ? "Full diagnostic" : labels[attempt.scope]}{attempt.sectionRetakeNumber ? ` · Reset ${attempt.sectionRetakeNumber}` : ""}</strong><span>Question flow: {attempt.currentSection === "completed" ? "Review" : labels[attempt.currentSection as Section] ?? attempt.currentSection}</span></button>)}</div></section>}
     {message && <p className="ptd-error" role="alert">{message}</p>}
     <button className="ptd-primary" disabled={busy} onClick={() => void createAttempt("start")}>{busy ? "Opening…" : assignment.deliveryScope === "full" ? "Begin diagnostic" : `Begin ${labels[assignment.deliveryScope]}`}</button>
   </section>{history.length > 0 && <section className="ptd-history"><p className="ptd-kicker">YOUR RECORD</p><h2>Previous attempts</h2>{history.map((attempt) => <article key={attempt.id}><div><strong>Attempt {attempt.attemptNumber}</strong><span>{attempt.status === "completed" ? "Completed" : "In progress"} · {new Date(attempt.createdAt).toLocaleDateString()}</span></div><span>{attempt.result?.total ? `${attempt.result.total.correct}/${attempt.result.total.questions} correct` : attempt.result?.summary ? `${attempt.result.summary.correct}/${attempt.result.summary.total} correct` : "Not completed"}</span><button className="ptd-secondary" onClick={() => void refresh(attempt.id)}>Open record</button></article>)}</section>}</>;

@@ -302,6 +302,51 @@ export async function latestDiagnosticAttemptState(actorId: string, assignmentId
   return full.rows[0] ? diagnosticAttemptState(actorId, String(full.rows[0].id)) : null;
 }
 
+export type DiagnosticWorkspaceAttempt = {
+  id: string;
+  attemptNumber: number;
+  status: "in_progress" | "completed";
+  scope: "full" | Section;
+  deliveryScope: "full" | Section;
+  parentAttemptId: string | null;
+  sectionRetakeNumber: number | null;
+  currentSection: "listening" | "structure" | "reading" | "completed";
+  createdAt: string;
+  completedAt: string | null;
+};
+
+/**
+ * Return every active attempt that belongs to this exact assignment. The
+ * learner UI must not choose an arbitrary child when a teacher has issued
+ * independent section resets; the caller can open a selected ID through the
+ * existing ownership-checked attempt route.
+ */
+export async function diagnosticWorkspace(actorId: string, assignmentId: string) {
+  const result = await getPool().query(
+    `SELECT d.id,d.attempt_number,d.status,d.scope,d.delivery_scope,d.parent_attempt_id,
+            d.section_retake_number,d.current_section,d.created_at,d.completed_at
+       FROM protefl_diagnostic_attempt d
+       JOIN protefl_resource_assignment a ON a.id=d.assignment_id
+      WHERE d.assignment_id=$1 AND d.actor_id=$2 AND a.actor_id=$2
+        AND a.revoked_at IS NULL
+        AND d.status='in_progress' AND d.archived_at IS NULL
+      ORDER BY d.attempt_number ASC`,
+    [assignmentId, actorId],
+  );
+  return result.rows.map((row) => ({
+    id: String(row.id),
+    attemptNumber: Number(row.attempt_number),
+    status: row.status as "in_progress" | "completed",
+    scope: row.scope as "full" | Section,
+    deliveryScope: row.delivery_scope as "full" | Section,
+    parentAttemptId: row.parent_attempt_id ? String(row.parent_attempt_id) : null,
+    sectionRetakeNumber: row.section_retake_number == null ? null : Number(row.section_retake_number),
+    currentSection: row.current_section as "listening" | "structure" | "reading" | "completed",
+    createdAt: new Date(row.created_at).toISOString(),
+    completedAt: row.completed_at ? new Date(row.completed_at).toISOString() : null,
+  })) satisfies DiagnosticWorkspaceAttempt[];
+}
+
 export async function diagnosticAssignmentHistory(actorId: string, assignmentId: string) {
   const result = await getPool().query(
     `SELECT d.id,d.attempt_number,d.status,d.scope,d.delivery_scope,d.created_at,d.completed_at,r.result_data

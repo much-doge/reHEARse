@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
-import { diagnosticAssignment, diagnosticAssignmentHistory, diagnosticInstructions, diagnosticListeningTiming, latestDiagnosticAttemptState, type DiagnosticInstructions } from "@protefl/adapters/postgres-diagnostic";
+import { diagnosticAssignment, diagnosticAssignmentHistory, diagnosticInstructions, diagnosticListeningTiming, diagnosticWorkspace, latestDiagnosticAttemptState, type DiagnosticInstructions } from "@protefl/adapters/postgres-diagnostic";
 import { supportedDiagnosticPackage } from "@protefl/application/diagnostic-package";
 import { DiagnosticTest } from "@/components/test-center/diagnostic-test";
 import { requireUser } from "@/lib/session";
@@ -17,11 +17,16 @@ export default async function DiagnosticTestPage({ params, searchParams }: { par
   if (user.role === "teacher" || user.role === "admin") redirect("/test-center/teaching");
   const assignment = await diagnosticAssignment(user.id, assignmentId && /^[0-9a-f-]{36}$/i.test(assignmentId) ? assignmentId : undefined, packageCode);
   if (!assignment) notFound();
-  const [instructions, timing, initial, history] = await Promise.all([
-    diagnosticInstructions(packageCode), diagnosticListeningTiming(packageCode), latestDiagnosticAttemptState(user.id, assignment.id), diagnosticAssignmentHistory(user.id, assignment.id),
+  const [instructions, timing, workspace, history] = await Promise.all([
+    diagnosticInstructions(packageCode), diagnosticListeningTiming(packageCode), diagnosticWorkspace(user.id, assignment.id), diagnosticAssignmentHistory(user.id, assignment.id),
   ]);
+  const initial = workspace.length === 1
+    ? await latestDiagnosticAttemptState(user.id, assignment.id)
+    : workspace.length === 0
+      ? await latestDiagnosticAttemptState(user.id, assignment.id)
+      : null;
   return <main className="ptd-shell">
     <header className="ptd-header"><Link href="/test-center">← Test Center</Link><span>TOEFL-like Test Center</span><Link href="/dashboard">Dashboard</Link></header>
-    <DiagnosticTest assignment={assignment} instructions={instructions as DiagnosticInstructions} timing={timing} initial={initial} history={history} />
+    <DiagnosticTest assignment={assignment} instructions={instructions as DiagnosticInstructions} timing={timing} initial={initial} activeAttempts={workspace} history={history} />
   </main>;
 }

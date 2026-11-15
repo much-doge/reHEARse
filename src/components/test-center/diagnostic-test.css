@@ -133,6 +133,12 @@
 .ptd-countdown.urgent strong { color:#aa4d32; }
 .ptd-section-footer { display:flex; justify-content:space-between; align-items:center; gap:16px; margin:20px 0; padding:17px; border:1px solid var(--ptd-line); border-radius:16px; background:#fff; }
 .ptd-section-footer p { margin:0; color:var(--ptd-muted); }
+.ptd-active-attempts { margin:22px 0 0; padding:20px; border:1px solid #d4e0d3; border-radius:18px; background:#f2f7ef; }
+.ptd-active-attempts h2 { margin:0 0 6px; }
+.ptd-active-attempts p:not(.ptd-kicker) { margin:0; color:var(--ptd-muted); line-height:1.5; }
+.ptd-active-attempts>div { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:9px; margin-top:15px; }
+.ptd-active-attempts button { display:grid; gap:4px; min-height:62px; text-align:left; }
+.ptd-active-attempts button span { color:var(--ptd-muted); font-size:.78rem; font-weight:500; }
 .ptd-results { padding:12px 0 40px; }
 .ptd-result-summary { display:grid; grid-template-columns:minmax(240px,.8fr) minmax(0,1.5fr); gap:18px; margin:20px 0; }
 .ptd-result-total { padding:24px; border-radius:22px; background:linear-gradient(150deg,#235d48,#194b3b); color:#fff; }
