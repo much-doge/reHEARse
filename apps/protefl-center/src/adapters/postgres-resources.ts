@@ -125,9 +125,14 @@ export async function claimResource(actorId: string, rawCode: string): Promise<v
 }
 
 type ManagedHistoryAttemptRow = {
-  result?: FullDiagnosticResult | null;
+  result?: FullDiagnosticResult | SectionResultPayload | null;
   answeredQuestions?: unknown[];
   retakes?: Array<{ teacherIssuedRestart?: boolean; archivedAt?: string | null; status?: string; section: string; result?: unknown }>;
+};
+type SectionResultPayload = {
+  summary: { correct: number; incorrect: number; omitted: number; total: number; converted?: [number, number] | null };
+  review: Array<{ section: string; question: number; selected: string | null; correctAnswer: string; correct: boolean }>;
+  answers?: Record<string, string>;
 };
 type ManagedCandidateHistoryRow = {
   assignment_id: string;
@@ -188,7 +193,12 @@ const managedCandidateHistoryQuery = `
 function mapManagedCandidateHistory(row: ManagedCandidateHistoryRow) {
   const attempts = (row.attempts ?? []).map((attempt) => {
     const resets = (attempt.retakes ?? []).filter((retry) => retry.teacherIssuedRestart && !retry.archivedAt && retry.status === "completed" && retry.result).map((retry) => ({ section: retry.section, result: retry.result })) as CompletedSectionReset[];
-    return { ...attempt, effectiveResult: attempt.result && resets.length ? effectiveDiagnosticResult(attempt.result, resets) : null };
+    const effectiveResult = attempt.result && resets.length
+      ? "sections" in attempt.result
+        ? effectiveDiagnosticResult(attempt.result, resets)
+        : resets.at(-1)?.result ?? null
+      : null;
+    return { ...attempt, effectiveResult };
   });
   return {
     assignmentId: String(row.assignment_id),

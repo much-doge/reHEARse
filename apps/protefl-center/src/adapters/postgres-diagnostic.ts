@@ -473,23 +473,49 @@ export async function restartCandidateDiagnosticSection(
        JOIN protefl_resource_assignment a ON a.id=d.assignment_id
        JOIN protefl_resource r ON r.id=d.resource_id
        WHERE d.id=$1 AND d.resource_id=$2 AND d.assignment_id=$3 AND d.actor_id=$4
-         AND d.scope='full' AND d.delivery_scope='full' AND d.parent_attempt_id IS NULL AND d.status='completed' AND d.archived_at IS NULL
+         AND d.parent_attempt_id IS NULL AND d.status='completed' AND d.archived_at IS NULL
          AND r.kind='diagnostic_package' AND r.status='published' AND a.revoked_at IS NULL
          AND a.starts_at<=now() AND (a.ends_at IS NULL OR a.ends_at>now())
          AND ($6='admin' OR a.assigned_by=$5)
        FOR UPDATE OF d,a,r`,
       [parentAttemptId, resourceId, assignmentId, candidateActorId, staffActorId, staffRole],
     )).rows[0];
-    if (!parent) throw new Error("section_restart_unavailable");
+    if (!parent || !(
+      (parent.scope === "full" && parent.delivery_scope === "full")
+      || (parent.scope === section && parent.delivery_scope === section)
+    )) throw new Error("section_restart_unavailable");
 
     const active = await client.query(
       `SELECT id FROM protefl_diagnostic_attempt
-       WHERE assignment_id=(SELECT assignment_id FROM protefl_diagnostic_attempt WHERE id=$1)
-         AND actor_id=$2 AND scope=$3 AND status='in_progress' AND archived_at IS NULL
+       WHERE parent_attempt_id=$1 AND actor_id=$2 AND scope=$3
+         AND teacher_restarted_by IS NOT NULL
+         AND status='in_progress' AND archived_at IS NULL
        LIMIT 1 FOR UPDATE`,
       [parentAttemptId, candidateActorId, section],
     );
-    if (active.rowCount) throw new Error("active_attempt_exists");
+    if (active.rowCount) {
+      const existing = await client.query(
+        "SELECT id,attempt_number,section_retake_number,created_at FROM protefl_diagnostic_attempt WHERE id=$1",
+        [active.rows[0].id],
+      );
+      await client.query("COMMIT");
+      const row = existing.rows[0];
+      return {
+        attemptId: String(row.id), attemptNumber: Number(row.attempt_number),
+        sectionRetakeNumber: Number(row.section_retake_number), section,
+        createdAt: new Date(row.created_at).toISOString(), existing: true,
+      };
+    }
+
+    const conflictingActive = await client.query(
+      `SELECT id FROM protefl_diagnostic_attempt
+       WHERE parent_attempt_id=$1 AND actor_id=$2 AND scope=$3
+         AND teacher_restarted_by IS NULL
+         AND status='in_progress' AND archived_at IS NULL
+       LIMIT 1 FOR UPDATE`,
+      [parentAttemptId, candidateActorId, section],
+    );
+    if (conflictingActive.rowCount) throw new Error("active_attempt_exists");
 
     const sequence = (await client.query(
       "SELECT coalesce(max(attempt_number),0)::int AS number FROM protefl_diagnostic_attempt WHERE assignment_id=(SELECT assignment_id FROM protefl_diagnostic_attempt WHERE id=$1) AND actor_id=$2",
@@ -520,7 +546,7 @@ export async function restartCandidateDiagnosticSection(
     await client.query("COMMIT");
     return {
       attemptId: String(inserted.id), attemptNumber: Number(inserted.attempt_number),
-      sectionRetakeNumber: Number(inserted.section_retake_number), section,
+      sectionRetakeNumber: Number(inserted.section_retake_number), section, existing: false,
       createdAt: new Date(inserted.created_at).toISOString(),
     };
   } catch (error) {

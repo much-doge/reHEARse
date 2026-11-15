@@ -105,7 +105,7 @@ describe("assignment title pinning and diagnostic archive boundaries", () => {
       if (sql.includes("SELECT d.*,r.code AS resource_code,r.status AS resource_status")) return { rowCount: 1, rows: [{
         id: parent, package_version: 1, resource_version: 1, content_hash: "content", answer_key_hash: "answers",
         score_table_hash: "scores", timing_map_hash: "timing", assigned_listening_mode: "autoplay",
-        assigned_show_question_text: true, delivery_scope: "full",
+        assigned_show_question_text: true, scope: "full", delivery_scope: "full",
       }] };
       if (sql.includes("status='in_progress'")) return { rowCount: 0, rows: [] };
       if (sql.includes("max(attempt_number)")) return { rowCount: 1, rows: [{ number: 3 }] };
@@ -119,7 +119,7 @@ describe("assignment title pinning and diagnostic archive boundaries", () => {
     expect(result).toMatchObject({ attemptNumber: 4, sectionRetakeNumber: 2, section: "structure" });
     const authorization = clientQuery.mock.calls.find(([sql]) => String(sql).includes("SELECT d.*,r.code AS resource_code,r.status AS resource_status"));
     expect(authorization?.[0]).toContain("a.assigned_by=$5");
-    expect(authorization?.[0]).toContain("d.delivery_scope='full'");
+    expect(authorization?.[0]).toContain("d.parent_attempt_id IS NULL");
     const insert = clientQuery.mock.calls.find(([sql]) => String(sql).includes("INSERT INTO protefl_diagnostic_attempt"));
     expect(insert?.[0]).toContain("selected_questions,delivery_scope,teacher_restarted_by");
     expect(insert?.[0]).toContain("$15,$16");
@@ -134,7 +134,7 @@ describe("assignment title pinning and diagnostic archive boundaries", () => {
       if (sql.includes("SELECT d.*,r.code AS resource_code,r.status AS resource_status")) return { rowCount: 1, rows: [{
         id: parent, package_version: 1, resource_version: 1, content_hash: "content", answer_key_hash: "answers",
         score_table_hash: "scores", timing_map_hash: "timing", assigned_listening_mode: "autoplay",
-        assigned_show_question_text: true, delivery_scope: "full",
+        assigned_show_question_text: true, scope: "full", delivery_scope: "full",
       }] };
       if (sql.includes("scope=$3")) return { rowCount: 0, rows: [] };
       if (sql.includes("max(attempt_number)")) return { rowCount: 1, rows: [{ number: 3 }] };
@@ -146,6 +146,27 @@ describe("assignment title pinning and diagnostic archive boundaries", () => {
     await expect(restartCandidateDiagnosticSection(resource, assignment, actor, parent, "reading", staff, "admin")).resolves.toMatchObject({ section: "reading" });
     expect(clientQuery.mock.calls.some(([sql]) => String(sql).includes("INSERT INTO protefl_diagnostic_attempt"))).toBe(true);
     expect(clientQuery).toHaveBeenCalledWith("COMMIT");
+  });
+
+  it("creates a reset child for a completed section-only root", async () => {
+    const parent = "44444444-4444-4444-8444-444444444444";
+    clientQuery.mockImplementation(async (sql: string) => {
+      if (sql === "BEGIN" || sql === "COMMIT") return { rowCount: 0, rows: [] };
+      if (sql.includes("SELECT d.*,r.code AS resource_code,r.status AS resource_status")) return { rowCount: 1, rows: [{
+        id: parent, package_version: 1, resource_version: 1, content_hash: "content", answer_key_hash: "answers",
+        score_table_hash: "scores", timing_map_hash: "timing", assigned_listening_mode: "question_click",
+        assigned_show_question_text: true, scope: "reading", delivery_scope: "reading",
+      }] };
+      if (sql.includes("status='in_progress'")) return { rowCount: 0, rows: [] };
+      if (sql.includes("max(attempt_number)")) return { rowCount: 1, rows: [{ number: 1 }] };
+      if (sql.includes("max(section_retake_number)")) return { rowCount: 1, rows: [{ number: 0 }] };
+      if (sql.includes("INSERT INTO protefl_diagnostic_attempt")) return { rowCount: 1, rows: [{ id: "55555555-5555-4555-8555-555555555555", attempt_number: 2, section_retake_number: 1, created_at: new Date("2026-11-10T07:00:00Z") }] };
+      return { rowCount: 0, rows: [] };
+    });
+
+    await expect(restartCandidateDiagnosticSection(resource, assignment, actor, parent, "reading", staff, "teacher")).resolves.toMatchObject({ section: "reading", attemptNumber: 2 });
+    const insert = clientQuery.mock.calls.find(([sql]) => String(sql).includes("INSERT INTO protefl_diagnostic_attempt"));
+    expect(insert?.[1]).toContain("reading");
   });
 
   it("selects the latest completed root when a newer root is still in progress", async () => {
