@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, 
 import { useRouter } from "next/navigation";
 
 import { serverNowAt } from "./server-clock";
-import { listeningContextQuestionsAtPosition, listeningQuestionAtPosition, listeningRecoveryPosition, type ListeningTimingQuestion } from "./listening-playback";
+import { listeningContextQuestionsAtPosition, listeningPlaybackStartMs, listeningQuestionAtPosition, listeningRecoveryPosition, type ListeningTimingQuestion } from "./listening-playback";
 
 type Section = "listening" | "structure" | "reading";
 type DeliveryScope = "full" | Section;
@@ -381,7 +381,7 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, acti
     setQuestion(number); setFocusedAnswerQuestion(null); setFocusedAnswerDeadline(null);
     const previous = index > 0 ? timing.questions[sequence[index - 1] - 1] : null;
     const firstSelectedInGroup = !previous || previous.groupId !== segment.groupId;
-    const startMs = segment.groupType !== "question" && firstSelectedInGroup ? segment.contextStartMs : segment.questionAudioStartMs;
+    const startMs = listeningPlaybackStartMs(segment, segment.groupType !== "question" && firstSelectedInGroup);
     segmentRef.current = { endMs: segment.questionAudioEndMs, question: number };
     const audio = audioRef.current;
     if (!audio) return;
@@ -459,7 +459,7 @@ export function DiagnosticTest({ assignment, instructions, timing, initial, acti
   async function playQuestionAudio(withContext: boolean) {
     const segment = timing.questions.find((item) => item.question === question);
     if (!segment) return;
-    const startMs = withContext ? segment.contextStartMs : segment.questionAudioStartMs;
+    const startMs = listeningPlaybackStartMs(segment, withContext);
     await playRange(startMs, segment.questionAudioEndMs, question);
   }
 

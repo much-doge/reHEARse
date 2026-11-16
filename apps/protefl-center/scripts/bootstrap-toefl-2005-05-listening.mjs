@@ -103,10 +103,18 @@ const groups = [
 const questionMap = pauseRows.map((pause, index) => {
   const number = index + 1;
   const group = groups.find((candidate) => number >= candidate.first && number <= candidate.last);
-  const questionAudioStartMs = number === 1 ? 17150 : number === 31 ? group.contextStartMs : pauseRows[index - 1].answerWindowEndMs;
-  const contextStartMs = group?.contextStartMs ?? questionAudioStartMs;
+  const fallbackStartMs = number === 1 ? 17150 : pauseRows[index - 1].answerWindowEndMs;
+  const contextStartMs = group?.contextStartMs ?? fallbackStartMs;
+  const questionAudioStartMs = number === 1 ? 17150
+    : group && number === group.first ? contextStartMs
+      : pauseRows[index - 1].answerWindowEndMs;
   return { question: number, groupId: group?.id ?? `part-a-${number}`, groupType: group?.type ?? "question", questionAudioStartMs, questionAudioEndMs: pause.answerWindowStartMs, contextStartMs, answerWindowStartMs: pause.answerWindowStartMs, answerWindowEndMs: pause.answerWindowEndMs };
 });
+for (const group of groups) {
+  const lead = questionMap.find((item) => item.question === group.first);
+  if (!lead || lead.questionAudioStartMs !== lead.contextStartMs)
+    throw new Error(`First playback for ${group.id} must begin at its mapped context`);
+}
 
 const instructions = {
   schemaVersion: "1.0.0",

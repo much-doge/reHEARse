@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { diagnosticPackage, diagnosticPackageCodes, diagnosticPackagePath, supportedDiagnosticPackage } from "./diagnostic-package";
@@ -32,6 +34,21 @@ describe("diagnostic package catalogue", () => {
     expect(descriptor?.files.listeningAudio).toBe("source/listening.mp3");
     expect(descriptor?.resultVersions.sectionAssignment).toContain("section-assignment.v1");
     expect(diagnosticPackagePath(descriptor!.code)).toContain("apps/protefl-center/content/ets-toefl-pbt-2005-05-listening-v1");
+  });
+
+  it("starts each grouped conversation or talk at its mapped context cue", async () => {
+    const directory = diagnosticPackagePath("ets-toefl-pbt-2005-05-listening");
+    const map = JSON.parse(await readFile(join(directory!, "metadata/listening-question-map-v1.json"), "utf8")) as {
+      questions: Array<{ question: number; groupId: string; groupType: string; questionAudioStartMs: number; contextStartMs: number }>;
+    };
+    const groups = new Map<string, typeof map.questions>();
+    for (const item of map.questions.filter(({ groupType }) => groupType !== "question"))
+      groups.set(item.groupId, [...(groups.get(item.groupId) ?? []), item]);
+
+    expect(groups.size).toBe(5);
+    for (const items of groups.values()) {
+      expect(items[0].questionAudioStartMs).toBe(items[0].contextStartMs);
+    }
   });
 
   it.each(["", "unknown-form", "ets-volume3-practice-test-b-listening"])("denies an unregistered package: %s", (code) => {

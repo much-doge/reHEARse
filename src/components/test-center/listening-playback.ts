@@ -15,6 +15,10 @@ export function listeningQuestionCueMs(item: ListeningTimingQuestion) {
   return isGroupLead ? Math.max(item.questionAudioStartMs, item.answerWindowStartMs - 7_000) : item.questionAudioStartMs;
 }
 
+export function listeningPlaybackStartMs(item: ListeningTimingQuestion, withContext = false) {
+  return withContext ? item.contextStartMs : item.questionAudioStartMs;
+}
+
 function eligibleGroupItems(timing: ListeningTimingQuestion[], item: ListeningTimingQuestion, selectedQuestions?: number[] | null) {
   const selected = selectedQuestions?.length ? new Set(selectedQuestions) : null;
   return timing.filter((candidate) => candidate.groupId === item.groupId && (!selected || selected.has(candidate.question)));

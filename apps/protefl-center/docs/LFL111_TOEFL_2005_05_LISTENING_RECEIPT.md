@@ -66,6 +66,20 @@ Silence detection locates response windows; the transcript and local ASR
 locate spoken cues. This is sequence alignment, not classroom playback
 verification.
 
+### Post-deployment mechanics correction
+
+The first deployed package was reviewed after publication. That review found
+that direct playback for the first item in four multi-question groups started
+at the preceding response-window end rather than at the verified group cue:
+Q34 (1,079,520 → 1,083,460 ms), Q39 (1,268,924 → 1,478,650 ms), Q42
+(1,632,882 → 1,640,550 ms), and Q47 (1,785,338 → 1,788,420 ms). In Q39 this
+would have replayed Part B's end, Part C directions, and the sample before the
+Canadian-history talk. The package map and shared player start helper now use
+each group context cue. Regression coverage loads all five real groups,
+confirms all group questions appear during the context lead-in, and checks
+first playback begins at that cue. The initial publication had zero learner
+assignments and attempts, so no learner evidence was repinned or changed.
+
 ## Integrity
 
 The regenerated package manifest contains 10 unique file entries and records:
@@ -81,8 +95,9 @@ The regenerated package manifest contains 10 unique file entries and records:
   exact supplied MP3.
 - `verify-diagnostic-package.py`: passed; count 50 Listening, zero Structure,
   zero Reading.
-- Focused package/delivery/diagnostic/resource tests: 4 files, 32 tests passed.
-- Full Vitest suite: 56 files, 219 tests passed.
+- Focused package/delivery/diagnostic/resource tests: 4 files, 33 tests passed
+  after the timing correction.
+- Full Vitest suite: 56 files, 221 tests passed after the correction.
 - ESLint, TypeScript, and Next.js production build: passed.
 - `docker compose config --quiet`: passed.
 - `docker compose build app`: passed; local image
@@ -95,10 +110,12 @@ The regenerated package manifest contains 10 unique file entries and records:
   original result. Test Center data remains separate from reHEARse diagnostics.
 - Deployment is not claimed yet. Database resource seeding, runtime health,
   signed-out route/audio access checks, and authenticated learner review/retry
-  remain pending on PCT128.
+  remain pending on PCT128 after the corrected second release.
 
 ## Deployment and classroom receipt
 
-Complete after publication with the release commit/image, additive migration
-time, resource readback, zero-new-assignment check, runtime/audio asset check,
-health and auth checks, rollback point, and explicit browser/classroom status.
+First publication: commit `4c8c7f2` deployed to PCT128; additive migration
+`045_seed_toefl_pbt_2005_05_listening.sql` applied, catalog row read back as
+published, and zero assignments confirmed. The corrected second release,
+runtime health/audio asset/auth checks, rollback point, and browser/classroom
+status are recorded here after that release completes.
