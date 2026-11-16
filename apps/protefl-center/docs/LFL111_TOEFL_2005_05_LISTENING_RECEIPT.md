@@ -84,10 +84,11 @@ assignments and attempts, so no learner evidence was repinned or changed.
 
 The regenerated package manifest contains 10 unique file entries and records:
 
-- Content hash: `288f35271c5eeaaecb939769f015c88c89c56b9fcbf1fc97b95f8116646fd0da`
+- Content hash: `8cf3118d73c1db65f7af06df694d2247e71e2daa780fc107b504e161ec95f7b7`
 - Answer-key hash: `24e405b8e8434734d8d16252a2d04f9f4433686f6992564eb14acd8e7182b5db`
 - Score-table hash: `d214bfa230e26cb3a57696f9c3a27359b784c19bc5a378b9be6d70edf7cc6225`
-- Timing-map hash: `2db3aa30752732acf25fb89f4aa9967ac911a8ee37b9cdcd217e5139a8a1593b`
+- Timing-map hash: `0074120ff13d8ad39cc7fa8cff4e51ab54530fa07c38bf0cc4ba56e24580d3b1`
+- Corrected question-map file SHA-256: `e2f1f29b7af5959b02d043be2b926fd6b46fa9c12aa26ad382db0f90ecd5c032`
 
 ## Verification
 
@@ -108,14 +109,32 @@ The regenerated package manifest contains 10 unique file entries and records:
   review only after completion. The focused missed/omitted retry now accepts a
   Listening-only root, creates an append-only child attempt, and preserves the
   original result. Test Center data remains separate from reHEARse diagnostics.
-- Deployment is not claimed yet. Database resource seeding, runtime health,
-  signed-out route/audio access checks, and authenticated learner review/retry
-  remain pending on PCT128 after the corrected second release.
+- PCT128 app and PostgreSQL containers are healthy with zero restarts after
+  the corrected release. The package's MP3 and question-map hashes were
+  checked inside the running image and match this receipt.
+- LAN and public `/api/health`: HTTP 200. Signed-out package page: HTTP 307 to
+  login. Unauthenticated Test Center resources and diagnostic audio: HTTP 401.
+- The learner page was opened in the desktop browser and displayed sign-in.
+  No authenticated learner account/session was available for a live candidate
+  test, result-review, and retake walkthrough; classroom playback remains
+  unverified.
 
 ## Deployment and classroom receipt
 
-First publication: commit `4c8c7f2` deployed to PCT128; additive migration
-`045_seed_toefl_pbt_2005_05_listening.sql` applied, catalog row read back as
-published, and zero assignments confirmed. The corrected second release,
-runtime health/audio asset/auth checks, rollback point, and browser/classroom
-status are recorded here after that release completes.
+First publication: commit `4c8c7f2` deployed to PCT128. Additive migration
+`045_seed_toefl_pbt_2005_05_listening.sql` was applied at
+`2026-11-16 22:58:12.650811+00`; a mode-600 pre-migration database backup at
+`/opt/rehearse/.secrets/lfl111-pre-migration-4c8c7f2.dump` was validated with
+`pg_restore --list` before migration. The published catalog row was confirmed
+with zero assignments.
+
+Post-deployment review found and corrected the four group starts above. Final
+app-only release: commit `8745689`, tree
+`/opt/rehearse/.releases/8745689`, image `rehearse-app:8745689`, digest
+`sha256:285c481dd197591bc2b4dabc3d58d69cf3c4c5a5e80b6ca8ff9108d9a8135696`.
+No second migration was needed; migration 045 remains applied. Runtime status
+and unauthenticated boundary checks are recorded under Verification. Rollback
+is app-only to `rehearse-app:4c8c7f2`; keep additive migration 045 applied.
+
+Deployment is verified, not classroom verified. No learner assignment or
+attempt was created by package publication.
