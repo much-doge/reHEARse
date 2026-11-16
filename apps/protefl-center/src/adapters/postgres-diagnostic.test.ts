@@ -62,6 +62,43 @@ describe("diagnostic section retake assignment boundaries", () => {
     expect(clientQuery).toHaveBeenCalledWith("COMMIT");
   });
 
+  it("starts a missed-question retake from a standalone Listening assignment", async () => {
+    clientQuery.mockImplementation(async (sql: string) => {
+      if (sql === "BEGIN" || sql === "COMMIT") return { rowCount: 0, rows: [] };
+      if (sql.includes("SELECT d.id,d.assignment_id,d.scope,d.delivery_scope")) return { rowCount: 1, rows: [{
+        id: source, assignment_id: assignment, scope: "listening", delivery_scope: "listening",
+        parent_attempt_id: null, status: "completed", code: "ets-toefl-pbt-2005-05-listening",
+      }] };
+      if (sql.includes("SELECT d.*,r.status AS resource_status")) return { rowCount: 1, rows: [{
+        id: source, resource_id: "55555555-5555-4555-8555-555555555555", assignment_id: assignment,
+        actor_id: actor, scope: "listening", delivery_scope: "listening", parent_attempt_id: null,
+        package_version: 1, resource_version: 1, resource_status: "published", assignment_delivery_scope: "listening",
+        assigned_listening_mode: "autoplay", assigned_show_question_text: true,
+      }] };
+      if (sql.includes("SELECT result_data FROM protefl_diagnostic_result")) return { rowCount: 1, rows: [{ result_data: {
+        review: [
+          { section: "listening", question: 1, correct: true },
+          { section: "listening", question: 2, correct: false },
+          { section: "listening", question: 3, correct: false },
+        ],
+      } }] };
+      if (sql.includes("scope=$3") && sql.includes("status='in_progress'")) return { rowCount: 0, rows: [] };
+      if (sql.includes("max(attempt_number)")) return { rowCount: 1, rows: [{ number: 1 }] };
+      if (sql.includes("max(section_retake_number)")) return { rowCount: 1, rows: [{ number: 0 }] };
+      if (sql.includes("INSERT INTO protefl_diagnostic_attempt")) return { rowCount: 1, rows: [{ id: retake }] };
+      return { rowCount: 0, rows: [] };
+    });
+
+    await expect(startSectionRetake(actor, assignment, source, "listening")).resolves.toEqual({ attemptId: retake, resumed: false });
+
+    const parentLookup = clientQuery.mock.calls.find(([sql]) => String(sql).includes("assignment_delivery_scope"));
+    expect(parentLookup?.[0]).toContain("d.scope=$3 AND d.delivery_scope=$3 AND d.parent_attempt_id IS NULL");
+    const insert = clientQuery.mock.calls.find(([sql]) => String(sql).includes("INSERT INTO protefl_diagnostic_attempt"));
+    expect(insert?.[1]).toContain(JSON.stringify([2, 3]));
+    expect(insert?.[1]).toContain("listening");
+    expect(clientQuery).toHaveBeenCalledWith("COMMIT");
+  });
+
   it("returns every active attempt for a learner assignment instead of picking one child", async () => {
     poolQuery.mockResolvedValueOnce({ rowCount: 2, rows: [
       { id: source, attempt_number: 2, status: "in_progress", scope: "structure", delivery_scope: "full", parent_attempt_id: "root", section_retake_number: 1, current_section: "structure", created_at: new Date("2026-11-15T01:00:00Z"), completed_at: null },

@@ -1,0 +1,75 @@
+{
+  "package": "ets-toefl-pbt-2005-05-listening",
+  "version": 1,
+  "form": "May 2005 TOEFL PBT · Listening",
+  "sourceOwnerAuthorization": "Owner confirmed permission to digitize and deliver the complete Listening form in the LFL-111 request.",
+  "scope": "listening",
+  "questionCount": 50,
+  "audio": {
+    "path": "source/listening.mp3",
+    "durationMs": 1993295,
+    "codec": "mp3",
+    "sampleRateHz": 22050,
+    "channels": 1,
+    "bitRate": "48000",
+    "sha256": "ad16974fdf8435982ac0cb77cfeca160e1d85fec07067f4da9abe39126ee770e"
+  },
+  "integrity": {
+    "contentHash": "288f35271c5eeaaecb939769f015c88c89c56b9fcbf1fc97b95f8116646fd0da",
+    "answerKeyHash": "24e405b8e8434734d8d16252a2d04f9f4433686f6992564eb14acd8e7182b5db",
+    "scoreTableHash": "d214bfa230e26cb3a57696f9c3a27359b784c19bc5a378b9be6d70edf7cc6225",
+    "timingMapHash": "2db3aa30752732acf25fb89f4aa9967ac911a8ee37b9cdcd217e5139a8a1593b"
+  },
+  "sourceFiles": [
+    {
+      "path": "README.md",
+      "bytes": 519,
+      "sha256": "9a5f9aef8274971461ccfccdfd304c62908005c75584441157515be19fcf7c19"
+    },
+    {
+      "path": "metadata/questions-2005-05-listening-v1.json",
+      "bytes": 19057,
+      "sha256": "7143c88015bd1248fb81c5b7d60d7b000f9c80dbe3584f5535bbdf76c6318a3b"
+    },
+    {
+      "path": "metadata/answer-key-2005-05-listening-v1.json",
+      "bytes": 1420,
+      "sha256": "24e405b8e8434734d8d16252a2d04f9f4433686f6992564eb14acd8e7182b5db"
+    },
+    {
+      "path": "metadata/instructions-2005-05-listening-v1.json",
+      "bytes": 1642,
+      "sha256": "38177e881d344c9a1f90170a74f5013493cac0986478dba2a6434e57f85003d4"
+    },
+    {
+      "path": "metadata/score-conversion-2005-05-v1.json",
+      "bytes": 191,
+      "sha256": "d214bfa230e26cb3a57696f9c3a27359b784c19bc5a378b9be6d70edf7cc6225"
+    },
+    {
+      "path": "metadata/listening-pauses-v1.json",
+      "bytes": 6929,
+      "sha256": "1d41556ffd016def1f8a458cf6c45c6b4eeb7ac402342b316a30f8b8aed5bbf4"
+    },
+    {
+      "path": "metadata/listening-question-map-v1.json",
+      "bytes": 14867,
+      "sha256": "e67d635ae4aaf1a10d95d5db8e692bc21ee754d8ec87b1d5e3d7ed64e095456e"
+    },
+    {
+      "path": "metadata/listening-alignment-audit-v1.json",
+      "bytes": 4927,
+      "sha256": "aba2039ce44392689cffa5a324befceb8295fa0ac3339028cb12435df9d20203"
+    },
+    {
+      "path": "metadata/page-index-v1.json",
+      "bytes": 726,
+      "sha256": "af0faed6846e2fa30cd8c49001859d3948e9ecf484d6a5976cf10db25439cc73"
+    },
+    {
+      "path": "source/listening.mp3",
+      "bytes": 11959817,
+      "sha256": "ad16974fdf8435982ac0cb77cfeca160e1d85fec07067f4da9abe39126ee770e"
+    }
+  ]
+}

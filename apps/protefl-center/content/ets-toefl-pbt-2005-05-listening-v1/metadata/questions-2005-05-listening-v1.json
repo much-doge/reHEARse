@@ -1,0 +1,614 @@
+{
+  "schemaVersion": "1.0.0",
+  "form": "May 2005 TOEFL PBT",
+  "listening": [
+    {
+      "number": 1,
+      "prompt": "What does the woman imply?",
+      "options": {
+        "A": "The man should go to the museum by shuttle bus.",
+        "B": "The next train leaves in 25 minutes.",
+        "C": "The train will arrive at the museum before 10:30.",
+        "D": "The man just missed the shuttle bus to the museum."
+      },
+      "sourcePage": 1,
+      "part": "A"
+    },
+    {
+      "number": 2,
+      "prompt": "What does the woman mean?",
+      "options": {
+        "A": "She forgot to study for the exam.",
+        "B": "She had planned to go to the movie.",
+        "C": "The man should have invited her to the movies.",
+        "D": "The man should have studied for the exam."
+      },
+      "sourcePage": 1,
+      "part": "A"
+    },
+    {
+      "number": 3,
+      "prompt": "What are the speakers talking about?",
+      "options": {
+        "A": "A new building",
+        "B": "Directions to the gym",
+        "C": "Going to the library",
+        "D": "New library hours"
+      },
+      "sourcePage": 1,
+      "part": "A"
+    },
+    {
+      "number": 4,
+      "prompt": "What does the man imply the woman should do?",
+      "options": {
+        "A": "Take a different history course",
+        "B": "Use a computer in the lab",
+        "C": "Help him write his paper",
+        "D": "Return his computer as soon as possible"
+      },
+      "sourcePage": 1,
+      "part": "A"
+    },
+    {
+      "number": 5,
+      "prompt": "What does the woman imply?",
+      "options": {
+        "A": "She got her watch where her sister works.",
+        "B": "She will help the man buy a watch.",
+        "C": "She had to work hard to buy a watch.",
+        "D": "The man should not buy a watch at her sister's store."
+      },
+      "sourcePage": 1,
+      "part": "A"
+    },
+    {
+      "number": 6,
+      "prompt": "What does the man suggest the woman do?",
+      "options": {
+        "A": "Find out if classes are cancelled",
+        "B": "Not go to classes tomorrow",
+        "C": "Turn on the radio",
+        "D": "Look to see if the storm has stopped"
+      },
+      "sourcePage": 1,
+      "part": "A"
+    },
+    {
+      "number": 7,
+      "prompt": "What can be inferred about Gloria?",
+      "options": {
+        "A": "No one has recently seen her",
+        "B": "She is spending a lot of time in the library.",
+        "C": "She is avoiding the man.",
+        "D": "She went home for vacation."
+      },
+      "sourcePage": 1,
+      "part": "A"
+    },
+    {
+      "number": 8,
+      "prompt": "What will the man do?",
+      "options": {
+        "A": "Try to fix what is wrong with the computer",
+        "B": "Ask someone else for help with the computer",
+        "C": "Turn on another computer",
+        "D": "Let the woman use his computer"
+      },
+      "sourcePage": 2,
+      "part": "A"
+    },
+    {
+      "number": 9,
+      "prompt": "What does the woman mean?",
+      "options": {
+        "A": "She thinks the man should order the fish.",
+        "B": "She wants the man to choose quickly.",
+        "C": "She prefers the chicken.",
+        "D": "She cannot decide what to eat."
+      },
+      "sourcePage": 2,
+      "part": "A"
+    },
+    {
+      "number": 10,
+      "prompt": "What does the man imply about the woman?",
+      "options": {
+        "A": "She should go home now to get the CD.",
+        "B": "She can return the CD to Tom later.",
+        "C": "She can borrow a CD from Tom when she sees him in class.",
+        "D": "She should not have taken Tom's CD home with her."
+      },
+      "sourcePage": 2,
+      "part": "A"
+    },
+    {
+      "number": 11,
+      "prompt": "What does the man suggest the woman do?",
+      "options": {
+        "A": "Cancel her appointment at the clinic",
+        "B": "Make an appointment at the clinic soon",
+        "C": "Begin practicing for the German test next week",
+        "D": "Arrange to take the German test at a later date"
+      },
+      "sourcePage": 2,
+      "part": "A"
+    },
+    {
+      "number": 12,
+      "prompt": "What will the woman probably do?",
+      "options": {
+        "A": "Rent the apartment she saw first",
+        "B": "Visit her new neighbors",
+        "C": "Look at other apartments before deciding",
+        "D": "Write a check for the rent"
+      },
+      "sourcePage": 2,
+      "part": "A"
+    },
+    {
+      "number": 13,
+      "prompt": "What does the man imply?",
+      "options": {
+        "A": "He likes to play basketball",
+        "B": "He is proud of his ability as a basketball player.",
+        "C": "He does not want to watch the basketball game.",
+        "D": "He is not on the basketball team."
+      },
+      "sourcePage": 2,
+      "part": "A"
+    },
+    {
+      "number": 14,
+      "prompt": "What does the woman imply the man should do?",
+      "options": {
+        "A": "Buy both shirts today",
+        "B": "Buy the green shirt",
+        "C": "Return the shirt he bought last week",
+        "D": "Not buy any shirts"
+      },
+      "sourcePage": 2,
+      "part": "A"
+    },
+    {
+      "number": 15,
+      "prompt": "What can be inferred from the conversation?",
+      "options": {
+        "A": "The woman did not accept the job offer.",
+        "B": "The woman does not like her new job.",
+        "C": "The woman is planning to start a new job.",
+        "D": "The woman is looking for a job at a different bank."
+      },
+      "sourcePage": 3,
+      "part": "A"
+    },
+    {
+      "number": 16,
+      "prompt": "What will the woman probably do?",
+      "options": {
+        "A": "Go to the party with the man",
+        "B": "Take her aunt to the party",
+        "C": "Invite the man to the play",
+        "D": "See a play with her aunt"
+      },
+      "sourcePage": 3,
+      "part": "A"
+    },
+    {
+      "number": 17,
+      "prompt": "What can be inferred about the woman?",
+      "options": {
+        "A": "She is looking for another job",
+        "B": "She will apply for financial aid next year.",
+        "C": "She thinks she will not need financial aid.",
+        "D": "She thinks she is not taking enough classes."
+      },
+      "sourcePage": 3,
+      "part": "A"
+    },
+    {
+      "number": 18,
+      "prompt": "What does the man say about the cake?",
+      "options": {
+        "A": "It is the only kind the restaurant has left.",
+        "B": "The woman does not have to pay extra for it.",
+        "C": "It is a specialty of the restaurant.",
+        "D": "He will replace it with a different dessert."
+      },
+      "sourcePage": 3,
+      "part": "A"
+    },
+    {
+      "number": 19,
+      "prompt": "What does the man mean?",
+      "options": {
+        "A": "A small town can have negative qualities.",
+        "B": "It can be difficult to run a business in a small town.",
+        "C": "His family owns a business in his hometown.",
+        "D": "He would like to visit the woman's hometown."
+      },
+      "sourcePage": 3,
+      "part": "A"
+    },
+    {
+      "number": 20,
+      "prompt": "What does the man mean?",
+      "options": {
+        "A": "He would like more time to prepare next time.",
+        "B": "He will not be able to attend the open house.",
+        "C": "He enjoyed working as a volunteer.",
+        "D": "He will not be able to coordinate the program again."
+      },
+      "sourcePage": 3,
+      "part": "A"
+    },
+    {
+      "number": 21,
+      "prompt": "What can be inferred about Peter?",
+      "options": {
+        "A": "He will meet the man and woman before his psychology class.",
+        "B": "He is in the same class as the man and woman.",
+        "C": "He is late for an appointment with the man and woman.",
+        "D": "He forgot to do his assignment for today's class."
+      },
+      "sourcePage": 3,
+      "part": "A"
+    },
+    {
+      "number": 22,
+      "prompt": "What does the woman mean?",
+      "options": {
+        "A": "She is looking for a job on campus.",
+        "B": "She can get the materials they gave out at the meeting.",
+        "C": "She went to the meeting with her roommate.",
+        "D": "She is too busy to help the man."
+      },
+      "sourcePage": 4,
+      "part": "A"
+    },
+    {
+      "number": 23,
+      "prompt": "What does the man mean?",
+      "options": {
+        "A": "He probably will not be able to follow the professor's advice.",
+        "B": "He has not finished doing the research for his presentation.",
+        "C": "He does not understand what the professor means.",
+        "D": "He would like the professor to listen to him rehearse his presentation."
+      },
+      "sourcePage": 4,
+      "part": "A"
+    },
+    {
+      "number": 24,
+      "prompt": "What does the man mean?",
+      "options": {
+        "A": "He knows who will be performing in the musical.",
+        "B": "He doubts that the theater group will perform a musical next year.",
+        "C": "The theater group needs to select a new director.",
+        "D": "The director has probably chosen the musical."
+      },
+      "sourcePage": 4,
+      "part": "A"
+    },
+    {
+      "number": 25,
+      "prompt": "What does the man imply?",
+      "options": {
+        "A": "He has been sick recently.",
+        "B": "He is tired of looking for an apartment.",
+        "C": "He wants an apartment near his work.",
+        "D": "He has been looking for a new job for a long time."
+      },
+      "sourcePage": 4,
+      "part": "A"
+    },
+    {
+      "number": 26,
+      "prompt": "What had the man assumed?",
+      "options": {
+        "A": "The woman would not vote in the elections.",
+        "B": "Ben would be elected class president.",
+        "C": "Ben would not run for class president.",
+        "D": "The elections would be held later."
+      },
+      "sourcePage": 4,
+      "part": "A"
+    },
+    {
+      "number": 27,
+      "prompt": "What does the man mean?",
+      "options": {
+        "A": "He did not recommend the lecture.",
+        "B": "He did not speak to the woman yesterday.",
+        "C": "He is eager to go to the lecture.",
+        "D": "He started to like astronomy only recently."
+      },
+      "sourcePage": 4,
+      "part": "A"
+    },
+    {
+      "number": 28,
+      "prompt": "What does the woman mean?",
+      "options": {
+        "A": "She needs to continue studying.",
+        "B": "She did not read the reviews.",
+        "C": "She has already seen the movie.",
+        "D": "She intends to go see the movie."
+      },
+      "sourcePage": 4,
+      "part": "A"
+    },
+    {
+      "number": 29,
+      "prompt": "What does the man mean?",
+      "options": {
+        "A": "He thinks the dry weather will change.",
+        "B": "He is already conserving water.",
+        "C": "Ways should be found to use less water.",
+        "D": "The dry weather will be worse than last summer."
+      },
+      "sourcePage": 5,
+      "part": "A"
+    },
+    {
+      "number": 30,
+      "prompt": "What does the man imply?",
+      "options": {
+        "A": "Everyone should already have the new manual.",
+        "B": "The old manual should not be used anymore.",
+        "C": "The new manual has not been completed yet.",
+        "D": "The old manual will not be changed."
+      },
+      "sourcePage": 5,
+      "part": "A"
+    },
+    {
+      "number": 31,
+      "prompt": "What is the conversation mainly about?",
+      "options": {
+        "A": "The class reading list",
+        "B": "Books about New York City",
+        "C": "A book by Theodore Dreiser",
+        "D": "A critical review of Sister Carrie"
+      },
+      "sourcePage": 5,
+      "part": "B"
+    },
+    {
+      "number": 32,
+      "prompt": "According to the woman, how is Sister Carrie different from other novels of its time?",
+      "options": {
+        "A": "It is set in the city instead of the country.",
+        "B": "It does not try to teach a moral lesson.",
+        "C": "It is about a woman working in a traditionally male role.",
+        "D": "The main character gets into trouble."
+      },
+      "sourcePage": 5,
+      "part": "B"
+    },
+    {
+      "number": 33,
+      "prompt": "How did Sister Carrie eventually gain recognition?",
+      "options": {
+        "A": "Some British reviewers wrote favorably about it.",
+        "B": "Dreiser published it himself.",
+        "C": "An editor revised it.",
+        "D": "Dreiser rewrote it using a different style."
+      },
+      "sourcePage": 5,
+      "part": "B"
+    },
+    {
+      "number": 34,
+      "prompt": "What is the class mainly discussing?",
+      "options": {
+        "A": "How to learn a second language",
+        "B": "The importance of early childhood education",
+        "C": "Phases of language development in young children",
+        "D": "Methods to help children develop their vocabularies"
+      },
+      "sourcePage": 5,
+      "part": "B"
+    },
+    {
+      "number": 35,
+      "prompt": "Why does the student mention the sounds k and g?",
+      "options": {
+        "A": "They are difficult for children to pronounce.",
+        "B": "They occur in all languages.",
+        "C": "They are among the first sounds babies make.",
+        "D": "They are sometimes used to refer to house pets."
+      },
+      "sourcePage": 5,
+      "part": "B"
+    },
+    {
+      "number": 36,
+      "prompt": "According to the student, why are newborns not able to make language-like sounds?",
+      "options": {
+        "A": "Their voice box is not positioned correctly yet.",
+        "B": "Their hearing is not good enough yet.",
+        "C": "They do not yet have the muscle control needed.",
+        "D": "Their brains are not yet adequately developed."
+      },
+      "sourcePage": 6,
+      "part": "B"
+    },
+    {
+      "number": 37,
+      "prompt": "According to the discussion, when does vocabulary growth first start to increase dramatically?",
+      "options": {
+        "A": "When children learn to say whole sentences",
+        "B": "In the first month of life",
+        "C": "When children start to go to school",
+        "D": "When children learn to associate sounds with meaning"
+      },
+      "sourcePage": 6,
+      "part": "B"
+    },
+    {
+      "number": 38,
+      "prompt": "According to the discussion, what do linguists still not know?",
+      "options": {
+        "A": "Until what age vocabulary growth continues",
+        "B": "How children are able to learn language",
+        "C": "When the best time to start a foreign language is",
+        "D": "How to identify children with language disorders"
+      },
+      "sourcePage": 6,
+      "part": "B"
+    },
+    {
+      "number": 39,
+      "prompt": "What is the main topic of the talk?",
+      "options": {
+        "A": "The use of beads in Native American monetary systems",
+        "B": "Communication over long distances in North America",
+        "C": "Difficulties encountered by native couriers",
+        "D": "Alliances between the Iroquois and the Algonquin"
+      },
+      "sourcePage": 6,
+      "part": "C"
+    },
+    {
+      "number": 40,
+      "prompt": "What would cause a letter to be expensive to receive?",
+      "options": {
+        "A": "Adverse traveling conditions delayed the courier.",
+        "B": "The courier needed to hire a guide.",
+        "C": "The fees of several couriers were included in the charge.",
+        "D": "The letter contained a valuable item."
+      },
+      "sourcePage": 6,
+      "part": "C"
+    },
+    {
+      "number": 41,
+      "prompt": "What event would probably have been symbolized by a purple wampum bead?",
+      "options": {
+        "A": "The signing of a treaty",
+        "B": "A wedding feast",
+        "C": "The birth of a child",
+        "D": "A funeral"
+      },
+      "sourcePage": 6,
+      "part": "C"
+    },
+    {
+      "number": 42,
+      "prompt": "What is the talk mainly about?",
+      "options": {
+        "A": "Planning a garden",
+        "B": "Feeding pets",
+        "C": "Attracting birds",
+        "D": "Preserving eggs"
+      },
+      "sourcePage": 6,
+      "part": "C"
+    },
+    {
+      "number": 43,
+      "prompt": "Why are birds attracted to eggshells?",
+      "options": {
+        "A": "They use them in making nests.",
+        "B": "They like to eat them.",
+        "C": "They use them when mating.",
+        "D": "They drink water from them."
+      },
+      "sourcePage": 7,
+      "part": "C"
+    },
+    {
+      "number": 44,
+      "prompt": "How are the eggshells prepared?",
+      "options": {
+        "A": "They are dried in the sun.",
+        "B": "They are soaked in water.",
+        "C": "They are cooled in the refrigerator.",
+        "D": "They are baked in the oven."
+      },
+      "sourcePage": 7,
+      "part": "C"
+    },
+    {
+      "number": 45,
+      "prompt": "How does the preparation process affect the eggshells?",
+      "options": {
+        "A": "It makes them clean and free of germs.",
+        "B": "It makes them more visible for the birds.",
+        "C": "It makes them more nutritious.",
+        "D": "It makes them softer."
+      },
+      "sourcePage": 7,
+      "part": "C"
+    },
+    {
+      "number": 46,
+      "prompt": "What can be inferred about the woman?",
+      "options": {
+        "A": "She is a good cook.",
+        "B": "She collects birds' nests.",
+        "C": "She likes to have birds visit her garden.",
+        "D": "She is a professional gardener."
+      },
+      "sourcePage": 7,
+      "part": "C"
+    },
+    {
+      "number": 47,
+      "prompt": "What does the professor mainly discuss?",
+      "options": {
+        "A": "How to prevent landslides in populated areas",
+        "B": "How to repair damage to houses caused by heavy rains",
+        "C": "How geologists study landslides",
+        "D": "Three materials needed for stable construction"
+      },
+      "sourcePage": 7,
+      "part": "C"
+    },
+    {
+      "number": 48,
+      "prompt": "According to the professor, why is it important to perform geological surveys?",
+      "options": {
+        "A": "They can determine the cost of construction.",
+        "B": "They can reveal unsafe conditions for building.",
+        "C": "They can show where landslides have occurred.",
+        "D": "They can measure the rate of water drainage."
+      },
+      "sourcePage": 7,
+      "part": "C"
+    },
+    {
+      "number": 49,
+      "prompt": "What does the professor say about vegetation on a slope?",
+      "options": {
+        "A": "It often interferes with construction.",
+        "B": "It helps keep the soil in place.",
+        "C": "It grows quickly after heavy rains.",
+        "D": "It makes slopes unstable."
+      },
+      "sourcePage": 7,
+      "part": "C"
+    },
+    {
+      "number": 50,
+      "prompt": "According to the professor, what might cause a buildup of water on a slope?",
+      "options": {
+        "A": "Frequent landslides",
+        "B": "Too much vegetation",
+        "C": "Water draining from another slope",
+        "D": "A wall that stops water from draining"
+      },
+      "sourcePage": 7,
+      "part": "C"
+    }
+  ],
+  "structure": {
+    "completion": [],
+    "errorIdentification": []
+  },
+  "reading": {
+    "passages": [],
+    "questions": []
+  }
+}

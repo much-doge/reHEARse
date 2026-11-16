@@ -84,6 +84,30 @@ const descriptors: Readonly<Record<string, DiagnosticPackageDescriptor>> = {
       sectionReset: "ets-volume3-practice-test-a.section-reset.v1",
     },
   },
+  "ets-toefl-pbt-2005-05-listening": {
+    code: "ets-toefl-pbt-2005-05-listening",
+    directory: "ets-toefl-pbt-2005-05-listening-v1",
+    candidatePath: "/test-center/diagnostic/ets-toefl-pbt-2005-05-listening",
+    supportedSections: ["listening"],
+    questionCounts: { listening: 50, structure: 0, reading: 0 },
+    files: {
+      manifest: "package-manifest.json",
+      instructions: "metadata/instructions-2005-05-listening-v1.json",
+      questions: "metadata/questions-2005-05-listening-v1.json",
+      answerKey: "metadata/answer-key-2005-05-listening-v1.json",
+      scoreConversion: "metadata/score-conversion-2005-05-v1.json",
+      listeningPauses: "metadata/listening-pauses-v1.json",
+      listeningQuestionMap: "metadata/listening-question-map-v1.json",
+      listeningAudio: "source/listening.mp3",
+    },
+    privateSourceFiles: ["metadata/page-index-v1.json"],
+    resultVersions: {
+      full: "ets-toefl-pbt-2005-05-listening.result.v1",
+      sectionAssignment: "ets-toefl-pbt-2005-05-listening.section-assignment.v1",
+      sectionRetake: "ets-toefl-pbt-2005-05-listening.section-retake.v1",
+      sectionReset: "ets-toefl-pbt-2005-05-listening.section-reset.v1",
+    },
+  },
 };
 
 export function diagnosticPackage(code: string) {

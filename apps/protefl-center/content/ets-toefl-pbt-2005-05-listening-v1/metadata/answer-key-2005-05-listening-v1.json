@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "1.0.0",
+  "source": "May 2005 reference-answer list posted at the cited Gter forum; first 50 entries correspond to Section I Listening. Questions 24 and 32 were adjudicated against the supplied recording, the matching transcript, and the printed options because the forum letters conflict with the evidence. No ETS-issued answer key was located.",
+  "reviewedDiscrepancies": [
+    {
+      "question": 24,
+      "referenceLetter": "B",
+      "selectedLetter": "D",
+      "basis": "The speaker says the director has already picked the musical; option D states this directly."
+    },
+    {
+      "question": 32,
+      "referenceLetter": "D",
+      "selectedLetter": "B",
+      "basis": "The woman contrasts Dreiser's ending with other authors' moral punishment; option B states that contrast."
+    }
+  ],
+  "sections": {
+    "listening": [
+      "A",
+      "D",
+      "A",
+      "B",
+      "A",
+      "A",
+      "B",
+      "A",
+      "B",
+      "B",
+      "B",
+      "C",
+      "D",
+      "B",
+      "C",
+      "D",
+      "C",
+      "B",
+      "A",
+      "D",
+      "C",
+      "B",
+      "A",
+      "D",
+      "C",
+      "D",
+      "A",
+      "D",
+      "C",
+      "C",
+      "C",
+      "B",
+      "A",
+      "C",
+      "C",
+      "A",
+      "D",
+      "B",
+      "B",
+      "C",
+      "D",
+      "C",
+      "B",
+      "D",
+      "A",
+      "C",
+      "A",
+      "B",
+      "B",
+      "D"
+    ]
+  }
+}

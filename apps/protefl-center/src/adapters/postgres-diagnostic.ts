@@ -418,14 +418,16 @@ export async function startSectionRetake(actorId: string, assignmentId: string, 
   try {
     await client.query("BEGIN");
     const source = (await client.query(
-      "SELECT d.id,d.assignment_id,d.scope,d.parent_attempt_id,d.status,r.code FROM protefl_diagnostic_attempt d JOIN protefl_resource r ON r.id=d.resource_id WHERE d.id=$1 AND d.assignment_id=$2 AND d.actor_id=$3 AND d.archived_at IS NULL",
+      "SELECT d.id,d.assignment_id,d.scope,d.delivery_scope,d.parent_attempt_id,d.status,r.code FROM protefl_diagnostic_attempt d JOIN protefl_resource r ON r.id=d.resource_id WHERE d.id=$1 AND d.assignment_id=$2 AND d.actor_id=$3 AND d.archived_at IS NULL",
       [sourceAttemptId, assignmentId, actorId],
     )).rows[0];
     if (!source || source.status !== "completed" || (source.scope !== "full" && source.scope !== section)) throw new Error("attempt_unavailable");
-    const parentAttemptId = source.scope === "full" ? source.id : source.parent_attempt_id;
+    const standaloneSectionRoot = source.scope === section && source.delivery_scope === section && source.parent_attempt_id == null;
+    const parentAttemptId = source.scope === "full" || standaloneSectionRoot ? source.id : source.parent_attempt_id;
+    if (!parentAttemptId) throw new Error("attempt_unavailable");
     const parent = (await client.query(
-      "SELECT d.*,r.status AS resource_status,r.version AS resource_version,a.listening_mode AS assigned_listening_mode FROM protefl_diagnostic_attempt d JOIN protefl_resource_assignment a ON a.id=d.assignment_id JOIN protefl_resource r ON r.id=d.resource_id WHERE d.id=$1 AND d.actor_id=$2 AND d.scope='full' AND d.status='completed' AND d.archived_at IS NULL AND a.revoked_at IS NULL AND a.starts_at<=now() AND (a.ends_at IS NULL OR a.ends_at>now()) FOR UPDATE OF d,a,r",
-      [parentAttemptId, actorId],
+      "SELECT d.*,r.status AS resource_status,r.version AS resource_version,a.listening_mode AS assigned_listening_mode,a.delivery_scope AS assignment_delivery_scope FROM protefl_diagnostic_attempt d JOIN protefl_resource_assignment a ON a.id=d.assignment_id JOIN protefl_resource r ON r.id=d.resource_id WHERE d.id=$1 AND d.actor_id=$2 AND d.status='completed' AND d.archived_at IS NULL AND ((d.scope='full' AND d.delivery_scope='full' AND a.delivery_scope='full') OR (d.scope=$3 AND d.delivery_scope=$3 AND d.parent_attempt_id IS NULL AND a.delivery_scope=$3)) AND a.revoked_at IS NULL AND a.starts_at<=now() AND (a.ends_at IS NULL OR a.ends_at>now()) FOR UPDATE OF d,a,r",
+      [parentAttemptId, actorId, section],
     )).rows[0];
     if (!parent || parent.resource_status !== "published") throw new Error("attempt_unavailable");
     const parentResult = (await client.query("SELECT result_data FROM protefl_diagnostic_result WHERE attempt_id=$1", [sourceAttemptId])).rows[0]?.result_data;
@@ -807,7 +809,7 @@ export async function diagnosticAttemptState(actorId: string, attemptId: string)
     sectionRetakeNumber: Number(row.section_retake_number), currentSection: row.current_section as Section,
     createdAt: new Date(row.created_at).toISOString(),
   }));
-  if (attempt.scope === "full" && attempt.status === "completed") {
+  if ((attempt.scope === "full" || isStandaloneSectionAttempt(attempt)) && attempt.status === "completed") {
     const retakes = await getPool().query(
       "SELECT d.id,d.scope,d.section_retake_number,d.completed_at,d.teacher_restarted_by,r.result_data FROM protefl_diagnostic_attempt d JOIN protefl_diagnostic_result r ON r.attempt_id=d.id WHERE d.parent_attempt_id=$1 AND d.status='completed' AND d.archived_at IS NULL ORDER BY d.completed_at,d.attempt_number",
       [attemptId],

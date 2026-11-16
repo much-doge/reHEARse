@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "1.0.0",
+  "source": "May 2005 TOEFL PBT Section I directions, checked against the supplied recording where audible; Part A text is the standard printed direction because the supplied recording starts with its transition into Part A.",
+  "listening": {
+    "overview": "This section contains 50 questions in three parts. Answer on the basis of what is stated or implied by the speakers.",
+    "partA": "In Part A, you will hear short conversations between two people. After each conversation, you will hear a question about the conversation. The conversations and questions will not be repeated. After you hear a question, read the four possible answers and choose the best answer.",
+    "partB": "In this part of the test, you will hear longer conversations. After each conversation, you will hear several questions. The conversations and questions will not be repeated. After you hear a question, read the four possible answers in your test book and choose the best answer. Then, on your answer sheet, find the number of the question and fill in the space that corresponds to the letter of the answer you have chosen. Remember, you are not allowed to take notes or write in your test book.",
+    "partC": "In this part of the test, you will hear several short talks. After each talk, you will hear some questions. The talks and the questions will not be repeated. After you hear a question, read the four possible answers in your test book and choose the best answer. Then, on your answer sheet, find the number of the question and fill in the space that corresponds to the letter of the answer you have chosen."
+  }
+}
