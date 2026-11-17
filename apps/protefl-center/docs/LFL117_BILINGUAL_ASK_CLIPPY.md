@@ -1,6 +1,6 @@
 # LFL-117 — Bilingual Ask Clippy guidance
 
-Status: source complete; deployment pending.
+Status: deployed to PCT128; authenticated teacher interaction pending.
 
 ## Objective
 
@@ -66,5 +66,30 @@ learner-record repair may be required.
   candidate component, diagnostic package, attempt, result, retry, transcript,
   or score behavior changed.
 
-Deployment, exact-config provider verification, authenticated teacher browser
-inspection, and classroom verification remain pending.
+## Deployment
+
+- Initial source commit: `175e48b`. The first deployed bilingual canary
+  returned all six strings but one teacher prompt lacked its question mark.
+  Server validation would have rejected that output; no teacher or learner
+  record was involved.
+- Follow-up commit `fad5dbe` also requires the question-mark suffix in the
+  provider JSON Schema. Focused 15 tests, TypeScript, changed-file ESLint, and
+  diff check passed before the replacement build.
+- Final release tree: `/opt/rehearse/.releases/fad5dbe`.
+- Final app image: `rehearse-app:fad5dbe`; image ID
+  `sha256:31e52a49ea1b7e3db485c0080adca5e80a21fcf9fbeaeb394f12939a93a3d889`.
+- Only the app service was recreated. It is healthy with zero restarts. LAN and
+  public health returned HTTP 200.
+- PostgreSQL retained container ID
+  `b8d72c028dc252b4d53fb7df208e51ca9d0c7af99ea6d87fb7618095603b03e3`,
+  stayed healthy with zero restarts, and received no migration or write.
+- The final exact-config synthetic provider canary returned all six English and
+  Indonesian strings, both teacher prompts ended in question marks, the
+  direct-answer checks passed, and `store: false` was used. It contained no
+  learner, package, transcript, or licensed source material.
+- No authenticated teacher browser session was available. The real protected
+  click and visual bilingual review remain an operator test; classroom
+  verification is not claimed.
+
+Rollback is app-only to `rehearse-app:f616f95`. Keep PostgreSQL, package files,
+attempts, results, and learner records unchanged.
