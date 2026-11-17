@@ -6,7 +6,7 @@ import type { PoolClient } from "pg";
 import { getPool } from "@/adapters/db/client";
 import { attemptMatchesAssignmentScope, completesAfterSection, listeningAudioCompleted, listeningAudioPositionAllowed } from "../application/diagnostic-delivery";
 import { effectiveDiagnosticResult, type CompletedSectionReset, type FullDiagnosticResult } from "../application/diagnostic-effective-result";
-import { convertedSectionRange, convertedTotalRange, type ScoreRangeRow } from "../application/diagnostic-scoring";
+import { convertedSectionRangeFromTable, convertedTotalRange, type ScoreConversionTable } from "../application/diagnostic-scoring";
 import { diagnosticPackage, diagnosticPackagePath, type DiagnosticPackageDescriptor } from "../application/diagnostic-package";
 
 const defaultPackageCode = "ets-volume3-practice-test-a";
@@ -76,7 +76,7 @@ async function calculateSectionResult(client: PoolClient, attemptId: string, sec
   const descriptor = packageDescriptor(String(attempt?.code ?? defaultPackageCode));
   const [keyFile, scoreFile, rows] = await Promise.all([
     packageJson<{ sections: Keys }>(descriptor.code, descriptor.files.answerKey),
-    packageJson<{ ranges: ScoreRangeRow[] }>(descriptor.code, descriptor.files.scoreConversion),
+    packageJson<ScoreConversionTable>(descriptor.code, descriptor.files.scoreConversion),
     client.query(answerQuery, [attemptId]),
   ]);
   const answers = new Map<number, Choice>();
@@ -92,7 +92,7 @@ async function calculateSectionResult(client: PoolClient, attemptId: string, sec
     incorrect: answered - correct,
     omitted: total - answered,
     total,
-    converted: convertedSectionRange(scoreFile.ranges, section, correct) as [number, number] | null,
+    converted: convertedSectionRangeFromTable(scoreFile, section, correct) as [number, number] | null,
   };
   const review = questionNumbers.map((question) => {
     const correctAnswer = keyFile.sections[section][question - 1];
@@ -690,7 +690,7 @@ export async function applyDiagnosticAction(actorId: string, attemptId: string, 
       } else {
       const [keyFile, scoreFile] = await Promise.all([
         packageJson<{ sections: Keys }>(descriptor.code, descriptor.files.answerKey),
-        packageJson<{ ranges: ScoreRangeRow[] }>(descriptor.code, descriptor.files.scoreConversion),
+        packageJson<ScoreConversionTable>(descriptor.code, descriptor.files.scoreConversion),
       ]);
       const rows = (await client.query(answerQuery, [attemptId])).rows;
       const answers = new Map<string, Choice>();
@@ -704,7 +704,7 @@ export async function applyDiagnosticAction(actorId: string, attemptId: string, 
           const response = answers.get(name + ":" + (index + 1));
           if (response) { answered += 1; if (response === key) correct += 1; }
         });
-        const range = convertedSectionRange(scoreFile.ranges, name, correct);
+        const range = convertedSectionRangeFromTable(scoreFile, name, correct);
         sections[name] = { correct, incorrect: answered - correct, omitted: count - answered, total: count, converted: range as [number, number] | null };
         totalCorrect += correct; incorrect += answered - correct; omitted += count - answered;
 

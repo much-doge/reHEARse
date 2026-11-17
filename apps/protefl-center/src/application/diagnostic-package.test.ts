@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { diagnosticPackage, diagnosticPackageCodes, diagnosticPackagePath, supportedDiagnosticPackage } from "./diagnostic-package";
+import { convertedSectionRangeFromTable, type ScoreConversionTable } from "./diagnostic-scoring";
 
 describe("diagnostic package catalogue", () => {
   it("exposes the Volume 1 Practice Test A descriptor", () => {
@@ -61,5 +62,25 @@ describe("diagnostic package catalogue", () => {
       "ets-volume3-practice-test-a",
       "ets-toefl-pbt-2005-05-listening",
     ]);
+  });
+
+  it.each(["ets-volume1-practice-test-a", "ets-volume3-practice-test-a"])("can read every full package score table: %s", async (code) => {
+    const descriptor = diagnosticPackage(code)!;
+    const scoreTable = JSON.parse(await readFile(join(diagnosticPackagePath(code)!, descriptor.files.scoreConversion), "utf8")) as ScoreConversionTable;
+    for (const section of ["listening", "structure", "reading"] as const) {
+      expect(() => convertedSectionRangeFromTable(scoreTable, section, 0)).not.toThrow();
+      expect(() => convertedSectionRangeFromTable(scoreTable, section, descriptor.questionCounts[section])).not.toThrow();
+    }
+  });
+
+  it("converts Volume 1's source-faithful section maps at both score boundaries", async () => {
+    const descriptor = diagnosticPackage("ets-volume1-practice-test-a")!;
+    const scoreTable = JSON.parse(await readFile(join(diagnosticPackagePath(descriptor.code)!, descriptor.files.scoreConversion), "utf8")) as ScoreConversionTable;
+    expect(convertedSectionRangeFromTable(scoreTable, "listening", 0)).toEqual([24, 26]);
+    expect(convertedSectionRangeFromTable(scoreTable, "listening", 50)).toEqual([64, 68]);
+    expect(convertedSectionRangeFromTable(scoreTable, "structure", 0)).toEqual([20, 22]);
+    expect(convertedSectionRangeFromTable(scoreTable, "structure", 40)).toEqual([63, 68]);
+    expect(convertedSectionRangeFromTable(scoreTable, "reading", 0)).toEqual([20, 22]);
+    expect(convertedSectionRangeFromTable(scoreTable, "reading", 50)).toEqual([65, 67]);
   });
 });
