@@ -41,4 +41,5 @@ start.
 
 ## Verification and deployment receipt
 
-To be completed after implementation and release.
+See `LFL112_LISTENING_RETAKE_RECEIPT.md` for the completed fix, checks,
+deployment state, and remaining candidate-side verification.

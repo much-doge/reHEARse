@@ -106,9 +106,12 @@ The regenerated package manifest contains 10 unique file entries and records:
   includes the package. A disposable image check confirmed the bundled MP3
   SHA-256 matches the source fingerprint above.
 - The server result route creates the standalone Listening result and exposes
-  review only after completion. The focused missed/omitted retry now accepts a
-  Listening-only root, creates an append-only child attempt, and preserves the
-  original result. Test Center data remains separate from reHEARse diagnostics.
+  review only after completion. The original focused retry regression modeled
+  a legacy section-scoped root; it did not cover the actual `scope=full`,
+  `delivery_scope=listening` row created for Listening-only assignments. The
+  missing production shape was diagnosed and fixed under LFL-112. See
+  `LFL112_LISTENING_RETAKE_RECEIPT.md` for the deployed correction and exact
+  verification. Test Center data remains separate from reHEARse diagnostics.
 - PCT128 app and PostgreSQL containers are healthy with zero restarts after
   the corrected release. The package's MP3 and question-map hashes were
   checked inside the running image and match this receipt.
@@ -137,4 +140,7 @@ and unauthenticated boundary checks are recorded under Verification. Rollback
 is app-only to `rehearse-app:4c8c7f2`; keep additive migration 045 applied.
 
 Deployment is verified, not classroom verified. No learner assignment or
-attempt was created by package publication.
+attempt was created by package publication. A Listening-only assignment was
+subsequently created by the owner and exercised through completion; the
+post-completion retake lookup defect found in that journey is documented and
+fixed under LFL-112.
