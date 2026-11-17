@@ -1,6 +1,6 @@
 # LFL-115 — Teacher-only Listening transcript review
 
-Status: source complete; deployment pending.
+Status: deployed to PCT128; authenticated teacher browser inspection pending.
 
 ## Objective
 
@@ -77,3 +77,25 @@ show the complete shared conversation or talk plus the selected question cue.
 - The standalone build contains all three transcript files. Deployment,
   authenticated teacher UI inspection, and classroom verification remain
   pending.
+
+## Deployment
+
+- Source/release commit: `46df50d`.
+- Release tree: `/opt/rehearse/.releases/46df50d`.
+- App image: `rehearse-app:46df50d`; image ID
+  `sha256:77b0cfe52e47b9e2b18162c41ecca645f5481e12cfbe5dfa01d9cb6051f2cc89`.
+- Only the app service was recreated. It is healthy with zero restarts.
+- PostgreSQL retained its existing container ID, stayed healthy, and was not
+  migrated or recreated.
+- LAN and public health returned HTTP 200. A cross-origin/no-session teacher
+  question request was denied with 403, and an unauthenticated candidate-item
+  request was denied with 401.
+- All three transcript files are present inside the running container and
+  match the source-complete SHA-256 values above.
+- No authenticated teacher browser session was available for final visual
+  interaction with **Show transcript**. The server boundary, runtime content,
+  and deployed health are verified; the clicked teacher journey remains
+  pending and is not described as classroom verified.
+
+Rollback is app-only to `rehearse-app:4323cee`. Keep PostgreSQL, package
+manifests, attempts, and learner results unchanged.
