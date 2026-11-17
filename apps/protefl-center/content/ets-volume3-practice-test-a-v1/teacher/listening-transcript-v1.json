@@ -1,0 +1,978 @@
+{
+  "schemaVersion": "teacher-listening-transcript.v1",
+  "package": "ets-volume3-practice-test-a",
+  "source": {
+    "kind": "published-script",
+    "label": "ETS TOEFL ITP Level 1 Practice Tests, Volume 3 — Practice Test A Listening Comprehension Script",
+    "location": "printed pages 106–121",
+    "note": "Published Listening Comprehension Script from the owner-authorized source book."
+  },
+  "groups": [
+    {
+      "id": "part-a-q1",
+      "type": "question",
+      "questions": [
+        1,
+        1
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "Have you seen my calculator? It was right here a minute ago."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Did you look under your book? I’m always losing things that way."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q2",
+      "type": "question",
+      "questions": [
+        2,
+        2
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "I really wanna take astronomy, but my courseload this spring is too heavy already."
+        },
+        {
+          "speaker": "Man",
+          "text": "The summer session might be a good idea, since you’ll be working on campus anyway."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q3",
+      "type": "question",
+      "questions": [
+        3,
+        3
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "Professor Clark, I’d like to repeat the experiment from last class. Is there a possibility I could use the lab over the weekend?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "It’ll be locked, but you can get the key from the security office. Make sure you return it when you’re finished."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q4",
+      "type": "question",
+      "questions": [
+        4,
+        4
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "I really like your sweatshirt! I don’t think I’ve ever seen a design like that before."
+        },
+        {
+          "speaker": "Man",
+          "text": "Yeah, it’s pretty cool, isn’t it? My parents were in Japan last year and brought it back for me."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q5",
+      "type": "question",
+      "questions": [
+        5,
+        5
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "Are you free tonight? I’m meeting a few friends at the restaurant on Main Street."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Oh, I’d love to. But I already have dinner plans for tonight. Another time perhaps."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q6",
+      "type": "question",
+      "questions": [
+        6,
+        6
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "I just registered for the research conference—the deadline is tomorrow. It doesn’t take long though—you simply go to the conference Web site."
+        },
+        {
+          "speaker": "Man",
+          "text": "I guess I’d better do that today, huh? I have a little time before I teach my next class."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q7",
+      "type": "question",
+      "questions": [
+        7,
+        7
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "That’s a great bike! Where’d you get it?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "You know that sporting goods store on Harrison Street–they’ve been running tremendous sales all summer!"
+        }
+      ]
+    },
+    {
+      "id": "part-a-q8",
+      "type": "question",
+      "questions": [
+        8,
+        8
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "So, how much was your plane ticket?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "More than I could really afford—I had to dip into my savings."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q9",
+      "type": "question",
+      "questions": [
+        9,
+        9
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "Professor Jones, we had a power failure in my dorm last night, so I wasn’t able to finish my paper. Could I hand it in tomorrow?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "I understand that things sometimes do come up, but I don’t make any exceptions. I made that clear in the first class… and the library was open till midnight…"
+        }
+      ]
+    },
+    {
+      "id": "part-a-q10",
+      "type": "question",
+      "questions": [
+        10,
+        10
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "I’m thinking of moving off-campus next semester, but since I don’t have a car, I’d need to stay pretty close by. Any suggestions?"
+        },
+        {
+          "speaker": "Man",
+          "text": "It just so happens the people who live downstairs from me are moving next month, so their apartment might be available, and it’s only a block away from the university. If you’re interested, I’ll look into it for you."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q11",
+      "type": "question",
+      "questions": [
+        11,
+        11
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "What an awful movie! A total waste of time!"
+        },
+        {
+          "speaker": "Woman",
+          "text": "You can say that again!"
+        }
+      ]
+    },
+    {
+      "id": "part-a-q12",
+      "type": "question",
+      "questions": [
+        12,
+        12
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "I hear your sister got into a prestigious university. I bet she was checking her mail every day for her acceptance letter."
+        },
+        {
+          "speaker": "Man",
+          "text": "Yes, she was a little nervous until she found out last week."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q13",
+      "type": "question",
+      "questions": [
+        13,
+        13
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "I’m really sorry I’m late for the meeting. My car wouldn’t start, and I had to take the bus."
+        },
+        {
+          "speaker": "Woman",
+          "text": "That’s okay. We’re still waiting for Mark."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q14",
+      "type": "question",
+      "questions": [
+        14,
+        14
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "Wow, you seem to be in a really good mood today. What’s the secret?"
+        },
+        {
+          "speaker": "Man",
+          "text": "Dunno. I guess some mornings you wake up feeling great, and some mornings you don’t."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q15",
+      "type": "question",
+      "questions": [
+        15,
+        15
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "I’d think twice about taking a history class next year. There’s not a single good professor in the whole history department."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Look. That’s what you said last semester about the sociology department. And I’m very glad I didn’t pay any attention to what you said."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q16",
+      "type": "question",
+      "questions": [
+        16,
+        16
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "I know we’re supposed to meet at five in the library, but something came up unexpectedly. Would you mind changing it to six?"
+        },
+        {
+          "speaker": "Man",
+          "text": "Not at all. My schedule’s very flexible."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q17",
+      "type": "question",
+      "questions": [
+        17,
+        17
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "Can you believe it? A 20-page term paper and a final exam. What does Professor Johnson think? That we don’t have any classes but his?"
+        },
+        {
+          "speaker": "Man",
+          "text": "Wait a second. I’m sure he said it was either one or the other."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q18",
+      "type": "question",
+      "questions": [
+        18,
+        18
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "I’m really happy I got that athletic scholarship, but I’m embarrassed by the big fuss all my friends are making."
+        },
+        {
+          "speaker": "Man",
+          "text": "Well it is quite an accomplishment. Of course your friends are happy for you!"
+        }
+      ]
+    },
+    {
+      "id": "part-a-q19",
+      "type": "question",
+      "questions": [
+        19,
+        19
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "My computer screen is flashing… and I can’t get it to stop."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Oh, a similar thing happened to me the other day. I’ll bet together we can figure out what to do."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q20",
+      "type": "question",
+      "questions": [
+        20,
+        20
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "There’s quite a crowd at the health center today. I’m surprised so many people are interested in getting a free blood pressure test."
+        },
+        {
+          "speaker": "Man",
+          "text": "Come to think of it, I haven’t had mine checked in a while. Guess I’ll go get in line…"
+        }
+      ]
+    },
+    {
+      "id": "part-a-q21",
+      "type": "question",
+      "questions": [
+        21,
+        21
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "I can’t believe I actually graduated and I’m leaving tonight. I enjoyed studying with you this semester."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Same here. And hey—don’t forget to drop me a line once in a while. Let me know how the new job goes."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q22",
+      "type": "question",
+      "questions": [
+        22,
+        22
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "Look at the fancy pen I just found under this bench. It looks expensive."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Oh. So THAT’s where it went!"
+        }
+      ]
+    },
+    {
+      "id": "part-a-q23",
+      "type": "question",
+      "questions": [
+        23,
+        23
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "I don’t know what I was thinking of when I gave you those directions."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Oh, don’t worry about it. I made it before the conference began. I didn’t have to drive that much out of my way."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q24",
+      "type": "question",
+      "questions": [
+        24,
+        24
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "Now that you’ve had a chance to read our proposal to renovate the campus café, do you think the university will approve it?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "Actually, I’ve been so busy, I haven’t had a chance to look at it yet."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q25",
+      "type": "question",
+      "questions": [
+        25,
+        25
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "Wow, I’ve already taken one of those pills for my headache, but it’s still bothering me."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Well, why not take another? The recommended dose is one or two, depending on how bad it is."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q26",
+      "type": "question",
+      "questions": [
+        26,
+        26
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "What’s Phil doing here? I thought he was taking the fall semester off."
+        },
+        {
+          "speaker": "Man",
+          "text": "Didn’t you hear that his parents talked him out of it?"
+        }
+      ]
+    },
+    {
+      "id": "part-a-q27",
+      "type": "question",
+      "questions": [
+        27,
+        27
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "A florist told me that if I want to keep flowers looking fresh, I should cut a bit off the stems before putting them in water. I wonder if it really works…"
+        },
+        {
+          "speaker": "Woman",
+          "text": "Someone told me the same thing and the bouquet I had did last longer. Anyway, it can’t hurt, can it?"
+        }
+      ]
+    },
+    {
+      "id": "part-a-q28",
+      "type": "question",
+      "questions": [
+        28,
+        28
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "That was a fascinating lecture, but the questions from the audience afterward were mostly irrelevant to the topic!"
+        },
+        {
+          "speaker": "Man",
+          "text": "Yes, I totally agree. I would’ve preferred less of that and more of the speaker."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q29",
+      "type": "question",
+      "questions": [
+        29,
+        29
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "I just found out my dentist retired last month. Do you have one you’d recommend?"
+        },
+        {
+          "speaker": "Man",
+          "text": "Yeah. In fact, I have a checkup there next week. Say, I’ve even got his card with me, if you want to wait a minute while I get it out."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q30",
+      "type": "question",
+      "questions": [
+        30,
+        30
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "Tomorrow I have my big presentation in anthropology class… I’m really worried about speaking in front of the class."
+        },
+        {
+          "speaker": "Woman",
+          "text": "You always say that, and then you always do really well. You have nothing to worry about."
+        }
+      ]
+    },
+    {
+      "id": "part-b-1",
+      "type": "conversation",
+      "questions": [
+        31,
+        34
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "So how was the singing competition last weekend?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "You don’t wanna know."
+        },
+        {
+          "speaker": "Man",
+          "text": "What d’ya mean? Wasn’t it near the beach?… That should’ve been fun!"
+        },
+        {
+          "speaker": "Woman",
+          "text": "It should’ve been fun, but we only came in second place… not only that, but we weren’t even really able to enjoy the beach either."
+        },
+        {
+          "speaker": "Man",
+          "text": "Hold on—you’re upset about finishing second? How many singing groups competed?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "About 30. I know second place sounds okay, but that’s three years in a row we’ve been in second, and it’s the same group that’s beaten us three years in a row."
+        },
+        {
+          "speaker": "Man",
+          "text": "That’s too bad… but what about the beach?… I ended up spending a lot of time studying in the library. I would have loved to be at the beach swimming in the ocean or playing beach volleyball instead of being stuck in the library studying."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Well, it wasn’t exactly like that. I had to spend some time studying, too. We really didn’t have much free time. We were scheduled almost the whole time—practicing, performing, or watching the competition."
+        },
+        {
+          "speaker": "Man",
+          "text": "So you were that busy?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "Yeah, but y’know the ocean water’s still cold, so I don’t think we really missed too much."
+        },
+        {
+          "speaker": "Man",
+          "text": "Well, maybe you guys should plan to go back when the semester’s over."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Yep, that’s exactly what we have in mind. It should be a lot more fun there when the weather warms up—and we don’t have to think about competing."
+        }
+      ]
+    },
+    {
+      "id": "part-b-2",
+      "type": "conversation",
+      "questions": [
+        35,
+        37
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "Professor, I really like those sculptures by Brancusi. They have such simple, elegant lines."
+        },
+        {
+          "speaker": "Man",
+          "text": "Yes, they do."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Were there any other sculptors doing work like that?"
+        },
+        {
+          "speaker": "Man",
+          "text": "Well, yes, there was a sculptor named Isamu Noguchi. Noguchi actually worked in Brancusi’s studio for a time, so Brancusi was one of several important influences on his work."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Okay…"
+        },
+        {
+          "speaker": "Man",
+          "text": "Noguchi was born in 1904, in California. His mother was an American writer, and his father was a Japanese poet… And during his childhood, Noguchi lived in Japan. And when his mother hired a carpenter to build a house there, Noguchi helped out, and in the process came to love working with wood and other natural materials."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Okay…"
+        },
+        {
+          "speaker": "Man",
+          "text": "Later, he returned to the United States and became an artist, then went to Paris, where he worked for Brancusi."
+        },
+        {
+          "speaker": "Woman",
+          "text": "So Brancusi taught him the art of sculpting?"
+        },
+        {
+          "speaker": "Man",
+          "text": "Yes—and a commitment to strict economy in his art."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Economy?"
+        },
+        {
+          "speaker": "Man",
+          "text": "Yes, but not in the usual financial sense. In this case, the term “economy” refers to stripping away unnecessary details, emphasizing the artwork’s basic form."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Oh, okay."
+        },
+        {
+          "speaker": "Man",
+          "text": "Also, after Noguchi had studied under Brancusi for awhile, he took a trip back to Japan. And on that trip, he studied some traditional Japanese gardens, and he noticed how stone was used to create a very simple, but elegant open space. So these gardens halfway around the world actually shared some of the defining characteristics of Brancusi’s sculptures."
+        },
+        {
+          "speaker": "Woman",
+          "text": "And probably reinforced and, like, further shaped the concept of economy in Noguchi’s mind."
+        },
+        {
+          "speaker": "Man",
+          "text": "Undoubtedly."
+        }
+      ]
+    },
+    {
+      "id": "part-c-1",
+      "type": "talk",
+      "questions": [
+        38,
+        41
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "Senses play an important role in consumer decision-making. Shoppers like to… sniff a piece of fish… or listen to a stereo before buying it. But the power of touch was not fully understood by researchers until recently. Evidence is showing that consumers who’re able to handle merchandise are more likely to buy it—and pay more for it. Shoppers touch for various reasons. There’s fact-finding touch, like turning a food container to read the list of ingredients; or picking an item up to assess its specific attributes, such as weight, texture, or temperature. There’s also touch for its own sake… ’cause it feels nice to, say, run your fingers along a shiny table. Psychologically, touching an item fosters a sense of ownership, which makes it more difficult to resist buying it. So it makes sense when retailers display sweaters on shelves rather than in protective plastic bags. One unexpected finding of this research is that—in terms of generating sales—imagined touch is just as effective as actual touch. That’s good to know if you’re writing descriptions of items sold online! The need to touch varies; shoppers whose need to touch is high… they tend to buy more when touching is encouraged. In one experiment, researchers placed a “Feel the freshness” sign on a fruit display. All shoppers were more likely to touch the fruit when the sign was there than when it wasn’t. But shoppers who ranked higher in the need to touch were more likely to buy the fruit they touched."
+        }
+      ]
+    },
+    {
+      "id": "part-c-2",
+      "type": "talk",
+      "questions": [
+        42,
+        46
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "Let me warn you against a mistake that historians often make— they sometimes assume that people in the past used the same concepts we do. There’s a wonderful example that made news in the history of mathematics a while ago. It concerns an ancient Mesopotamian tablet that had some calculations on it—sophisticated calculations that looked like measurements of triangles…so that’s what many historians assumed they were. And if the Mesopotamians knew how to use these calculations—and historians started thinking that they did—that meant their math was incredibly advanced. Well, it turns out that the idea that Mesopotamians used sophisticated methods to calculate the measurements of triangles is probably wrong. Why do we think that? Because we discovered that Mesopotamians didn’t know how to measure angles, which is a crucial element in the whole process of triangle calculations. Apparently the Mesopotamians had a number of other uses for the calculations on the tablet. These other uses were important, but they were not related to triangles. And so these tablets, in all likelihood, were practice sheets, if you like, for doing math exercises. In all likelihood, it was the ancient Greeks who first calculated the measurements of triangles. And this was hundreds of years after the Mesopotamians."
+        }
+      ]
+    },
+    {
+      "id": "part-c-3",
+      "type": "talk",
+      "questions": [
+        47,
+        50
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "A really surprising discovery was made up in Canada recently… some fossilized animal footprints they found in some sandstone there. So, why’s that exciting? Well, this sandstone is really old, and so the footprints are too—older, by about 40 million years they think, than any footprints ever found… of animals that walked on land. Since we believe that land animals originally emerged from the sea, well, this shows the move from sea to land happened way earlier than we thought—40 million years earlier—and that’s a lot. And finding these fossils was sheer luck. There were these Canadian stonecutters cutting up sandstone to use as a building material, and apparently this stone with the fossil prints wasn’t smooth enough to use. So the workers rejected it for building use, and the discarded stone lay there for years before anyone who could recognize its true importance… was lucky enough to lay eyes on it. Now how do we know these impressions were made by animals on land—not still back in the sea, walking on the seafloor? Well, the footprints look too deep to be made underwater… ‘cause underwater you’re buoyant and your footsteps’re lighter. So any tracks wouldn’t be as deep. But how could sea animals end up doing better by moving onto land? Well, the sea was full of dangerous predators that would attack their young. So one theory is that land offered them a safer place to reproduce—a greater chance to have their young survive."
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "question": 1,
+      "groupId": "part-a-q1",
+      "questionCue": "What does the woman imply?"
+    },
+    {
+      "question": 2,
+      "groupId": "part-a-q2",
+      "questionCue": "What does the man suggest the woman do?"
+    },
+    {
+      "question": 3,
+      "groupId": "part-a-q3",
+      "questionCue": "What does the woman imply about the man?"
+    },
+    {
+      "question": 4,
+      "groupId": "part-a-q4",
+      "questionCue": "What does the man mean?"
+    },
+    {
+      "question": 5,
+      "groupId": "part-a-q5",
+      "questionCue": "What does the woman mean?"
+    },
+    {
+      "question": 6,
+      "groupId": "part-a-q6",
+      "questionCue": "What can be inferred about the man?"
+    },
+    {
+      "question": 7,
+      "groupId": "part-a-q7",
+      "questionCue": "What does the woman imply?"
+    },
+    {
+      "question": 8,
+      "groupId": "part-a-q8",
+      "questionCue": "What does the woman imply?"
+    },
+    {
+      "question": 9,
+      "groupId": "part-a-q9",
+      "questionCue": "What does the professor mean?"
+    },
+    {
+      "question": 10,
+      "groupId": "part-a-q10",
+      "questionCue": "What can be inferred about the man?"
+    },
+    {
+      "question": 11,
+      "groupId": "part-a-q11",
+      "questionCue": "What does the woman mean?"
+    },
+    {
+      "question": 12,
+      "groupId": "part-a-q12",
+      "questionCue": "What does the man imply about his sister?"
+    },
+    {
+      "question": 13,
+      "groupId": "part-a-q13",
+      "questionCue": "What does the woman imply?"
+    },
+    {
+      "question": 14,
+      "groupId": "part-a-q14",
+      "questionCue": "What does the man mean?"
+    },
+    {
+      "question": 15,
+      "groupId": "part-a-q15",
+      "questionCue": "What does the woman mean?"
+    },
+    {
+      "question": 16,
+      "groupId": "part-a-q16",
+      "questionCue": "What does the man mean?"
+    },
+    {
+      "question": 17,
+      "groupId": "part-a-q17",
+      "questionCue": "What does the man imply?"
+    },
+    {
+      "question": 18,
+      "groupId": "part-a-q18",
+      "questionCue": "What does the man mean?"
+    },
+    {
+      "question": 19,
+      "groupId": "part-a-q19",
+      "questionCue": "What will the woman probably do next?"
+    },
+    {
+      "question": 20,
+      "groupId": "part-a-q20",
+      "questionCue": "What does the man mean?"
+    },
+    {
+      "question": 21,
+      "groupId": "part-a-q21",
+      "questionCue": "What does the woman mean?"
+    },
+    {
+      "question": 22,
+      "groupId": "part-a-q22",
+      "questionCue": "What does the woman imply?"
+    },
+    {
+      "question": 23,
+      "groupId": "part-a-q23",
+      "questionCue": "What can be inferred from this conversation?"
+    },
+    {
+      "question": 24,
+      "groupId": "part-a-q24",
+      "questionCue": "What does the woman mean?"
+    },
+    {
+      "question": 25,
+      "groupId": "part-a-q25",
+      "questionCue": "What does the woman suggest the man do?"
+    },
+    {
+      "question": 26,
+      "groupId": "part-a-q26",
+      "questionCue": "What does the man imply about Phil?"
+    },
+    {
+      "question": 27,
+      "groupId": "part-a-q27",
+      "questionCue": "What does the woman imply?"
+    },
+    {
+      "question": 28,
+      "groupId": "part-a-q28",
+      "questionCue": "What does the man imply?"
+    },
+    {
+      "question": 29,
+      "groupId": "part-a-q29",
+      "questionCue": "What does the man mean?"
+    },
+    {
+      "question": 30,
+      "groupId": "part-a-q30",
+      "questionCue": "What does the woman imply?"
+    },
+    {
+      "question": 31,
+      "groupId": "part-b-1",
+      "questionCue": "What are the students mainly discussing?"
+    },
+    {
+      "question": 32,
+      "groupId": "part-b-1",
+      "questionCue": "What does the woman say about the winners of the competition?"
+    },
+    {
+      "question": 33,
+      "groupId": "part-b-1",
+      "questionCue": "How did the man spend his weekend?"
+    },
+    {
+      "question": 34,
+      "groupId": "part-b-1",
+      "questionCue": "What does the woman say about her weekend schedule?"
+    },
+    {
+      "question": 35,
+      "groupId": "part-b-2",
+      "questionCue": "What is the conversation mainly about?"
+    },
+    {
+      "question": 36,
+      "groupId": "part-b-2",
+      "questionCue": "What kind of work did Noguchi’s father do?"
+    },
+    {
+      "question": 37,
+      "groupId": "part-b-2",
+      "questionCue": "According to the professor, what did Noguchi learn to do when he was a child in Japan?"
+    },
+    {
+      "question": 38,
+      "groupId": "part-c-1",
+      "questionCue": "What is the main purpose of the lecture?"
+    },
+    {
+      "question": 39,
+      "groupId": "part-c-1",
+      "questionCue": "According to the professor, what psychological feeling do shoppers tend to have when they touch an item of merchandise?"
+    },
+    {
+      "question": 40,
+      "groupId": "part-c-1",
+      "questionCue": "What does the professor imply about marketers who sell items online?"
+    },
+    {
+      "question": 41,
+      "groupId": "part-c-1",
+      "questionCue": "What does the professor emphasize as an important characteristic of shoppers?"
+    },
+    {
+      "question": 42,
+      "groupId": "part-c-2",
+      "questionCue": "What is the main purpose of the talk?"
+    },
+    {
+      "question": 43,
+      "groupId": "part-c-2",
+      "questionCue": "What was on the Mesopotamian tablet mentioned in the talk?"
+    },
+    {
+      "question": 44,
+      "groupId": "part-c-2",
+      "questionCue": "According to the professor, what had been assumed about the Mesopotamians?"
+    },
+    {
+      "question": 45,
+      "groupId": "part-c-2",
+      "questionCue": "According to the professor, how was the tablet most likely used by the Mesopotamians?"
+    },
+    {
+      "question": 46,
+      "groupId": "part-c-2",
+      "questionCue": "What does the professor imply about the ancient Greeks?"
+    },
+    {
+      "question": 47,
+      "groupId": "part-c-3",
+      "questionCue": "What is the talk mainly about?"
+    },
+    {
+      "question": 48,
+      "groupId": "part-c-3",
+      "questionCue": "According to the professor, what question does the discovery in Canada help answer?"
+    },
+    {
+      "question": 49,
+      "groupId": "part-c-3",
+      "questionCue": "Why does the professor mention stonecutters?"
+    },
+    {
+      "question": 50,
+      "groupId": "part-c-3",
+      "questionCue": "What evidence is given to show whether the footprints were made by animals on land or underwater?"
+    }
+  ]
+}

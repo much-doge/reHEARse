@@ -83,4 +83,36 @@ describe("diagnostic package catalogue", () => {
     expect(convertedSectionRangeFromTable(scoreTable, "reading", 0)).toEqual([20, 22]);
     expect(convertedSectionRangeFromTable(scoreTable, "reading", 50)).toEqual([65, 67]);
   });
+
+  it.each(diagnosticPackageCodes())("covers every Listening question and complete grouped context with a teacher transcript: %s", async (code) => {
+    const descriptor = diagnosticPackage(code)!;
+    const directory = diagnosticPackagePath(code)!;
+    const transcript = JSON.parse(await readFile(join(directory, descriptor.files.teacherTranscript), "utf8")) as {
+      source: { kind: string; label: string; note: string };
+      groups: Array<{ id: string; type: string; questions: [number, number]; segments: Array<{ speaker: string; text: string }> }>;
+      questions: Array<{ question: number; groupId: string; questionCue: string }>;
+    };
+    const timing = JSON.parse(await readFile(join(directory, descriptor.files.listeningQuestionMap), "utf8")) as {
+      questions: Array<{ question: number; groupId: string; groupType: string }>;
+    };
+    expect(transcript.source.label).not.toBe("");
+    expect(transcript.source.note).not.toBe("");
+    expect(transcript.questions.map((item) => item.question)).toEqual(Array.from({ length: descriptor.questionCounts.listening }, (_, index) => index + 1));
+    for (const item of transcript.questions) {
+      expect(item.questionCue).not.toBe("");
+      const group = transcript.groups.find((candidate) => candidate.id === item.groupId);
+      expect(group, `missing transcript group for Q${item.question}`).toBeDefined();
+      expect(group!.segments.length, `empty transcript group for Q${item.question}`).toBeGreaterThan(0);
+      expect(group!.segments.every((segment) => segment.speaker.length > 0 && segment.text.length > 0)).toBe(true);
+    }
+    const timingGroups = new Map<string, typeof timing.questions>();
+    for (const item of timing.questions.filter((entry) => entry.groupType !== "question"))
+      timingGroups.set(item.groupId, [...(timingGroups.get(item.groupId) ?? []), item]);
+    for (const [groupId, items] of timingGroups) {
+      const group = transcript.groups.find((candidate) => candidate.id === groupId);
+      expect(group, `missing complete ${items[0].groupType} transcript ${groupId}`).toBeDefined();
+      expect(group!.type).toBe(items[0].groupType);
+      expect(group!.questions).toEqual([items[0].question, items.at(-1)!.question]);
+    }
+  });
 });

@@ -260,6 +260,24 @@
 .ptc-teacher-audio-control button { border:1px solid #75aa97; border-radius:7px; padding:.42rem .62rem; background:white; color:#17675b; font:inherit; font-size:.68rem; font-weight:800; cursor:pointer; }
 .ptc-teacher-audio-control span { color:#708079; font-size:.64rem; font-variant-numeric:tabular-nums; }
 .ptc-teacher-audio-control audio { display:none; }
+.ptc-teacher-transcript { margin:0 0 .65rem; border:1px solid #d7e5dd; border-radius:9px; background:#fbfdfb; overflow:hidden; }
+.ptc-teacher-transcript-toggle { display:flex; align-items:center; justify-content:space-between; gap:1rem; width:100%; padding:.62rem .75rem; border:0; background:#edf6f1; color:#17675b; font:inherit; font-size:.7rem; font-weight:850; cursor:pointer; text-align:left; }
+.ptc-teacher-transcript-toggle span { color:#687b71; font-size:.62rem; font-weight:650; text-transform:capitalize; }
+.ptc-teacher-transcript.is-open .ptc-teacher-transcript-toggle { border-bottom:1px solid #d7e5dd; }
+.ptc-teacher-transcript-body { padding:.8rem; }
+.ptc-teacher-transcript-body>header { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; margin-bottom:.7rem; }
+.ptc-teacher-transcript-body>header div { display:grid; gap:.14rem; }
+.ptc-teacher-transcript-body>header span { color:#6d8176; font-size:.56rem; font-weight:850; letter-spacing:.08em; }
+.ptc-teacher-transcript-body>header strong { color:#294d3e; font-size:.78rem; text-transform:capitalize; }
+.ptc-teacher-transcript-body>header small { max-width:50%; color:#73837b; font-size:.59rem; line-height:1.4; text-align:right; }
+.ptc-teacher-transcript-lines { display:grid; gap:.42rem; }
+.ptc-teacher-transcript-lines p { display:grid; grid-template-columns:72px minmax(0,1fr); gap:.65rem; margin:0; color:#33483e; font-size:.74rem; line-height:1.55; }
+.ptc-teacher-transcript-lines b { color:#28705d; font-size:.64rem; }
+.ptc-teacher-transcript-question { margin-top:.75rem; padding:.65rem .72rem; border-left:3px solid #69a98c; border-radius:6px; background:#f1f7f3; }
+.ptc-teacher-transcript-question b { color:#486b5c; font-size:.6rem; text-transform:uppercase; letter-spacing:.04em; }
+.ptc-teacher-transcript-question p { margin:.25rem 0 0; color:#263e34; font-size:.76rem; line-height:1.45; }
+.ptc-teacher-transcript-note { margin:.7rem 0 0; padding-top:.55rem; border-top:1px solid #e4ece7; color:#74837b; font-size:.6rem; line-height:1.45; }
+.ptc-teacher-transcript-note a { color:#17675b; font-weight:750; }
 .ptc-teacher-question-card { padding:.8rem; border:1px solid #e3ebe6; border-radius:9px; background:white; color:#243a32; }
 .ptc-teacher-question-card>header { display:flex; justify-content:space-between; gap:1rem; margin-bottom:.55rem; color:#5e786b; font-size:.62rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; }
 .ptc-teacher-question-card h5 { margin:.3rem 0 .7rem; font-size:.86rem; line-height:1.5; white-space:pre-wrap; }
@@ -304,4 +322,5 @@
 @media(max-width:760px) { .ptc-question-detail-grid { grid-template-columns:1fr; } }
 @media(max-width:640px) { .ptc-assignment-builder,.ptc-issued-code,.ptc-reset-credential { grid-template-columns:1fr; } .ptc-issued-code p { grid-column:1; } .ptc-candidate-results { padding:20px; } .ptc-candidate-tools { grid-template-columns:1fr; } .ptc-candidate-reset,.ptc-password-reset { align-items:stretch; flex-direction:column; } .ptc-attempt-dates { justify-items:start; } }
 @media(max-width:640px) { .ptc-missed-trigger { grid-template-columns:1fr 1fr; gap:.4rem; } .ptc-missed-trigger>strong { grid-column:1 / -1; } .ptc-missed-trigger small { grid-column:1 / -1; } }
+@media(max-width:640px) { .ptc-teacher-transcript-body>header { display:grid; } .ptc-teacher-transcript-body>header small { max-width:none; text-align:left; } .ptc-teacher-transcript-lines p { grid-template-columns:1fr; gap:.1rem; } }
 @media(max-width:560px) { .ptc-candidate>summary { grid-template-columns:minmax(0,1fr) auto; gap:.45rem .7rem; } .ptc-candidate-state,.ptc-candidate-scope,.ptc-candidate-retries { grid-column:1; } .ptc-expand-label { grid-column:2; grid-row:2; } .ptc-candidate-history { padding-left:0; } }

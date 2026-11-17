@@ -8,12 +8,13 @@ const { clientQuery, connect, poolQuery } = vi.hoisted(() => ({
 
 vi.mock("@/adapters/db/client", () => ({ getPool: () => ({ connect, query: poolQuery }) }));
 
-import { diagnosticWorkspace, isStandaloneSectionAttempt, startSectionRetake } from "./postgres-diagnostic";
+import { diagnosticWorkspace, isStandaloneSectionAttempt, startSectionRetake, teacherDiagnosticReviewItem } from "./postgres-diagnostic";
 
 const actor = "11111111-1111-4111-8111-111111111111";
 const assignment = "22222222-2222-4222-8222-222222222222";
 const source = "33333333-3333-4333-8333-333333333333";
 const retake = "44444444-4444-4444-8444-444444444444";
+const resource = "55555555-5555-4555-8555-555555555555";
 
 describe("diagnostic section retake assignment boundaries", () => {
   beforeEach(() => {
@@ -112,5 +113,33 @@ describe("diagnostic section retake assignment boundaries", () => {
     ]);
     expect(poolQuery.mock.calls[0]?.[0]).toContain("d.status='in_progress'");
     expect(poolQuery.mock.calls[0]?.[0]).toContain("d.archived_at IS NULL");
+  });
+
+  it("returns complete grouped transcript context only through teacher review", async () => {
+    poolQuery.mockResolvedValueOnce({ rowCount: 1, rows: [{
+      id: source,
+      code: "ets-volume3-practice-test-a",
+      package_version: 1,
+      status: "completed",
+      archived_at: null,
+      selected_questions: null,
+      result_data: { review: [{ section: "listening", question: 42, selected: "A", correctAnswer: "C", correct: false }] },
+    }] });
+
+    const item = await teacherDiagnosticReviewItem("staff", "teacher", resource, actor, source, "listening", "42");
+
+    expect(item).toMatchObject({
+      section: "listening",
+      transcript: {
+        groupType: "talk",
+        questions: [42, 46],
+        questionCue: expect.any(String),
+        source: { kind: "published-script" },
+      },
+    });
+    expect(item?.transcript).toBeDefined();
+    expect(item!.transcript!.segments.length).toBeGreaterThan(0);
+    expect(item!.transcript!.segments.map((segment) => segment.text).join(" ")).toContain("Mesopotamian");
+    expect(poolQuery.mock.calls[0]?.[0]).toContain("$5='admin' OR a.assigned_by=$4");
   });
 });

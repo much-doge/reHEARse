@@ -28,6 +28,11 @@ type ListeningMapItem = {
   answerWindowStartMs: number;
   answerWindowEndMs: number;
 };
+type ListeningTranscriptFile = {
+  source: { kind: string; label: string; note: string; location?: string; url?: string };
+  groups: Array<{ id: string; type: "question" | "conversation" | "talk"; questions: [number, number]; segments: Array<{ speaker: string; text: string }> }>;
+  questions: Array<{ question: number; groupId: string; questionCue: string }>;
+};
 
 export type DiagnosticInstructions = {
   listening: { overview: string; partA: string; partB: string; partC: string };
@@ -198,10 +203,16 @@ export async function teacherDiagnosticReviewItem(
   }
   const content = await packageJson<ItemPackage>(code, descriptor.files.questions);
   if (section === "listening") {
-    const map = await packageJson<{ questions: ListeningMapItem[] }>(code, descriptor.files.listeningQuestionMap);
+    const [map, transcriptFile] = await Promise.all([
+      packageJson<{ questions: ListeningMapItem[] }>(code, descriptor.files.listeningQuestionMap),
+      packageJson<ListeningTranscriptFile>(code, descriptor.files.teacherTranscript),
+    ]);
     const timing = map.questions[question - 1];
     if (!timing) return null;
     const group = map.questions.filter((entry) => entry.groupId === timing.groupId);
+    const transcriptQuestion = transcriptFile.questions.find((entry) => entry.question === question);
+    const transcriptGroup = transcriptQuestion ? transcriptFile.groups.find((entry) => entry.id === transcriptQuestion.groupId) : null;
+    if (!transcriptQuestion || !transcriptGroup || !transcriptGroup.segments.length) return null;
     return {
       section,
       question: reviewItem,
@@ -213,6 +224,13 @@ export async function teacherDiagnosticReviewItem(
         contextEndMs: Math.max(...group.map((entry) => entry.questionAudioEndMs)),
         questionStartMs: timing.questionAudioStartMs,
         questionEndMs: timing.questionAudioEndMs,
+      },
+      transcript: {
+        groupType: transcriptGroup.type,
+        questions: transcriptGroup.questions,
+        segments: transcriptGroup.segments,
+        questionCue: transcriptQuestion.questionCue,
+        source: transcriptFile.source,
       },
     };
   }

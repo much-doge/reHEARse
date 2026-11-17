@@ -1,5 +1,11 @@
 # ETS TOEFL ITP Level 1 Volume 3 · Practice Test A
 
+Teacher review uses `teacher/listening-transcript-v1.json`, generated from the
+published Listening Comprehension Script on printed pages 106–121. It is
+supplemental teacher-only review content, is not listed in the immutable
+candidate package manifest, and is never returned by candidate item/result
+routes.
+
 This is the source-backed content package for the ProTEFL Test Center diagnostic. The owner explicitly confirmed they hold full rights to digitize and deliver this book to their students, then instructed that the package artifacts be committed to Git.
 
 The reproducible full-test bootstrap and the prohibition on raw page-image

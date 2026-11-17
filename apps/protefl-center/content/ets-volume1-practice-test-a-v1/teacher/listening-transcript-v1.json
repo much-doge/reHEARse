@@ -1,0 +1,962 @@
+{
+  "schemaVersion": "teacher-listening-transcript.v1",
+  "package": "ets-volume1-practice-test-a",
+  "source": {
+    "kind": "published-script",
+    "label": "ETS TOEFL ITP Level 1 Practice Tests, Volume 1 — Practice Test A Listening Comprehension Script",
+    "location": "printed pages 96–107",
+    "note": "Published Listening Comprehension Script from the owner-authorized source book."
+  },
+  "groups": [
+    {
+      "id": "part-a-q1",
+      "type": "question",
+      "questions": [
+        1,
+        1
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "Did you buy your ticket from a travel agent or from the airline?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "Does it matter? They’re all the same price."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q2",
+      "type": "question",
+      "questions": [
+        2,
+        2
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "When do you think your apples will be ready to pick?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "You can always tell whether an apple’s ripe by its color."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q3",
+      "type": "question",
+      "questions": [
+        3,
+        3
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "My lease is about to expire and I’ve decided to get a larger place. Do you know of any two-bedroom apartments for rent?"
+        },
+        {
+          "speaker": "Man",
+          "text": "Have you checked the off-campus listings at the housing office?"
+        }
+      ]
+    },
+    {
+      "id": "part-a-q4",
+      "type": "question",
+      "questions": [
+        4,
+        4
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "Judy looks terrific these days, better than I’ve ever seen."
+        },
+        {
+          "speaker": "Woman",
+          "text": "I think it’s her new haircut. Short hair really flatters her."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q5",
+      "type": "question",
+      "questions": [
+        5,
+        5
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "How about if I come over to pick you up at 6:45 for the movie?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "Make it 7. I won’t have finished with dinner until then."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q6",
+      "type": "question",
+      "questions": [
+        6,
+        6
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "I’m moving next week and I have so much to do. I’ll never get it all done."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Don’t forget to tell the post office to forward your mail. You don’t want to miss any important letters."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q7",
+      "type": "question",
+      "questions": [
+        7,
+        7
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "Is that a new pair of glasses?"
+        },
+        {
+          "speaker": "Man",
+          "text": "I’m making do with this old pair until my good ones are fixed."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q8",
+      "type": "question",
+      "questions": [
+        8,
+        8
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "I’ve spent the whole morning at the library…looking for the information we need – you know – for the assignment that’s due Friday?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "I’m stuck, too. Maybe Dr. Boyd will have some suggestions."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q9",
+      "type": "question",
+      "questions": [
+        9,
+        9
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "I thought you wanted orange juice."
+        },
+        {
+          "speaker": "Man",
+          "text": "The machine only had milk."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q10",
+      "type": "question",
+      "questions": [
+        10,
+        10
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "Not many people know that I’m going to get this promotion."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Your secret is safe with me."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q11",
+      "type": "question",
+      "questions": [
+        11,
+        11
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "The weather’s so nice, I think I’m going to eat my lunch outside. Care to join me?"
+        },
+        {
+          "speaker": "Man",
+          "text": "I’m meeting Bill in the cafeteria at noon. How about tomorrow?"
+        }
+      ]
+    },
+    {
+      "id": "part-a-q12",
+      "type": "question",
+      "questions": [
+        12,
+        12
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "Listen, Eleanor, I shouldn’t have [ shouldn’t’ve] said what I said yesterday. It just didn’t come out right."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Well, I shouldn’t have [shouldn’t’ve] let it get to me."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q13",
+      "type": "question",
+      "questions": [
+        13,
+        13
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "Are you just about finished? I need to get ahold of George before we leave."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Just one more quick call, then it’s all yours."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q14",
+      "type": "question",
+      "questions": [
+        14,
+        14
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "I can’t decide whether to take Professor Brown’s class or Professor Thomson’s."
+        },
+        {
+          "speaker": "Man",
+          "text": "I can tell you this about Thomson: she knows how to get your attention and hold it."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q15",
+      "type": "question",
+      "questions": [
+        15,
+        15
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "I heard you were worried about your history final. How did it go?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "Well, the essay part was about what I expected. But the multiple- choice section wasn’t bad – I was really surprised."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q16",
+      "type": "question",
+      "questions": [
+        16,
+        16
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "You’ve been sitting at that desk for three hours!"
+        },
+        {
+          "speaker": "Man",
+          "text": "In half an hour I’m going to take a break for lunch."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q17",
+      "type": "question",
+      "questions": [
+        17,
+        17
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "I thought you didn’t have time to go to the bank."
+        },
+        {
+          "speaker": "Woman",
+          "text": "It was close, but I made it."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q18",
+      "type": "question",
+      "questions": [
+        18,
+        18
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "Could you please check the list again? I sent in my registration application and fees for the conference last month."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Let me…oh, you did. Yes, here’s your name. O.K. You can go ahead to the next table for your information kit."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q19",
+      "type": "question",
+      "questions": [
+        19,
+        19
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "How do I get to the museum café?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "What does the woman mean?"
+        }
+      ]
+    },
+    {
+      "id": "part-a-q20",
+      "type": "question",
+      "questions": [
+        20,
+        20
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "I’d be glad to drop you off downtown on my way home."
+        },
+        {
+          "speaker": "Man",
+          "text": "Well…if you’re sure it’s not out of your way."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q21",
+      "type": "question",
+      "questions": [
+        21,
+        21
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "I’ve got to go to the dentist tomorrow at three. Do you think I could make up the hours I’ll miss another day?"
+        },
+        {
+          "speaker": "Man",
+          "text": "I’ll see what I can do."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q22",
+      "type": "question",
+      "questions": [
+        22,
+        22
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "I can’t seem to shake this cold."
+        },
+        {
+          "speaker": "Man",
+          "text": "Sometimes the only thing that helps is taking it easy."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q23",
+      "type": "question",
+      "questions": [
+        23,
+        23
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "I forgot to get a new pen for tomorrow’s calligraphy class. Do you know when the campus store opens in the morning?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "I’d try the mall tonight – your class starts early."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q24",
+      "type": "question",
+      "questions": [
+        24,
+        24
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "I just tried Richard’s house and nobody answered."
+        },
+        {
+          "speaker": "Woman",
+          "text": "That’s odd. He left here at noon, so he should’ve arrived at least 30 minutes ago."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q25",
+      "type": "question",
+      "questions": [
+        25,
+        25
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "That little grocery store on the corner looks as though it’s seen better days."
+        },
+        {
+          "speaker": "Woman",
+          "text": "I’m afraid it’s only a matter of time before it closes down."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q26",
+      "type": "question",
+      "questions": [
+        26,
+        26
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "I can’t seem to get the TV to come on. It must be broken."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Have you checked to see if it’s plugged in?"
+        }
+      ]
+    },
+    {
+      "id": "part-a-q27",
+      "type": "question",
+      "questions": [
+        27,
+        27
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "I’d like to get a chair with wheels because I need to be able to get from the computer to the phone more easily."
+        },
+        {
+          "speaker": "Man",
+          "text": "I’ll take it up with Gary in office furnishings, but I can’t make any promises."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q28",
+      "type": "question",
+      "questions": [
+        28,
+        28
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "So you think your supervisor approves of your work?"
+        },
+        {
+          "speaker": "Man",
+          "text": "She didn’t come right out and pat me on the back, but I did get that impression."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q29",
+      "type": "question",
+      "questions": [
+        29,
+        29
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "Are we all set for the meeting downstairs? I told them we’d need a slide projector…"
+        },
+        {
+          "speaker": "Man",
+          "text": "I took care of it on my way back from lunch."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q30",
+      "type": "question",
+      "questions": [
+        30,
+        30
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "Do you think the blue jacket would look better with these pants?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "In this heat, I don’t think you’ll be comfortable in anything but the cotton one."
+        }
+      ]
+    },
+    {
+      "id": "part-b-1",
+      "type": "conversation",
+      "questions": [
+        31,
+        34
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "Good morning, Steve. What can I do for you?"
+        },
+        {
+          "speaker": "Man",
+          "text": "Well, I’ve decided I want to transfer to a smaller college."
+        },
+        {
+          "speaker": "Woman",
+          "text": "I know you’ve had a rough time adjusting, Steve, but I’m sorry to hear you want to leave."
+        },
+        {
+          "speaker": "Man",
+          "text": "What I need to do now is find a new college and I was hoping you might have some ideas."
+        },
+        {
+          "speaker": "Woman",
+          "text": "I might, but first I think I ought to warn you about some of the potential problems with transferring. The main one is how many of your credits will be accepted by your new college."
+        },
+        {
+          "speaker": "Man",
+          "text": "You mean they won’t all be transferable?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "Not necessarily. It’ll depend on what courses you’ve taken here and how they fit in with the requirements at the other school. So whatever college you choose, be sure to find out about transferring your credits."
+        },
+        {
+          "speaker": "Man",
+          "text": "Who would I talk to about something like that?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "First check with the admissions officer, then follow up with the registrar’s office. Now…the other thing I wanted to caution you about is thinking that a transfer will solve all your problems."
+        },
+        {
+          "speaker": "Man",
+          "text": "I’m not sure I understand what you mean."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Well, I know you haven’t been happy this semester, but are you sure changing colleges is going to be the answer?"
+        },
+        {
+          "speaker": "Man",
+          "text": "Uhh…I like my classes, except for composition. The math department is everything I expected it to be, but…maybe if my roommate and I had hit it off better…that’s really bothering me more than anything else."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Really? Did you talk to someone at the residence office? It might be that changing roommates would make all the difference."
+        },
+        {
+          "speaker": "Man",
+          "text": "I might just do that!"
+        }
+      ]
+    },
+    {
+      "id": "part-b-2",
+      "type": "conversation",
+      "questions": [
+        35,
+        38
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "Diane, first let me congratulate you on your latest thriller’s success. Tales of Deception has topped the best-seller list for the past twenty-seven weeks straight. How do you do it?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "In my novels, plot is everything. I am fascinated by suspense, and I try to weave as chilling a tale as possible. I seek to give my readers an extremely intricate mystery that keeps them guessing until the last minute."
+        },
+        {
+          "speaker": "Man",
+          "text": "For your latest novel, I understand you worked undercover with the Los Angeles police for several months. What did you get out of that?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "Well, since my main character is a police detective, I needed to immerse myself in that role – to find out how an officer thinks, and how a crime is investigated."
+        },
+        {
+          "speaker": "Man",
+          "text": "In addition to telling a powerful story, you are quite deft with language. You seem to place quite an emphasis on precise descriptions, and, of course, you really know how to set the scene."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Thank you. Actually, I began my writing career as a poet. It’s no coincidence that I strive for a certain style."
+        },
+        {
+          "speaker": "Man",
+          "text": "It seems to me it would take years to produce something so well written and researched, not to mention the time it takes to work out the plot. And yet, you write so fast that sometimes you’ve got two new books out at the same time. Tell me about your work habits."
+        },
+        {
+          "speaker": "Woman",
+          "text": "I keep at it all the time. I get up at six every morning, review the outline for the chapter I’ll write that day, and don’t stop till I’m finished, sometimes four or five in the afternoon. Even when I’m not at my desk, I’m working. Ideas flash through my mind all day long. That’s why I carry a little notebook around with me."
+        },
+        {
+          "speaker": "Man",
+          "text": "I guess that’s about all the time we have today. Thanks very much for being with us."
+        },
+        {
+          "speaker": "Woman",
+          "text": "You’re quite welcome."
+        }
+      ]
+    },
+    {
+      "id": "part-c-1",
+      "type": "talk",
+      "questions": [
+        39,
+        42
+      ],
+      "segments": [
+        {
+          "speaker": "Speaker",
+          "text": "As we head into hurricane season, we’d like to take this opportunity to go over some precautionary measures you can take in this dangerous season. This is especially important for those of you living in coastal areas where hurricanes can be destructive because of their heavy winds. The following guidelines have been established by the National Weather Service. Before hurricane season even begins, stock up on batteries, candles, bottled water, nonperishable food such as canned goods, and other emergency equipment. In case of a hurricane warning, following these safety guidelines may help save your life and property. First of all, protect windows with boards or tape, since they’re not strong enough to withstand hurricane-force winds – these winds can reach up to 200 miles per hour! Also the National Weather Service recommends that you fill up your car with fuel in case you need to evacuate. Gas stations may be closed by the time you need to leave your home. Remember also, it is suggested that you stay indoors if your home is sturdy and on high ground. However, homes in low-lying areas will likely be evacuated, since flooding is a possibility. Listen to the radio for emergency weather reports and evacuation information. If called to evacuate, leave the area immediately. You will be advised of the locations of local shelters."
+        }
+      ]
+    },
+    {
+      "id": "part-c-2",
+      "type": "talk",
+      "questions": [
+        43,
+        46
+      ],
+      "segments": [
+        {
+          "speaker": "Speaker",
+          "text": "In the days before telephones, radio, and television, the only network of public communication that could reach farmers was the mail. But this wasn’t the mail as we know it today. At that time, in the early nineteenth century, mail delivery was uneven and widely scattered. In fact, many people living in rural areas got no mail at all. In the early decades of the century, mail carriers were privately employed – they did not work for the government. Many years later, when the government finally took charge of delivering mail, it was mostly in cities that mail got delivered to people’s homes. So farmers still had a problem – they had to go to a post office to collect their mail, which, by the way, wasn’t always nearby. Farmers’ requests to have mail brought to their homes were at first met with outrage. What could be more ridiculous, many urban residents asked, than paying government employees to travel miles across the countryside with an occasional letter? Nevertheless, farmers’ organizations succeeded in convincing the United States Congress that farmers needed mail delivery. Finally in 1891 rural free delivery, known as RFD, came into being. In a sense, rural free delivery was the most important communications revolution in United States history. Rural Americans were not lifted out of the relatively isolated communities they lived in. Because of rural free delivery, there now ran a highway to the world from every farmer’s doorstep."
+        }
+      ]
+    },
+    {
+      "id": "part-c-3",
+      "type": "talk",
+      "questions": [
+        47,
+        50
+      ],
+      "segments": [
+        {
+          "speaker": "Speaker",
+          "text": "Today I’d like to explain the Mohs’ scale, used in what is called the “scratch test.” This scale is based on the simple fact that harder minerals scratch softer ones. For example, a diamond; a quartz crystal can scratch a feldspar crystal, but not the other around. The scale is named for Friedrich Mohs, the mineralogist who devised it in 1812. His scale spans the range of minerals known at that time, from the softest to the hardest. By performing a scratch test using known minerals and a few common tools, an unidentified mineral sample can be placed between two points on the scale. By referring to the scale, the mineral can then be identified. I have here a collection of the minerals included on the Mohs’ scale, as well as the tools necessary to complete this exercise. I’d like you each to take a mineral sample from the basket at the front of the room and classify it according to its place on the Mohs’ scale. First, however, I should give you a little warning. The hardness of any mineral depends on the strength of the bonds between ions or between atoms – the stronger the bond, the harder the mineral. Because bond strength may differ in various angles of a crystal, the hardness may vary slightly depending on the direction in which the mineral sample is scratched, so be sure to scratch each sample in several different directions."
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "question": 1,
+      "groupId": "part-a-q1",
+      "questionCue": "What does the woman mean?"
+    },
+    {
+      "question": 2,
+      "groupId": "part-a-q2",
+      "questionCue": "What does the woman imply about the apples?"
+    },
+    {
+      "question": 3,
+      "groupId": "part-a-q3",
+      "questionCue": "What does the man imply?"
+    },
+    {
+      "question": 4,
+      "groupId": "part-a-q4",
+      "questionCue": "What does the woman mean?"
+    },
+    {
+      "question": 5,
+      "groupId": "part-a-q5",
+      "questionCue": "What will the woman probably be doing at 6:45?"
+    },
+    {
+      "question": 6,
+      "groupId": "part-a-q6",
+      "questionCue": "What does the woman suggest the man do?"
+    },
+    {
+      "question": 7,
+      "groupId": "part-a-q7",
+      "questionCue": "What does the man imply?"
+    },
+    {
+      "question": 8,
+      "groupId": "part-a-q8",
+      "questionCue": "What will the speakers probably do?"
+    },
+    {
+      "question": 9,
+      "groupId": "part-a-q9",
+      "questionCue": "What does the man imply?"
+    },
+    {
+      "question": 10,
+      "groupId": "part-a-q10",
+      "questionCue": "What does the woman mean?"
+    },
+    {
+      "question": 11,
+      "groupId": "part-a-q11",
+      "questionCue": "What does the man mean?"
+    },
+    {
+      "question": 12,
+      "groupId": "part-a-q12",
+      "questionCue": "What is the woman doing?"
+    },
+    {
+      "question": 13,
+      "groupId": "part-a-q13",
+      "questionCue": "What does the woman mean?"
+    },
+    {
+      "question": 14,
+      "groupId": "part-a-q14",
+      "questionCue": "What does the man imply about Professor Thomson?"
+    },
+    {
+      "question": 15,
+      "groupId": "part-a-q15",
+      "questionCue": "What does the woman mean?"
+    },
+    {
+      "question": 16,
+      "groupId": "part-a-q16",
+      "questionCue": "What does the man mean?"
+    },
+    {
+      "question": 17,
+      "groupId": "part-a-q17",
+      "questionCue": "What does the woman mean?"
+    },
+    {
+      "question": 18,
+      "groupId": "part-a-q18",
+      "questionCue": "What can be inferred from the conversation?"
+    },
+    {
+      "question": 19,
+      "groupId": "part-a-q19",
+      "questionCue": "What does the woman mean?"
+    },
+    {
+      "question": 20,
+      "groupId": "part-a-q20",
+      "questionCue": "What does the man mean?"
+    },
+    {
+      "question": 21,
+      "groupId": "part-a-q21",
+      "questionCue": "What does the man mean?"
+    },
+    {
+      "question": 22,
+      "groupId": "part-a-q22",
+      "questionCue": "What does the man mean?"
+    },
+    {
+      "question": 23,
+      "groupId": "part-a-q23",
+      "questionCue": "What does the woman imply?"
+    },
+    {
+      "question": 24,
+      "groupId": "part-a-q24",
+      "questionCue": "What can be inferred from the conversation?"
+    },
+    {
+      "question": 25,
+      "groupId": "part-a-q25",
+      "questionCue": "What does the woman mean?"
+    },
+    {
+      "question": 26,
+      "groupId": "part-a-q26",
+      "questionCue": "What does the woman imply?"
+    },
+    {
+      "question": 27,
+      "groupId": "part-a-q27",
+      "questionCue": "What will the man do?"
+    },
+    {
+      "question": 28,
+      "groupId": "part-a-q28",
+      "questionCue": "What does the man imply?"
+    },
+    {
+      "question": 29,
+      "groupId": "part-a-q29",
+      "questionCue": "What does the man imply?"
+    },
+    {
+      "question": 30,
+      "groupId": "part-a-q30",
+      "questionCue": "What does the woman suggest the man do?"
+    },
+    {
+      "question": 31,
+      "groupId": "part-b-1",
+      "questionCue": "Why does Steve visit the counselor?"
+    },
+    {
+      "question": 32,
+      "groupId": "part-b-1",
+      "questionCue": "What is the one possible problem the counselor points out to Steve?"
+    },
+    {
+      "question": 33,
+      "groupId": "part-b-1",
+      "questionCue": "What is Steve’s main problem in adjusting to his college?"
+    },
+    {
+      "question": 34,
+      "groupId": "part-b-1",
+      "questionCue": "Where will Steve probably go to get his problem solved?"
+    },
+    {
+      "question": 35,
+      "groupId": "part-b-2",
+      "questionCue": "Why does the man congratulate the woman?"
+    },
+    {
+      "question": 36,
+      "groupId": "part-b-2",
+      "questionCue": "Who is the main character in Tales of Deception?"
+    },
+    {
+      "question": 37,
+      "groupId": "part-b-2",
+      "questionCue": "Why does the man ask the woman about her work habits?"
+    },
+    {
+      "question": 38,
+      "groupId": "part-b-2",
+      "questionCue": "Why does the woman carry a notebook?"
+    },
+    {
+      "question": 39,
+      "groupId": "part-c-1",
+      "questionCue": "What is the talk mainly about?"
+    },
+    {
+      "question": 40,
+      "groupId": "part-c-1",
+      "questionCue": "What organization provided the information for the announcement?"
+    },
+    {
+      "question": 41,
+      "groupId": "part-c-1",
+      "questionCue": "What should people do before hurricane season begins?"
+    },
+    {
+      "question": 42,
+      "groupId": "part-c-1",
+      "questionCue": "According to the announcement, why should people fill their cars with fuel before a hurricane?"
+    },
+    {
+      "question": 43,
+      "groupId": "part-c-2",
+      "questionCue": "What does the speaker mainly discuss?"
+    },
+    {
+      "question": 44,
+      "groupId": "part-c-2",
+      "questionCue": "What is true of mail delivery in the early nineteenth century?"
+    },
+    {
+      "question": 45,
+      "groupId": "part-c-2",
+      "questionCue": "According to the speaker, what problem did farmers face with early mail service?"
+    },
+    {
+      "question": 46,
+      "groupId": "part-c-2",
+      "questionCue": "How did many city residents react when farmers first requested mail delivery?"
+    },
+    {
+      "question": 47,
+      "groupId": "part-c-3",
+      "questionCue": "What is the lecture mainly about?"
+    },
+    {
+      "question": 48,
+      "groupId": "part-c-3",
+      "questionCue": "What aspect of a mineral is the Mohs’ scale used to identify?"
+    },
+    {
+      "question": 49,
+      "groupId": "part-c-3",
+      "questionCue": "What does the teacher ask the class to do?"
+    },
+    {
+      "question": 50,
+      "groupId": "part-c-3",
+      "questionCue": "According to the teacher, when might the hardness of the same mineral seem to vary?"
+    }
+  ]
+}

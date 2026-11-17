@@ -17,6 +17,7 @@ export type DiagnosticPackageDescriptor = {
     listeningPauses: string;
     listeningQuestionMap: string;
     listeningAudio: string;
+    teacherTranscript: string;
   };
   privateSourceFiles: readonly string[];
   resultVersions: {
@@ -48,6 +49,7 @@ const descriptors: Readonly<Record<string, DiagnosticPackageDescriptor>> = {
       listeningPauses: "metadata/listening-pauses-v1.json",
       listeningQuestionMap: "metadata/listening-question-map-v1.json",
       listeningAudio: "source/practice-test-a-listening.mp3",
+      teacherTranscript: "teacher/listening-transcript-v1.json",
     },
     privateSourceFiles: [
       "source/ets-toefl-itp-level1-volume1.pdf",
@@ -75,6 +77,7 @@ const descriptors: Readonly<Record<string, DiagnosticPackageDescriptor>> = {
       listeningPauses: "metadata/listening-pauses-v1.json",
       listeningQuestionMap: "metadata/listening-question-map-v1.json",
       listeningAudio: "source/practice-test-a-listening.m4a",
+      teacherTranscript: "teacher/listening-transcript-v1.json",
     },
     privateSourceFiles: ["source/ets-toefl-itp-volume-3.pdf", "source/ets-toefl-itp-volume-3-layout.txt"],
     resultVersions: {
@@ -99,6 +102,7 @@ const descriptors: Readonly<Record<string, DiagnosticPackageDescriptor>> = {
       listeningPauses: "metadata/listening-pauses-v1.json",
       listeningQuestionMap: "metadata/listening-question-map-v1.json",
       listeningAudio: "source/listening.mp3",
+      teacherTranscript: "teacher/listening-transcript-v1.json",
     },
     privateSourceFiles: ["metadata/page-index-v1.json"],
     resultVersions: {

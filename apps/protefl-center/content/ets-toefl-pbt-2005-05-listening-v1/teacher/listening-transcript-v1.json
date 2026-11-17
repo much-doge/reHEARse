@@ -1,0 +1,930 @@
+{
+  "schemaVersion": "teacher-listening-transcript.v1",
+  "package": "ets-toefl-pbt-2005-05-listening",
+  "source": {
+    "kind": "reviewed-unofficial-transcript",
+    "label": "May 2005 Listening transcript",
+    "url": "https://tingroom.com/print_68978.html",
+    "note": "Unofficial transcript aligned to the owner-supplied recording. Teachers should treat wording as a review aid, not an ETS-issued script."
+  },
+  "groups": [
+    {
+      "id": "part-a-q1",
+      "type": "question",
+      "questions": [
+        1,
+        1
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "Do you know when the next train is? I need to be at the Museum of Fine Arts by 10:30."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Actually there is a shuttle bus at 10 that takes you directly there. And it’s only a 25-minute ride."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q2",
+      "type": "question",
+      "questions": [
+        2,
+        2
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "It was such a great weekend. I saw two really good movies on the play. What did you do?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "What you were supposed to be doing? Studying! Did you forget we have an exam today?"
+        }
+      ]
+    },
+    {
+      "id": "part-a-q3",
+      "type": "question",
+      "questions": [
+        3,
+        3
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "So what are they supposed to be building over there? Another gym?"
+        },
+        {
+          "speaker": "Man",
+          "text": "Isn’t that where the new library is going?"
+        }
+      ]
+    },
+    {
+      "id": "part-a-q4",
+      "type": "question",
+      "questions": [
+        4,
+        4
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "Do you mind if I use your computer to write a history paper? Mine’s out for repairs."
+        },
+        {
+          "speaker": "Man",
+          "text": "Sorry, I am in the middle of typing something and it’s gonna be a while. You know, the computer lab is still open."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q5",
+      "type": "question",
+      "questions": [
+        5,
+        5
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "Hi Gina, that’s a really cool watch. Where did you get it?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "Well, my sister works at the jewelry store right off campus."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q6",
+      "type": "question",
+      "questions": [
+        6,
+        6
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "Do you think classes are gonna be canceled because of the snow storm?"
+        },
+        {
+          "speaker": "Man",
+          "text": "I sure hope so. It says on the radio that the roads are treacherous. Why don’t you check with the administration office?"
+        }
+      ]
+    },
+    {
+      "id": "part-a-q7",
+      "type": "question",
+      "questions": [
+        7,
+        7
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "So where is Gloria these days? It likes that she is disappeared."
+        },
+        {
+          "speaker": "Woman",
+          "text": "You obviously haven’t been to the library in a while."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q8",
+      "type": "question",
+      "questions": [
+        8,
+        8
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "I don’t know what you did to this computer. But it keeps giving me these error messages."
+        },
+        {
+          "speaker": "Man",
+          "text": "Oh, sorry, I was playing around with it before you came in. Let me take a look at it."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q9",
+      "type": "question",
+      "questions": [
+        9,
+        9
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "Chicken or fish? I know they are both good here. But I just can’t make up my mind."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Come on. We haven’t got all night."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q10",
+      "type": "question",
+      "questions": [
+        10,
+        10
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "Oh no, I just remembered I was supposed to give Tom his CD back when I see him in class today. But I left it sitting on the kitchen table."
+        },
+        {
+          "speaker": "Man",
+          "text": "I don’t think it’s any big deal. I am sure he can do without it until our next class."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q11",
+      "type": "question",
+      "questions": [
+        11,
+        11
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "I’m starting to lose my voice, which usually lose I am about catch a cold. Do you think I should go to the clinic and have my throat looked at?"
+        },
+        {
+          "speaker": "Man",
+          "text": "As soon as possible, esp. since we have four exams next week in German class."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q12",
+      "type": "question",
+      "questions": [
+        12,
+        12
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "Are you sure you want to rent that apartment? It is the first one you saw."
+        },
+        {
+          "speaker": "Woman",
+          "text": "You’re right. I shouldn’t be so hasty. It wouldn’t hurt to check out a few more."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q13",
+      "type": "question",
+      "questions": [
+        13,
+        13
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "Wow, you are really tall. Are you in a basketball team?"
+        },
+        {
+          "speaker": "Man",
+          "text": "I may be tall but that doesn’t mean I’ve ever been any good as a player."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q14",
+      "type": "question",
+      "questions": [
+        14,
+        14
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "Which of these shirts do you think I should buy? The red or the green one?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "Well, didn’t you already buy a red one last week? A little variety would be good."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q15",
+      "type": "question",
+      "questions": [
+        15,
+        15
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "I was surprised to hear that you’ll accept the job offer from the bank. Are you sure you’ll like working there?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "Well, I just thought I would give it a try. If I don’t like it, I can quit any time."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q16",
+      "type": "question",
+      "questions": [
+        16,
+        16
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "I’m having a party tonight. Can you make it?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "I’d love to, but my aunt’s here only one day. And I promised to take her to a play."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q17",
+      "type": "question",
+      "questions": [
+        17,
+        17
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "How are you gonna pay for classes next year? Did you apply for financial aid?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "Well, I am working at a bookstore and doing some tutoring. That should be enough. Don’t you think?"
+        }
+      ]
+    },
+    {
+      "id": "part-a-q18",
+      "type": "question",
+      "questions": [
+        18,
+        18
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "Excuse me. I didn’t order this cake."
+        },
+        {
+          "speaker": "Man",
+          "text": "It comes with your dinner, Ma’am."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q19",
+      "type": "question",
+      "questions": [
+        19,
+        19
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "You know something? I can’t wait to go home for spring break. My hometown is so small that everybody knows you."
+        },
+        {
+          "speaker": "Man",
+          "text": "Yeah, and everybody knows your business, too. And talks about it all the time."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q20",
+      "type": "question",
+      "questions": [
+        20,
+        20
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "You did a great job, coordinating the student volunteers for the campus open house fell. I hope we can count on you again."
+        },
+        {
+          "speaker": "Man",
+          "text": "I’m glad things worked out. But this is it for me. It is too time-consuming."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q21",
+      "type": "question",
+      "questions": [
+        21,
+        21
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "What time should Peter have been here to meet us?"
+        },
+        {
+          "speaker": "Man",
+          "text": "As soon as his psychology class was finished. I hope he didn’t forget."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q22",
+      "type": "question",
+      "questions": [
+        22,
+        22
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "I missed the meeting about on-campus job openings this afternoon. Were you there?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "I don’t have time for a job this semester, but my roommate went. And I can get you copies of the forms you need from her."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q23",
+      "type": "question",
+      "questions": [
+        23,
+        23
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "One thing I definitely recommend: make sure you get enough sleep the night before your presentation. Trust me. It will make difference."
+        },
+        {
+          "speaker": "Man",
+          "text": "I don’t know, professor. That won’t be easy. Probably I will lie awake all night, rehearsing my talk."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q24",
+      "type": "question",
+      "questions": [
+        24,
+        24
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "Do you think we will have a say on what musical our theatre group will be presenting next year?"
+        },
+        {
+          "speaker": "Man",
+          "text": "I doubt it. I heard the director say she’d already picked one out."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q25",
+      "type": "question",
+      "questions": [
+        25,
+        25
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "Hi, Jim. I hear you are looking for an apartment closer to work."
+        },
+        {
+          "speaker": "Man",
+          "text": "Yes, I am sick and tired of spending so much time in my car."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q26",
+      "type": "question",
+      "questions": [
+        26,
+        26
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "I’ve got great news. Ben’s going to be senior class president next year."
+        },
+        {
+          "speaker": "Man",
+          "text": "They’ve had the elections already?"
+        }
+      ]
+    },
+    {
+      "id": "part-a-q27",
+      "type": "question",
+      "questions": [
+        27,
+        27
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "Someone said we really should go to that guest lecture tomorrow."
+        },
+        {
+          "speaker": "Man",
+          "text": "Well, it wasn’t me. I couldn’t care less about astronomy."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q28",
+      "type": "question",
+      "questions": [
+        28,
+        28
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "Trust me. You don’t want to go to that movie. It’s not nearly as good as the reviews said."
+        },
+        {
+          "speaker": "Woman",
+          "text": "I don’t care. I need a break form studying. And it’s the only thing showing that I haven’t already seen."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q29",
+      "type": "question",
+      "questions": [
+        29,
+        29
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "If this dry weather keeps up, we are going to be restricted again in how we used water this summer."
+        },
+        {
+          "speaker": "Man",
+          "text": "Unless we really start doing something about it now."
+        }
+      ]
+    },
+    {
+      "id": "part-a-q30",
+      "type": "question",
+      "questions": [
+        30,
+        30
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "Hi, Mike. I heard that you were revising the instructor’s manual for the computer class. Is there anyway I could get a copy of the new version?"
+        },
+        {
+          "speaker": "Man",
+          "text": "Well, I’m still working on it. So for right now everyone should just use the one they have."
+        }
+      ]
+    },
+    {
+      "id": "part-b-conversation-31-33",
+      "type": "conversation",
+      "questions": [
+        31,
+        33
+      ],
+      "segments": [
+        {
+          "speaker": "Woman",
+          "text": "Hi, Ed. Looks like you were here early."
+        },
+        {
+          "speaker": "Man",
+          "text": "Yeah. Class doesn't start for a ten more minutes, so I put up the novel I’m reading."
+        },
+        {
+          "speaker": "Woman",
+          "text": "What is it?"
+        },
+        {
+          "speaker": "Man",
+          "text": "It is called Sister Carrie. It is about a woman named Carrie who leaves her country home to earn a living in Chicago and New York."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Oh, I've studied Theodore Dreiser. His work is a little depressing, but I like him, even though his characters always get in trouble. He tricks them with sympathy. How do you like Sister Carrie?"
+        },
+        {
+          "speaker": "Man",
+          "text": "It's not what I expected. On the back cover it says the book created a lot of controversy when it was first published in 1900. It even says the publisher withdrew out from market after only 500 copies were sold. But I don't see why."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Well. The novel might not be shocking by our standards but it sure created a stir then. Think about what Carrie does. She leaves her country home and gets caught up in some personal scandals in the city. Now most other authors of that time would have punished the character to provide a moral lesson, but Dreiser has Carrie become a successful actress at the end."
+        },
+        {
+          "speaker": "Man",
+          "text": "Wow, that puts the story in a different perspective. I bet Dreiser must have been discouraged when the publisher took it off from market."
+        },
+        {
+          "speaker": "Woman",
+          "text": "He sure was. He stopped writing fictions for a while and did work as a journalist and an editor."
+        },
+        {
+          "speaker": "Man",
+          "text": "Well, how did the book become recognized?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "Some British reviewers praised the novel and then another publisher released it in 1907. Eventually people recognized the novel for its realism and Dreiser went on to write other successful works."
+        }
+      ]
+    },
+    {
+      "id": "part-b-class-discussion-34-38",
+      "type": "conversation",
+      "questions": [
+        34,
+        38
+      ],
+      "segments": [
+        {
+          "speaker": "Man",
+          "text": "Before we began today's topic, I'd like to review the phases of child language acquisition that we went over yesterday. Who'd like to summarize for us? Yes, Lisa."
+        },
+        {
+          "speaker": "Woman",
+          "text": "Well, first of all, you said that new-borns only make rudimentary vocalizations because the voice box isn't in position for speech yet. But that at about three month of age baby starts to utter the first sounds that resemble language sounds. The sounds of consonants like \"k\" and \"g\"."
+        },
+        {
+          "speaker": "Man",
+          "text": "That's right. And after this stage come the meaningless syllables, a consonant followed by a vowel. For example, the \"dada\" sounds. And at the next stage comes a real breakthrough. Can you tell us about that, Lisa?"
+        },
+        {
+          "speaker": "Woman",
+          "text": "Well, between six months and one year of age, babies begin to associate sounds with meaning. So, when you say \"dog\", they know you're referring to the four-legged animal that is their house pet. At this stage they start to build a vocabulary. And in a matter of month they are learning ten to twenty new words a day. This vocabulary growth continues until adolescents."
+        },
+        {
+          "speaker": "Man",
+          "text": "Right. And isn’t it amazing that by the time children are two or three years old they are stringing sentences together? Certainly no one would dispute that children had a tremendous capacity for learning language, what linguists are still trying to determine is how this language acquisition takes place."
+        }
+      ]
+    },
+    {
+      "id": "part-c-canadian-history-39-41",
+      "type": "talk",
+      "questions": [
+        39,
+        41
+      ],
+      "segments": [
+        {
+          "speaker": "Speaker",
+          "text": "How did the native communities of the southeastern Canada convey information to one another? In general, they used couriers memorized oral messages. Among some peoples, the Iroquois and the Algonquians for example, messengers also used code based on strings of beads. The beads were called \"wampum\" and the color of the beads signified the message. For instance, white beads were used for news of peace, prosperity, or good will. Purple beads meant war, disaster or death. The couriers also carried messages for early European explorers and missionaries. One jazz missionary described in his journals how a courier memorized 20 different detailed transactions, delivered them to Montreal and then returned with exact what price to each. He had traveled 800 miles round trip. Sometimes the messages were written, not oral and will be passed from one courier to another. When one messenger arrived to the edge of his tribe's territory, he would sell the letter to the next messenger, usually at a profit. If the letter passed through many hands before reaching the receiving end, the final bill could be very expensive."
+        }
+      ]
+    },
+    {
+      "id": "part-c-birdwatching-42-46",
+      "type": "talk",
+      "questions": [
+        42,
+        46
+      ],
+      "segments": [
+        {
+          "speaker": "Speaker",
+          "text": "We've talked before about using special plantings, water, and feeders to attract birds to your garden. This afternoon I'd like to tell you about a less well-known way to attract birds. It's by putting out eggshells. Many birds eagerly consume them. Perhaps it is a method of replacing calcium lost by females and egg-laying, though I have seen males eat the shells too. Anyway, I have had at least eight different species of birds come to eat the eggshells. Here is how it's done. You should save your eggshells and rinse them in water, then cook them lightly on the baking pan in the oven; set at a low temperature until they are dry but not brown. This sterilizes them and makes them brittle. You can crumble them into bite-sized pieces and spread them on the ground, a rock, or a bird feeder. You may find them so popular you want to go to your favorite restaurant to ask for more eggshells."
+        }
+      ]
+    },
+    {
+      "id": "part-c-geology-47-50",
+      "type": "talk",
+      "questions": [
+        47,
+        50
+      ],
+      "segments": [
+        {
+          "speaker": "Speaker",
+          "text": "Last week when we talked about landslides, we looked at what causes these huge masses of earth to move down the natural incline such as a mountainside or slope with such destructive force. Now when these landslides occur in populated areas, what can humans do to avoid or minimize damage? Basically there are three things that can be done. The first thing is to simply avoid construction in the areas where landslides are likely to happen. Typically when a side on the slope is chosen for new construction, it is important that a geological survey of the area be conducted. The survey reveals unsafe conditions such as too little vegetation or soil that would absorb water too easily, conditions that might lead to a landslide, say, during periods of heavy rains. The second thing is to build in a way that doesn't make stable slopes unstable. For example, natural vegetation, like grass, is needed to keep soil firmly in place. This vegetation should not be entirely removed since without the grass the soil would loosen up and this could result in a landslide. The third thing is to design good water drainage to ensure that the water naturally runs down the slope and doesn't build up in the soil. This kind of water buildup on the slope is one of the most frequent causes of landslides. Water buildup can easily result during long periods of heavy rain and sometimes the cause is part of the construction itself such as a stonewall that blocks the water from draining off the slope."
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "question": 1,
+      "groupId": "part-a-q1",
+      "questionCue": "What does the woman imply?"
+    },
+    {
+      "question": 2,
+      "groupId": "part-a-q2",
+      "questionCue": "What does the woman mean?"
+    },
+    {
+      "question": 3,
+      "groupId": "part-a-q3",
+      "questionCue": "What are the speakers talking about?"
+    },
+    {
+      "question": 4,
+      "groupId": "part-a-q4",
+      "questionCue": "What does the man imply the woman should do?"
+    },
+    {
+      "question": 5,
+      "groupId": "part-a-q5",
+      "questionCue": "What does the woman imply?"
+    },
+    {
+      "question": 6,
+      "groupId": "part-a-q6",
+      "questionCue": "What does the man suggest the woman do?"
+    },
+    {
+      "question": 7,
+      "groupId": "part-a-q7",
+      "questionCue": "What can be inferred about Gloria?"
+    },
+    {
+      "question": 8,
+      "groupId": "part-a-q8",
+      "questionCue": "What will the man do?"
+    },
+    {
+      "question": 9,
+      "groupId": "part-a-q9",
+      "questionCue": "What does the woman mean?"
+    },
+    {
+      "question": 10,
+      "groupId": "part-a-q10",
+      "questionCue": "What does the man imply about the woman?"
+    },
+    {
+      "question": 11,
+      "groupId": "part-a-q11",
+      "questionCue": "What does the man suggest the woman do?"
+    },
+    {
+      "question": 12,
+      "groupId": "part-a-q12",
+      "questionCue": "What will the woman probably do?"
+    },
+    {
+      "question": 13,
+      "groupId": "part-a-q13",
+      "questionCue": "What does the man imply?"
+    },
+    {
+      "question": 14,
+      "groupId": "part-a-q14",
+      "questionCue": "What does the woman imply the man should do?"
+    },
+    {
+      "question": 15,
+      "groupId": "part-a-q15",
+      "questionCue": "What can be inferred from the conversation?"
+    },
+    {
+      "question": 16,
+      "groupId": "part-a-q16",
+      "questionCue": "What will the woman probably do?"
+    },
+    {
+      "question": 17,
+      "groupId": "part-a-q17",
+      "questionCue": "What can be inferred about the woman?"
+    },
+    {
+      "question": 18,
+      "groupId": "part-a-q18",
+      "questionCue": "What does the man say about the cake?"
+    },
+    {
+      "question": 19,
+      "groupId": "part-a-q19",
+      "questionCue": "What does the man mean?"
+    },
+    {
+      "question": 20,
+      "groupId": "part-a-q20",
+      "questionCue": "What does the man mean?"
+    },
+    {
+      "question": 21,
+      "groupId": "part-a-q21",
+      "questionCue": "What can be inferred about Peter?"
+    },
+    {
+      "question": 22,
+      "groupId": "part-a-q22",
+      "questionCue": "What does the woman mean?"
+    },
+    {
+      "question": 23,
+      "groupId": "part-a-q23",
+      "questionCue": "What does the man mean?"
+    },
+    {
+      "question": 24,
+      "groupId": "part-a-q24",
+      "questionCue": "What does the man mean?"
+    },
+    {
+      "question": 25,
+      "groupId": "part-a-q25",
+      "questionCue": "What does the man imply?"
+    },
+    {
+      "question": 26,
+      "groupId": "part-a-q26",
+      "questionCue": "What had the man assumed?"
+    },
+    {
+      "question": 27,
+      "groupId": "part-a-q27",
+      "questionCue": "What does the man mean?"
+    },
+    {
+      "question": 28,
+      "groupId": "part-a-q28",
+      "questionCue": "What does the woman mean?"
+    },
+    {
+      "question": 29,
+      "groupId": "part-a-q29",
+      "questionCue": "What does the man mean?"
+    },
+    {
+      "question": 30,
+      "groupId": "part-a-q30",
+      "questionCue": "What does the man imply?"
+    },
+    {
+      "question": 31,
+      "groupId": "part-b-conversation-31-33",
+      "questionCue": "What is the conversation mainly about?"
+    },
+    {
+      "question": 32,
+      "groupId": "part-b-conversation-31-33",
+      "questionCue": "According to the woman, how is Sister Carrie different from other novels of its time?"
+    },
+    {
+      "question": 33,
+      "groupId": "part-b-conversation-31-33",
+      "questionCue": "How did Sister Carrie eventually gain recognition?"
+    },
+    {
+      "question": 34,
+      "groupId": "part-b-class-discussion-34-38",
+      "questionCue": "What is the class mainly discussing?"
+    },
+    {
+      "question": 35,
+      "groupId": "part-b-class-discussion-34-38",
+      "questionCue": "Why does the student mention the sounds k and g?"
+    },
+    {
+      "question": 36,
+      "groupId": "part-b-class-discussion-34-38",
+      "questionCue": "According to the student, why are newborns not able to make language-like sounds?"
+    },
+    {
+      "question": 37,
+      "groupId": "part-b-class-discussion-34-38",
+      "questionCue": "According to the discussion, when does vocabulary growth first start to increase dramatically?"
+    },
+    {
+      "question": 38,
+      "groupId": "part-b-class-discussion-34-38",
+      "questionCue": "According to the discussion, what do linguists still not know?"
+    },
+    {
+      "question": 39,
+      "groupId": "part-c-canadian-history-39-41",
+      "questionCue": "What is the main topic of the talk?"
+    },
+    {
+      "question": 40,
+      "groupId": "part-c-canadian-history-39-41",
+      "questionCue": "What would cause a letter to be expensive to receive?"
+    },
+    {
+      "question": 41,
+      "groupId": "part-c-canadian-history-39-41",
+      "questionCue": "What event would probably have been symbolized by a purple wampum bead?"
+    },
+    {
+      "question": 42,
+      "groupId": "part-c-birdwatching-42-46",
+      "questionCue": "What is the talk mainly about?"
+    },
+    {
+      "question": 43,
+      "groupId": "part-c-birdwatching-42-46",
+      "questionCue": "Why are birds attracted to eggshells?"
+    },
+    {
+      "question": 44,
+      "groupId": "part-c-birdwatching-42-46",
+      "questionCue": "How are the eggshells prepared?"
+    },
+    {
+      "question": 45,
+      "groupId": "part-c-birdwatching-42-46",
+      "questionCue": "How does the preparation process affect the eggshells?"
+    },
+    {
+      "question": 46,
+      "groupId": "part-c-birdwatching-42-46",
+      "questionCue": "What can be inferred about the woman?"
+    },
+    {
+      "question": 47,
+      "groupId": "part-c-geology-47-50",
+      "questionCue": "What does the professor mainly discuss?"
+    },
+    {
+      "question": 48,
+      "groupId": "part-c-geology-47-50",
+      "questionCue": "According to the professor, why is it important to perform geological surveys?"
+    },
+    {
+      "question": 49,
+      "groupId": "part-c-geology-47-50",
+      "questionCue": "What does the professor say about vegetation on a slope?"
+    },
+    {
+      "question": 50,
+      "groupId": "part-c-geology-47-50",
+      "questionCue": "According to the professor, what might cause a buildup of water on a slope?"
+    }
+  ]
+}

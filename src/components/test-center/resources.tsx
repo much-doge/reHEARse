@@ -129,6 +129,13 @@ type TeacherQuestionPayload = {
   item: { prompt?: string; options: Record<string, string>; part?: string; tokens?: Array<{ text: string; choice?: string }> };
   passage?: { questions: [number, number]; lines: Array<{ text: string; line: number | null; paragraphStart: boolean }> };
   audio?: { groupId: string; groupType: "question" | "conversation" | "talk"; contextStartMs: number; contextEndMs: number; questionStartMs: number; questionEndMs: number };
+  transcript?: {
+    groupType: "question" | "conversation" | "talk";
+    questions: [number, number];
+    segments: Array<{ speaker: string; text: string }>;
+    questionCue: string;
+    source: { kind: string; label: string; note: string; location?: string; url?: string };
+  };
 };
 
 type TeacherHighlightSegment = {
@@ -267,6 +274,23 @@ function TeacherAudioButton({ label, startMs, endMs, resourceId, candidateActorI
   </div>;
 }
 
+function TeacherTranscript({ transcript }: { transcript: NonNullable<TeacherQuestionPayload["transcript"]> }) {
+  const [open, setOpen] = useState(false);
+  const range = transcript.questions[0] === transcript.questions[1]
+    ? `Question ${transcript.questions[0]}`
+    : `Questions ${transcript.questions[0]}–${transcript.questions[1]}`;
+  const label = transcript.groupType === "conversation" ? "conversation" : transcript.groupType === "talk" ? "talk" : "exchange";
+  return <section className={`ptc-teacher-transcript${open ? " is-open" : ""}`}>
+    <button type="button" className="ptc-teacher-transcript-toggle" aria-expanded={open} onClick={() => setOpen((value) => !value)}>{open ? "Hide transcript" : "Show transcript"}<span>{label} · {range}</span></button>
+    {open && <div className="ptc-teacher-transcript-body">
+      <header><div><span>LISTENING TRANSCRIPT</span><strong>{label[0].toUpperCase() + label.slice(1)} · {range}</strong></div><small>{transcript.source.label}{transcript.source.location ? ` · ${transcript.source.location}` : ""}</small></header>
+      <div className="ptc-teacher-transcript-lines">{transcript.segments.map((segment, index) => <p key={index}><b>{segment.speaker}</b><span>{segment.text}</span></p>)}</div>
+      <div className="ptc-teacher-transcript-question"><b>Narrator · selected question</b><p>{transcript.questionCue}</p></div>
+      <p className="ptc-teacher-transcript-note">{transcript.source.note}{transcript.source.url && <> <a href={transcript.source.url} target="_blank" rel="noreferrer">Source reference</a></>}</p>
+    </div>}
+  </section>;
+}
+
 function TeacherQuestionReveal({ item, resourceId, candidateActorId, attemptId }: { item: ReviewItem; resourceId: string; candidateActorId: string; attemptId: string }) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -304,6 +328,7 @@ function TeacherQuestionReveal({ item, resourceId, candidateActorId, attemptId }
           <TeacherAudioButton label="question" startMs={payload.audio.questionStartMs} endMs={payload.audio.questionEndMs} resourceId={resourceId} candidateActorId={candidateActorId} attemptId={attemptId} />
         </>}
       </div>}
+      {payload.transcript && <TeacherTranscript transcript={payload.transcript} />}
       {payload.passage && <TeacherHighlightSurface className="ptc-teacher-passage" heading={<>PASSAGE · Questions {payload.passage.questions[0]}–{payload.passage.questions[1]}</>} segments={payload.passage.lines} />}
       <div className="ptc-teacher-question-card">
         <header><span>{item.section === "structure" ? `PART ${payload.part === "completion" ? "A · SENTENCE COMPLETION" : "B · ERROR IDENTIFICATION"}` : item.section === "listening" ? `PART ${payload.item.part ?? ""} · LISTENING` : "READING COMPREHENSION"}</span><b>Question {item.question}</b></header>
@@ -356,6 +381,7 @@ function CohortQuestionRow({ section, row, resourceId, revealAnswers, onRevealAn
         <div className="ptc-question-detail-grid">
         <div className="ptc-question-detail-content">
           {payload.audio && <div className="ptc-teacher-audio-controls" aria-label="Listening audio review">{payload.audio.groupType === "question" ? <TeacherAudioButton label="question" startMs={payload.audio.questionStartMs} endMs={payload.audio.questionEndMs} resourceId={resourceId} candidateActorId={row.source!.candidateActorId} attemptId={row.source!.attemptId} /> : <><TeacherAudioButton label={payload.audio.groupType === "conversation" ? "dialogue" : "talk"} startMs={payload.audio.contextStartMs} endMs={payload.audio.contextEndMs} resourceId={resourceId} candidateActorId={row.source!.candidateActorId} attemptId={row.source!.attemptId} /><TeacherAudioButton label="question" startMs={payload.audio.questionStartMs} endMs={payload.audio.questionEndMs} resourceId={resourceId} candidateActorId={row.source!.candidateActorId} attemptId={row.source!.attemptId} /></>}</div>}
+          {payload.transcript && <TeacherTranscript transcript={payload.transcript} />}
           {payload.passage && <TeacherHighlightSurface className="ptc-teacher-passage" heading={<>PASSAGE · Questions {payload.passage.questions[0]}–{payload.passage.questions[1]}</>} segments={payload.passage.lines} />}
           <div className="ptc-teacher-question-card"><header><span>{section === "structure" ? `PART ${payload.part === "completion" ? "A · SENTENCE COMPLETION" : "B · ERROR IDENTIFICATION"}` : section === "listening" ? `PART ${payload.item.part ?? ""} · LISTENING` : "READING COMPREHENSION"}</span><b>Question {row.question}</b></header>{groupedTokens ? <TeacherHighlightSurface className="ptc-teacher-inline-highlight" segments={groupedTokens.map((token, index) => ({ text: token.text + (index < groupedTokens.length - 1 ? " " : ""), className: token.choice ? "ptc-teacher-underlined-token" : "", block: false }))} /> : <TeacherHighlightSurface className="ptc-teacher-inline-highlight" segments={[{ text: payload.item.prompt?.replace("_____", "________") ?? "", block: false }]} />}<div className="ptc-teacher-options">{(["A", "B", "C", "D"] as const).map((choice) => <div className={revealAnswers && choice === payload.question.correctAnswer ? "is-key" : ""} key={choice}><b>{choice}</b><span>{payload.item.options[choice]}</span></div>)}</div></div>
         </div>
