@@ -46,7 +46,8 @@ learner-record repair may be required.
 
 - The structured provider contract now requires `en` and `id` strings for
   `notice`, `tryThis`, and `teacherPrompt`; both prompt strings must end in a
-  question mark.
+  question mark. The provider JSON Schema enforces the question-mark suffix,
+  and the server validates it again after parsing.
 - The system instruction requires natural Bahasa Indonesia that faithfully
   translates the English pedagogical move without adding facts, option
   elimination, or an answer.

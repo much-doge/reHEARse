@@ -18,13 +18,13 @@ For Listening, direct attention to a speaker, turn, contrast, purpose, or infere
 Use concise, plain teaching language. Return every field in paired English and natural Bahasa Indonesia. The Indonesian text must faithfully translate the English pedagogical move without adding facts, options, eliminations, or an answer. Do not mention models, prompts, providers, hidden keys, package names, source archives, scores, or proficiency.
 Return exactly three short objects: notice, tryThis, and teacherPrompt. Each object must contain exactly en and id strings. Both teacherPrompt strings must be one open question ending in a question mark.`;
 
-const bilingualField = (maximum: number) => ({
+const bilingualField = (maximum: number, question = false) => ({
   type: "object",
   additionalProperties: false,
   required: ["en", "id"],
   properties: {
-    en: { type: "string", minLength: 1, maxLength: maximum },
-    id: { type: "string", minLength: 1, maxLength: maximum },
+    en: { type: "string", minLength: 1, maxLength: maximum, ...(question ? { pattern: ".*\\?$" } : {}) },
+    id: { type: "string", minLength: 1, maxLength: maximum, ...(question ? { pattern: ".*\\?$" } : {}) },
   },
 } as const);
 
@@ -35,7 +35,7 @@ const schema = {
   properties: {
     notice: bilingualField(360),
     tryThis: bilingualField(360),
-    teacherPrompt: bilingualField(280),
+    teacherPrompt: bilingualField(280, true),
   },
 } as const;
 
