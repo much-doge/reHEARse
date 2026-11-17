@@ -17,3 +17,6 @@ __pycache__/
 .secrets/
 .env.production
 /backups/
+
+# LFL-113 licensed private source archive; deliver locally, never commit.
+/output/pdf/TOEFL_2005-05_Full_Form_Source_Archive.pdf
