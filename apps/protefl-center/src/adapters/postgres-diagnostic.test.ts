@@ -62,16 +62,16 @@ describe("diagnostic section retake assignment boundaries", () => {
     expect(clientQuery).toHaveBeenCalledWith("COMMIT");
   });
 
-  it("starts a missed-question retake from a standalone Listening assignment", async () => {
+  it("starts a missed-question retake from a Listening-only assignment root stored as full scope", async () => {
     clientQuery.mockImplementation(async (sql: string) => {
       if (sql === "BEGIN" || sql === "COMMIT") return { rowCount: 0, rows: [] };
       if (sql.includes("SELECT d.id,d.assignment_id,d.scope,d.delivery_scope")) return { rowCount: 1, rows: [{
-        id: source, assignment_id: assignment, scope: "listening", delivery_scope: "listening",
+        id: source, assignment_id: assignment, scope: "full", delivery_scope: "listening",
         parent_attempt_id: null, status: "completed", code: "ets-toefl-pbt-2005-05-listening",
       }] };
       if (sql.includes("SELECT d.*,r.status AS resource_status")) return { rowCount: 1, rows: [{
         id: source, resource_id: "55555555-5555-4555-8555-555555555555", assignment_id: assignment,
-        actor_id: actor, scope: "listening", delivery_scope: "listening", parent_attempt_id: null,
+        actor_id: actor, scope: "full", delivery_scope: "listening", parent_attempt_id: null,
         package_version: 1, resource_version: 1, resource_status: "published", assignment_delivery_scope: "listening",
         assigned_listening_mode: "autoplay", assigned_show_question_text: true,
       }] };
@@ -92,10 +92,11 @@ describe("diagnostic section retake assignment boundaries", () => {
     await expect(startSectionRetake(actor, assignment, source, "listening")).resolves.toEqual({ attemptId: retake, resumed: false });
 
     const parentLookup = clientQuery.mock.calls.find(([sql]) => String(sql).includes("assignment_delivery_scope"));
-    expect(parentLookup?.[0]).toContain("d.scope=$3 AND d.delivery_scope=$3 AND d.parent_attempt_id IS NULL");
+    expect(parentLookup?.[0]).toContain("d.scope='full' AND d.delivery_scope=$3 AND d.parent_attempt_id IS NULL AND a.delivery_scope=$3");
     const insert = clientQuery.mock.calls.find(([sql]) => String(sql).includes("INSERT INTO protefl_diagnostic_attempt"));
     expect(insert?.[1]).toContain(JSON.stringify([2, 3]));
     expect(insert?.[1]).toContain("listening");
+    expect(insert?.[1]?.[11]).toBe(source);
     expect(clientQuery).toHaveBeenCalledWith("COMMIT");
   });
 
