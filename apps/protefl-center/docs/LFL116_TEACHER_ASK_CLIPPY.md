@@ -1,6 +1,6 @@
 # LFL-116 — Teacher-only Ask Clippy pilot
 
-Status: source complete; deployment pending.
+Status: deployed to PCT128; authenticated teacher interaction pending.
 
 ## Objective
 
@@ -93,5 +93,35 @@ required.
   Next production build passed. The build includes the dynamic
   `/api/test-center/teaching/clippy` route.
 
-Deployment, live provider verification, authenticated teacher interaction, and
-classroom verification remain pending and must be recorded separately.
+## Deployment
+
+- Source/release commit: `f616f95`.
+- Release tree: `/opt/rehearse/.releases/f616f95`.
+- App image: `rehearse-app:f616f95`; image ID
+  `sha256:bf969d52b6c26d825110a25cf6d884f9ce46157577262dabb94c7cbe20b02a47`.
+- Only the app service was recreated. It is healthy with zero restarts.
+- PostgreSQL retained container ID
+  `b8d72c028dc252b4d53fb7df208e51ca9d0c7af99ea6d87fb7618095603b03e3`,
+  stayed healthy with zero restarts, and received no migration or verification
+  write.
+- LAN and public health returned HTTP 200. The signed-out teacher page returned
+  307 to sign-in, an unauthenticated Ask Clippy request returned 401, and a
+  foreign-origin request returned 403.
+- The running container has `FEEDBACK_PROVIDER=openai` with a configured key,
+  model `gpt-5-nano`, minimal reasoning, and a 1,200-token output bound. No
+  credential value was printed.
+- A synthetic provider canary used no learner, package, transcript, or licensed
+  source content. With the exact production reasoning/output settings it
+  returned the required `notice`, `tryThis`, and `teacherPrompt` fields, passed
+  the no-answer check, and used `store: false`.
+- A preliminary canary that omitted the configured minimal-reasoning setting
+  returned `incomplete/max_output_tokens`; it was not accepted or rendered.
+  Repeating the canary with the exact deployed settings passed. This confirms
+  the fail-closed behavior and the importance of the pinned provider controls.
+- Post-deployment app logs contain only normal startup/readiness output.
+- No authenticated teacher browser session was available, so clicking Ask
+  Clippy beneath a real protected question remains an operator test. Classroom
+  behavior is not claimed as verified.
+
+Rollback is app-only to `rehearse-app:46df50d`. Keep PostgreSQL, attempts,
+results, package files, and learner records unchanged.
