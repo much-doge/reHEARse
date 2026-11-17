@@ -15,17 +15,27 @@ Show, do not tell: point to a contrast, relationship, grammar feature, reference
 Do not state, imply, quote, paraphrase, or identify the correct answer. Do not give an answer letter. Do not say which option is correct. Do not reproduce an answer option as the conclusion.
 You may refer to the learner's selected response, but do not enumerate or eliminate the remaining choices.
 For Listening, direct attention to a speaker, turn, contrast, purpose, or inference. For Reading, direct attention to the relevant sentence, relationship, reference, or inference. For Structure, direct attention to the grammatical relationship and a test the learner can apply.
-Use concise, plain English for a teacher. Do not mention models, prompts, providers, hidden keys, package names, source archives, scores, or proficiency.
-Return exactly three short fields: notice, tryThis, and teacherPrompt. The teacherPrompt must be one open question ending in a question mark.`;
+Use concise, plain teaching language. Return every field in paired English and natural Bahasa Indonesia. The Indonesian text must faithfully translate the English pedagogical move without adding facts, options, eliminations, or an answer. Do not mention models, prompts, providers, hidden keys, package names, source archives, scores, or proficiency.
+Return exactly three short objects: notice, tryThis, and teacherPrompt. Each object must contain exactly en and id strings. Both teacherPrompt strings must be one open question ending in a question mark.`;
+
+const bilingualField = (maximum: number) => ({
+  type: "object",
+  additionalProperties: false,
+  required: ["en", "id"],
+  properties: {
+    en: { type: "string", minLength: 1, maxLength: maximum },
+    id: { type: "string", minLength: 1, maxLength: maximum },
+  },
+} as const);
 
 const schema = {
   type: "object",
   additionalProperties: false,
   required: ["notice", "tryThis", "teacherPrompt"],
   properties: {
-    notice: { type: "string", minLength: 1, maxLength: 360 },
-    tryThis: { type: "string", minLength: 1, maxLength: 360 },
-    teacherPrompt: { type: "string", minLength: 1, maxLength: 280 },
+    notice: bilingualField(360),
+    tryThis: bilingualField(360),
+    teacherPrompt: bilingualField(280),
   },
 } as const;
 

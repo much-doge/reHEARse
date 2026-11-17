@@ -17,10 +17,12 @@ describe("OpenAIClippyProvider", () => {
       expect(request.store).toBe(false);
       expect(request.text.format.name).toBe("test_center_clippy_hint");
       expect(request.input[1].content).not.toContain("correctAnswer");
-      return new Response(JSON.stringify({ status: "completed", output: [{ content: [{ type: "output_text", text: JSON.stringify({ notice: "The response misses a change after a contrast cue.", tryThis: "Mark the first plan, then mark the revised time and compare the relationship.", teacherPrompt: "Which word signals that the original plan is being revised?" }) }] }] }), { status: 200 });
+      return new Response(JSON.stringify({ status: "completed", output: [{ content: [{ type: "output_text", text: JSON.stringify({ notice: { en: "The response misses a change after a contrast cue.", id: "Respons tersebut melewatkan perubahan setelah penanda kontras." }, tryThis: { en: "Mark the first plan, then mark the revised time and compare the relationship.", id: "Tandai rencana pertama, lalu tandai waktu yang direvisi dan bandingkan hubungannya." }, teacherPrompt: { en: "Which word signals that the original plan is being revised?", id: "Kata mana yang menandai bahwa rencana awal sedang direvisi?" } }) }] }] }), { status: 200 });
     });
     const provider = new OpenAIClippyProvider({ apiKey: "key", model: "model", fetchImplementation });
-    expect((await provider.hint(context)).teacherPrompt).toMatch(/\?$/);
+    const result = await provider.hint(context);
+    expect(result.teacherPrompt.en).toMatch(/\?$/);
+    expect(result.teacherPrompt.id).toMatch(/\?$/);
   });
 
   it("fails closed on malformed provider output", async () => {

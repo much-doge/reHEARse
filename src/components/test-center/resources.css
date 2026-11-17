@@ -298,7 +298,10 @@
 .ptc-clippy-hint { display:grid; gap:.55rem; padding:.75rem .8rem; border-top:1px solid #e3dff1; background:white; }
 .ptc-clippy-hint>div { display:grid; grid-template-columns:92px minmax(0,1fr); gap:.7rem; align-items:start; }
 .ptc-clippy-hint b { color:#5d4f91; font-size:.62rem; }
-.ptc-clippy-hint p { margin:0; color:#373349; font-size:.72rem; line-height:1.5; }
+.ptc-clippy-languages { display:grid; gap:.42rem; }
+.ptc-clippy-hint p { display:grid; grid-template-columns:24px minmax(0,1fr); gap:.45rem; margin:0; color:#373349; font-size:.72rem; line-height:1.5; }
+.ptc-clippy-hint p+p { padding-top:.4rem; border-top:1px solid #eeeaf7; color:#504a64; }
+.ptc-clippy-hint p span { color:#8a7fad; font-size:.53rem; font-weight:850; letter-spacing:.06em; }
 .ptc-clippy-message { margin:0; padding:.68rem .8rem; border-top:1px solid #e3dff1; background:white; color:#6d657e; font-size:.68rem; }
 .ptc-teacher-error-sentence { margin:.5rem 0 .7rem; font-size:.9rem; line-height:1.8; }
 .ptc-teacher-error-sentence .is-underlined { text-decoration:underline; text-decoration-color:#27836e; text-decoration-thickness:2px; text-underline-offset:3px; }
