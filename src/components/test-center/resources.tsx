@@ -138,6 +138,8 @@ type TeacherQuestionPayload = {
   };
 };
 
+type ClippyHint = { notice: string; tryThis: string; teacherPrompt: string };
+
 type TeacherHighlightSegment = {
   text: string;
   line?: number | null;
@@ -291,6 +293,32 @@ function TeacherTranscript({ transcript }: { transcript: NonNullable<TeacherQues
   </section>;
 }
 
+function AskClippy({ resourceId, candidateActorId, attemptId, section, question }: { resourceId: string; candidateActorId: string; attemptId: string; section: string; question: number }) {
+  const [busy, setBusy] = useState(false);
+  const [hint, setHint] = useState<ClippyHint | null>(null);
+  const [message, setMessage] = useState("");
+  async function ask() {
+    setBusy(true); setMessage("");
+    try {
+      const response = await fetch("/api/test-center/teaching/clippy", {
+        method: "POST", cache: "no-store", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ resourceId, candidateActorId, attemptId, section, question }),
+      });
+      const data = await response.json() as { state?: "wrong" | "omitted" | "correct"; hint?: ClippyHint };
+      if (!response.ok) throw new Error("unavailable");
+      if (data.state === "correct") { setHint(null); setMessage("This response is already correct; no corrective hint is needed."); return; }
+      if (!data.hint) throw new Error("unavailable");
+      setHint(data.hint);
+    } catch { setHint(null); setMessage("Clippy could not prepare safe guidance. Try again."); }
+    finally { setBusy(false); }
+  }
+  return <section className="ptc-clippy" aria-label="Ask Clippy teaching guidance">
+    <div className="ptc-clippy-intro"><div><span>TEACHER PILOT</span><strong>Ask Clippy</strong><p>Get a show-don’t-tell teaching hint without revealing the answer.</p></div><button type="button" onClick={() => void ask()} disabled={busy}>{busy ? "Thinking…" : hint ? "Ask again" : "Ask Clippy"}</button></div>
+    {hint && <div className="ptc-clippy-hint" role="status"><div><b>What to notice</b><p>{hint.notice}</p></div><div><b>Try this</b><p>{hint.tryThis}</p></div><div><b>Teacher prompt</b><p>{hint.teacherPrompt}</p></div></div>}
+    {message && <p className="ptc-clippy-message" role="status">{message}</p>}
+  </section>;
+}
+
 function TeacherQuestionReveal({ item, resourceId, candidateActorId, attemptId }: { item: ReviewItem; resourceId: string; candidateActorId: string; attemptId: string }) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -335,6 +363,7 @@ function TeacherQuestionReveal({ item, resourceId, candidateActorId, attemptId }
         {groupedTokens ? <TeacherHighlightSurface className="ptc-teacher-inline-highlight" segments={groupedTokens.map((token, index) => ({ text: token.text + (index < groupedTokens.length - 1 ? " " : ""), className: token.choice ? "ptc-teacher-underlined-token" : "", block: false }))} /> : <TeacherHighlightSurface className="ptc-teacher-inline-highlight" segments={[{ text: payload.item.prompt?.replace("_____", "________") ?? "", block: false }]} />}
         <div className="ptc-teacher-options">{(["A", "B", "C", "D"] as const).map((choice) => <div className={choice === payload.question.correctAnswer ? "is-key" : choice === payload.question.selected ? "is-response" : ""} key={choice}><b>{choice}</b><span>{payload.item.options[choice]}</span></div>)}</div>
       </div>
+      <AskClippy resourceId={resourceId} candidateActorId={candidateActorId} attemptId={attemptId} section={item.section} question={item.question} />
     </div>}
   </article>;
 }
@@ -384,6 +413,7 @@ function CohortQuestionRow({ section, row, resourceId, revealAnswers, onRevealAn
           {payload.transcript && <TeacherTranscript transcript={payload.transcript} />}
           {payload.passage && <TeacherHighlightSurface className="ptc-teacher-passage" heading={<>PASSAGE · Questions {payload.passage.questions[0]}–{payload.passage.questions[1]}</>} segments={payload.passage.lines} />}
           <div className="ptc-teacher-question-card"><header><span>{section === "structure" ? `PART ${payload.part === "completion" ? "A · SENTENCE COMPLETION" : "B · ERROR IDENTIFICATION"}` : section === "listening" ? `PART ${payload.item.part ?? ""} · LISTENING` : "READING COMPREHENSION"}</span><b>Question {row.question}</b></header>{groupedTokens ? <TeacherHighlightSurface className="ptc-teacher-inline-highlight" segments={groupedTokens.map((token, index) => ({ text: token.text + (index < groupedTokens.length - 1 ? " " : ""), className: token.choice ? "ptc-teacher-underlined-token" : "", block: false }))} /> : <TeacherHighlightSurface className="ptc-teacher-inline-highlight" segments={[{ text: payload.item.prompt?.replace("_____", "________") ?? "", block: false }]} />}<div className="ptc-teacher-options">{(["A", "B", "C", "D"] as const).map((choice) => <div className={revealAnswers && choice === payload.question.correctAnswer ? "is-key" : ""} key={choice}><b>{choice}</b><span>{payload.item.options[choice]}</span></div>)}</div></div>
+          <AskClippy resourceId={resourceId} candidateActorId={row.source!.candidateActorId} attemptId={row.source!.attemptId} section={section} question={row.question} />
         </div>
         <aside className="ptc-question-distribution"><p className="eyebrow">COHORT ANSWERS</p><h5>How learners answered</h5><p className="ptc-question-distribution-note">Percentages use answered responses for this question. Omitted responses are shown separately.</p>{(["A", "B", "C", "D"] as const).map((choice) => { const count = row.choices[choice]; const percentage = answered ? Math.round((count / answered) * 100) : 0; return <div className="ptc-choice-distribution" key={choice}><div><strong>{choice}</strong><span>{percentage}% · {count} response{count === 1 ? "" : "s"}</span></div><div className="ptc-choice-bar"><span style={{ width: `${percentage}%` }} /></div></div>; })}<div className="ptc-omitted-distribution"><strong>{row.omitted}</strong><span>omitted · {row.seen ? Math.round((row.omitted / row.seen) * 100) : 0}% of attempts</span></div>{revealAnswers ? <div className="ptc-question-outcome"><strong>{row.correct} correct · {row.incorrect} wrong</strong><span>{row.seen} recorded attempt{row.seen === 1 ? "" : "s"}</span></div> : <p className="ptc-question-key-hidden">Correctness hidden for explanation mode.</p>}</aside>
       </div>
