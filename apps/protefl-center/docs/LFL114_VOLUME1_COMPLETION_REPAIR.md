@@ -1,6 +1,7 @@
 # LFL-114 — Volume 1 Practice Test A completion repair
 
-Status: deployed to PCT128; first authenticated post-fix submission pending.
+Status: deployed to PCT128; authenticated full submission and focused retake
+observed in production evidence.
 
 ## Incident
 
@@ -94,9 +95,17 @@ revoked or expired assignment.
 Students may now refresh the test page, reopen the same attempt, choose
 **Finish diagnostic**, and press **Yes**. They must not start a new attempt.
 The server will calculate and append the result from the already saved answers.
-An authenticated learner submission after this release has not yet been
-observed, so deployed health/integrity verification must not be described as a
-completed classroom journey until the first learner finishes.
+The screenshots later supplied by the operator were timestamped 12:03–12:04
+Jakarta, before the repaired app started at 12:19:27. They therefore show the
+original failure, not a post-deployment failure.
+
+After the repaired release started, the matching anonymized attempt completed
+at 12:21:24 Jakarta. Its result row contains all 140 review items and reports
+140 total questions. The same learner then completed a 33-item focused retake
+at 12:49:58, and that separate result row is also present. This verifies the
+production full-submit and focused-retake persistence paths from authenticated
+learner actions. It is production evidence, not an independently observed
+classroom/browser walkthrough.
 
 ## Rollback
 
