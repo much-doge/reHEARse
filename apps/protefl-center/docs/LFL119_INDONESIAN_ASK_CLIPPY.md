@@ -1,6 +1,6 @@
 # LFL-119 — Tidy Indonesian Ask Clippy guidance
 
-Status: source complete; deployment pending.
+Status: deployed to PCT128; authenticated teacher visual inspection pending.
 
 ## Problem
 
@@ -80,5 +80,26 @@ record repair may be required.
   attempt/result data, package, transcript, retry, score, or LFL-118 repair
   record changed.
 
-Deployment, final runtime canary, authenticated teacher visual inspection, and
-classroom verification remain pending.
+## Deployment
+
+- Source/release commit: `0b0c64a`.
+- Release tree: `/opt/rehearse/.releases/0b0c64a`.
+- App image: `rehearse-app:0b0c64a`; image ID
+  `sha256:0cbf2dd6b9e38f79579f6926625b81b97bb6d0de7108ac12c341b04df875db51`.
+- Only the app service was recreated. It is healthy with zero restarts. LAN and
+  public health returned HTTP 200.
+- PostgreSQL retained container ID
+  `b8d72c028dc252b4d53fb7df208e51ca9d0c7af99ea6d87fb7618095603b03e3`,
+  stayed healthy with zero restarts, and received no migration or write.
+- Unauthenticated Ask Clippy returned 401 and a foreign-origin request returned
+  403.
+- The final runtime synthetic canary returned three non-empty Indonesian
+  strings, a question-mark-terminated teacher prompt, no screenshot-style
+  placeholder, no direct answer/keyed option, and `store: false`.
+- The LFL-118 audit count remains four repaired attempts after deployment.
+- No authenticated teacher browser session was available. Refreshing the real
+  teacher page and visually inspecting one regenerated hint remains an operator
+  check; classroom verification is not claimed.
+
+Rollback is app-only to `rehearse-app:fad5dbe`. Keep PostgreSQL, the LFL-118
+repair results/events, attempts, package content, and learner records unchanged.
