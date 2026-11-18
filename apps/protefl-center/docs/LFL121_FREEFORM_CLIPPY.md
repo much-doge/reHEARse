@@ -1,6 +1,6 @@
 # LFL-121 — Free-form teacher Ask Clippy
 
-Status: implementing.
+Status: deployed to PCT128 app service; authenticated teacher visual inspection pending.
 
 ## Rationale
 
@@ -48,6 +48,25 @@ structured, direct, indirect, playful, or logically unconventional.
    quotes, unexpected organization, access denial, and provider failure.
 4. Full checks, build, app-only deployment, health/access checks, and a runtime
    free-form canary pass.
+
+## Verification record
+
+- Commit: `5361767` (`feat(test-center): allow free-form Clippy text`).
+- Checks: focused Clippy tests (11 passed), full Vitest (59 files / 241 tests),
+  ESLint, TypeScript, diff check, and Next production build passed.
+- Deployment: PCT128 app-only image
+  `rehearse-app:536176723f79bf86628ccedcbb40c8abff17205f`, digest
+  `sha256:ed67073c96b49dcbca4a9017610c91ccef862e684be1d5fc4040480ce9d2c3f6`;
+  container running with zero restarts.
+- Runtime: `https://rehearse.najala.org/api/health` returned 200;
+  same-origin unauthenticated Clippy returned 401; foreign-origin Clippy
+  returned 403. The live `gpt-5-mini` canary returned a non-empty string note
+  under the free-form schema with `store:false` (`freeform_canary=passed`).
+- Database: app-only rollout made no migration; post-deploy checks found 147
+  diagnostic results and four Volume 1 attempts at the LFL-118 repair timestamp.
+
+The old rigid output behavior can be restored by rolling the app service back
+to `rehearse-app:ce03cde`; no database rollback is required.
 
 Rollback is app-only to `rehearse-app:ce03cde`; no database rollback or learner
 record repair may be required.
