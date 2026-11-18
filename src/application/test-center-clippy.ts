@@ -7,8 +7,8 @@ export type ClippyHint = {
 export type ClippyReviewContext = {
   section: "listening" | "structure" | "reading";
   response: "A" | "B" | "C" | "D" | null;
+  selectedResponse: string | null;
   prompt: string;
-  options: Record<"A" | "B" | "C" | "D", string>;
   sourceContext: string | null;
 };
 

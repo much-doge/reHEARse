@@ -37,6 +37,8 @@ describe("POST /api/test-center/teaching/clippy", () => {
     expect(reviewItem).toHaveBeenCalledWith("teacher", "teacher", ids.resourceId, ids.candidateActorId, ids.attemptId, "listening", "1");
     expect(hint).toHaveBeenCalledOnce();
     expect(JSON.stringify(hint.mock.calls[0][0])).not.toContain("correctAnswer");
+    expect(hint.mock.calls[0][0]).toMatchObject({ response: "A", selectedResponse: "She agreed." });
+    expect(JSON.stringify(hint.mock.calls[0][0])).not.toContain("She changed the plan.");
     expect(response.headers.get("cache-control")).toContain("no-store");
   });
 

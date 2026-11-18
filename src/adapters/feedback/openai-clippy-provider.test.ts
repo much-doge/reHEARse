@@ -5,8 +5,8 @@ import { OpenAIClippyProvider } from "./openai-clippy-provider";
 const context = {
   section: "listening" as const,
   response: "A" as const,
+  selectedResponse: "She agreed.",
   prompt: "What does the woman imply?",
-  options: { A: "She agreed.", B: "She changed the plan.", C: "She was absent.", D: "She forgot." },
   sourceContext: "Man: We can meet today.\nWoman: Actually, tomorrow would work better.",
 };
 
@@ -18,6 +18,7 @@ describe("OpenAIClippyProvider", () => {
       expect(request.text.format.name).toBe("test_center_clippy_hint");
       expect(request.text.format.schema.properties.teacherPrompt.pattern).toBe(".*\\?$");
       expect(request.input[1].content).not.toContain("correctAnswer");
+      expect(request.input[1].content).not.toContain("She changed the plan.");
       return new Response(JSON.stringify({ status: "completed", output: [{ content: [{ type: "output_text", text: JSON.stringify({ notice: "Respons yang dipilih melewatkan revisi pada \"tomorrow would work better\".", tryThis: "1) Tandai fungsi koreksi pada \"tomorrow would work better\". 2) Uji respons yang dipilih terhadap perubahan itu.", teacherPrompt: "Apa yang berubah setelah \"tomorrow would work better\"?" }) }] }] }), { status: 200 });
     });
     const provider = new OpenAIClippyProvider({ apiKey: "key", model: "model", fetchImplementation });

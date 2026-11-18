@@ -67,6 +67,10 @@ record repair may be required.
   `gpt-5-mini`; the existing general feedback path retains `OPENAI_MODEL` and
   its current model. Provider credentials, endpoint, timeout, reasoning effort,
   token cap, and `store:false` behavior are shared unchanged.
+- The provider input now includes only the learner's selected response text;
+  the other three options and answer key are withheld. This lets Clippy
+  diagnose the selection against the source while materially reducing the
+  chance of restating the correct option.
 - The existing nano model failed the real-item specificity canary on grounding,
   diagnosis, and two-step pedagogy. The isolated `gpt-5-mini` canary passed a
   real Volume 1 Listening item with grounded source cue, explicit selected-

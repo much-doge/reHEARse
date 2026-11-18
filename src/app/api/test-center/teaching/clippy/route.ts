@@ -31,8 +31,8 @@ export async function POST(request: Request) {
     const context: ClippyReviewContext = {
       section: parsed.data.section,
       response: item.question.selected,
+      selectedResponse: item.question.selected ? choices[item.question.selected] : null,
       prompt: "tokens" in item.item ? item.item.tokens.map((token) => token.text).join(" ") : item.item.prompt,
-      options: choices,
       sourceContext: "transcript" in item && item.transcript
         ? [...item.transcript.segments.map((segment) => `${segment.speaker}: ${segment.text}`), `Narrator: ${item.transcript.questionCue}`].join("\n")
         : "passage" in item && item.passage ? item.passage.lines.map((line) => line.text).join("\n") : null,
