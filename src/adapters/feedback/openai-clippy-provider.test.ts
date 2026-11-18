@@ -18,7 +18,7 @@ describe("OpenAIClippyProvider", () => {
       expect(request.text.format.name).toBe("test_center_clippy_hint");
       expect(request.text.format.schema.properties.teacherPrompt.pattern).toBe(".*\\?$");
       expect(request.input[1].content).not.toContain("correctAnswer");
-      return new Response(JSON.stringify({ status: "completed", output: [{ content: [{ type: "output_text", text: JSON.stringify({ notice: "Respons tersebut melewatkan perubahan setelah penanda kontras.", tryThis: "Tandai rencana pertama, lalu tandai waktu yang direvisi dan bandingkan hubungannya.", teacherPrompt: "Kata mana yang menandai bahwa rencana awal sedang direvisi?" }) }] }] }), { status: 200 });
+      return new Response(JSON.stringify({ status: "completed", output: [{ content: [{ type: "output_text", text: JSON.stringify({ notice: "Respons yang dipilih melewatkan revisi pada \"tomorrow would work better\".", tryThis: "1) Tandai fungsi koreksi pada \"tomorrow would work better\". 2) Uji respons yang dipilih terhadap perubahan itu.", teacherPrompt: "Apa yang berubah setelah \"tomorrow would work better\"?" }) }] }] }), { status: 200 });
     });
     const provider = new OpenAIClippyProvider({ apiKey: "key", model: "model", fetchImplementation });
     const result = await provider.hint(context);

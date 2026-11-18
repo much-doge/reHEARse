@@ -3,8 +3,8 @@ import { OpenAIClippyProvider } from "./openai-clippy-provider";
 export function createClippyProvider(environment: NodeJS.ProcessEnv = process.env) {
   if ((environment.FEEDBACK_PROVIDER ?? "template").trim().toLowerCase() !== "openai") throw new Error("Ask Clippy requires FEEDBACK_PROVIDER=openai");
   const apiKey = environment.OPENAI_API_KEY?.trim();
-  const model = environment.OPENAI_MODEL?.trim();
-  if (!apiKey || !model) throw new Error("Ask Clippy requires OPENAI_API_KEY and OPENAI_MODEL");
+  const model = environment.CLIPPY_OPENAI_MODEL?.trim() || environment.OPENAI_MODEL?.trim();
+  if (!apiKey || !model) throw new Error("Ask Clippy requires OPENAI_API_KEY and CLIPPY_OPENAI_MODEL or OPENAI_MODEL");
   return new OpenAIClippyProvider({
     apiKey,
     model,

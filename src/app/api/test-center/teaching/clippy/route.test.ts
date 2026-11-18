@@ -28,7 +28,7 @@ describe("POST /api/test-center/teaching/clippy", () => {
     vi.clearAllMocks();
     currentUser.mockResolvedValue({ id: "teacher", role: "teacher" });
     reviewItem.mockResolvedValue(item);
-    hint.mockResolvedValue({ notice: "Respons tersebut melewatkan revisi pembicara.", tryThis: "Bandingkan rencana sebelum dan sesudah penanda kontras.", teacherPrompt: "Apa yang berubah setelah penanda kontras?" });
+    hint.mockResolvedValue({ notice: "Respons yang dipilih melewatkan revisi pada \"tomorrow would work better\".", tryThis: "1) Tandai fungsi koreksi pada \"tomorrow would work better\". 2) Uji respons yang dipilih terhadap perubahan itu.", teacherPrompt: "Apa yang berubah setelah \"tomorrow would work better\"?" });
   });
 
   it("authorizes through the existing teacher review boundary and omits the key from provider context", async () => {
@@ -57,7 +57,7 @@ describe("POST /api/test-center/teaching/clippy", () => {
   });
 
   it("rejects provider output that reproduces the keyed option", async () => {
-    hint.mockResolvedValue({ notice: "She changed the plan.", tryThis: "Bandingkan kedua giliran bicara.", teacherPrompt: "Apa yang berubah?" });
+    hint.mockResolvedValue({ notice: "Respons yang dipilih tidak cocok: She changed the plan. Kutipannya \"tomorrow would work better\".", tryThis: "1) Tandai fungsi petunjuk. 2) Bandingkan kedua giliran bicara.", teacherPrompt: "Apa yang berubah setelah \"tomorrow would work better\"?" });
     const response = await POST(request(ids));
     expect(response.status).toBe(503);
     expect(await response.json()).toEqual({ error: "clippy_unavailable" });

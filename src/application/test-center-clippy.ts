@@ -32,6 +32,9 @@ export function parseClippyHint(value: unknown): ClippyHint {
     teacherPrompt: boundedText(object.teacherPrompt, 320),
   };
   if (!hint.teacherPrompt.endsWith("?")) throw new ClippyProviderError("Invalid teacher prompt", "provider_schema_invalid");
+  if (!/^1\)\s+.+\s+2\)\s+.+/i.test(hint.tryThis)) {
+    throw new ClippyProviderError("Guidance omitted the two-step teaching move", "provider_two_step_missing");
+  }
   const combined = Object.values(hint).join(" ");
   if (/\b(?:en|id)-?\d+\b|abstain-not-reveal|answoguage|placeholder/i.test(combined)) {
     throw new ClippyProviderError("Guidance contained placeholder output", "provider_placeholder_rejected");
@@ -53,6 +56,23 @@ export function assertClippyDoesNotRevealAnswer(
   }
   if (/\b(?:the )?correct answer\b|\bthe answer is\b|\bchoose (?:option |choice )?[a-d]\b|\bselect (?:option |choice )?[a-d]\b|\bjawaban(?: yang)? benar\b|\bjawabannya (?:adalah|ialah)\b|\bpilih(?:lah)? (?:opsi |jawaban )?[a-d]\b/i.test(output)) {
     throw new ClippyProviderError("Guidance answered directly", "answer_leak_rejected");
+  }
+}
+
+export function assertClippyIsSourceGrounded(hint: ClippyHint, context: Pick<ClippyReviewContext, "prompt" | "sourceContext" | "response">) {
+  const combined = Object.values(hint).join(" ");
+  const quotations = [...combined.matchAll(/["“]([^"”]+)["”]/g)].map((match) => match[1].trim());
+  const useful = quotations.filter((quotation) => normalize(quotation).split(" ").filter(Boolean).length >= 2);
+  if (!useful.length) throw new ClippyProviderError("Guidance omitted a source cue", "source_cue_missing");
+  const source = normalize([context.prompt, context.sourceContext ?? ""].join(" "));
+  if (useful.some((quotation) => !source.includes(normalize(quotation)))) {
+    throw new ClippyProviderError("Guidance invented a source cue", "source_cue_invalid");
+  }
+  const diagnosesResponse = context.response
+    ? /(respons|jawaban|pilihan) (?:yang )?(?:dipilih|diberikan)|pilihan ini/i.test(hint.notice)
+    : /(?:belum|tidak) (?:ada )?(?:respons|jawaban)|respons belum diberikan/i.test(hint.notice);
+  if (!diagnosesResponse) {
+    throw new ClippyProviderError("Guidance did not diagnose the selected response", "selected_response_diagnosis_missing");
   }
 }
 
