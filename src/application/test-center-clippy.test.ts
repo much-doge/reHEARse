@@ -3,9 +3,9 @@ import { describe, expect, it } from "vitest";
 import { assertClippyDoesNotRevealAnswer, parseClippyHint } from "./test-center-clippy";
 
 const safeHint = {
-  notice: { en: "The response treats the second speaker's contrast as agreement.", id: "Respons tersebut memperlakukan kontras dari pembicara kedua sebagai persetujuan." },
-  tryThis: { en: "Track what changes after the contrast word, then compare that change with the selected response.", id: "Lacak apa yang berubah setelah kata penanda kontras, lalu bandingkan perubahan itu dengan respons yang dipilih." },
-  teacherPrompt: { en: "What changes immediately after the second speaker signals a contrast?", id: "Apa yang berubah tepat setelah pembicara kedua menandai sebuah kontras?" },
+  notice: "Respons tersebut memperlakukan kontras dari pembicara kedua sebagai persetujuan.",
+  tryThis: "Lacak apa yang berubah setelah kata penanda kontras, lalu bandingkan perubahan itu dengan respons yang dipilih.",
+  teacherPrompt: "Apa yang berubah tepat setelah pembicara kedua menandai sebuah kontras?",
 };
 
 describe("Ask Clippy guidance contract", () => {
@@ -21,15 +21,20 @@ describe("Ask Clippy guidance contract", () => {
     "The source shows that she needs to visit the museum.",
     "Jawabannya adalah B.",
     "Pilih opsi B setelah membandingkan para pembicara.",
-  ])("rejects bilingual answer leakage: %s", (notice) => {
-    expect(() => assertClippyDoesNotRevealAnswer({ ...safeHint, notice: { ...safeHint.notice, id: notice } }, "B", "She needs to visit the museum")).toThrow(/Guidance/);
+  ])("rejects answer leakage in either language: %s", (notice) => {
+    expect(() => assertClippyDoesNotRevealAnswer({ ...safeHint, notice }, "B", "She needs to visit the museum")).toThrow(/Guidance/);
   });
 
   it("requires an open teacher question", () => {
-    expect(() => parseClippyHint({ ...safeHint, teacherPrompt: { en: "Listen for the contrast.", id: "Dengarkan kontrasnya." } })).toThrow();
+    expect(() => parseClippyHint({ ...safeHint, teacherPrompt: "Dengarkan penanda kontrasnya." })).toThrow();
   });
 
-  it("rejects monolingual guidance", () => {
-    expect(() => parseClippyHint({ ...safeHint, notice: { en: safeHint.notice.en } })).toThrow();
+  it.each(["en-01", "id02", "abstain-not-reveal-answoguage?"])("rejects placeholder artifacts: %s", (notice) => {
+    expect(() => parseClippyHint({ ...safeHint, notice })).toThrow(/placeholder/i);
+  });
+
+  it("preserves a quoted English source phrase inside Indonesian guidance", () => {
+    const withQuote = { ...safeHint, tryThis: "Dengarkan kembali frasa \"tomorrow would work better\", lalu tentukan perubahan rencananya." };
+    expect(parseClippyHint(withQuote)).toEqual(withQuote);
   });
 });

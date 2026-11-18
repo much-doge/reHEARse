@@ -138,8 +138,7 @@ type TeacherQuestionPayload = {
   };
 };
 
-type ClippyBilingualText = { en: string; id: string };
-type ClippyHint = { notice: ClippyBilingualText; tryThis: ClippyBilingualText; teacherPrompt: ClippyBilingualText };
+type ClippyHint = { notice: string; tryThis: string; teacherPrompt: string };
 
 type TeacherHighlightSegment = {
   text: string;
@@ -315,13 +314,13 @@ function AskClippy({ resourceId, candidateActorId, attemptId, section, question 
   }
   return <section className="ptc-clippy" aria-label="Ask Clippy teaching guidance">
     <div className="ptc-clippy-intro"><div><span>TEACHER PILOT</span><strong>Ask Clippy</strong><p>Get a show-don’t-tell teaching hint without revealing the answer.</p></div><button type="button" onClick={() => void ask()} disabled={busy}>{busy ? "Thinking…" : hint ? "Ask again" : "Ask Clippy"}</button></div>
-    {hint && <div className="ptc-clippy-hint" role="status"><ClippyField label="What to notice" value={hint.notice} /><ClippyField label="Try this" value={hint.tryThis} /><ClippyField label="Teacher prompt" value={hint.teacherPrompt} /></div>}
+    {hint && <div className="ptc-clippy-hint" role="status" lang="id"><ClippyField label="What to notice" value={hint.notice} /><ClippyField label="Try this" value={hint.tryThis} /><ClippyField label="Teacher prompt" value={hint.teacherPrompt} /></div>}
     {message && <p className="ptc-clippy-message" role="status">{message}</p>}
   </section>;
 }
 
-function ClippyField({ label, value }: { label: string; value: ClippyBilingualText }) {
-  return <div><b>{label}</b><div className="ptc-clippy-languages"><p><span>EN</span>{value.en}</p><p lang="id"><span>ID</span>{value.id}</p></div></div>;
+function ClippyField({ label, value }: { label: string; value: string }) {
+  return <div><b>{label}</b><p>{value}</p></div>;
 }
 
 function TeacherQuestionReveal({ item, resourceId, candidateActorId, attemptId }: { item: ReviewItem; resourceId: string; candidateActorId: string; attemptId: string }) {

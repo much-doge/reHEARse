@@ -1,9 +1,7 @@
-export type ClippyBilingualText = { en: string; id: string };
-
 export type ClippyHint = {
-  notice: ClippyBilingualText;
-  tryThis: ClippyBilingualText;
-  teacherPrompt: ClippyBilingualText;
+  notice: string;
+  tryThis: string;
+  teacherPrompt: string;
 };
 
 export type ClippyReviewContext = {
@@ -29,11 +27,15 @@ export function parseClippyHint(value: unknown): ClippyHint {
   if (!value || typeof value !== "object") throw new ClippyProviderError("Invalid guidance", "provider_schema_invalid");
   const object = value as Record<string, unknown>;
   const hint = {
-    notice: bilingualText(object.notice, 360),
-    tryThis: bilingualText(object.tryThis, 360),
-    teacherPrompt: bilingualText(object.teacherPrompt, 280),
+    notice: boundedText(object.notice, 420),
+    tryThis: boundedText(object.tryThis, 420),
+    teacherPrompt: boundedText(object.teacherPrompt, 320),
   };
-  if (!hint.teacherPrompt.en.endsWith("?") || !hint.teacherPrompt.id.endsWith("?")) throw new ClippyProviderError("Invalid teacher prompt", "provider_schema_invalid");
+  if (!hint.teacherPrompt.endsWith("?")) throw new ClippyProviderError("Invalid teacher prompt", "provider_schema_invalid");
+  const combined = Object.values(hint).join(" ");
+  if (/\b(?:en|id)-?\d+\b|abstain-not-reveal|answoguage|placeholder/i.test(combined)) {
+    throw new ClippyProviderError("Guidance contained placeholder output", "provider_placeholder_rejected");
+  }
   return hint;
 }
 
@@ -42,7 +44,7 @@ export function assertClippyDoesNotRevealAnswer(
   correctAnswer: "A" | "B" | "C" | "D",
   correctOption: string,
 ) {
-  const output = normalize(Object.values(hint).flatMap((field) => [field.en, field.id]).join(" "));
+  const output = normalize(Object.values(hint).join(" "));
   const directAnswer = new RegExp(`\\b(?:answer|option|choice)\\s*(?:is|:|=)?\\s*${correctAnswer.toLowerCase()}\\b|\\b${correctAnswer.toLowerCase()}\\s+is\\s+(?:correct|right)\\b`, "i");
   if (directAnswer.test(output)) throw new ClippyProviderError("Guidance disclosed the key", "answer_leak_rejected");
   const keyedText = normalize(correctOption);
@@ -52,12 +54,6 @@ export function assertClippyDoesNotRevealAnswer(
   if (/\b(?:the )?correct answer\b|\bthe answer is\b|\bchoose (?:option |choice )?[a-d]\b|\bselect (?:option |choice )?[a-d]\b|\bjawaban(?: yang)? benar\b|\bjawabannya (?:adalah|ialah)\b|\bpilih(?:lah)? (?:opsi |jawaban )?[a-d]\b/i.test(output)) {
     throw new ClippyProviderError("Guidance answered directly", "answer_leak_rejected");
   }
-}
-
-function bilingualText(value: unknown, maximum: number): ClippyBilingualText {
-  if (!value || typeof value !== "object") throw new ClippyProviderError("Invalid bilingual guidance", "provider_schema_invalid");
-  const object = value as Record<string, unknown>;
-  return { en: boundedText(object.en, maximum), id: boundedText(object.id, maximum) };
 }
 
 function boundedText(value: unknown, maximum: number) {

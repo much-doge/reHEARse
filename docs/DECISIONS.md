@@ -790,3 +790,20 @@ immutable; an active legacy attempt may be archived with an explicit system
 transition before a new v4 attempt is made. Private and classroom assignment
 ownership checks remain unchanged, and teacher reset applies to the complete
 deck scheduling lineage while preserving prior history.
+
+## D050 — Indonesian Ask Clippy guidance with source-faithful English (LFL-119)
+
+This decision creates a narrow teacher-only exception to D029's English-only
+presentation rule for the experimental Ask Clippy guidance body. Test Center
+navigation, labels, controls, questions, options, transcripts, passages, and
+all candidate interfaces remain English. The generated pedagogical explanation
+is written in Bahasa Indonesia so teachers can evaluate and use it directly.
+
+English may appear inside that guidance only when a phrase or sentence is
+quoted verbatim from the current question, transcript, passage, reference,
+dictionary entry, or a clearly introduced language example. Preserve those
+source words rather than translating or silently altering them; keep the
+surrounding explanation and teaching move in Indonesian. The exception does
+not authorize bilingual duplication, candidate-facing Indonesian, answer-key
+disclosure, option elimination, persistence, or expansion beyond the current
+teacher-only question review pilot.

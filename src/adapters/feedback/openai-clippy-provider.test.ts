@@ -16,15 +16,13 @@ describe("OpenAIClippyProvider", () => {
       const request = JSON.parse(String(init?.body));
       expect(request.store).toBe(false);
       expect(request.text.format.name).toBe("test_center_clippy_hint");
-      expect(request.text.format.schema.properties.teacherPrompt.properties.en.pattern).toBe(".*\\?$");
-      expect(request.text.format.schema.properties.teacherPrompt.properties.id.pattern).toBe(".*\\?$");
+      expect(request.text.format.schema.properties.teacherPrompt.pattern).toBe(".*\\?$");
       expect(request.input[1].content).not.toContain("correctAnswer");
-      return new Response(JSON.stringify({ status: "completed", output: [{ content: [{ type: "output_text", text: JSON.stringify({ notice: { en: "The response misses a change after a contrast cue.", id: "Respons tersebut melewatkan perubahan setelah penanda kontras." }, tryThis: { en: "Mark the first plan, then mark the revised time and compare the relationship.", id: "Tandai rencana pertama, lalu tandai waktu yang direvisi dan bandingkan hubungannya." }, teacherPrompt: { en: "Which word signals that the original plan is being revised?", id: "Kata mana yang menandai bahwa rencana awal sedang direvisi?" } }) }] }] }), { status: 200 });
+      return new Response(JSON.stringify({ status: "completed", output: [{ content: [{ type: "output_text", text: JSON.stringify({ notice: "Respons tersebut melewatkan perubahan setelah penanda kontras.", tryThis: "Tandai rencana pertama, lalu tandai waktu yang direvisi dan bandingkan hubungannya.", teacherPrompt: "Kata mana yang menandai bahwa rencana awal sedang direvisi?" }) }] }] }), { status: 200 });
     });
     const provider = new OpenAIClippyProvider({ apiKey: "key", model: "model", fetchImplementation });
     const result = await provider.hint(context);
-    expect(result.teacherPrompt.en).toMatch(/\?$/);
-    expect(result.teacherPrompt.id).toMatch(/\?$/);
+    expect(result.teacherPrompt).toMatch(/\?$/);
   });
 
   it("fails closed on malformed provider output", async () => {

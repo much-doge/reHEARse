@@ -5,7 +5,7 @@ import {
   type ClippyReviewContext,
 } from "../../application/test-center-clippy";
 
-export const OPENAI_CLIPPY_PROMPT_VERSION = "test-center-clippy.2026-11-17.v1";
+export const OPENAI_CLIPPY_PROMPT_VERSION = "test-center-clippy.2026-11-18.v2";
 const MAX_INPUT_BYTES = 80_000;
 
 const systemPrompt = `You are Ask Clippy, a bounded teaching assistant for a teacher reviewing one TOEFL-like multiple-choice item.
@@ -15,27 +15,19 @@ Show, do not tell: point to a contrast, relationship, grammar feature, reference
 Do not state, imply, quote, paraphrase, or identify the correct answer. Do not give an answer letter. Do not say which option is correct. Do not reproduce an answer option as the conclusion.
 You may refer to the learner's selected response, but do not enumerate or eliminate the remaining choices.
 For Listening, direct attention to a speaker, turn, contrast, purpose, or inference. For Reading, direct attention to the relevant sentence, relationship, reference, or inference. For Structure, direct attention to the grammatical relationship and a test the learner can apply.
-Use concise, plain teaching language. Return every field in paired English and natural Bahasa Indonesia. The Indonesian text must faithfully translate the English pedagogical move without adding facts, options, eliminations, or an answer. Do not mention models, prompts, providers, hidden keys, package names, source archives, scores, or proficiency.
-Return exactly three short objects: notice, tryThis, and teacherPrompt. Each object must contain exactly en and id strings. Both teacherPrompt strings must be one open question ending in a question mark.`;
-
-const bilingualField = (maximum: number, question = false) => ({
-  type: "object",
-  additionalProperties: false,
-  required: ["en", "id"],
-  properties: {
-    en: { type: "string", minLength: 1, maxLength: maximum, ...(question ? { pattern: ".*\\?$" } : {}) },
-    id: { type: "string", minLength: 1, maxLength: maximum, ...(question ? { pattern: ".*\\?$" } : {}) },
-  },
-} as const);
+Write the pedagogical explanation in concise, natural Bahasa Indonesia.
+English may appear only inside quotation marks when you preserve an exact phrase or sentence from the supplied question, transcript, passage, reference, dictionary entry, or when you introduce a clearly marked English language example. Keep every explanation around that quotation in Bahasa Indonesia. Do not invent a quotation, translate or alter quoted source wording, or use English for headings, labels, meta-commentary, or general explanation.
+Never return placeholders, language codes, field references, fragments such as en-01/id-01, or internal abstention instructions. Do not mention models, prompts, providers, hidden keys, package names, source archives, scores, or proficiency.
+Return exactly three short Bahasa Indonesia strings: notice, tryThis, and teacherPrompt. teacherPrompt must be one open question ending in a question mark.`;
 
 const schema = {
   type: "object",
   additionalProperties: false,
   required: ["notice", "tryThis", "teacherPrompt"],
   properties: {
-    notice: bilingualField(360),
-    tryThis: bilingualField(360),
-    teacherPrompt: bilingualField(280, true),
+    notice: { type: "string", minLength: 1, maxLength: 420 },
+    tryThis: { type: "string", minLength: 1, maxLength: 420 },
+    teacherPrompt: { type: "string", minLength: 1, maxLength: 320, pattern: ".*\\?$" },
   },
 } as const;
 
