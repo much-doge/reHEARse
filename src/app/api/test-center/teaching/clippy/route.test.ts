@@ -28,7 +28,7 @@ describe("POST /api/test-center/teaching/clippy", () => {
     vi.clearAllMocks();
     currentUser.mockResolvedValue({ id: "teacher", role: "teacher" });
     reviewItem.mockResolvedValue(item);
-    hint.mockResolvedValue({ notice: "Respons yang dipilih melewatkan revisi pada \"tomorrow would work better\".", tryThis: "1) Tandai fungsi koreksi pada \"tomorrow would work better\". 2) Uji respons yang dipilih terhadap perubahan itu.", teacherPrompt: "Apa yang berubah setelah \"tomorrow would work better\"?" });
+    hint.mockResolvedValue({ text: "Clippy melihat satu petunjuk kecil: \"tomorrow would work better\". Coba gunakan pertanyaan Anda sendiri untuk mengajak siswa menelusurinya." });
   });
 
   it("authorizes through the existing teacher review boundary and omits the key from provider context", async () => {
@@ -58,10 +58,10 @@ describe("POST /api/test-center/teaching/clippy", () => {
     expect(hint).not.toHaveBeenCalled();
   });
 
-  it("rejects provider output that reproduces the keyed option", async () => {
-    hint.mockResolvedValue({ notice: "Respons yang dipilih tidak cocok: She changed the plan. Kutipannya \"tomorrow would work better\".", tryThis: "1) Tandai fungsi petunjuk. 2) Bandingkan kedua giliran bicara.", teacherPrompt: "Apa yang berubah setelah \"tomorrow would work better\"?" });
+  it("accepts unconventional free-form provider text", async () => {
+    hint.mockResolvedValue({ text: "Clippy boleh memilih bentuk lain—misalnya catatan pendek, pertanyaan, atau contoh." });
     const response = await POST(request(ids));
-    expect(response.status).toBe(503);
-    expect(await response.json()).toEqual({ error: "clippy_unavailable" });
+    expect(response.status).toBe(200);
+    expect((await response.json()).hint.text).toContain("Clippy");
   });
 });

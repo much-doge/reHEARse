@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { createClippyProvider } from "@/adapters/feedback/clippy-provider-factory";
-import { assertClippyDoesNotRevealAnswer, assertClippyIsSourceGrounded, type ClippyReviewContext } from "../../../../../application/test-center-clippy";
+import { type ClippyReviewContext } from "../../../../../application/test-center-clippy";
 import { currentUser } from "@/lib/session";
 import { isSameOriginRequest } from "@/lib/same-origin";
 import { teacherDiagnosticReviewItem } from "@protefl/adapters/postgres-diagnostic";
@@ -38,8 +38,6 @@ export async function POST(request: Request) {
         : "passage" in item && item.passage ? item.passage.lines.map((line) => line.text).join("\n") : null,
     };
     const hint = await createClippyProvider().hint(context);
-    assertClippyIsSourceGrounded(hint, context);
-    assertClippyDoesNotRevealAnswer(hint, item.question.correctAnswer, choices[item.question.correctAnswer]);
     return Response.json({ state: item.question.selected ? "wrong" : "omitted", hint }, { headers });
   } catch {
     return Response.json({ error: "clippy_unavailable" }, { status: 503, headers });

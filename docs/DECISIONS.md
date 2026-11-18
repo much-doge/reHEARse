@@ -807,3 +807,20 @@ surrounding explanation and teaching move in Indonesian. The exception does
 not authorize bilingual duplication, candidate-facing Indonesian, answer-key
 disclosure, option elimination, persistence, or expansion beyond the current
 teacher-only question review pilot.
+
+## D051 — Free-form teacher Ask Clippy pilot output (LFL-121)
+
+This decision supersedes LFL-120's generated-output shape and semantic gates
+for the teacher-only Ask Clippy pilot. The model may return one free-form text
+note in Bahasa Indonesia, including whatever structure, examples, quotations,
+questions, or teaching voice it judges useful. The application requires only a
+non-empty bounded text response and does not impose a quotation, two-step,
+language, grounding, answer-leak, or field-schema rule on that text.
+
+The server still enforces teacher/admin role, same-origin, assignment/resource/
+candidate/attempt/question ownership, minimized current-item context,
+provider timeout, `store:false`, no credentials or logs, and no persistence.
+The provider does not receive the answer key or unselected options. Candidate
+interfaces and learner records remain unaffected. This is an intentionally
+bounded teacher experiment; teachers remain responsible for judging the note
+before using it with a learner.
