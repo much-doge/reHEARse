@@ -1,6 +1,6 @@
 # LFL-120 — Specific Ask Clippy pedagogy and character
 
-Status: source complete; deployment pending.
+Status: deployed to PCT128; authenticated teacher visual inspection pending.
 
 ## Problem
 
@@ -81,5 +81,34 @@ record repair may be required.
 - No database, route authorization, candidate UI/DTO, package, transcript,
   attempt, result, score, retry, or LFL-118 repair data changed.
 
-Deployment, final runtime real-item canary, authenticated teacher visual review,
-and classroom verification remain pending.
+## Deployment
+
+- Initial source commit/image: `bc673b5` / `rehearse-app:bc673b5`. The first
+  runtime response met grounding, diagnosis, and two-step requirements but
+  reproduced the keyed option text. The server-side key guard would have
+  rejected it; it was not accepted as rollout evidence.
+- Follow-up commit `ce03cde` removed all unselected options from provider input.
+  The model now receives only the selected response text plus the authorized
+  question/source context; the key remains server-only for post-generation
+  rejection.
+- Final release tree: `/opt/rehearse/.releases/ce03cde`.
+- Final app image: `rehearse-app:ce03cde`; image ID
+  `sha256:37bdf9cc74121d211fcbf3300f32406681bb48a9ac9f5366e5d2b18088a4a7e7`.
+- Production confirms `CLIPPY_OPENAI_MODEL=gpt-5-mini`; the general
+  `OPENAI_MODEL` remains different and unchanged.
+- The final real-item runtime canary passed: exact source grounding, explicit
+  selected-response diagnosis, visible two-step move, no answer leak, correct
+  option withheld, and `store:false`. Validation output did not print the
+  generated protected guidance.
+- Only the app service was recreated. App and PostgreSQL are healthy with zero
+  restarts; LAN/public health returned HTTP 200. Unauthenticated Ask Clippy is
+  401 and foreign-origin is 403.
+- PostgreSQL retained container ID
+  `b8d72c028dc252b4d53fb7df208e51ca9d0c7af99ea6d87fb7618095603b03e3`;
+  no migration or write occurred, and all four LFL-118 repairs remain present.
+- No authenticated teacher browser session was available. Refreshing the page,
+  pressing **Ask again**, and judging the visible character/pedagogy remains an
+  operator check; classroom verification is not claimed.
+
+Rollback is app-only to `rehearse-app:0b0c64a`. Keep PostgreSQL, attempts,
+results, packages, transcripts, scores, and LFL-118 repair evidence unchanged.
